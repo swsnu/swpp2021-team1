@@ -10,7 +10,7 @@ export default function Friend(props : FriendProps) {
     return (
         <div>
             <div>Profile Image : {props.user.profilePicture}</div>
-            <div>NickName : {props.user.nickName}</div>
+            <div>Nickname : {props.user.nickname}</div>
         </div>
     )
 }

@@ -1,14 +1,14 @@
 interface User {
-    nickName : string;
-    name : string;
+    nickname : string;
+    username : string;
     email : string;
     password : string;
     profilePicture : string;
 }
 
 interface DummyUser {
-    nickName : string;
-    name : string;
+    nickname : string;
+    username : string;
     profilePicture : string;
 }
 

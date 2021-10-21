@@ -5,6 +5,7 @@ import { DummyUser, User } from "../../Interfaces";
 import { Redirect } from "react-router-dom";
 import * as actionCreator from "../../store/slice/UserSlice"
 import { Form, Button } from "react-bootstrap";
+import SignUp from "./popup/SignUp";
 
 interface LogInProps {
 
@@ -13,6 +14,7 @@ interface LogInProps {
 export default function LogIn(props: LogInProps) {
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
+    const [signupModalShow, setSignupModalShow] = useState<boolean>(false);
     const dispatch = useDispatch<StoreDispatch>();
     const [account, isLoading, hasError] =
         useSelector<StoreState, [User | null, DummyUser | null, DummyUser[], boolean, boolean]>(state =>
@@ -22,11 +24,15 @@ export default function LogIn(props: LogInProps) {
         dispatch(actionCreator.logIn({ email, password }));
     }
 
+    function onModalClose() {
+        setSignupModalShow(false);
+    }
+
     //error 처리 필요
     if (isLoading && !hasError) return null;
     return (
         <div>
-            {account && <Redirect to={`/main/${account.nickName}`} />}
+            {account && <Redirect to={`/main/${account.nickname}`} />}
             <Form>
                 <Form.Group className="mb-3" controlId="formBasicEmail">
                     <Form.Label>Email</Form.Label>
@@ -37,10 +43,16 @@ export default function LogIn(props: LogInProps) {
                     <Form.Control value={password} type="password" onChange={event => setPassword(event.target.value)} />
                 </Form.Group>
                 <Button onClick={onLogIn} disabled={email === "" || password === ""} variant="primary">Log In</Button>
-                <Button variant="outline-primary">Sign Up!</Button>{/*TODO : Modal SignUp.tsx with onClick*/}
-                <Button variant="link">Forgot Password?</Button>{/*TODO : Modal RestorePassword.tsx with onClick*/}
             </Form>
-            
+            <div id="signup">
+                <Button onClick={() => setSignupModalShow(true)} variant="outline-primary">
+                    Sign Up!
+                </Button>
+            </div>
+            <SignUp show={signupModalShow} onModalClose={onModalClose} />
+            <Button variant="link">Forgot Password?</Button>
+            {/*TODO : Modal RestorePassword.tsx with onClick*/}
+        
         </div>
     )
 

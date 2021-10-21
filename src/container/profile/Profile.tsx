@@ -29,17 +29,17 @@ export default function Profile(props : ProfileProps) {
     if (isLoading && !hasError) return null;
     return (
         <div>
-            {!isLoading && hasError && (!account ? <Redirect to='login'/> : <Redirect to={`/main/${account.nickName}`}/>)}
+            {!isLoading && hasError && (!account ? <Redirect to='login'/> : <Redirect to={`/main/${account.nickname}`}/>)}
             {/*Make Component with currentUser*/}
             <div>Profile Image : {currentUser?.profilePicture}</div>
-            <div>NickName : {currentUser?.nickName}</div>
-            <div>Name : {currentUser?.name}</div>
-            {account?.nickName === currentUser?.name && <button
-                onClick={() => history.push(`/main/${currentUser?.name}/setting`)}>
+            <div>Nickname : {currentUser?.nickname}</div>
+            <div>Username : {currentUser?.username}</div>
+            {account?.nickname === currentUser?.username && <button
+                onClick={() => history.push(`/main/${currentUser?.username}/setting`)}>
                 Setting
             </button>}
             <div>Friends</div>
-            {friends.map(value => <React.Fragment key={value.nickName}><Friend user={value}/></React.Fragment>)}
+            {friends.map(value => <React.Fragment key={value.nickname}><Friend user={value}/></React.Fragment>)}
             <button onClick={() => setCurrentTab("Post")}
                     disabled={currentTab === 'Post'}>Post</button>
             <button onClick={() => setCurrentTab("Repo")}

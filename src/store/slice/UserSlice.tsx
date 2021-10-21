@@ -26,8 +26,8 @@ export const signUp = createAsyncThunk<User, User>(
 
 export const getUser = createAsyncThunk<{user : DummyUser, friends : DummyUser[]}, string>(
     'users/getUser',
-    async (nickName, thunkAPI) => {
-        const response = await fetchDummy(nickName);
+    async (nickname, thunkAPI) => {
+        const response = await fetchDummy(nickname);
         return response.data;
     }
 )
