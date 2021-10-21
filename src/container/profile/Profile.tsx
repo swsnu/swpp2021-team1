@@ -29,17 +29,17 @@ export default function Profile(props : ProfileProps) {
     if (isLoading && !hasError) return null;
     return (
         <div>
-            {!isLoading && hasError && (!account ? <Redirect to='login'/> : <Redirect to={`/main/${account.nickname}`}/>)}
+            {!isLoading && hasError && (!account ? <Redirect to='login'/> : <Redirect to={`/main/${account.realName}`}/>)}
             {/*Make Component with currentUser*/}
             <div>Profile Image : {currentUser?.profilePicture}</div>
-            <div>Nickname : {currentUser?.nickname}</div>
+            <div>RealName : {currentUser?.realName}</div>
             <div>Username : {currentUser?.username}</div>
-            {account?.nickname === currentUser?.username && <button
+            {account?.realName === currentUser?.username && <button
                 onClick={() => history.push(`/main/${currentUser?.username}/setting`)}>
                 Setting
             </button>}
             <div>Friends</div>
-            {friends.map(value => <React.Fragment key={value.nickname}><Friend user={value}/></React.Fragment>)}
+            {friends.map(value => <React.Fragment key={value.realName}><Friend user={value}/></React.Fragment>)}
             <button onClick={() => setCurrentTab("Post")}
                     disabled={currentTab === 'Post'}>Post</button>
             <button onClick={() => setCurrentTab("Repo")}

@@ -1,5 +1,5 @@
 interface User {
-    nickname : string;
+    realName : string;
     username : string;
     email : string;
     password : string;
@@ -7,7 +7,7 @@ interface User {
 }
 
 interface DummyUser {
-    nickname : string;
+    realName : string;
     username : string;
     profilePicture : string;
 }

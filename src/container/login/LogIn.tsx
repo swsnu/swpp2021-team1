@@ -32,7 +32,7 @@ export default function LogIn(props: LogInProps) {
     if (isLoading && !hasError) return null;
     return (
         <div>
-            {account && <Redirect to={`/main/${account.nickname}`} />}
+            {account && <Redirect to={`/main/${account.realName}`} />}
             <Form>
                 <Form.Group className="mb-3" controlId="formBasicEmail">
                     <Form.Label>Email</Form.Label>
@@ -45,11 +45,9 @@ export default function LogIn(props: LogInProps) {
                 <Button onClick={onLogIn} disabled={email === "" || password === ""} variant="primary">Log In</Button>
             </Form>
             <div id="signup">
-                <Button onClick={() => setSignupModalShow(true)} variant="outline-primary">
-                    Sign Up!
-                </Button>
+                <Button onClick={() => setSignupModalShow(true)} variant="outline-primary">Sign Up!</Button>
+                <SignUp show={signupModalShow} onModalClose={onModalClose} />
             </div>
-            <SignUp show={signupModalShow} onModalClose={onModalClose} />
             <Button variant="link">Forgot Password?</Button>
             {/*TODO : Modal RestorePassword.tsx with onClick*/}
         

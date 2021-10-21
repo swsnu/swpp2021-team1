@@ -3,17 +3,20 @@ import {useDispatch, useSelector} from "react-redux";
 import * as actionCreators from "../../../store/slice/UserSlice"
 import {StoreDispatch, StoreState} from "../../../store/Store";
 import React from "react";
+import ReactDOM from 'react-dom'
 import { Modal, Button, Form } from "react-bootstrap";
+import {User} from "../../Interfaces";
+import { fetchAllUsers } from "../../../store/api/APIs";
 
 interface SignUpProps {
     show: boolean
-    onModalClose: () => {}
+    onModalClose: {(): void}
 }
 
 export default function SignUp(props : SignUpProps) {
     const [email, setEmail] = useState<string>("");
-    const [nickname, setNickname] = useState<string>("");
-    const [username, setUserName] = useState<string>("");
+    const [realName, setRealName] = useState<string>("");
+    const [username, setUsername] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [canUse, setCanUse] = useState<boolean|null|undefined>(undefined);
     //해당 닉네임을 이용할 수 있는지 확인하는 state
@@ -23,7 +26,12 @@ export default function SignUp(props : SignUpProps) {
 
     function onCheck() {
         setCanUse(null);
+
+        // dummy data
         /*TODO : request api server to check duplication*/
+        //아아아ㅏㅏ 타입스크립트 어렵다...
+        const userList = fetchAllUsers().data;
+        if (userList.find(user:User => user.username === username))
     }
 
     function onSignUp() {
@@ -36,7 +44,7 @@ export default function SignUp(props : SignUpProps) {
         //     flag = false;
         // }
 
-        if (!/^[a-zA-Z\d][_]+$/.test(nickname)) {
+        if (!/^[a-zA-Z\d][_]+$/.test(realName)) {
             //TODO
             flag = false;
         }
@@ -49,11 +57,13 @@ export default function SignUp(props : SignUpProps) {
             flag = false;
         }
         if (!flag || canUse !== true) return;
-        dispatch(actionCreators.signUp({email : email, nickname : nickname, username : username, password : password, profilePicture : 'default'}));
+        dispatch(actionCreators.signUp({email : email, realName : realName, username : username, password : password, profilePicture : 'default'}));
     }
 
+    // 테스트 위해 잠깐 주석처리함
     //error에 대한 처리 필요
-    if (isLoading && !hasError) return null;
+    // if (isLoading && !hasError) return null;
+
     return (
     <Modal show={props.show} onHide={() => props.onModalClose}>
         <Modal.Header closeButton>
@@ -65,24 +75,25 @@ export default function SignUp(props : SignUpProps) {
                     <Form.Label>Email</Form.Label>
                     <Form.Control type="email" value={email} onChange={e => setEmail(e.target.value)}/>
                 </Form.Group>
-                <Form.Group className="mb-3" controlId="formBasicNickname">
-                    <Form.Label>Nickname</Form.Label>
-                    <Form.Control type="text" value={nickname} onChange={e => setNickname(e.target.value)} />
-                    <button onClick={onCheck}>Check Duplicated Nickname</button>
+                <Form.Group className="mb-3" controlId="formBasicUsername">
+                    <Form.Label>Username</Form.Label>
+                    <Form.Control type="text" value={username} onChange={e => setUsername(e.target.value)}/>
+                    <button onClick={onCheck}>Check Duplicated Username</button>
                     <Form.Text className="text-muted">
-                        {canUse === true ? 'Acceptable Nickname' :
-                        canUse === false ? 'Duplicated Nickname' :
+                        {canUse === true ? 'OK!' :
+                        canUse === false ? `${username} already taken` :
                         canUse === null ? 'Loading...' : 'Duplication Check Please'}
                     </Form.Text>
                 </Form.Group>
-                <Form.Group>
-                    <Form.Label>Name</Form.Label>
-
+                <Form.Group className="mb-3" controlId="formBasicRealName">
+                    <Form.Label>Full Name</Form.Label>
+                    <Form.Control type="text" value={realName} onChange={e => setRealName(e.target.value)} />
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="formBasicPassword">
+                    <Form.Label>Password</Form.Label>
+                    <Form.Control type="password" value={password} onChange={e => setPassword(e.target.value)} />
                 </Form.Group>
             </Form>
-                
-                <div>Name :  <input value={username} type={"text"} onChange={event => setName(event.target.value)}/></div>
-                <div>Password :  <input value={password} type={"text"} onChange={event => setPassword(event.target.value)}/></div>
         </Modal.Body>
         <Modal.Footer>
             <Button variant="primary" onClick={onSignUp}>Confirm</Button>

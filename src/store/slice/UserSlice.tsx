@@ -5,7 +5,7 @@ import {
     SliceCaseReducers
 } from "@reduxjs/toolkit";
 import {DummyUser, User} from "../../Interfaces";
-import {createUser, fetchDummy, fetchUser} from "../api/APIs";
+import {createUser, fetchAllUsers, fetchDummy, fetchUser} from "../api/APIs";
 import {AsyncThunkFulfilledActionCreator} from "@reduxjs/toolkit/dist/createAsyncThunk";
 
 export const logIn = createAsyncThunk<{user : User, friends : DummyUser[]}, {email : string, password : string}>(
@@ -26,8 +26,8 @@ export const signUp = createAsyncThunk<User, User>(
 
 export const getUser = createAsyncThunk<{user : DummyUser, friends : DummyUser[]}, string>(
     'users/getUser',
-    async (nickname, thunkAPI) => {
-        const response = await fetchDummy(nickname);
+    async (realName, thunkAPI) => {
+        const response = await fetchDummy(realName);
         return response.data;
     }
 )
