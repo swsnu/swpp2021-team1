@@ -1,10 +1,10 @@
 import { configureStore }from '@reduxjs/toolkit'
-import userReducer, {UsersState} from '../features/auth/authSlice'
+import authReducer, {AuthState} from '../features/auth/authSlice'
 import {CombinedState} from "redux";
 
 const store = configureStore({
     reducer: {
-        users : userReducer,
+        auth: authReducer,
         /*
         repositories : filtersReducer,
         posts :

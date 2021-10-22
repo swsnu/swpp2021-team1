@@ -10,7 +10,7 @@ import { fetchAllUsers } from "../../../../common/APIs";
 
 interface SignUpProps {
     show: boolean
-    onModalClose: {(): void}
+    onModalClose: () => void
 }
 
 export default function SignUp(props : SignUpProps) {
@@ -22,23 +22,20 @@ export default function SignUp(props : SignUpProps) {
     //해당 닉네임을 이용할 수 있는지 확인하는 state
     const dispatch = useDispatch<AppDispatch>();
     const [isLoading, hasError] = useSelector<RootState, [boolean, boolean]>(state =>
-        [state.users.isLoading, state.users.hasError]);
+        [state.auth.isLoading, state.auth.hasError]);
+
 
     useEffect(() => {
-        if (canUse === null) {
+        if (username === '') setCanUse(undefined);
+        else {
             const checkUsernameDup = async () => {
                 const userList = await fetchAllUsers();
-                if (userList.find((user:User) => user.username === username)) setCanUse(false);
+                if (userList.find((user) => user.username === username)) setCanUse(false);
                 else setCanUse(true);
             }
             checkUsernameDup();
         }
-
-    }, [canUse]);
-
-    function onCheck() {
-        setCanUse(null);
-    }
+    }, [username]);
 
     function onSignUp() {
         /*정규표현식으로 signup 형식 지정(hw2 참조)*/
@@ -71,31 +68,30 @@ export default function SignUp(props : SignUpProps) {
     // if (isLoading && !hasError) return null;
 
     return (
-    <Modal show={props.show} onHide={() => props.onModalClose}>
+    <Modal show={props.show} onHide={props.onModalClose}>
         <Modal.Header closeButton>
             <Modal.Title>Sign up a new account</Modal.Title>
         </Modal.Header>
         <Modal.Body>
             <Form>
-                <Form.Group className="mb-3" controlId="formBasicEmail">
+                <Form.Group className="mb-3">
                     <Form.Label>Email</Form.Label>
                     <Form.Control type="email" value={email} onChange={e => setEmail(e.target.value)}/>
                 </Form.Group>
-                <Form.Group className="mb-3" controlId="formBasicUsername">
+                <Form.Group className="mb-3">
                     <Form.Label>Username</Form.Label>
                     <Form.Control type="text" value={username} onChange={e => setUsername(e.target.value)}/>
-                    <button onClick={onCheck}>Check Duplicated Username</button>
                     <Form.Text className="text-muted">
                         {canUse === true ? 'OK!' :
                         canUse === false ? `${username} is already taken` :
-                        canUse === null ? 'Loading...' : 'Duplication Check Please'}
+                        canUse === null ? <br /> : <br />}
                     </Form.Text>
                 </Form.Group>
-                <Form.Group className="mb-3" controlId="formBasicRealName">
+                <Form.Group className="mb-3">
                     <Form.Label>Full Name</Form.Label>
                     <Form.Control type="text" value={realName} onChange={e => setRealName(e.target.value)} />
                 </Form.Group>
-                <Form.Group className="mb-3" controlId="formBasicPassword">
+                <Form.Group className="mb-3">
                     <Form.Label>Password</Form.Label>
                     <Form.Control type="password" value={password} onChange={e => setPassword(e.target.value)} />
                 </Form.Group>
