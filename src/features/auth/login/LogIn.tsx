@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { StoreDispatch, StoreState } from "../../store/Store";
-import { DummyUser, User } from "../../Interfaces";
+import { useAppDispatch, useAppSelector } from "../../../app/hooks";
+import { AppDispatch, RootState } from "../../../app/store";
+import { DummyUser, User } from "../../../common/Interfaces";
 import { Redirect } from "react-router-dom";
-import * as actionCreator from "../../store/slice/UserSlice"
+import * as actionCreator from "../authSlice"
 import { Form, Button } from "react-bootstrap";
 import SignUp from "./popup/SignUp";
 
@@ -15,9 +15,9 @@ export default function LogIn(props: LogInProps) {
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [signupModalShow, setSignupModalShow] = useState<boolean>(false);
-    const dispatch = useDispatch<StoreDispatch>();
+    const dispatch = useAppDispatch();
     const [account, isLoading, hasError] =
-        useSelector<StoreState, [User | null, DummyUser | null, DummyUser[], boolean, boolean]>(state =>
+    useAppSelector(state =>
             [state.users.account, state.users.currentUser, state.users.friends, state.users.isLoading, state.users.hasError]);
 
     function onLogIn() {

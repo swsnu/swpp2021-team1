@@ -1,5 +1,5 @@
 import React from "react";
-import {DummyUser} from "../../Interfaces";
+import {DummyUser} from "../../common/Interfaces";
 
 interface FriendProps {
     user : DummyUser;

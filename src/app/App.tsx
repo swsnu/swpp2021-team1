@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter, Route, Redirect, Switch } from 'react-router-dom';
-import LogIn from "./container/login/LogIn";
-import Profile from "./container/profile/Profile";
-import ProfileSetting from "./container/profile/ProfileSetting";
+import LogIn from "../features/auth/login/LogIn";
+import Profile from "../features/profile/Profile";
+import ProfileSetting from "../features/profile/ProfileSetting";
 
 export default function App() {
     return (

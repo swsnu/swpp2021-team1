@@ -1,11 +1,11 @@
 import React from "react"
 import { useDispatch, useSelector } from 'react-redux';
-import {StoreDispatch, StoreState} from "../../store/Store";
+import {AppDispatch, RootState} from "../../app/store";
 import {useEffect, useState} from "react";
 import {Redirect, useParams, useHistory} from "react-router-dom";
-import * as actionCreator from "../../store/slice/UserSlice";
-import {DummyUser, User} from "../../Interfaces";
-import Friend from "../../component/friend/Friend";
+import * as actionCreator from "../auth/authSlice";
+import {DummyUser, User} from "../../common/Interfaces";
+import Friend from "../friend/Friend";
 
 
 interface ProfileProps {
@@ -13,9 +13,9 @@ interface ProfileProps {
 }
 
 export default function Profile(props : ProfileProps) {
-    const dispatch = useDispatch<StoreDispatch>();
+    const dispatch = useDispatch<AppDispatch>();
     const [account, currentUser, friends, isLoading, hasError] =
-        useSelector<StoreState, [User|null, DummyUser|null, DummyUser[], boolean, boolean]>(state =>
+        useSelector<RootState, [User|null, DummyUser|null, DummyUser[], boolean, boolean]>(state =>
         [state.users.account, state.users.currentUser, state.users.friends, state.users.isLoading, state.users.hasError]);
     const params = useParams<{user : string}>();
     const history = useHistory();

@@ -4,8 +4,8 @@ import {
     PayloadAction,
     SliceCaseReducers
 } from "@reduxjs/toolkit";
-import {DummyUser, User} from "../../Interfaces";
-import {createUser, fetchAllUsers, fetchDummy, fetchUser} from "../api/APIs";
+import {DummyUser, User} from "../../common/Interfaces";
+import {createUser, fetchAllUsers, fetchDummy, fetchUser} from "../../common/APIs";
 import {AsyncThunkFulfilledActionCreator} from "@reduxjs/toolkit/dist/createAsyncThunk";
 
 export const logIn = createAsyncThunk<{user : User, friends : DummyUser[]}, {email : string, password : string}>(
@@ -52,7 +52,7 @@ const usersSlice = createSlice<UsersState, SliceCaseReducers<UsersState>>({
     name: 'users',
     initialState: usersInitialState,
     reducers: {
-        todo : state => {}
+        todo : (state) => {}
 
     },
     extraReducers: builder => {
@@ -109,6 +109,7 @@ const usersSlice = createSlice<UsersState, SliceCaseReducers<UsersState>>({
             state.isLoading = false;
             state.hasError = true;
         })
+
     }
 })
 
