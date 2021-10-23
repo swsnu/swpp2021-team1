@@ -1,0 +1,22 @@
+{
+  "users": [
+    {
+      "username": "iluvswpp",
+      "real_name": "John Doe",
+      "password": "swpp",
+      "email": "swpp@snu.ac.kr"
+    },
+    {
+      "username": "user2",
+      "real_name": "Jane Smith",
+      "password": "sdsdfdfs",
+      "email": "jane@snu.ac.kr"
+    },
+    {
+      "username": "user3",
+      "real_name": "Mike Jordan",
+      "password": "wewerwerwe",
+      "email": "jordan@snu.ac.kr"
+    }
+  ]
+}
