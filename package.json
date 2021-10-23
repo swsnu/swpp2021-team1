@@ -25,6 +25,7 @@
     "react-router-bootstrap": "^0.25.0",
     "react-router-dom": "^5.3.0",
     "react-scripts": "4.0.3",
+    "sass": "^1.43.3",
     "typescript": "^4.4.3",
     "web-vitals": "^1.0.1"
   },
@@ -33,7 +34,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "json-server": "cp api/db.json api/_db.json && json-server --watch api/_db.json --routes api/routes.json --port 5000"
+    "json-server": "cp api/db.json api/_db.json && json-server --watch api/_db.json --routes api/routes.json --port 5000",
+    "scss": "node-sass --watch scss -o css"
   },
   "eslintConfig": {
     "extends": [

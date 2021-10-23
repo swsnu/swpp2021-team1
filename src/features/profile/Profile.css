@@ -1,0 +1,22 @@
+#profile-card {
+  border: none;
+  margin-top: 3rem;
+  width: fit-content;
+  /* margin-left: auto; */
+  margin-right: auto;
+}
+
+#profile-img {
+}
+
+
+#profile-img, #profile-img img {
+  width: 150px;
+  height: 150px;
+  border-radius: 75px;
+  margin: auto;
+}
+
+.btn-group button {
+  color: var(--primary-dark);
+}

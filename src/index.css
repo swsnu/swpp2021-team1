@@ -1,5 +1,12 @@
 :root {
   box-sizing: content-box;
+  --primary: #f69d72;
+  --primary-dark: #e08a60;
+  --divider: #dedede;
+  --emphasis: #837cc4;
+  --secondary: #ea9bbb;
+  --dark-brown: #4e2b1a;
+  --dark-grey: #3d3d3d;
 }
 
 body {
@@ -14,4 +21,8 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+hr {
+  border: 1px solid var(--divider);
 }

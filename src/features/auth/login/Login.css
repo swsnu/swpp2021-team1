@@ -1,7 +1,8 @@
+
 #viewport {
   width: 100%;
   height: 100vh;
-  background: linear-gradient(140deg, rgba(246, 157, 114, 1) 0%,rgba(189, 139, 192, 1) 100%);
+  background: linear-gradient(140deg, var(--primary) 0%,rgba(189, 139, 192, 1) 100%);
 }
 
 #form-container {
@@ -12,11 +13,15 @@
 }
 
 #login-button {
-  margin: auto;
-  width: fit-content;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  border: 1px solid var(--primary-dark);
+  margin: 0 1rem;
+  color: white;
 }
 
 #signup-button {
   margin: auto;
   width: fit-content;
+  color: var(--primary-dark) !important;
 }

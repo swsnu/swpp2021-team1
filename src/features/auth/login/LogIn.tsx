@@ -41,7 +41,7 @@ export default function LogIn(props: LogInProps) {
                 <Form.Group className="mb-3">
                     <Form.Control value={password} type="password" onChange={event => setPassword(event.target.value)} placeholder="Password" />
                 </Form.Group>
-                <div>
+                <div className="d-flex flex-column">
                     <Button id="login-button" onClick={onLogIn}
                     disabled={email === "" || password === ""}
                     variant="primary">Log In</Button>
