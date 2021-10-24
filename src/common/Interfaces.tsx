@@ -1,19 +1,23 @@
 interface User {
-    realName : string;
+    real_name : string;
     username : string;
     email : string;
     password : string;
-    profilePicture : string;
+    profile_picture : string;
 }
 
 interface DummyUser {
-    realName : string;
+    real_name : string;
     username : string;
-    profilePicture : string;
+    profile_picture : string;
 }
 
 interface Repository {
-
+    repo_id : number;
+    repo_name : string;
+    travel_start_date : Date;
+    travel_end_date : Date;
+    collaborator_list : DummyUser[];
 }
 
 interface Post {

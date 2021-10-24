@@ -5,7 +5,7 @@ import {useEffect, useState} from "react";
 import {Redirect, useParams, useHistory} from "react-router-dom";
 import * as actionCreator from "../auth/authSlice";
 import {DummyUser, User} from "../../common/Interfaces";
-import Friend from "../friend/Friend";
+import Friend from "./Friend";
 import './Profile.css';
 import { ButtonGroup, Button } from "react-bootstrap";
 

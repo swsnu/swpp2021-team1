@@ -4,7 +4,7 @@ interface RepositoryProps {
 
 }
 
-export default function RepositoryProps(props : RepositoryProps) {
+export default function Repository(props : RepositoryProps) {
     return (
         <div>
 
