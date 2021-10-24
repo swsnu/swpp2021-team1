@@ -6,6 +6,9 @@ import Profile from "../features/profile/Profile";
 import ProfileSetting from "../features/profile/ProfileSetting";
 import Sidebar from '../common/sidebar/Sidebar';
 import Post from '../features/post/Post';
+import RepositoryList from "../features/repository/RepositoryList";
+import RepositoryDetail from "../features/repository/RepositoryDetail";
+import RepositoryCreate from "../features/repository/RepositoryCreate";
 
 export default function App() {
     return (
@@ -23,6 +26,9 @@ export default function App() {
                                     <Switch>
                                         <Route path='/main/:user' exact component={Post} />
                                         <Route path='/main/:user/setting' exact component={ProfileSetting} />
+                                        <Route path='/main/:user/repos' exact component={RepositoryList}/>
+                                        <Route path='/repos/:id' exact component={RepositoryDetail} />
+                                        <Route path='/repos/create' exact component={RepositoryCreate} />
                                         <Redirect from='/' to='/login' />
                                     </Switch>
                                 </Col>

@@ -60,7 +60,7 @@ export default function SignUp(props : SignUpProps) {
             flag = false;
         }
         if (!flag || canUse !== true) return;
-        dispatch(actionCreators.signUp({email : email, realName : realName, username : username, password : password, profilePicture : 'default'}));
+        dispatch(actionCreators.signUp({email : email, real_name : realName, username : username, password : password, profile_picture : 'default'}));
     }
 
     // 테스트 위해 잠깐 주석처리함
