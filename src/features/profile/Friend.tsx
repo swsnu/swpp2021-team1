@@ -1,8 +1,8 @@
 import React from "react";
-import {DummyUser} from "../../common/Interfaces";
+import {IDummyUser} from "../../common/Interfaces";
 
 interface FriendProps {
-    user : DummyUser;
+    user : IDummyUser;
 }
 
 export default function Friend(props : FriendProps) {

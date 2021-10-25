@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { AppDispatch, RootState } from "../../../app/store";
-import { DummyUser, User } from "../../../common/Interfaces";
+import { IDummyUser, IUser } from "../../../common/Interfaces";
 import { Redirect } from "react-router-dom";
 import * as actionCreator from "../authSlice"
 import { Form, Button } from "react-bootstrap";
@@ -33,7 +33,7 @@ export default function LogIn(props: LogInProps) {
     if (isLoading && !hasError) return null;
     return (
         <div id="viewport" className="p-5" >
-            {account && <Redirect to={`/main/${account.realName}`} />}
+            {account && <Redirect to={`/main/${account.real_name}`} />}
             <Form id="form-container" className="p-5">
                 <Form.Group className="mb-3">
                     <Form.Control value={email} type="email" onChange={event => setEmail(event.target.value)} placeholder="Email" />

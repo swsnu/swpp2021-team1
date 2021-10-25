@@ -1,23 +1,26 @@
-interface User {
+import React from "react";
+
+interface IUser {
     real_name : string;
     username : string;
     email : string;
     password : string;
     profile_picture : string;
+    friends : IDummyUser[];
 }
 
-interface DummyUser {
+interface IDummyUser {
     real_name : string;
     username : string;
     profile_picture : string;
 }
 
-interface Repository {
+interface IRepository {
     repo_id : number;
     repo_name : string;
-    travel_start_date : Date;
-    travel_end_date : Date;
-    collaborator_list : DummyUser[];
+    travel_start_date : string;
+    travel_end_date : string;
+    collaborator_list : IDummyUser[];
 }
 
 interface Post {
@@ -48,4 +51,6 @@ interface Error {
 
 }
 
-export type { User, DummyUser, Repository, Post, Photo, Discussion, Comment, Tag, Place, Error }
+export type SetStateAction<T> =  React.Dispatch<React.SetStateAction<T>>
+
+export type { IUser, IDummyUser, IRepository, Post, Photo, Discussion, Comment, Tag, Place, Error }

@@ -5,7 +5,7 @@ import {AppDispatch, RootState} from "../../../../app/store";
 import React from "react";
 import ReactDOM from 'react-dom'
 import { Modal, Button, Form } from "react-bootstrap";
-import {User} from "../../../../common/Interfaces";
+import {IUser} from "../../../../common/Interfaces";
 import { fetchAllUsers } from "../../../../common/APIs";
 
 interface SignUpProps {
@@ -60,7 +60,7 @@ export default function SignUp(props : SignUpProps) {
             flag = false;
         }
         if (!flag || canUse !== true) return;
-        dispatch(actionCreators.signUp({email : email, real_name : realName, username : username, password : password, profile_picture : 'default'}));
+        dispatch(actionCreators.signUp({email : email, real_name : realName, username : username, password : password, profile_picture : 'default', friends : []}));
     }
 
     // 테스트 위해 잠깐 주석처리함

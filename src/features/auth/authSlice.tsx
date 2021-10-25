@@ -4,11 +4,11 @@ import {
     PayloadAction,
     SliceCaseReducers
 } from "@reduxjs/toolkit";
-import {DummyUser, User} from "../../common/Interfaces";
+import {IDummyUser, IUser} from "../../common/Interfaces";
 import {createUser, fetchDummy, fetchUser} from "../../common/APIs";
 import {AsyncThunkFulfilledActionCreator} from "@reduxjs/toolkit/dist/createAsyncThunk";
 
-export const logIn = createAsyncThunk<{user : User, friends : DummyUser[]}, {email : string, password : string}>(
+export const logIn = createAsyncThunk<{user : IUser, friends : IDummyUser[]}, {email : string, password : string}>(
     'auth/logIn', // action type
     async ({email, password}, thunkAPI) => {// payload creator
         const response = await fetchUser(email, password);
@@ -16,7 +16,7 @@ export const logIn = createAsyncThunk<{user : User, friends : DummyUser[]}, {ema
     }
 )
 
-export const signUp = createAsyncThunk<User, User>(
+export const signUp = createAsyncThunk<IUser, IUser>(
     'auth/signUp',
     async (user , thunkAPI) => {// payload creator
         const response = await createUser(user);
@@ -24,7 +24,7 @@ export const signUp = createAsyncThunk<User, User>(
     }
 )
 
-export const getUser = createAsyncThunk<{user : DummyUser, friends : DummyUser[]}, string>(
+export const getUser = createAsyncThunk<{user : IDummyUser, friends : IDummyUser[]}, string>(
     'auth/getUser',
     async (realName, thunkAPI) => {
         const response = await fetchDummy(realName);
@@ -35,9 +35,9 @@ export const getUser = createAsyncThunk<{user : DummyUser, friends : DummyUser[]
 interface AuthState {
     isLoading : boolean;
     hasError : boolean;
-    account : User|null;
-    currentUser : DummyUser|null;
-    friends : DummyUser[];
+    account : IUser|null;
+    currentUser : IDummyUser|null;
+    friends : IDummyUser[];
 }
 
 export const authInitialState: AuthState = {
@@ -52,8 +52,8 @@ const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
     name: 'auth',
     initialState: authInitialState,
     reducers: {
-        todo : (state) => {}
-
+        todo : (state) => {},
+        toBeLoaded : state => {state.isLoading = true;}
     },
     extraReducers: builder => {
         builder.addCase(logIn.pending, (state: AuthState) => {
@@ -61,7 +61,7 @@ const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
             state.hasError = false;
         })
 
-        builder.addCase(logIn.fulfilled, (state: AuthState, action : PayloadAction<{user : User, friends : DummyUser[]}>) => {
+        builder.addCase(logIn.fulfilled, (state: AuthState, action : PayloadAction<{user : IUser, friends : IDummyUser[]}>) => {
             state.isLoading = false;
             state.hasError = false;
             state.account = action.payload.user;
@@ -79,7 +79,7 @@ const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
             state.hasError = false;
         })
 
-        builder.addCase(signUp.fulfilled, (state: AuthState, action : PayloadAction<User>) => {
+        builder.addCase(signUp.fulfilled, (state: AuthState, action : PayloadAction<IUser>) => {
             state.isLoading = false;
             state.hasError = false;
             state.account = action.payload;
@@ -98,8 +98,8 @@ const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
         })
 
         builder.addCase(getUser.fulfilled,
-            (state: AuthState, action : PayloadAction<{user : DummyUser, friends : DummyUser[]}>) => {
-            state.isLoading = true;
+            (state: AuthState, action : PayloadAction<{user : IDummyUser, friends : IDummyUser[]}>) => {
+            state.isLoading = false;
             state.hasError = false;
             state.currentUser = action.payload.user;
             state.friends = action.payload.friends;
