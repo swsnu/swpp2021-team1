@@ -34,18 +34,19 @@ export default function RepositoryDetail(props : RepositoryDetailProps) {
 
     if (hasError) return (<div>Error!</div>)
     if (!currentRepo) return null;
+    const hasAuth = user && currentRepo.collaborator_list.filter(value => user.username === value.username).length > 0;
     return (
         <div>
             <h2>{currentRepo.repo_name}</h2>
             <h4>{currentRepo.travel_start_date + '~' + currentRepo.travel_end_date}</h4>
             <div className="d-flex mt-4 justify-content-between align-items-start">
                 <h4 className="m-2">Collaborators</h4>
-                <Button className="m-2" id='add-collaborator-button' onClick={addCollaborators}>+</Button>
+                {hasAuth && <Button className="m-2" id='add-collaborator-button' onClick={addCollaborators}>+</Button>}
             </div>
             <h5>
                 {currentRepo.collaborator_list.map(value => <Badge className="m-2 p-sm-2" pill>{value.username} </Badge>)}
             </h5>
-            {user && //테스트용 임시 처리
+            {user && /*테스트용 임시 처리*/hasAuth &&
             <AddCollaborators user={user}
                               show={show}
                               setShow={setShow}

@@ -19,7 +19,7 @@ export default function RepositoryList(props : RepositoryListProps) {
     const dispatch = useDispatch<AppDispatch>();
     const [userIsLoading] = useSelector<RootState, [boolean, boolean]>(state => [state.auth.isLoading, state.auth.hasError]);
     const [isLoading, hasError] = useSelector<RootState, [boolean, boolean]>(state => [state.repos.isLoading, state.repos.hasError]);
-    const [user, repoList] = useSelector<RootState, [IDummyUser|null,IRepository[]]>(state => [state.auth.currentUser, state.repos.repoList]);
+    const [account, user, repoList] = useSelector<RootState, [IUser|null, IDummyUser|null, IRepository[]]>(state => [state.auth.account, state.auth.currentUser, state.repos.repoList]);
     const history = useHistory();
     const params = useParams<{user : string}>();
 
@@ -41,12 +41,14 @@ export default function RepositoryList(props : RepositoryListProps) {
                         <ListGroup>
                             {repoList.map(value => <Repository repository={value} />)}
                         </ListGroup>
-                        <div className="d-grid gap-3">
-                            <Button variant='outline-primary'
-                                    size="lg"
-                                    id='repo-create-button'
-                                    onClick={() => history.push('/repos/create')}>+</Button>
-                        </div>
+                        { account && user && account?.username === user?.username &&
+                            <div className="d-grid gap-3">
+                                <Button variant='outline-primary'
+                                        size="lg"
+                                        id='repo-create-button'
+                                        onClick={() => history.push('/repos/create')}>+</Button>
+                            </div>
+                        }
                     </>
                 )
             }
