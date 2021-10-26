@@ -6,14 +6,14 @@ import { Redirect } from "react-router-dom";
 import * as actionCreator from "../authSlice"
 import { Form, Button } from "react-bootstrap";
 import SignUp from "./popup/SignUp";
-import './Login.css'
+import './SignIn.css'
 import {useDispatch, useSelector} from "react-redux";
 
-interface LogInProps {
+interface SignInProps {
 
 }
 
-export default function LogIn(props: LogInProps) {
+export default function SignIn(props: SignInProps) {
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [signupModalShow, setSignupModalShow] = useState<boolean>(false);
@@ -23,7 +23,7 @@ export default function LogIn(props: LogInProps) {
         [state.auth.account, state.auth.hasError]);
 
     function onLogIn() {
-        dispatch(actionCreator.logIn({ email, password }));
+        dispatch(actionCreator.signIn({ email, password }));
     }
 
     function onModalClose() {

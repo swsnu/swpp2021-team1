@@ -6,7 +6,7 @@ import {Redirect, useParams} from "react-router-dom";
 import * as actionCreator from "./reposSlice";
 import {Badge, Button, FormControl, InputGroup, Form} from "react-bootstrap";
 import AddCollaborators from "./popup/AddCollaborators";
-import {logIn} from "../auth/authSlice"; //테스트용 임시 처리
+import {signIn} from "../auth/authSlice"; //테스트용 임시 처리
 
 interface RepositoryCreateProps {
 
@@ -27,7 +27,7 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
     const [valid, setValid] = useState<(boolean|null)[]>([null, null, null]);
 
     useEffect(() => {
-        dispatch(logIn({email : 'asdf', password : 'asdf'})) //테스트용 임시 처리
+        dispatch(signIn({email : 'asdf', password : 'asdf'})) //테스트용 임시 처리
     }, [dispatch])
 
     function addCollaborators() {
