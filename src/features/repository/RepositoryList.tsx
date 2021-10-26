@@ -3,9 +3,8 @@ import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../../app/store";
 import {IDummyUser, IRepository, IUser} from "../../common/Interfaces";
 import {useHistory, useParams} from "react-router-dom";
-import {getRepoList} from "./reposSlice";
+import * as actionCreator from "./reposSlice";
 import Repository from "./Repository";
-import {getUser, logIn} from "../auth/authSlice";
 import Profile from "../profile/Profile";
 import {Button, ListGroup} from "react-bootstrap";
 
@@ -26,7 +25,7 @@ export default function RepositoryList(props : RepositoryListProps) {
 
     useEffect(() => {
         if (user && !userIsLoading) {
-            dispatch(getRepoList(user.username));
+            dispatch(actionCreator.getRepoList(user.username));
         }
     }, [dispatch, user])
 

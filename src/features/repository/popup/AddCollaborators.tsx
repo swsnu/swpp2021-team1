@@ -7,9 +7,7 @@ import {
     Dropdown,
     FormControl,
     InputGroup,
-    ListGroup,
     Modal,
-    FormControlProps
 } from "react-bootstrap";
 import "./AddCollaborators.css"
 

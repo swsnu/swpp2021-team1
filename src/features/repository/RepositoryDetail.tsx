@@ -3,7 +3,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../../app/store";
 import {IDummyUser, IRepository, IUser} from "../../common/Interfaces";
 import {useHistory, useParams} from "react-router-dom";
-import {changeCollaborators, getRepo, getRepoList} from "./reposSlice";
+import * as actionCreator from "./reposSlice";
 import AddCollaborators from "./popup/AddCollaborators";
 import {Badge, Button} from "react-bootstrap";
 
@@ -21,7 +21,7 @@ export default function RepositoryDetail(props : RepositoryDetailProps) {
     const [show, setShow] = useState<boolean>(false);
 
     useEffect(() => {
-        dispatch(getRepo(parseInt(params.id)));
+        dispatch(actionCreator.getRepo(parseInt(params.id)));
     }, [dispatch])
 
     function addCollaborators() {
@@ -29,7 +29,7 @@ export default function RepositoryDetail(props : RepositoryDetailProps) {
     }
 
     function setCollaborators(collaborators : IDummyUser[]) {
-        dispatch(changeCollaborators({repoID : currentRepo?.repo_id as number, users : collaborators}));
+        dispatch(actionCreator.changeCollaborators({repoID : currentRepo?.repo_id as number, users : collaborators}));
     }
 
     if (hasError) return (<div>Error!</div>)

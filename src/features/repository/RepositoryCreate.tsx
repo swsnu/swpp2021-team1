@@ -3,10 +3,10 @@ import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../../app/store";
 import {IDummyUser, IRepository, IUser} from "../../common/Interfaces";
 import {Redirect, useParams} from "react-router-dom";
-import {addRepo} from "./reposSlice";
-import {Badge, Button, CloseButton, FormControl, InputGroup, Form} from "react-bootstrap";
+import * as actionCreator from "./reposSlice";
+import {Badge, Button, FormControl, InputGroup, Form} from "react-bootstrap";
 import AddCollaborators from "./popup/AddCollaborators";
-import {logIn} from "../auth/authSlice";
+import {logIn} from "../auth/authSlice"; //테스트용 임시 처리
 
 interface RepositoryCreateProps {
 
@@ -35,9 +35,7 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
     }
 
     function createRepos() {
-        //TODO : 날짜 test 필요
-        if (repoName == "") return;
-        dispatch(addRepo({
+        dispatch(actionCreator.addRepo({
             repo_id : -1,
             repo_name : repoName,
             travel_start_date : travelStartDate,
