@@ -5,12 +5,12 @@ import {
     SliceCaseReducers
 } from "@reduxjs/toolkit";
 import {IDummyUser, IRepository, IUser} from "../../common/Interfaces";
-import {getUserRepos, postRepo, putCollaborators} from "../../common/APIs";
+import {fetchRepo, fetchRepoList, postRepo, putCollaborators} from "../../common/APIs";
 
 export const getRepoList = createAsyncThunk<IRepository[], string>(
     'repos/list',
     async (username , thunkAPI) => {// payload creator
-        const response = await getUserRepos(username);
+        const response = await fetchRepoList(username);
         return response.data;
     }
 )
@@ -27,6 +27,14 @@ export const changeCollaborators = createAsyncThunk<IRepository, {repoID : numbe
     'repos/collaborators',
     async ({repoID, users}, thunkAPI) => {
         const response = await putCollaborators(repoID, users);
+        return response.data;
+    }
+)
+
+export const getRepo = createAsyncThunk<IRepository, number>(
+    'repos/collaborators',
+    async (repoID, thunkAPI) => {
+        const response = await fetchRepo(repoID);
         return response.data;
     }
 )
@@ -49,13 +57,7 @@ const reposSlice = createSlice<ReposState, SliceCaseReducers<ReposState>>({
     name: 'repos',
     initialState: reposInitialState,
     reducers: {
-        toBeLoaded : state => {state.isLoading = true;},
-        getRepo : (state : ReposState, action : PayloadAction<number>) => {
-            console.log(action.payload);
-            console.log(state.repoList);
-            [state.currentRepo] = state.repoList.filter(value => value.repo_id === action.payload);
-            if (!state.currentRepo) state.hasError = true;
-        }
+        toBeLoaded : (state : ReposState, action: PayloadAction<null>) => {state.isLoading = true;},
     },
     extraReducers: builder => {
         builder.addCase(getRepoList.pending, (state: ReposState) => {
@@ -108,5 +110,5 @@ const reposSlice = createSlice<ReposState, SliceCaseReducers<ReposState>>({
     }
 })
 export type { ReposState }
-export const { toBeLoaded, getRepo } = reposSlice.actions
+export const { toBeLoaded } = reposSlice.actions
 export default reposSlice.reducer

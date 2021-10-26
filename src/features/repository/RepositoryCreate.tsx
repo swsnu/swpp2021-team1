@@ -69,7 +69,7 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
     //TODO : Error 처리
     return (
         <div>
-            {!isLoading && repo && <Redirect to={`/repos/${repo.repo_id}`}/>}
+            {!isLoading && repo && <Redirect to={`/repos/${repo.repo_id}`}/>} {/*TODO*/}
             <h2 className="mt-4">Create Repository</h2>
             <InputGroup className="mt-4" hasValidation>
                 <InputGroup.Text>Repository Name</InputGroup.Text>
@@ -80,7 +80,7 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
                               isInvalid={valid[0] !== null && !valid[0]}
                        onChange={onChange}/>
                 <Form.Control.Feedback type="invalid">
-                    Please Choose Your Repository Name.
+                    Please choose your repository name.
                 </Form.Control.Feedback>
             </InputGroup>
             <InputGroup className="mt-4" hasValidation>
@@ -92,7 +92,7 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
                               isInvalid={valid[1] !== null && !valid[1]}
                        onChange={onChange}/>
                 <Form.Control.Feedback type="invalid">
-                    Please Write Appropriate Date.
+                    Please choose valid date.
                 </Form.Control.Feedback>
             </InputGroup>
             <InputGroup className="mt-4" hasValidation>
@@ -104,7 +104,7 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
                              isInvalid={valid[2] !== null && !valid[2]}
                        onChange={onChange}/>
                 <Form.Control.Feedback type="invalid">
-                    Please Write Appropriate Date.
+                    Please choose valid date.
                 </Form.Control.Feedback>
             </InputGroup>
             <div className="d-flex mt-4 justify-content-between align-items-start">

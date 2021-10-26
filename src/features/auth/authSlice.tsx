@@ -8,7 +8,7 @@ import {IDummyUser, IUser} from "../../common/Interfaces";
 import {createUser, fetchDummy, fetchUser} from "../../common/APIs";
 import {AsyncThunkFulfilledActionCreator} from "@reduxjs/toolkit/dist/createAsyncThunk";
 
-export const logIn = createAsyncThunk<{user : IUser, friends : IDummyUser[]}, {email : string, password : string}>(
+export const logIn = createAsyncThunk<IUser, {email : string, password : string}>(
     'auth/logIn', // action type
     async ({email, password}, thunkAPI) => {// payload creator
         const response = await fetchUser(email, password);
@@ -61,11 +61,11 @@ const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
             state.hasError = false;
         })
 
-        builder.addCase(logIn.fulfilled, (state: AuthState, action : PayloadAction<{user : IUser, friends : IDummyUser[]}>) => {
+        builder.addCase(logIn.fulfilled, (state: AuthState, action : PayloadAction<IUser>) => {
             state.isLoading = false;
             state.hasError = false;
-            state.account = action.payload.user;
-            state.currentUser = action.payload.user;
+            state.account = action.payload;
+            state.currentUser = action.payload;
             state.friends = action.payload.friends;
         })
 

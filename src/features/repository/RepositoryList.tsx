@@ -21,7 +21,6 @@ export default function RepositoryList(props : RepositoryListProps) {
     const [isLoading, hasError] = useSelector<RootState, [boolean, boolean]>(state => [state.repos.isLoading, state.repos.hasError]);
     const [account, user, repoList] = useSelector<RootState, [IUser|null, IDummyUser|null, IRepository[]]>(state => [state.auth.account, state.auth.currentUser, state.repos.repoList]);
     const history = useHistory();
-    const params = useParams<{user : string}>();
 
     useEffect(() => {
         if (user && !userIsLoading) {
@@ -29,6 +28,10 @@ export default function RepositoryList(props : RepositoryListProps) {
         }
     }, [dispatch, user])
 
+    function onClick() {
+        dispatch(actionCreator.toBeLoaded(null));
+        history.push('/repos/create');
+    }
 
     //TODO : Error 처리
     return (
@@ -37,7 +40,6 @@ export default function RepositoryList(props : RepositoryListProps) {
             {
                 !isLoading && !hasError && (
                     <>
-                        {console.log("hello")}
                         <ListGroup>
                             {repoList.map(value => <Repository repository={value} />)}
                         </ListGroup>
@@ -46,7 +48,7 @@ export default function RepositoryList(props : RepositoryListProps) {
                                 <Button variant='outline-primary'
                                         size="lg"
                                         id='repo-create-button'
-                                        onClick={() => history.push('/repos/create')}>+</Button>
+                                        onClick={onClick}>+</Button>
                             </div>
                         }
                     </>

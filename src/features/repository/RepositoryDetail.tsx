@@ -21,7 +21,8 @@ export default function RepositoryDetail(props : RepositoryDetailProps) {
     const [show, setShow] = useState<boolean>(false);
 
     useEffect(() => {
-        dispatch(actionCreator.getRepo(parseInt(params.id)));
+        if (!currentRepo || currentRepo.repo_id !== parseInt(params.id))
+            dispatch(actionCreator.getRepo(parseInt(params.id)));
     }, [dispatch])
 
     function addCollaborators() {
@@ -32,8 +33,9 @@ export default function RepositoryDetail(props : RepositoryDetailProps) {
         dispatch(actionCreator.changeCollaborators({repoID : currentRepo?.repo_id as number, users : collaborators}));
     }
 
-    if (hasError) return (<div>Error!</div>)
-    if (!currentRepo) return null;
+    if (isLoading && !hasError) return null;
+    if (hasError) return (<div>Error!</div>);
+    if (!currentRepo) return (<div>Unexpected Error!</div>);
     const hasAuth = user && currentRepo.collaborator_list.filter(value => user.username === value.username).length > 0;
     return (
         <div>
