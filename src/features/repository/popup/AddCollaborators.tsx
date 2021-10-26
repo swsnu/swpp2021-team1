@@ -18,7 +18,7 @@ interface AddCollaboratorsProps {
     show : boolean;
     setShow : SetStateAction<boolean>;
     collaborators : IDummyUser[];
-    setCollaborators : SetStateAction<IDummyUser[]>;
+    setCollaborators : SetStateAction<IDummyUser[]>|((collaborators : IDummyUser[]) => void);
 }
 
 export default function AddCollaborators(props : AddCollaboratorsProps) {
@@ -71,10 +71,10 @@ export default function AddCollaborators(props : AddCollaboratorsProps) {
                             </Dropdown.Item>) :
                         <Dropdown.Item disabled={true}>No Result</Dropdown.Item>}
                 </Dropdown.Menu>
+                <div className="d-flex ms-2 me-2">
+                    {collaborators.map(value => <Collaborator canDelete={value.username !== props.user.username} user={value} remove={remove}/>)}
+                </div>
             </Dropdown>
-            <div className="d-flex ms-2 me-2">
-                {collaborators.map(value => <Collaborator canDelete={value.username !== props.user.username} user={value} remove={remove}/>)}
-            </div>
             <Modal.Footer>
                 <Button variant="primary" onClick={close}>Confirm</Button>
             </Modal.Footer>
