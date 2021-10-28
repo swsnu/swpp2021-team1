@@ -9,6 +9,7 @@ import Post from '../features/post/Post';
 import RepositoryList from "../features/repository/RepositoryList";
 import RepositoryDetail from "../features/repository/RepositoryDetail";
 import RepositoryCreate from "../features/repository/RepositoryCreate";
+import Topbar from '../common/topbar/Topbar';
 
 export default function App() {
     return (
@@ -17,12 +18,13 @@ export default function App() {
                 <Switch>
                     <Route path='/login' exact component={LogIn} />
                     <>
+                        <Topbar />
                         <Container>
                             <Row>
                                 <Col xs="3">
                                     <Sidebar />
                                 </Col>
-                                <Col xs="9">
+                                <Col xs="9" style={{marginTop: 55}}>
                                     <Switch>
                                         <Route path={['/main/:user', '/main/:user/repos']}>
                                             <Profile />

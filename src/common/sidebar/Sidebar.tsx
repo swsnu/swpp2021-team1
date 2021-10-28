@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import './Sidebar.css';
-import { ReactComponent as Logo } from '../assets/logo.svg'
 import { Dropdown } from "react-bootstrap";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBell, faBook, faCompass, faPencilAlt } from '@fortawesome/free-solid-svg-icons';
 
 
 interface SidebarProps {
@@ -12,27 +13,25 @@ const Sidebar = (props: SidebarProps) => {
   return (
     <div id="sidebar-container" className="d-flex flex-column flex-shrink-0 pb-3 pt-4">
       <a href="/" className="d-flex align-items-center mb-3 mb-md-0 mx-auto link-dark text-decoration-none">
-        <Logo height="30" className="logo" />
       </a>
       {/* <hr /> */}
-        <ul className="nav flex-column mb-auto mt-5">
+        <ul className="nav flex-column mb-auto mt-2">
           <li className="nav-item">
-            <a href="#" className="nav-link link-dark" aria-current="page">
-              <svg className="bi me-2" width="16" height="16"></svg>
+            <a href="#" className="nav-link link-dark fs-5" aria-current="page">
+              <FontAwesomeIcon className="me-3" icon={faPencilAlt} color="#f69d72" />
               Posts
             </a>
 
-            <a href="#" className="nav-link link-dark">
-              <svg className="bi me-2" width="16" height="16"></svg>
+            <a href="#" className="nav-link link-dark fs-5">
+              <FontAwesomeIcon className="me-3" icon={faBook} color="#f69d72" />
               Repositories
             </a>
-            <a href="#" className="nav-link link-dark mb-4">
-              <svg className="bi me-2" width="16" height="16"></svg>
+            <a href="#" className="nav-link link-dark mb-4 fs-5">
+              <FontAwesomeIcon className="me-3" icon={faCompass} color="#f69d72" />
               Explore
             </a>
-            <a href="#" className="nav-link link-dark">
-              <svg className="bi me-2" width="16" height="16"></svg>
-              Notifications
+            <a href="#" className="nav-link link-dark fs-5">
+              <FontAwesomeIcon className="me-3" icon={faBell} color="#f69d72" />Notifications
             </a>
           </li>
         </ul>

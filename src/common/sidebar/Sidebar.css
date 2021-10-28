@@ -18,14 +18,14 @@ main {
 }
 
 #sidebar-container {
+  padding-top: 80px !important;
   border-right: 1px solid var(--divider);
+  width: 235px;
+  position: fixed;
+  /* width: 33%; */
   height: 100vh;
-  max-width: 280px;
 }
 
-.logo {
-  fill: var(--primary);
-}
 
 .b-example-divider {
   flex-shrink: 0;
