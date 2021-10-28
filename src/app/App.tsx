@@ -24,9 +24,14 @@ export default function App() {
                                 </Col>
                                 <Col xs="9">
                                     <Switch>
-                                        <Route path='/main/:user' exact component={Post} />
+                                        <Route path={['/main/:user', '/main/:user/repos']}>
+                                            <Profile />
+                                            <Switch>
+                                                <Route path='/main/:user' exact component={Post} />
+                                                <Route path='/main/:user/repos' exact component={RepositoryList}/>
+                                            </Switch>
+                                        </Route>
                                         <Route path='/main/:user/setting' exact component={ProfileSetting} />
-                                        <Route path='/main/:user/repos' exact component={RepositoryList}/>
                                         <Route path='/repos/:id' exact component={RepositoryDetail} />
                                         <Route path='/repos/create' exact component={RepositoryCreate} />
                                         <Redirect from='/' to='/login' />
