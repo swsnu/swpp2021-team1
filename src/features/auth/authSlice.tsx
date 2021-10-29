@@ -5,26 +5,33 @@ import {
     SliceCaseReducers
 } from "@reduxjs/toolkit";
 import {IUser} from "../../common/Interfaces";
-import {getUser, postSignIn, postUsers} from "../../common/APIs";
+import {getSession, getUser, postSignIn, postUsers} from "../../common/APIs";
 
 export const signIn = createAsyncThunk<IUser, {username : string, password : string}>(
-    'auth/logIn', // action type
+    'auth/signin', // action type
     async ({username, password}, thunkAPI) => {// payload creator
         return await postSignIn(username, password);
     }
 )
 
 export const signUp = createAsyncThunk<IUser, IUser>(
-    'auth/signUp',
+    'auth/signup',
     async (user , thunkAPI) => {// payload creator
         return await postUsers(user);
     }
 )
 
 export const fetchUser = createAsyncThunk<IUser, string>(
-    'auth/getUser',
+    'auth/user',
     async (username, thunkAPI) => {
         return await getUser(username);
+    }
+)
+
+export const fetchSession = createAsyncThunk<IUser, void>(
+    'auth/session',
+    async (thunkAPI) => {
+        return await getSession();
     }
 )
 
@@ -33,7 +40,6 @@ interface AuthState {
     hasError : boolean;
     account : IUser|null;
     currentUser : IUser|null;
-    friends : IUser[];
 }
 
 export const authInitialState: AuthState = {
@@ -41,7 +47,6 @@ export const authInitialState: AuthState = {
     hasError : false,
     account : null,
     currentUser : null,
-    friends : []
 }
 
 const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
@@ -63,12 +68,22 @@ const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
             state.hasError = false;
             state.account = action.payload;
             state.currentUser = action.payload;
-            state.friends = action.payload.friends as IUser[];
         })
 
         builder.addCase(signIn.rejected, (state: AuthState) => {
             state.isLoading = false;
             state.hasError = true;
+        })
+
+        builder.addCase(fetchSession.pending, (state : AuthState) => {
+            state.isLoading = true;
+            state.hasError = false;
+        })
+
+        builder.addCase(fetchSession.fulfilled, (state: AuthState, action : PayloadAction<IUser>) => {
+            state.isLoading = false;
+            state.hasError = false;
+            state.account = action.payload;
         })
 
         builder.addCase(signUp.pending, (state: AuthState) => {
@@ -81,7 +96,6 @@ const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
             state.hasError = false;
             state.account = action.payload;
             state.currentUser = action.payload;
-            state.friends = action.payload.friends as IUser[];
         })
 
         builder.addCase(signUp.rejected, (state: AuthState) => {
@@ -99,7 +113,6 @@ const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
             state.isLoading = false;
             state.hasError = false;
             state.currentUser = action.payload;
-            state.friends = action.payload.friends as IUser[];
         })
 
         builder.addCase(fetchUser.rejected, (state: AuthState) => {

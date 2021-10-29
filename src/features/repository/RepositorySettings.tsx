@@ -24,7 +24,9 @@ export default function RepositorySettings(props : RepositorySettingProps) {
     }
 
     function setCollaborators(collaborators : IUser[]) {
-        dispatch(actionCreator.addCollaborators({repoID : currentRepo?.repo_id as number, users : collaborators}));
+        dispatch(actionCreator.addCollaborators({
+            repoID : currentRepo?.repo_id as number,
+            users : collaborators.map(value => value.username)}));
     }
 
     return (

@@ -23,6 +23,9 @@ export async function postSignIn(username : string, password : string) {
     return resolvedUser;
 }
 
+export async function getSession() {
+    return await axios.get<any, IUser>('/api/session/');
+}
 
 export async function getSignOut() {
     await axios.get('/api/signout/');
@@ -80,7 +83,7 @@ export async function getCollaborators(repo_id : number) {
     return await axios.get<any, IUser[]>(`/api/repositories/${repo_id}/collaborators`)
 }
 
-export async function postCollaborators(repo_id : number, users : IUser[]) {
+export async function postCollaborators(repo_id : number, users : string[]) {
     await axios.post(`/api/repositories/${repo_id}/collaborators/`, users)
 }
 

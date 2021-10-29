@@ -40,7 +40,7 @@ export const removeRepository = createAsyncThunk<void, number>(
     }
 )
 
-export const addCollaborators = createAsyncThunk<void, {repoID : number, users : IUser[]}>(
+export const addCollaborators = createAsyncThunk<void, {repoID : number, users : string[]}>(
     'repos/collaborators',
     async ({repoID, users}, thunkAPI) => {
         await postCollaborators(repoID, users);
