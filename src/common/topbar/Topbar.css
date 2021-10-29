@@ -1,0 +1,16 @@
+.logo {
+  width: 155px;
+  fill: white;
+}
+
+.logo-container {
+  margin-left: 2rem;
+}
+
+.top-bar {
+  position: fixed !important;
+  width: 100%;
+  height: 55px;
+  top: 0;
+  z-index: 5;
+}
