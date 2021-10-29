@@ -4,9 +4,10 @@ import * as actionCreators from "../../authSlice"
 import {AppDispatch, RootState} from "../../../../app/store";
 import React from "react";
 import ReactDOM from 'react-dom'
-import { Modal, Button, Form } from "react-bootstrap";
-import {User} from "../../../../common/Interfaces";
-import { fetchAllUsers } from "../../../../common/APIs";
+import {Modal, Button, Form, InputGroup} from "react-bootstrap";
+import {IUser} from "../../../../common/Interfaces";
+import {useHistory} from "react-router-dom";
+import axios from "axios";
 
 interface SignUpProps {
     show: boolean
@@ -18,49 +19,77 @@ export default function SignUp(props : SignUpProps) {
     const [realName, setRealName] = useState<string>("");
     const [username, setUsername] = useState<string>("");
     const [password, setPassword] = useState<string>("");
+    const [bio, setBio] = useState<string>(""); //TODO
     const [canUse, setCanUse] = useState<boolean|null|undefined>(undefined);
+    const [valid, setValid] = useState<(boolean|null)[]>([null, null, null, null]);
     //해당 닉네임을 이용할 수 있는지 확인하는 state
     const dispatch = useDispatch<AppDispatch>();
     const [isLoading, hasError] = useSelector<RootState, [boolean, boolean]>(state =>
         [state.auth.isLoading, state.auth.hasError]);
+    const history = useHistory();
 
-
-    useEffect(() => {
-        if (username === '') setCanUse(undefined);
-        else {
-            const checkUsernameDup = async () => {
-                const userList = await fetchAllUsers();
-                if (userList.find((user) => user.username === username)) setCanUse(false);
-                else setCanUse(true);
-            }
-            checkUsernameDup();
-        }
-    }, [username]);
+    function checkDuplicate() {
+        //TODO : loading 처리?
+        axios.get<IUser>(`/api/users/${username}`)
+            .then(response => setCanUse(false))
+            .catch(error => setCanUse(true));
+    }
 
     function onSignUp() {
         /*정규표현식으로 signup 형식 지정(hw2 참조)*/
-        let flag = true;
+        dispatch(actionCreators.signUp({
+            email : email,
+            real_name : realName,
+            username : username,
+            password : password,
+            bio : bio,
+        }));
+        history.push(`/main/${username}`);
+    }
 
-        // ! Bootstrap에서 자동으로 이메일 validation 해줘서 일단 이건 뺌
-        // if (!/^[^.@\s]+@[A-Za-z\d.]+$/.test(email)) {
-        //     //TODO
-        //     flag = false;
-        // }
+    function onChange(event : React.ChangeEvent<HTMLInputElement>) {
+        switch (event.target.name) {
+            case 'email' :
+                setEmail(event.target.value);
+                if (/^[^.@\s]+@[A-Za-z\d.]+$/.test(email)) {
+                    setValid([true, valid[1], valid[2], valid[3]]);
+                }
+                else {
+                    setValid([false, valid[1], valid[2], valid[3]]);
+                }
+                break;
 
-        if (!/^[a-zA-Z\d][_]+$/.test(realName)) {
-            //TODO
-            flag = false;
+            case 'username' :
+                setUsername(event.target.value);
+                setCanUse(null);
+                if (/^[a-zA-Z\d_]+$/.test(event.target.value) && event.target.value.length <= 150) {
+                    setValid([valid[0], true, valid[2], valid[3]]);
+                }
+                else {
+                    setValid([valid[0], false, valid[2], valid[3]]);
+                }
+                break;
+
+            case 'realname' :
+                setRealName(event.target.value);
+                if (/^[a-zA-Z][a-zA-Z\s]*$/.test(event.target.value) && event.target.value.length <= 150) {
+                    setValid([valid[0], valid[1], true, valid[3]]);
+                }
+                else {
+                    setValid([valid[0], valid[1], false, valid[3]]);
+                }
+                break;
+
+            case 'password' :
+                setPassword(event.target.value);
+                if (/^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,}$/.test(event.target.value)) {
+                    setValid([valid[0], valid[1], valid[2], true]);
+                }
+                else {
+                    setValid([valid[0], valid[1], valid[2], false]);
+                }
+                break;
         }
-        if (!/^[a-zA-Z]+$/.test(username)) {
-            //TODO
-            flag = false;
-        }
-        if (!/^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,}$/.test(password)) {
-            //TODO
-            flag = false;
-        }
-        if (!flag || canUse !== true) return;
-        dispatch(actionCreators.signUp({email : email, real_name : realName, username : username, password : password, profile_picture : 'default'}));
     }
 
     // 테스트 위해 잠깐 주석처리함
@@ -76,29 +105,55 @@ export default function SignUp(props : SignUpProps) {
             <Form>
                 <Form.Group className="mb-3">
                     <Form.Label>Email</Form.Label>
-                    <Form.Control type="email" value={email} onChange={e => setEmail(e.target.value)}/>
+                    <Form.Control type="email" value={email} name='email'
+                                  onChange={onChange}
+                                  isValid={valid[0] !== null && valid[0]}
+                                  isInvalid={valid[0] !== null && !valid[0]}/>
+                    <Form.Control.Feedback type="invalid">
+                        Please write valid email.
+                    </Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>Username</Form.Label>
-                    <Form.Control type="text" value={username} onChange={e => setUsername(e.target.value)}/>
-                    <Form.Text className="text-muted">
-                        {canUse === true ? 'OK!' :
-                        canUse === false ? `${username} is already taken` :
-                        canUse === null ? <br /> : <br />}
-                    </Form.Text>
+                    <InputGroup>
+                        <Form.Control type="text" value={username} name='username'
+                                      onChange={onChange}
+                                      aria-describedby="addon"
+                                      isValid={valid[1] !== null && valid[1] && canUse === true}
+                                      isInvalid={(valid[1] !== null || canUse !== undefined) && (!valid[1] || !canUse)}/>
+                        <Button id="addon" onClick={checkDuplicate}>Duplicate Check</Button>
+                        <Form.Control.Feedback type="invalid">
+                            {!valid[1] ? 'Please choose valid user name.' :
+                                canUse === null ? 'Duplicate check please.' :
+                                    'You cannot use the name.'}
+                        </Form.Control.Feedback>
+                    </InputGroup>
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>Full Name</Form.Label>
-                    <Form.Control type="text" value={realName} onChange={e => setRealName(e.target.value)} />
+                    <Form.Control type="text" value={realName} name='realname'
+                                  onChange={onChange}
+                                  isValid={valid[2] !== null && valid[2]}
+                                  isInvalid={valid[2] !== null && !valid[2]}/>
+                    <Form.Control.Feedback type="invalid">
+                        Please write your name.
+                    </Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>Password</Form.Label>
-                    <Form.Control type="password" value={password} onChange={e => setPassword(e.target.value)} />
+                    <Form.Control type="password" value={password} name='password'
+                                  onChange={onChange}
+                                  isValid={valid[3] !== null && valid[3]}
+                                  isInvalid={valid[3] !== null && !valid[3]}/>
+                    <Form.Control.Feedback type="invalid">
+                        Password should be 8 letter or longer number & alphabet with at least one number and alphabet.
+                    </Form.Control.Feedback>
                 </Form.Group>
             </Form>
         </Modal.Body>
         <Modal.Footer>
-            <Button variant="primary" onClick={onSignUp}>Confirm</Button>
+            <Button variant="primary" onClick={onSignUp}
+                    disabled={!(valid[0] && valid[1] && valid[2] && valid[3] && canUse === true)}>Confirm</Button>
         </Modal.Footer>
     </Modal>
     )

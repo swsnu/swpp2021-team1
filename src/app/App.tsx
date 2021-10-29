@@ -1,7 +1,7 @@
 import React from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 import { BrowserRouter, Route, Redirect, Switch } from 'react-router-dom';
-import LogIn from "../features/auth/login/LogIn";
+import SignIn from "../features/auth/login/SignIn";
 import Profile from "../features/profile/Profile";
 import ProfileSetting from "../features/profile/ProfileSetting";
 import Sidebar from '../common/sidebar/Sidebar';
@@ -15,7 +15,7 @@ export default function App() {
         <BrowserRouter>
             <div className="App">
                 <Switch>
-                    <Route path='/login' exact component={LogIn} />
+                    <Route path='/login' exact component={SignIn} />
                     <>
                         <Container>
                             <Row>
@@ -27,8 +27,8 @@ export default function App() {
                                         <Route path='/main/:user' exact component={Post} />
                                         <Route path='/main/:user/setting' exact component={ProfileSetting} />
                                         <Route path='/main/:user/repos' exact component={RepositoryList}/>
-                                        <Route path='/repos/:id' exact component={RepositoryDetail} />
                                         <Route path='/repos/create' exact component={RepositoryCreate} />
+                                        <Route path='/repos/:id' exact component={RepositoryDetail} />
                                         <Redirect from='/' to='/login' />
                                     </Switch>
                                 </Col>

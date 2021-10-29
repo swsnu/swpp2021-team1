@@ -2,7 +2,7 @@
   "name": "source",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:5000/",
+  "proxy": "http://localhost:8000/",
   "dependencies": {
     "@popperjs/core": "^2.10.2",
     "@reduxjs/toolkit": "^1.6.2",
@@ -12,6 +12,7 @@
     "@types/jest": "^27.0.2",
     "@types/node": "^16.10.3",
     "@types/react": "^17.0.27",
+    "@types/react-bootstrap": "^0.32.28",
     "@types/react-dom": "^17.0.9",
     "@types/react-router-dom": "^5.3.1",
     "axios": "^0.22.0",

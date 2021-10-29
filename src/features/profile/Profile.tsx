@@ -4,7 +4,7 @@ import {AppDispatch, RootState} from "../../app/store";
 import {useEffect, useState} from "react";
 import {Redirect, useParams, useHistory} from "react-router-dom";
 import * as actionCreator from "../auth/authSlice";
-import {DummyUser, User} from "../../common/Interfaces";
+import {IUser} from "../../common/Interfaces";
 import Friend from "./Friend";
 import './Profile.css';
 import { ButtonGroup, Button } from "react-bootstrap";
@@ -18,14 +18,14 @@ interface ProfileProps {
 export default function Profile(props : ProfileProps) {
     const dispatch = useDispatch<AppDispatch>();
     const [account, currentUser, friends, isLoading, hasError] =
-        useSelector<RootState, [User|null, DummyUser|null, DummyUser[], boolean, boolean]>(state =>
+        useSelector<RootState, [IUser|null, IUser|null, IUser[], boolean, boolean]>(state =>
         [state.auth.account, state.auth.currentUser, state.auth.friends, state.auth.isLoading, state.auth.hasError]);
     const params = useParams<{user : string}>();
     const history = useHistory();
     const [currentTab, setCurrentTab] = useState<'Post'|'Repo'|'Explore'>('Explore');
 
     useEffect(() => {
-        dispatch(actionCreator.getUser(params.user));
+        dispatch(actionCreator.fetchUser(params.user));
     },[dispatch]);
 
     return (
