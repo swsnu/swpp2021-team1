@@ -4,7 +4,7 @@ import { BrowserRouter, Route, Redirect, Switch } from 'react-router-dom';
 import SignIn from "../features/auth/login/SignIn";
 import Profile from "../features/profile/Profile";
 import ProfileSetting from "../features/profile/ProfileSetting";
-import Sidebar from '../common/sidebar/Sidebar';
+import Sidebar from '../features/sidebar/Sidebar';
 import Post from '../features/post/Post';
 import RepositoryList from "../features/repository/RepositoryList";
 import RepositoryDetail from "../features/repository/RepositoryDetail";
