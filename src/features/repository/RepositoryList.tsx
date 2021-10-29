@@ -46,7 +46,6 @@ export default function RepositoryList(props : RepositoryListProps) {
     //TODO : Error 처리
     return (
         <div>
-            <Profile/>
             {
                 !isLoading && !hasError && (
                     <>

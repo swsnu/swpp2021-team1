@@ -2,21 +2,12 @@
   "users": [
     {
       "username": "iluvswpp",
+      "bio": "Everyday is a new JOURNEY!",
+      "profile_picture": "https://images.unsplash.com/photo-1609866975749-2238afebfa27?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1078&q=80",
+      "visibility": 0,
       "real_name": "John Doe",
-      "password": "swpp",
+      "password": "iluvswpp",
       "email": "swpp@snu.ac.kr"
-    },
-    {
-      "username": "user2",
-      "real_name": "Jane Smith",
-      "password": "sdsdfdfs",
-      "email": "jane@snu.ac.kr"
-    },
-    {
-      "username": "user3",
-      "real_name": "Mike Jordan",
-      "password": "wewerwerwe",
-      "email": "jordan@snu.ac.kr"
     }
   ]
 }
