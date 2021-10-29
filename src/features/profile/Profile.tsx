@@ -17,9 +17,9 @@ interface ProfileProps {
 
 export default function Profile(props : ProfileProps) {
     const dispatch = useDispatch<AppDispatch>();
-    const [account, currentUser, friends, isLoading, hasError] =
-        useSelector<RootState, [IUser|null, IUser|null, IUser[], boolean, boolean]>(state =>
-        [state.auth.account, state.auth.currentUser, state.auth.friends, state.auth.isLoading, state.auth.hasError]);
+    const [account, currentUser, isLoading, hasError] =
+        useSelector<RootState, [IUser|null, IUser|null, boolean, boolean]>(state =>
+        [state.auth.account, state.auth.currentUser, state.auth.isLoading, state.auth.hasError]);
     const params = useParams<{user : string}>();
     const history = useHistory();
     const [currentTab, setCurrentTab] = useState<'Post'|'Repo'|'Explore'>('Explore');
