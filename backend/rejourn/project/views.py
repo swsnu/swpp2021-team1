@@ -5,10 +5,15 @@ from django.http import HttpResponse
 from project.models import User
 from django.contrib.auth import authenticate, login, logout
 import json
-from .httpresponse import HttpResponseInvalidInput, HttpResponseNotLoggedIn, HttpResponseNoPermission, HttpResponseNotExist
+from .httpResponse import HttpResponseInvalidInput, HttpResponseNotLoggedIn, HttpResponseNoPermission, HttpResponseNotExist
 
 
-# Create your views here.
+def token(request):
+    pass
+
+def session(request):
+    pass
+
 def signin(request):
     if request.method == 'POST':
         req_data = json.loads(request.body.decode())
@@ -143,22 +148,19 @@ def userFriends(request, user_name):
         return HttpResponseNotAllowed(['GET'])
 
 
-# def userFriendID(request):
-#     if request.method == 'POST':
-#     elif request.method == 'DELETE':
-#     else:
+def userFriendID(request):
+    pass
 
+def repositories(request):
+    pass
 
+def repositoryID(request):
+    pass
 
-# def repositories(request):
-#     if request.method == 'POST':
-#     elif request.method == 'GET':
-#     else:
+def repositoryCollaborators(request):
+    pass
 
-# def repositoryID(request):
-#     if request.method == 'GET':
-#     elif request.method == 'DELETE':
-#     elif request.method == 'PUT':
-#     else:
+def repositoryCollaboratorID(request):
+    pass
 
 
