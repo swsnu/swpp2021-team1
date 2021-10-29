@@ -1,5 +1,4 @@
-import React, {useEffect, useState} from 'react'
-import {IUser, SetStateAction} from "../../../common/Interfaces";
+import React, { useEffect, useState } from "react";
 import {
     Badge,
     Button,
@@ -9,7 +8,8 @@ import {
     InputGroup,
     Modal,
 } from "react-bootstrap";
-import "./AddCollaborators.css"
+import { IUser, SetStateAction } from "../../../common/Interfaces";
+import "./AddCollaborators.css";
 
 interface AddCollaboratorsProps {
     user : IUser;
@@ -20,7 +20,6 @@ interface AddCollaboratorsProps {
 }
 
 export default function AddCollaborators(props : AddCollaboratorsProps) {
-
     const [collaborators, setCollaborators] = useState<IUser[]>(props.collaborators);
     const [queryString, setQueryString] = useState<string>("");
     const [clicked, setClicked] = useState<boolean>(false);
@@ -32,18 +31,18 @@ export default function AddCollaborators(props : AddCollaboratorsProps) {
     }
 
     function remove(name : string) {
-        const temp = collaborators.filter(value => value.username !== name);
+        const temp = collaborators.filter((value) => value.username !== name);
         setCollaborators(temp);
     }
 
     function onChangeForm(event : React.ChangeEvent<HTMLInputElement>) {
         const string = event.target.value;
         setQueryString(string);
-        setFilteredFriend((props.user.friends as IUser[]).filter(value => value.username.includes(string)));
+        setFilteredFriend((props.user.friends as IUser[]).filter((value) => value.username.includes(string)));
     }
 
     function onAdd(user : IUser) {
-        console.log("added")
+        console.log("added");
         setCollaborators([...collaborators, user]);
     }
 
@@ -55,29 +54,43 @@ export default function AddCollaborators(props : AddCollaboratorsProps) {
             <Dropdown className="d-grid gap-3">
                 <Dropdown.Toggle className="d-flex" split variant="primary" id="dropdown-basic">
                     <InputGroup>
-                        <FormControl id='repo-name-input' type='text' value={queryString} placeholder='Search Friends'
-                                     onChange={onChangeForm}/>
+                        <FormControl
+                            id="repo-name-input"
+                            type="text"
+                            value={queryString}
+                            placeholder="Search Friends"
+                            onChange={onChangeForm}
+                        />
                     </InputGroup>
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
                     {filteredFriend.length > 0 ?
-                        filteredFriend.map(value =>
+                        filteredFriend.map((value) => (
                             <Dropdown.Item
                                 onClick={() => onAdd(value)}
-                                disabled={collaborators.filter(value1 => value1.username === value.username).length !== 0}>
+                                disabled={collaborators.filter((value1) =>
+                                    value1.username === value.username).length !== 0}
+                            >
                                 {value.username}
-                            </Dropdown.Item>) :
-                        <Dropdown.Item disabled={true}>No Result</Dropdown.Item>}
+                            </Dropdown.Item>
+                        )) :
+                        <Dropdown.Item disabled>No Result</Dropdown.Item>}
                 </Dropdown.Menu>
                 <div className="d-flex ms-2 me-2">
-                    {collaborators.map(value => <Collaborator canDelete={value.username !== props.user.username} user={value} remove={remove}/>)}
+                    {collaborators.map((value) => (
+                        <Collaborator
+                            canDelete={value.username !== props.user.username}
+                            user={value}
+                            remove={remove}
+                        />
+                    ))}
                 </div>
             </Dropdown>
             <Modal.Footer>
                 <Button variant="primary" onClick={close}>Confirm</Button>
             </Modal.Footer>
         </Modal>
-    )
+    );
 }
 
 interface CollaboratorProps {
@@ -90,10 +103,11 @@ function Collaborator(props : CollaboratorProps) {
     return (
         <React.Fragment key={props.user.username}>
             <h5>
-                <Badge className="m-2 p-sm-2" pill>{props.user.username}
-                    {props.canDelete && <CloseButton onClick={() => props.remove(props.user.username)}/>}
+                <Badge className="m-2 p-sm-2" pill>
+                    {props.user.username}
+                    {props.canDelete && <CloseButton onClick={() => props.remove(props.user.username)} />}
                 </Badge>
             </h5>
         </React.Fragment>
-    )
+    );
 }
