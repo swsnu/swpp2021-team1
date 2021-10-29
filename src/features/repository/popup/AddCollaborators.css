@@ -1,0 +1,7 @@
+.dropdown-toggle::after {
+    display: none !important;
+}
+
+.dropdown-menu {
+    width: 100%;
+}
