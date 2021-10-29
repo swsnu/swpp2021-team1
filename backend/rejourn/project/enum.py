@@ -5,4 +5,4 @@ class Scope(models.IntegerChoices):
     FRIENDS_ONLY = 1
     PRIVATE = 2
 
-#class Classification(models.IntegerChoices):
+## class Classification(models.IntegerChoices):
