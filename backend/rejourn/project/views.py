@@ -2,10 +2,10 @@ from django.db.models.fields import NullBooleanField
 from django.http.response import HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import render
 from django.http import HttpResponse
-from project.models import User
+from .models import User
 from django.contrib.auth import authenticate, login, logout
 import json
-from .httpResponse import HttpResponseInvalidInput, HttpResponseNotLoggedIn, HttpResponseNoPermission, HttpResponseNotExist
+from .httpresponse import HttpResponseInvalidInput, HttpResponseNotLoggedIn, HttpResponseNoPermission, HttpResponseNotExist
 
 
 def token(request):
