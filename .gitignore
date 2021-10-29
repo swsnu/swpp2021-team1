@@ -18,6 +18,7 @@ media
 
 # testing
 /coverage
+/frontend/coverage
 
 # production
 /build

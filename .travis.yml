@@ -1,7 +1,7 @@
 jobs:
   include:
     - language: node_js
-      node_js: '14'
+      node_js: '16'
       addons:
         sonarcloud:
           organization: "swsnu"
@@ -12,7 +12,7 @@ jobs:
         - yarn install
       script:
         - ./node_modules/.bin/eslint src/
-        - yarn test --coverage --watchAll=false
+        - yarn test --coverage --watchAll=false --passWithNoTests
         - sonar-scanner
     - language: python
       python:

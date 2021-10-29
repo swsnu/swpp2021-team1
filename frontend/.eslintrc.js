@@ -57,6 +57,7 @@ module.exports = {
         "brace-style": ["error", "stroustrup"],
         "operator-linebreak": ["error", "after"],
         "linebreak-style": "off",
+        "react/jsx-no-bind": "off",
     },
     settings: {
         "import/resolver": {
