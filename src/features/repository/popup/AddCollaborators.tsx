@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import {IDummyUser, IUser, SetStateAction} from "../../../common/Interfaces";
+import {IUser, SetStateAction} from "../../../common/Interfaces";
 import {
     Badge,
     Button,
@@ -15,16 +15,16 @@ interface AddCollaboratorsProps {
     user : IUser;
     show : boolean;
     setShow : SetStateAction<boolean>;
-    collaborators : IDummyUser[];
-    setCollaborators : SetStateAction<IDummyUser[]>|((collaborators : IDummyUser[]) => void);
+    collaborators : IUser[];
+    setCollaborators : SetStateAction<IUser[]>|((collaborators : IUser[]) => void);
 }
 
 export default function AddCollaborators(props : AddCollaboratorsProps) {
 
-    const [collaborators, setCollaborators] = useState<IDummyUser[]>(props.collaborators);
+    const [collaborators, setCollaborators] = useState<IUser[]>(props.collaborators);
     const [queryString, setQueryString] = useState<string>("");
     const [clicked, setClicked] = useState<boolean>(false);
-    const [filteredFriend, setFilteredFriend] = useState<IDummyUser[]>(props.user.friends);
+    const [filteredFriend, setFilteredFriend] = useState<IUser[]>(props.user.friends as IUser[]);
 
     function close() {
         props.setCollaborators(collaborators);
@@ -39,10 +39,10 @@ export default function AddCollaborators(props : AddCollaboratorsProps) {
     function onChangeForm(event : React.ChangeEvent<HTMLInputElement>) {
         const string = event.target.value;
         setQueryString(string);
-        setFilteredFriend(props.user.friends.filter(value => value.username.includes(string)));
+        setFilteredFriend((props.user.friends as IUser[]).filter(value => value.username.includes(string)));
     }
 
-    function onAdd(user : IDummyUser) {
+    function onAdd(user : IUser) {
         console.log("added")
         setCollaborators([...collaborators, user]);
     }
@@ -81,7 +81,7 @@ export default function AddCollaborators(props : AddCollaboratorsProps) {
 }
 
 interface CollaboratorProps {
-    user : IDummyUser;
+    user : IUser;
     remove : (name : string) => void;
     canDelete : boolean;
 }

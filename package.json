@@ -2,7 +2,7 @@
   "name": "source",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:5000/",
+  "proxy": "http://localhost:8000/",
   "dependencies": {
     "@popperjs/core": "^2.10.2",
     "@reduxjs/toolkit": "^1.6.2",

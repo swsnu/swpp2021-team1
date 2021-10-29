@@ -6,8 +6,8 @@ import React from "react";
 import ReactDOM from 'react-dom'
 import {Modal, Button, Form, InputGroup} from "react-bootstrap";
 import {IUser} from "../../../../common/Interfaces";
-import { fetchAllUsers } from "../../../../common/APIs";
 import {useHistory} from "react-router-dom";
+import axios from "axios";
 
 interface SignUpProps {
     show: boolean
@@ -19,6 +19,7 @@ export default function SignUp(props : SignUpProps) {
     const [realName, setRealName] = useState<string>("");
     const [username, setUsername] = useState<string>("");
     const [password, setPassword] = useState<string>("");
+    const [bio, setBio] = useState<string>(""); //TODO
     const [canUse, setCanUse] = useState<boolean|null|undefined>(undefined);
     const [valid, setValid] = useState<(boolean|null)[]>([null, null, null, null]);
     //해당 닉네임을 이용할 수 있는지 확인하는 state
@@ -28,13 +29,21 @@ export default function SignUp(props : SignUpProps) {
     const history = useHistory();
 
     function checkDuplicate() {
-        //TODO : duplicate check with axios.get
-        setCanUse(true);
+        //TODO : loading 처리?
+        axios.get<IUser>(`/api/users/${username}`)
+            .then(response => setCanUse(false))
+            .catch(error => setCanUse(true));
     }
 
     function onSignUp() {
         /*정규표현식으로 signup 형식 지정(hw2 참조)*/
-        dispatch(actionCreators.signUp({email : email, real_name : realName, username : username, password : password, profile_picture : 'default', friends : []}));
+        dispatch(actionCreators.signUp({
+            email : email,
+            real_name : realName,
+            username : username,
+            password : password,
+            bio : bio,
+        }));
         history.push(`/main/${username}`);
     }
 
@@ -53,7 +62,7 @@ export default function SignUp(props : SignUpProps) {
             case 'username' :
                 setUsername(event.target.value);
                 setCanUse(null);
-                if (/^[a-zA-Z\d_]+$/.test(event.target.value)) {
+                if (/^[a-zA-Z\d_]+$/.test(event.target.value) && event.target.value.length <= 150) {
                     setValid([valid[0], true, valid[2], valid[3]]);
                 }
                 else {
@@ -63,7 +72,7 @@ export default function SignUp(props : SignUpProps) {
 
             case 'realname' :
                 setRealName(event.target.value);
-                if (/^[a-zA-Z][a-zA-Z\s]*$/.test(event.target.value)) {
+                if (/^[a-zA-Z][a-zA-Z\s]*$/.test(event.target.value) && event.target.value.length <= 150) {
                     setValid([valid[0], valid[1], true, valid[3]]);
                 }
                 else {

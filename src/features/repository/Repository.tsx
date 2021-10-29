@@ -12,7 +12,7 @@ export default function Repository(props : RepositoryProps) {
 
     const history = useHistory();
     let collabString : string = "";
-    props.repository.collaborator_list.forEach(value => collabString += (value.username + ', '))
+    props.repository.collaborators.forEach(value => collabString += (value.username + ', '))
     collabString = collabString.slice(0, collabString.length-2);
     collabString = "johndoe, ddony_0530" //테스팅용 임시
 

@@ -1,56 +1,58 @@
 import React from "react";
 
-interface IUser {
-    real_name : string;
-    username : string;
-    email : string;
-    password : string;
-    profile_picture : string;
-    friends : IDummyUser[];
+enum Visibility {
+    ALL,
+    MEMBER_AND_FRIENDS,
+    ONLY_MEMBERS,
 }
 
-interface IDummyUser {
-    real_name : string;
+interface IUser {
     username : string;
-    profile_picture : string;
+    bio : string;
+    profile_picture? : string;
+    visibility? : Visibility;
+    real_name? : string;
+    email? : string;
+    password? : string;
+    friends? : IUser[];
 }
 
 interface IRepository {
     repo_id : number;
     repo_name : string;
+    owner : string;
     travel_start_date : string;
     travel_end_date : string;
-    collaborator_list : IDummyUser[];
+    collaborators : IUser[];
+    visibility : Visibility;
 }
 
-interface Post {
-
-}
-
-interface Photo {
+interface IPost {
 
 }
 
-interface Discussion {
+interface IPhoto {
 
 }
 
-interface Comment {
+interface IDiscussion {
 
 }
 
-interface Tag {
+interface IComment {
 
 }
 
-interface Place {
+interface ITag {
 
 }
 
-interface Error {
+interface IPlace {
 
 }
 
 export type SetStateAction<T> =  React.Dispatch<React.SetStateAction<T>>
 
-export type { IUser, IDummyUser, IRepository, Post, Photo, Discussion, Comment, Tag, Place, Error }
+export type { IUser, IRepository, IPost, IPhoto, IDiscussion, IComment, ITag, IPlace }
+
+export { Visibility }

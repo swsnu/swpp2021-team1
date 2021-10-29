@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../../app/store";
-import {IDummyUser, IRepository, IUser} from "../../common/Interfaces";
-import {Redirect, useParams} from "react-router-dom";
+import { IRepository, IUser, Visibility} from "../../common/Interfaces";
+import {Redirect} from "react-router-dom";
 import * as actionCreator from "./reposSlice";
-import {Badge, Button, FormControl, InputGroup, Form} from "react-bootstrap";
+import {Badge, Button, Form, FormControl, InputGroup} from "react-bootstrap";
 import AddCollaborators from "./popup/AddCollaborators";
 import {signIn} from "../auth/authSlice"; //테스트용 임시 처리
 
@@ -17,17 +17,21 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
     //assume isLoading이 true 상태
 
     const dispatch = useDispatch<AppDispatch>();
-    const [isLoading, hasError] = useSelector<RootState, [boolean, boolean]>(state => [state.repos.isLoading, state.repos.hasError]);
-    const [user, repo] = useSelector<RootState, [IUser,IRepository|null]>(state => [state.auth.account as IUser, state.repos.currentRepo]);
+    const [userIsLoading, userHasError] =
+        useSelector<RootState, [boolean, boolean]>(state => [state.auth.isLoading, state.auth.hasError]);
+    const [isLoading, hasError] = useSelector<RootState, [boolean, boolean]>(state =>
+        [state.repos.isLoading, state.repos.hasError]);
+    const [user, repo] = useSelector<RootState, [IUser|null,IRepository|null]>(state =>
+        [state.auth.account, state.repos.currentRepo]);
     const [repoName, setRepoName] = useState<string>("");
     const [travelStartDate, setTravelStartDate] = useState<string>("");
     const [travelEndDate, setTravelEndDate] = useState<string>("");
-    const [collaborators, setCollaborators] = useState<IDummyUser[]>([{profile_picture : 'test', real_name : 'test', username : 'test'}]); //테스트용 임시
+    const [collaborators, setCollaborators] = useState<IUser[]>([]); //TODO
     const [show, setShow] = useState<boolean>(false);
     const [valid, setValid] = useState<(boolean|null)[]>([null, null, null]);
+    const [visibility, setVisibility] = useState<Visibility>(Visibility.ALL);
 
     useEffect(() => {
-        dispatch(signIn({email : 'asdf', password : 'asdf'})) //테스트용 임시 처리
     }, [dispatch])
 
     function addCollaborators() {
@@ -35,12 +39,14 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
     }
 
     function createRepos() {
-        dispatch(actionCreator.addRepo({
+        dispatch(actionCreator.createRepository({
             repo_id : -1,
             repo_name : repoName,
+            owner : user?.username as string,
             travel_start_date : travelStartDate,
             travel_end_date : travelEndDate,
-            collaborator_list : collaborators,
+            visibility : visibility,
+            collaborators : collaborators,
         }))
     }
 
@@ -67,6 +73,9 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
     }
 
     //TODO : Error 처리
+    if (userIsLoading) return null;
+    if (userHasError) return (<Redirect to='/login'/>) //TODO
+    if (hasError) return (<div>Fatal Error!!!</div>)
     return (
         <div>
             {!isLoading && repo && <Redirect to={`/repos/${repo.repo_id}`}/>} {/*TODO*/}
@@ -107,6 +116,32 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
                     Please choose valid date.
                 </Form.Control.Feedback>
             </InputGroup>
+            <Form className="mt-3">
+                <h5>Your repository is visible to...</h5>
+                <div className="mt-3">
+                    <Form.Check
+                        inline
+                        label="Anyone"
+                        type="checkbox"
+                        checked={visibility === Visibility.ALL}
+                        onChange={(e) => setVisibility(Visibility.ALL)}
+                    />
+                    <Form.Check
+                        inline
+                        label="Members' Friends"
+                        type="checkbox"
+                        checked={visibility === Visibility.MEMBER_AND_FRIENDS}
+                        onChange={(e) => setVisibility(Visibility.MEMBER_AND_FRIENDS)}
+                    />
+                    <Form.Check
+                        inline
+                        label="Only Members"
+                        type="checkbox"
+                        checked={visibility === Visibility.ONLY_MEMBERS}
+                        onChange={(e) => setVisibility(Visibility.ONLY_MEMBERS)}
+                    />
+                </div>
+            </Form>
             <div className="d-flex mt-4 justify-content-between align-items-start">
                 <h4 className="m-2">Collaborators</h4>
                 <Button className="m-2" id='add-collaborator-button' onClick={addCollaborators}>+</Button>

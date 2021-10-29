@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { AppDispatch, RootState } from "../../../app/store";
-import { IDummyUser, IUser } from "../../../common/Interfaces";
+import { IUser } from "../../../common/Interfaces";
 import { Redirect } from "react-router-dom";
 import * as actionCreator from "../authSlice"
 import { Form, Button } from "react-bootstrap";
@@ -14,7 +14,7 @@ interface SignInProps {
 }
 
 export default function SignIn(props: SignInProps) {
-    const [email, setEmail] = useState<string>("");
+    const [username, setUsername] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [signupModalShow, setSignupModalShow] = useState<boolean>(false);
     const dispatch = useDispatch<AppDispatch>();
@@ -23,7 +23,7 @@ export default function SignIn(props: SignInProps) {
         [state.auth.account, state.auth.hasError]);
 
     function onLogIn() {
-        dispatch(actionCreator.signIn({ email, password }));
+        dispatch(actionCreator.signIn({ username, password }));
     }
 
     function onModalClose() {
@@ -35,8 +35,8 @@ export default function SignIn(props: SignInProps) {
             {account && <Redirect to={`/main/${account.username}`} />}
             <Form id="form-container" className="p-5">
                 <Form.Group className="mb-3">
-                    <Form.Control value={email} type="email"
-                                  onChange={event => setEmail(event.target.value)}
+                    <Form.Control value={username} type="email"
+                                  onChange={event => setUsername(event.target.value)}
                                   placeholder="Email" isInvalid={hasError}/>
                     <Form.Control.Feedback type="invalid">
                         Log in failed.
@@ -52,7 +52,7 @@ export default function SignIn(props: SignInProps) {
                 </Form.Group>
                 <div className="d-flex flex-column">
                     <Button id="login-button" onClick={onLogIn}
-                    disabled={email === "" || password === ""}
+                    disabled={username === "" || password === ""}
                     variant="primary">Log In</Button>
                     <div id="signup-button" >
                         <Button onClick={() => setSignupModalShow(true)} variant="link">Sign Up!</Button>
