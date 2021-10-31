@@ -6,6 +6,14 @@ enum Visibility {
     ALL,
 }
 
+function randomString() {
+    return Math.random().toString(36).substr(2, 11);
+}
+
+function randomInt() {
+    return Math.floor(Math.random() * 10);
+}
+
 interface IUser {
     username : string;
     bio : string;
@@ -17,6 +25,18 @@ interface IUser {
     friends? : IUser[];
 }
 
+export function userFactory() {
+    return {
+        username: randomString(),
+        bio: randomString(),
+        profile_picture: randomString(),
+        visibility: Visibility.ALL,
+        real_name: randomString(),
+        email: randomString(),
+        password: randomString(),
+    } as IUser;
+}
+
 interface IRepository {
     repo_id : number;
     repo_name : string;
@@ -25,6 +45,18 @@ interface IRepository {
     travel_end_date : string;
     collaborators : IUser[];
     visibility : Visibility;
+}
+
+export function repositoryFactory() {
+    return {
+        repo_id: randomInt(),
+        repo_name: randomString(),
+        owner: randomString(),
+        travel_start_date: randomString(),
+        travel_end_date: randomString(),
+        collaborators: [],
+        visibility: Visibility.ALL,
+    } as IRepository;
 }
 
 interface IPost {
