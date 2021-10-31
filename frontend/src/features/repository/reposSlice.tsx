@@ -1,51 +1,59 @@
 import {
     createAsyncThunk,
     createSlice,
+    current,
     PayloadAction,
     SliceCaseReducers,
 } from "@reduxjs/toolkit";
 import { IRepository, IUser } from "../../common/Interfaces";
 import {
+    deleteCollaborators,
     deleteRepository,
     getRepositories, getRepository, postCollaborators,
     postRepositories,
     putRepository,
 } from "../../common/APIs";
 
-export const fetchRepositories = createAsyncThunk<IRepository[], string>(
+export const fetchRepositories = createAsyncThunk<IRepository[], string>( // added
     "repos/list",
     async (username, thunkAPI) => // payload creator
         await getRepositories(username),
 
 );
 
-export const createRepository = createAsyncThunk<IRepository, IRepository>(
+export const createRepository = createAsyncThunk<IRepository, IRepository>( // added
     "repos/add",
     async (repo, thunkAPI) => await postRepositories(repo),
 );
 
-export const editRepository = createAsyncThunk<IRepository, IRepository>(
+export const editRepository = createAsyncThunk<IRepository, IRepository>( // added
     "repos/edit",
     async (repo, thunkAPI) => await putRepository(repo),
 );
 
-export const removeRepository = createAsyncThunk<void, number>(
+export const removeRepository = createAsyncThunk<void, number>( // added
     "repos/delete",
     async (repo_id, thunkAPI) => {
         await deleteRepository(repo_id);
     },
 );
 
-export const addCollaborators = createAsyncThunk<void, {repoID : number, users : string[]}>(
+export const fetchRepository = createAsyncThunk<IRepository, number>( // added
+    "repos/repo",
+    async (repoID, thunkAPI) => await getRepository(repoID),
+);
+
+export const addCollaborators = createAsyncThunk<void, {repoID : number, users : string[]}>( // added
     "repos/collaborators",
     async ({ repoID, users }, thunkAPI) => {
         await postCollaborators(repoID, users);
     },
 );
 
-export const fetchRepository = createAsyncThunk<IRepository, number>(
-    "repos/collaborators",
-    async (repoID, thunkAPI) => await getRepository(repoID),
+export const secedeRepository = createAsyncThunk<void, {username : string, repoID : number}>( // added
+    "repos/secede",
+    async ({ username, repoID }, thunkAPI) =>
+        await deleteCollaborators(repoID, username),
 );
 
 interface ReposState {
@@ -67,7 +75,8 @@ const reposSlice = createSlice<ReposState, SliceCaseReducers<ReposState>>({
     initialState: reposInitialState,
     reducers: {
         toBeLoaded: (state : ReposState, action: PayloadAction<null>) => {
-            state.isLoading = true;
+            console.log(action.type);
+            state.isLoading = false;
         },
         handleError: (state : ReposState, action: PayloadAction<null>) => {
             state.hasError = false;
@@ -107,8 +116,8 @@ const reposSlice = createSlice<ReposState, SliceCaseReducers<ReposState>>({
         });
 
         builder.addCase(addCollaborators.pending, (state : ReposState) => {
-            state.isLoading = false;
-            state.hasError = true;
+            state.isLoading = true;
+            state.hasError = false;
         });
 
         builder.addCase(addCollaborators.fulfilled, (state : ReposState) => {
@@ -117,6 +126,68 @@ const reposSlice = createSlice<ReposState, SliceCaseReducers<ReposState>>({
         });
 
         builder.addCase(addCollaborators.rejected, (state : ReposState) => {
+            state.isLoading = false;
+            state.hasError = true;
+        });
+
+        builder.addCase(editRepository.pending, (state : ReposState) => {
+            state.isLoading = true;
+            state.hasError = false;
+        });
+
+        builder.addCase(editRepository.fulfilled, (state : ReposState, action : PayloadAction<IRepository>) => {
+            state.isLoading = false;
+            state.hasError = false;
+            state.currentRepo = action.payload;
+        });
+
+        builder.addCase(editRepository.rejected, (state : ReposState) => {
+            state.isLoading = false;
+            state.hasError = true;
+        });
+
+        builder.addCase(removeRepository.pending, (state : ReposState) => {
+            state.isLoading = true;
+            state.hasError = false;
+        });
+
+        builder.addCase(removeRepository.fulfilled, (state : ReposState) => {
+            state.isLoading = false;
+            state.hasError = false;
+        });
+
+        builder.addCase(removeRepository.rejected, (state : ReposState) => {
+            state.isLoading = false;
+            state.hasError = true;
+        });
+
+        builder.addCase(fetchRepository.pending, (state : ReposState) => {
+            state.isLoading = true;
+            state.hasError = false;
+        });
+
+        builder.addCase(fetchRepository.fulfilled, (state : ReposState, action : PayloadAction<IRepository>) => {
+            state.isLoading = false;
+            state.hasError = false;
+            state.currentRepo = action.payload;
+        });
+
+        builder.addCase(fetchRepository.rejected, (state : ReposState) => {
+            state.isLoading = false;
+            state.hasError = true;
+        });
+
+        builder.addCase(secedeRepository.pending, (state : ReposState) => {
+            state.isLoading = true;
+            state.hasError = false;
+        });
+
+        builder.addCase(secedeRepository.fulfilled, (state : ReposState) => {
+            state.isLoading = false;
+            state.hasError = false;
+        });
+
+        builder.addCase(secedeRepository.rejected, (state : ReposState) => {
             state.isLoading = false;
             state.hasError = true;
         });
