@@ -75,8 +75,7 @@ const reposSlice = createSlice<ReposState, SliceCaseReducers<ReposState>>({
     initialState: reposInitialState,
     reducers: {
         toBeLoaded: (state : ReposState, action: PayloadAction<null>) => {
-            console.log(action.type);
-            state.isLoading = false;
+            state.isLoading = true;
         },
         handleError: (state : ReposState, action: PayloadAction<null>) => {
             state.hasError = false;
