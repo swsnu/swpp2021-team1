@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Redirect } from "react-router-dom";
 import { Form, Button } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,6 +20,10 @@ export default function SignIn(props: SignInProps) {
     const dispatch = useDispatch<AppDispatch>();
     const [account, hasError] = useSelector<RootState, [IUser|null, boolean]>((state) =>
         [state.auth.account, state.auth.hasError]);
+
+    useEffect(() => {
+        dispatch(actionCreator.fetchSession());
+    }, [dispatch]);
 
     function onLogIn() {
         dispatch(actionCreator.signIn({ username, password }));

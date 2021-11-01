@@ -28,7 +28,7 @@ export default function App() {
                                 </Col>
                                 <Col xs="9" style={{ marginTop: 55 }}>
                                     <Switch>
-                                        <Route path={["/main/:user", "/main/:user/repos"]}>
+                                        <Route exact path={["/main/:user", "/main/:user/repos"]}>
                                             <Profile />
                                             <Switch>
                                                 <Route path="/main/:user" exact component={Post} />

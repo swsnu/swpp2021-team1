@@ -7,8 +7,8 @@ axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export async function postSignIn(username : string, password : string) {
     // ! 테스트를 위해 json-server로 임시 대체함.
-    // return await axios.post<any,IUser>('/api/signin/', {username : username, password : password});
-    const resolvedUser = {
+    return await axios.post<any, IUser>("/api/signin/", { username, password });
+    /* const resolvedUser = {
         username: "iluvswpp",
         bio: "Everyday is a new JOURNEY!",
         profile_picture: "https://images.unsplash.com/photo-1609866975749-2238afebfa27?" +
@@ -17,7 +17,7 @@ export async function postSignIn(username : string, password : string) {
         real_name: "John Doe",
         email: "swpp@snu.ac.kr",
     };
-    return resolvedUser;
+    return resolvedUser; */
 }
 
 export async function getSession() {

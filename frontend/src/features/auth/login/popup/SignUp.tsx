@@ -45,15 +45,18 @@ export default function SignUp(props : SignUpProps) {
             username,
             password,
             bio,
-        }));
-        history.push(`/main/${username}`);
+        })).then(() => {
+            dispatch(actionCreators.signIn({ username, password }));
+        }).then(() => {
+            history.push(`/main/${username}`);
+        });
     }
 
     function onChange(event : React.ChangeEvent<HTMLInputElement>) {
         switch (event.target.name) {
         case "email":
             setEmail(event.target.value);
-            if (/^[^.@\s]+@[A-Za-z\d.]+$/.test(email)) {
+            if (/^[^.@\s]+@[A-Za-z\d.]+$/.test(event.target.value)) {
                 setValid([true, valid[1], valid[2], valid[3]]);
             }
             else {
@@ -169,10 +172,20 @@ export default function SignUp(props : SignUpProps) {
                             Password should be 8 letter or longer with at least one number and alphabet.
                         </Form.Control.Feedback>
                     </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Bio</Form.Label>
+                        <Form.Control
+                            type="bio"
+                            value={bio}
+                            name="bio"
+                            onChange={(event) => setBio(event.target.value)}
+                        />
+                    </Form.Group>
                 </Form>
             </Modal.Body>
             <Modal.Footer>
                 <Button
+                    id="confirm"
                     variant="primary"
                     onClick={onSignUp}
                     disabled={!(valid[0] && valid[1] && valid[2] && valid[3] && canUse === true)}
