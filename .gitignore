@@ -13,7 +13,10 @@
 __pycache__/
 local_settings.py
 db.sqlite3
+project/db.splite3
 db.sqlite3-journal
+backend/rejourn/project/migrations/*.py
+!migrations/__init__.py
 media
 
 # testing

@@ -17,12 +17,14 @@ jobs:
         - sonar-scanner
     - language: python
       python:
-        - "3.7.9"
+        - "3.9.2"
       install:
         - cd backend
         - cd rejourn
         - pip install -r requirements.txt
       script:
+        - python3 manage.py makemigrations project
+        - python3 manage.py migrate
         - pylint **/*.py --load-plugins pylint_django
         - coverage run --source='.' manage.py test
         - coverage xml
