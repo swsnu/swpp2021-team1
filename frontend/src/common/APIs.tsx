@@ -56,23 +56,23 @@ export async function deleteFriends(from : string, to : string) {
     await axios.delete(`/api/users/${from}/friends/${to}`);
 }
 
-export async function postRepositories(repo : IRepository) {
+export async function postRepositories(repo : IRepository) { // added
     return await axios.post<any, IRepository>("/api/repositories/", repo);
 }
 
-export async function getRepositories(username : string) {
+export async function getRepositories(username : string) { // added
     return await axios.get<any, IRepository[]>(`/api/repositories/?username=${username}`);
 }
 
-export async function getRepository(repo_id : number) {
+export async function getRepository(repo_id : number) { // added
     return await axios.get<any, IRepository>(`/api/repositories/${repo_id}`);
 }
 
-export async function deleteRepository(repo_id : number) {
+export async function deleteRepository(repo_id : number) { // added
     await axios.delete(`/api/repositories/${repo_id}`);
 }
 
-export async function putRepository(repo : IRepository) {
+export async function putRepository(repo : IRepository) { // added
     return await axios.put<any, IRepository>(`/api/repositories/${repo.repo_id}`);
 }
 
@@ -80,10 +80,10 @@ export async function getCollaborators(repo_id : number) {
     return await axios.get<any, IUser[]>(`/api/repositories/${repo_id}/collaborators`);
 }
 
-export async function postCollaborators(repo_id : number, users : string[]) {
+export async function postCollaborators(repo_id : number, users : string[]) { // added
     await axios.post(`/api/repositories/${repo_id}/collaborators/`, users);
 }
 
-export async function deleteCollaborators(repo_id : number, username : string) {
+export async function deleteCollaborators(repo_id : number, username : string) { // added
     await axios.delete(`/api/repositories/${repo_id}/collaborators/${username}/`);
 }

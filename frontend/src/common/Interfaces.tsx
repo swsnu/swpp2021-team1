@@ -107,6 +107,8 @@ interface IPlace {
 
 }
 
+// TODO: IRoute must be added
+
 export type SetStateAction<T> = React.Dispatch<React.SetStateAction<T>>
 
 export type {
