@@ -162,5 +162,3 @@ def repositoryCollaborators(request):
 
 def repositoryCollaboratorID(request):
     pass
-
-
