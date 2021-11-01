@@ -9,7 +9,7 @@ import json
 from datetime import datetime
 from django.utils import timezone
 
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 
 # util function
 def have_common_user( groupA, groupB ):
@@ -25,6 +25,8 @@ def token(request):
     else:
         return HttpResponseNotAllowed(['GET'])
 
+
+@ensure_csrf_cookie
 def session(request):
     if request.method == 'GET':
         
@@ -47,6 +49,7 @@ def session(request):
         return HttpResponseNotAllowed(['GET'])
 
 
+@ensure_csrf_cookie
 def signin(request):
     if request.method == 'POST':
         
@@ -67,6 +70,7 @@ def signin(request):
         return HttpResponseNotAllowed(['POST'])
 
 
+@ensure_csrf_cookie
 def signout(request):
     if request.method == 'GET':
         if not request.user.is_authenticated:
@@ -78,10 +82,9 @@ def signout(request):
         return HttpResponseNotAllowed(['GET'])
 
 
+@csrf_exempt
 def users(request):
     if request.method == 'POST':
-        if not request.user.is_authenticated:
-            return HttpResponseNotLoggedIn()
         
         try:
             req_data = json.loads(request.body.decode())
@@ -99,12 +102,28 @@ def users(request):
             return HttpResponseInvalidInput()
             
         User.objects.create_user(username=username, real_name=real_name, email=email,
-                                 password=password, visibility=visibility, bio=bio)    
-        
+                                 password=password, visibility=visibility, bio=bio)
+
+        try:
+            new_user = User.objects.get(username=username)
+        except(User.DoesNotExist) as e:
+            return HttpResponseNotExist()
+
+        response_dict = {
+            'username' : new_user.username,
+            'bio' : new_user.bio,
+            'visibility' : new_user.visibility,
+            'real_name' : new_user.real_name,
+            'email' : new_user.email,
+        }
+
+        return HttpResponseSuccessUpdate(response_dict)
+
     else:
         return HttpResponseNotAllowed(['POST'])
 
 
+@ensure_csrf_cookie
 def userID(request, user_name):
     if request.method == 'DELETE':
         if not request.user.is_authenticated:
@@ -214,6 +233,7 @@ def userID(request, user_name):
         return HttpResponseNotAllowed(['DELETE', 'PUT', 'GET'])
 
 
+@ensure_csrf_cookie
 def userFriends(request, user_name):
     if request.method == 'GET':
         try:
@@ -245,6 +265,7 @@ def userFriends(request, user_name):
         return HttpResponseNotAllowed(['GET'])
 
 
+@ensure_csrf_cookie
 def userFriendID(request, user_name, friend_name):
     if request.method == 'POST':
         if not request.user.is_authenticated():
@@ -290,6 +311,7 @@ def userFriendID(request, user_name, friend_name):
         return HttpResponseNotAllowed(['POST', 'DELETE'])
 
 
+@ensure_csrf_cookie
 def repositories(request):
     if request.method == 'POST':
         if not request.user.is_authenticated():
@@ -436,6 +458,7 @@ def repositories(request):
         return HttpResponseNotAllowed(['POST', 'GET'])
 
 
+@ensure_csrf_cookie
 def repositoryID(request, repo_id):
     if request.method == 'GET':
         try:
@@ -554,6 +577,7 @@ def repositoryID(request, repo_id):
         return HttpResponseNotAllowed(['GET', 'DELETE','PUT'])
         
 
+@ensure_csrf_cookie
 def repositoryCollaborators(request, repo_id):
     if request.method == 'GET':
         try:
@@ -609,12 +633,14 @@ def repositoryCollaborators(request, repo_id):
         
         for user in new_collaborators:
             repository.collaborators.add(user)
+        repository.save()
 
         return HttpResponseSuccessUpdate()            
 
     else:
         return HttpResponseNotAllowed(['GET', 'POST'])
 
+@ensure_csrf_cookie
 def repositoryCollaboratorID(request, repo_id, collaborator_name):
     if request.method == 'DELETE':
         if not request.user.is_authenticated:
