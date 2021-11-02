@@ -19,7 +19,6 @@ import * as actionCreator from "../../authSlice";
 import { userFactory } from "../../../../common/Interfaces";
 import SignUp from "./SignUp";
 import * as APIs from "../../../../common/APIs";
-import {wrapper} from "react-bootstrap/lib/utils/deprecationWarning";
 
 const history = createBrowserHistory();
 const historyMock = { ...history, push: jest.fn(), listen: jest.fn() };

@@ -1,4 +1,4 @@
-import { BrowserRouter, Route } from "react-router-dom";
+import { BrowserRouter, Route, Router } from "react-router-dom";
 import React from "react";
 import { Provider, useDispatch } from "react-redux";
 import { mount } from "enzyme";
@@ -6,6 +6,7 @@ import * as redux from "react-redux";
 import { Action } from "redux";
 import { debug } from "util";
 import { configureStore } from "@reduxjs/toolkit";
+import { createBrowserHistory } from "history";
 import store from "../../../app/store";
 import SignIn from "./SignIn";
 import * as actionCreator from "../authSlice";
@@ -13,6 +14,9 @@ import { userFactory } from "../../../common/Interfaces";
 import authReducer from "../authSlice";
 import reposReducer from "../../repository/reposSlice";
 import postsReducer from "../../post/postsSlice";
+
+const history = createBrowserHistory();
+const historyMock = { ...history, push: jest.fn(), listen: jest.fn() };
 
 function makeStoredComponent() {
     const store = configureStore({
@@ -25,9 +29,9 @@ function makeStoredComponent() {
 
     return (
         <Provider store={store}>
-            <BrowserRouter>
+            <Router history={historyMock}>
                 <Route path="/" exact component={SignIn} />
-            </BrowserRouter>
+            </Router>
         </Provider>
     );
 }
@@ -44,7 +48,10 @@ describe("SignIn", () => {
     });
 
     it("Should be able to dispatch actions", () => {
-        const spy = jest.spyOn(redux, "useDispatch").mockImplementation(jest.fn);
+        const spy = jest.spyOn(redux, "useDispatch").mockImplementation((() =>
+            (e : any) => ({
+                then: (e : () => any) => e(),
+            })) as typeof jest.fn);
         const spySlice = jest.spyOn(actionCreator, "signIn").mockImplementation(jest.fn);
         const component = mount(makeStoredComponent());
         component.find("FormControl").at(0).simulate("change", { target: { value: "a" } });
@@ -66,7 +73,7 @@ describe("SignIn", () => {
         const spy = jest.spyOn(redux, "useDispatch").mockImplementation(jest.fn);
         const spySelect = jest.spyOn(redux, "useSelector").mockImplementation(() => [userFactory(), false]);
         const component = mount(makeStoredComponent());
-        const wrapper = component.find("#viewport");
-        expect(wrapper.length).toBe(0);
+        const wrapper = component.find("Redirect");
+        expect(wrapper.length).toBe(1);
     });
 });

@@ -49,7 +49,10 @@ export default function SignUp(props : SignUpProps) {
             bio,
             visibility: Visibility.ALL,
         })).then(() => {
-            dispatch(actionCreators.signIn({ username, password }));
+            dispatch(actionCreators.signIn({ username, password }))
+                .then(() => {
+                    history.push(`/main/${username}`);
+                });
         });
     }
 

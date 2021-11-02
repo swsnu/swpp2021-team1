@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Redirect } from "react-router-dom";
+import { Redirect, useHistory } from "react-router-dom";
 import { Form, Button } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
@@ -21,6 +21,7 @@ export default function SignIn(props: SignInProps) {
     const [account, hasError] = useSelector<RootState, [IUser|null, boolean]>((state) =>
         [state.auth.account, state.auth.hasError]);
     const [loginClicked, setLoginClicked] = useState<boolean>(false);
+    const history = useHistory();
 
     useEffect(() => {
         dispatch(actionCreator.fetchSession());
@@ -28,18 +29,19 @@ export default function SignIn(props: SignInProps) {
 
     function onLogIn() {
         setLoginClicked(true);
-        dispatch(actionCreator.signIn({ username, password }));
+        dispatch(actionCreator.signIn({ username, password }))
+            .then(() => {
+                history.push(`/main/${username}`);
+            });
     }
 
     function onModalClose() {
         setSignupModalShow(false);
     }
 
-    console.log(account);
-
     return (
         <div id="viewport" className="p-5">
-            {account && <Redirect to={`/main/${account.username}`} />}
+            {account && (<Redirect to={`/main/${account.username}`} />)}
             <Form id="form-container" className="p-5">
                 <Form.Group className="mb-3">
                     <Form.Control
