@@ -68,7 +68,7 @@ export async function getRepository(repo_id : number) {
     return (await axios.get<any, AxiosResponse<IRepository>>(`/api/repositories/${repo_id}`)).data;
 }
 
-export async function deleteRepository(repo_id : number) {
+export async function deleteRepository(repo_id : number) { // added
     await axios.delete(`/api/repositories/${repo_id}`);
 }
 
@@ -80,10 +80,10 @@ export async function getCollaborators(repo_id : number) {
     return (await axios.get<any, AxiosResponse<IUser[]>>(`/api/repositories/${repo_id}/collaborators`)).data;
 }
 
-export async function postCollaborators(repo_id : number, users : string[]) {
+export async function postCollaborators(repo_id : number, users : string[]) { // added
     await axios.post(`/api/repositories/${repo_id}/collaborators/`, users);
 }
 
-export async function deleteCollaborators(repo_id : number, username : string) {
+export async function deleteCollaborators(repo_id : number, username : string) { // added
     await axios.delete(`/api/repositories/${repo_id}/collaborators/${username}/`);
 }
