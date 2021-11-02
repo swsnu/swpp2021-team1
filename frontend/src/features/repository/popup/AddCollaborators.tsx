@@ -79,7 +79,8 @@ export default function AddCollaborators(props : AddCollaboratorsProps) {
                 <div className="d-flex ms-2 me-2">
                     {collaborators.map((value) => (
                         <Collaborator
-                            canDelete={value.username !== props.user.username}
+                            canDelete={props.collaborators.filter((value1) =>
+                                value1.username === value.username).length > 0}
                             user={value}
                             remove={remove}
                         />

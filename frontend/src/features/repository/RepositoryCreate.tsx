@@ -27,13 +27,18 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
     const [repoName, setRepoName] = useState<string>("");
     const [travelStartDate, setTravelStartDate] = useState<string>("");
     const [travelEndDate, setTravelEndDate] = useState<string>("");
-    const [collaborators, setCollaborators] = useState<IUser[]>([]); // TODO
+    const [collaborators, setCollaborators] = useState<IUser[]>([]);
     const [show, setShow] = useState<boolean>(false);
     const [valid, setValid] = useState<(boolean|null)[]>([null, null, null]);
     const [visibility, setVisibility] = useState<Visibility>(Visibility.ALL);
 
-    /* useEffect(() => {
-    }, [dispatch]); */
+    useEffect(() => {
+        if (user) {
+            if (collaborators.filter((value) => value.username === user.username).length === 0) {
+                setCollaborators([user, ...collaborators]);
+            }
+        }
+    }, [dispatch, user]);
 
     function addCollaborators() {
         setShow(true);
@@ -81,10 +86,8 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
         }
     }
 
-    // TODO : Error 처리
     if (userIsLoading) return null;
-    if (userHasError) return (<Redirect to="/login" />); // TODO
-    if (hasError) return (<div>Fatal Error!!!</div>);
+    // if (hasError) return (<div>Fatal Error!!!</div>);
     return (
         <div>
             {!isLoading && repo && <Redirect to={`/repos/${repo.repo_id}`} />}

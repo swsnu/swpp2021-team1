@@ -35,6 +35,8 @@ export default function SignIn(props: SignInProps) {
         setSignupModalShow(false);
     }
 
+    console.log(account);
+
     return (
         <div id="viewport" className="p-5">
             {account && <Redirect to={`/main/${account.username}`} />}

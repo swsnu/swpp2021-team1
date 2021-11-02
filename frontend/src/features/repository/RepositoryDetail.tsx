@@ -29,25 +29,40 @@ export default function RepositoryDetail(props : RepositoryDetailProps) {
     const [tab, setTab] = useState<RepositoryTab>(RepositoryTab.Group);
 
     useEffect(() => {
-    // TODO if (!user) dispatch(actionCreator.getAccount());
         if (!currentRepo || currentRepo.repo_id !== parseInt(params.id)) {
             dispatch(actionCreator.fetchRepository(parseInt(params.id)));
         }
     }, [dispatch]);
 
-    // if (userIsLoading) return null;
-    if (userHasError) return (<Redirect to="/login" />); // TODO
+    if (userIsLoading) return null;
     if (isLoading) return null;
-    if (hasError) return (<div>Error!</div>);
+    if (hasError) return (<div>404 Error : You cannot watch this repository.</div>);
     if (!currentRepo) return (<div>Unexpected Error!</div>);
     const hasAuth = user && currentRepo.collaborators.filter((value) => user.username === value.username).length > 0;
     return (
         <div>
             <h2>{currentRepo.repo_name}</h2>
             <h4>{`${currentRepo.travel_start_date}~${currentRepo.travel_end_date}`}</h4>
-            <Button />
-            {" "}
-            {/* TODO */}
+            <Button
+                onClick={(event) => setTab(RepositoryTab.Group)}
+                disabled={tab === RepositoryTab.Group}
+            >
+                GROUP
+            </Button>
+            <Button
+                onClick={(event) => setTab(RepositoryTab.Mine)}
+                disabled={tab === RepositoryTab.Mine}
+            >
+                MINE
+            </Button>
+            { hasAuth && (
+                <Button
+                    onClick={(event) => setTab(RepositoryTab.Setting)}
+                    disabled={tab === RepositoryTab.Setting}
+                >
+                    SETTING
+                </Button>
+            )}
             {tab === RepositoryTab.Setting && <RepositorySettings />}
         </div>
     );

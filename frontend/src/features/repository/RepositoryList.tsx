@@ -40,10 +40,7 @@ export default function RepositoryList(props : RepositoryListProps) {
         history.push("/repos/create");
     }
 
-    console.log(account?.username);
-    console.log(user?.username);
-
-    // TODO : Error 처리
+    // if (hasError) return (<div>Fatal Error!!!</div>);
     return (
         <div>
             {

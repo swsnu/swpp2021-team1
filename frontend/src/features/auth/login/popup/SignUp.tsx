@@ -19,7 +19,7 @@ export default function SignUp(props : SignUpProps) {
     const [realName, setRealName] = useState<string>("");
     const [username, setUsername] = useState<string>("");
     const [password, setPassword] = useState<string>("");
-    const [bio, setBio] = useState<string>(""); // TODO
+    const [bio, setBio] = useState<string>("");
     const [canUse, setCanUse] = useState<boolean|null|undefined>(undefined);
     const [valid, setValid] = useState<(boolean|null)[]>([null, null, null, null]);
     const [visibility, setVisibility] = useState<Visibility>(Visibility.ALL);
@@ -30,14 +30,11 @@ export default function SignUp(props : SignUpProps) {
     const history = useHistory();
 
     function checkDuplicate() {
-        // TODO : loading 처리?
         axios.get<IUser>(`/api/users/${username}`)
             .then((response) => {
-                console.log("hello");
                 setCanUse(false);
             })
             .catch((error) => {
-                console.log("asdf");
                 setCanUse(true);
             });
     }
@@ -184,10 +181,7 @@ export default function SignUp(props : SignUpProps) {
                                 label="Anyone"
                                 type="checkbox"
                                 checked={visibility === Visibility.ALL}
-                                onChange={(e) => {
-                                    console.log(e);
-                                    setVisibility(Visibility.ALL);
-                                }}
+                                onChange={(e) => setVisibility(Visibility.ALL)}
                             />
                             <Form.Check
                                 inline
