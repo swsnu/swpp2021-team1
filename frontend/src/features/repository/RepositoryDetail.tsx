@@ -41,28 +41,30 @@ export default function RepositoryDetail(props : RepositoryDetailProps) {
     const hasAuth = user && currentRepo.collaborators.filter((value) => user.username === value.username).length > 0;
     return (
         <div>
-            <h2>{currentRepo.repo_name}</h2>
-            <h4>{`${currentRepo.travel_start_date}~${currentRepo.travel_end_date}`}</h4>
-            <Button
-                onClick={(event) => setTab(RepositoryTab.Group)}
-                disabled={tab === RepositoryTab.Group}
-            >
-                GROUP
-            </Button>
-            <Button
-                onClick={(event) => setTab(RepositoryTab.Mine)}
-                disabled={tab === RepositoryTab.Mine}
-            >
-                MINE
-            </Button>
-            { hasAuth && (
+            <h2 className="mt-3">{currentRepo.repo_name}</h2>
+            <h5 className="mt-3">{`${currentRepo.travel_start_date} ~ ${currentRepo.travel_end_date}`}</h5>
+            <div className="mt-3">
                 <Button
-                    onClick={(event) => setTab(RepositoryTab.Setting)}
-                    disabled={tab === RepositoryTab.Setting}
+                    onClick={(event) => setTab(RepositoryTab.Group)}
+                    disabled={tab === RepositoryTab.Group}
                 >
-                    SETTING
+                    GROUP
                 </Button>
-            )}
+                <Button
+                    onClick={(event) => setTab(RepositoryTab.Mine)}
+                    disabled={tab === RepositoryTab.Mine}
+                >
+                    MINE
+                </Button>
+                { hasAuth && (
+                    <Button
+                        onClick={(event) => setTab(RepositoryTab.Setting)}
+                        disabled={tab === RepositoryTab.Setting}
+                    >
+                        SETTING
+                    </Button>
+                )}
+            </div>
             {tab === RepositoryTab.Setting && <RepositorySettings />}
         </div>
     );

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Redirect } from "react-router-dom";
+import { Redirect, useHistory } from "react-router-dom";
 import {
     Badge, Button, Form, FormControl, InputGroup,
 } from "react-bootstrap";
@@ -27,10 +27,11 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
     const [repoName, setRepoName] = useState<string>("");
     const [travelStartDate, setTravelStartDate] = useState<string>("");
     const [travelEndDate, setTravelEndDate] = useState<string>("");
-    const [collaborators, setCollaborators] = useState<IUser[]>([]);
+    const [collaborators, setCollaborators] = useState<IUser[]>(user ? [user] : []);
     const [show, setShow] = useState<boolean>(false);
     const [valid, setValid] = useState<(boolean|null)[]>([null, null, null]);
     const [visibility, setVisibility] = useState<Visibility>(Visibility.ALL);
+    const history = useHistory();
 
     useEffect(() => {
         if (user) {
@@ -45,6 +46,7 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
     }
 
     function createRepos() {
+        console.log(user?.username);
         dispatch(actionCreator.createRepository({
             repo_id: -1,
             repo_name: repoName,
@@ -90,9 +92,7 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
     // if (hasError) return (<div>Fatal Error!!!</div>);
     return (
         <div>
-            {!isLoading && repo && <Redirect to={`/repos/${repo.repo_id}`} />}
-            {" "}
-            {/* TODO */}
+            {!isLoading && !hasError && <Redirect to={`/repos/${(repo as IRepository).repo_id}`} />}
             <h2 className="mt-4">Create Repository</h2>
             <InputGroup className="mt-4" hasValidation>
                 <InputGroup.Text>Repository Name</InputGroup.Text>

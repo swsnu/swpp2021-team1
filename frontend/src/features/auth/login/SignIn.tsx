@@ -29,10 +29,7 @@ export default function SignIn(props: SignInProps) {
 
     function onLogIn() {
         setLoginClicked(true);
-        dispatch(actionCreator.signIn({ username, password }))
-            .then(() => {
-                history.push(`/main/${username}`);
-            });
+        dispatch(actionCreator.signIn({ username, password }));
     }
 
     function onModalClose() {

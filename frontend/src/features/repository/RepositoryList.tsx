@@ -7,7 +7,7 @@ import { IRepository, IUser, Visibility } from "../../common/Interfaces";
 import * as actionCreator from "./reposSlice";
 import Repository from "./Repository";
 import Profile from "../profile/Profile";
-import { signIn } from "../auth/authSlice";
+import { fetchSession, signIn } from "../auth/authSlice";
 
 interface RepositoryListProps {
 
@@ -26,6 +26,7 @@ export default function RepositoryList(props : RepositoryListProps) {
     const history = useHistory();
 
     useEffect(() => {
+        dispatch(fetchSession());
         if (user && !userIsLoading) {
             dispatch(actionCreator.fetchRepositories(user.username));
         }

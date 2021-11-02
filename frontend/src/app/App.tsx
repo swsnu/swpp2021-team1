@@ -36,7 +36,6 @@ export default function App() {
                                             </Switch>
                                         </Route>
                                         <Route path="/main/:user/setting" exact component={ProfileSetting} />
-                                        <Route path="/repos/:id" exact component={RepositoryDetail} />
                                         <Route path="/repos/create" exact component={RepositoryCreate} />
                                         <Route path="/repos/:id" exact component={RepositoryDetail} />
                                         <Redirect from="/" to="/login" />

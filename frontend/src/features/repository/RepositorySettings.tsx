@@ -94,8 +94,7 @@ export default function RepositorySettings(props : RepositorySettingProps) {
 
     return (
         <div>
-            <h2 className="mt-4">Repository Settings</h2>
-            <InputGroup className="mt-4" hasValidation>
+            <InputGroup className="mt-5" hasValidation>
                 <InputGroup.Text>Repository Name</InputGroup.Text>
                 <Form.Control
                     id="repo-name-input"
@@ -172,7 +171,7 @@ export default function RepositorySettings(props : RepositorySettingProps) {
             <div className="d-flex flex-row-reverse">
                 <Button
                     className="m-2"
-                    id="create-repo-button"
+                    id="edit-repo-button"
                     onClick={editRepo}
                     disabled={!(valid[0] && valid[1] && valid[2])}
                 >
@@ -181,7 +180,10 @@ export default function RepositorySettings(props : RepositorySettingProps) {
             </div>
             { repo.owner === user.username && (
                 <Button
+                    className="mt-2"
+                    id="delete-repo-button"
                     onClick={deleteRepo}
+                    variant="secondary"
                 >
                     Delete This Repository
                 </Button>
@@ -199,7 +201,10 @@ export default function RepositorySettings(props : RepositorySettingProps) {
                 ))}
             </h5>
             <Button
+                className="mt-2"
+                id="leave-repo-button"
                 onClick={leaveRepo}
+                variant="secondary"
             >
                 Leave This Repository
             </Button>
