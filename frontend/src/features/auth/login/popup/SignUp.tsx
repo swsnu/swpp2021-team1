@@ -1,13 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
-import ReactDOM from "react-dom";
 import {
-    Modal, Button, Form, InputGroup,
+    Button, Form, InputGroup, Modal,
 } from "react-bootstrap";
 import { useHistory } from "react-router-dom";
 import axios from "axios";
-import { IUser } from "../../../../common/Interfaces";
+import { IUser, Visibility } from "../../../../common/Interfaces";
 import * as actionCreators from "../../authSlice";
 import { AppDispatch, RootState } from "../../../../app/store";
 
@@ -24,6 +22,7 @@ export default function SignUp(props : SignUpProps) {
     const [bio, setBio] = useState<string>(""); // TODO
     const [canUse, setCanUse] = useState<boolean|null|undefined>(undefined);
     const [valid, setValid] = useState<(boolean|null)[]>([null, null, null, null]);
+    const [visibility, setVisibility] = useState<Visibility>(Visibility.ALL);
     // 해당 닉네임을 이용할 수 있는지 확인하는 state
     const dispatch = useDispatch<AppDispatch>();
     const [isLoading, hasError] = useSelector<RootState, [boolean, boolean]>((state) =>
@@ -33,8 +32,14 @@ export default function SignUp(props : SignUpProps) {
     function checkDuplicate() {
         // TODO : loading 처리?
         axios.get<IUser>(`/api/users/${username}`)
-            .then((response) => setCanUse(false))
-            .catch((error) => setCanUse(true));
+            .then((response) => {
+                console.log("hello");
+                setCanUse(false);
+            })
+            .catch((error) => {
+                console.log("asdf");
+                setCanUse(true);
+            });
     }
 
     function onSignUp() {
@@ -45,10 +50,9 @@ export default function SignUp(props : SignUpProps) {
             username,
             password,
             bio,
+            visibility: Visibility.ALL,
         })).then(() => {
             dispatch(actionCreators.signIn({ username, password }));
-        }).then(() => {
-            history.push(`/main/${username}`);
         });
     }
 
@@ -171,6 +175,35 @@ export default function SignUp(props : SignUpProps) {
                         <Form.Control.Feedback type="invalid">
                             Password should be 8 letter or longer with at least one number and alphabet.
                         </Form.Control.Feedback>
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <h6>Your account information is visible to...</h6>
+                        <div className="mt-3">
+                            <Form.Check
+                                inline
+                                label="Anyone"
+                                type="checkbox"
+                                checked={visibility === Visibility.ALL}
+                                onChange={(e) => {
+                                    console.log(e);
+                                    setVisibility(Visibility.ALL);
+                                }}
+                            />
+                            <Form.Check
+                                inline
+                                label="Friends"
+                                type="checkbox"
+                                checked={visibility === Visibility.MEMBER_AND_FRIENDS}
+                                onChange={(e) => setVisibility(Visibility.MEMBER_AND_FRIENDS)}
+                            />
+                            <Form.Check
+                                inline
+                                label="No One"
+                                type="checkbox"
+                                checked={visibility === Visibility.ONLY_MEMBERS}
+                                onChange={(e) => setVisibility(Visibility.ONLY_MEMBERS)}
+                            />
+                        </div>
                     </Form.Group>
                     <Form.Group className="mb-3">
                         <Form.Label>Bio</Form.Label>

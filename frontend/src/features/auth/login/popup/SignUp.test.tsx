@@ -19,6 +19,7 @@ import * as actionCreator from "../../authSlice";
 import { userFactory } from "../../../../common/Interfaces";
 import SignUp from "./SignUp";
 import * as APIs from "../../../../common/APIs";
+import {wrapper} from "react-bootstrap/lib/utils/deprecationWarning";
 
 const history = createBrowserHistory();
 const historyMock = { ...history, push: jest.fn(), listen: jest.fn() };
@@ -55,6 +56,11 @@ describe("SignUp", () => {
         component.find("FormControl").at(1).simulate("change", { target: { name: "username", value: "abc" } });
         component.find("FormControl").at(2).simulate("change", { target: { name: "realname", value: "Hello" } });
         component.find("FormControl").at(3).simulate("change", { target: { name: "password", value: "abcd1234" } });
+        component.find("FormControl").at(4).simulate("change", { target: { name: "bio", value: "Hello World!" } });
+        const wrapper = component.find("FormCheck");
+        wrapper.at(0).find("input").simulate("change", { target: { checked: false } });
+        wrapper.at(1).find("input").simulate("change", { target: { checked: false } });
+        wrapper.at(2).find("input").simulate("change", { target: { checked: false } });
         await act(async () => {
             component.find("#addon").at(0).simulate("click");
         });
