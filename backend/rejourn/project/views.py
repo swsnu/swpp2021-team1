@@ -35,6 +35,14 @@ def session(request):
         if not session_user.is_authenticated:
             return HttpResponseNotLoggedIn()
 
+        friends = []
+        for friend in session_user.friends.all():
+            friends.append({
+                'username' : friend.username,
+                # profile_image,
+                'bio' : friend.bio,
+            })
+
         response_dict = {
             'username': session_user.username,
             'bio' : session_user.bio,
@@ -42,6 +50,7 @@ def session(request):
             'visibility' : session_user.visibility,
             'real_name' : session_user.real_name,
             'email' : session_user.email,
+            'friends' : friends,
         }
         return HttpResponseSuccessGet(response_dict)
 
@@ -65,6 +74,14 @@ def signin(request):
             return HttpResponseNotLoggedIn()
         login(request, user_signin)
 
+        friends = []
+        for friend in user_signin.friends.all():
+            friends.append({
+                'username' : friend.username,
+                # profile_image,
+                'bio' : friend.bio,
+            })
+
         response_dict = {
             'username': request.user.username,
             'bio' : request.user.bio,
@@ -72,6 +89,7 @@ def signin(request):
             'visibility' : request.user.visibility,
             'real_name' : request.user.real_name,
             'email' : request.user.email,
+            'friends' : friends,
         }
         return HttpResponseSuccessUpdate(response_dict)
 
@@ -251,7 +269,7 @@ def userFriends(request, user_name):
             return HttpResponseNotExist()
         
         friends_list = []
-        for friend in user.friends:
+        for friend in user.friends.all():
             friends_list.append({
                 'username': friend.username,
                 # 'profile_image'
@@ -347,10 +365,10 @@ def repositories(request):
         try:
             owner = User.objects.get(username=owner_name)
             collaborators = []
-            for collaborator in collaborators_list:
-                user = User.objects.get(username=collaborator['username'])
+            for collaborator_dict in collaborators_list:
+                user = User.objects.get(username=collaborator_dict['username'])
                 collaborators.append(user)
-            if owner not in collaborators_list:
+            if owner not in collaborators:
                 collaborators.append(owner)
         except(User.DoesNotExist) as e:
             return HttpResponseInvalidInput()
@@ -405,10 +423,10 @@ def repositories(request):
             repository_list = []
 
             for repository in collaborator.repositories.all():
-                if ( (current_user in repository.collaborators) or (repository.visibility == Scope.PUBLIC) or
+                if ( (current_user in repository.collaborators.all()) or (repository.visibility == Scope.PUBLIC) or
                             (repository.visibility == Scope.FRIENDS_ONLY and have_common_user(current_user.friends.all(), repository.collaborators.all()) ) ):
                     collaborator_list = []
-                    for user in repository.collaborators:
+                    for user in repository.collaborators.all():
                         collaborator_list.append({
                             'username' : user.username,
                             # profile_picture
@@ -439,10 +457,10 @@ def repositories(request):
             for repository in owner.repositories.all():
                 if repository.owner != owner:
                     continue
-                if ( (current_user in repository.collaborators) or (repository.visibility == Scope.PUBLIC) or
+                if ( (current_user in repository.collaborators.all()) or (repository.visibility == Scope.PUBLIC) or
                             (repository.visibility == Scope.FRIENDS_ONLY and have_common_user(current_user.friends.all(), repository.collaborators.all()) ) ):
                     collaborator_list = []
-                    for user in repository.collaborators:
+                    for user in repository.collaborators.all():
                         collaborator_list.append({
                             'username' : user.username,
                             # profile_picture
@@ -478,11 +496,11 @@ def repositoryID(request, repo_id):
         if ( not request.user.is_authenticated ) and ( repository.visibility != Scope.PUBLIC ):
             return HttpResponseNoPermission()
 
-        if ( ( repository.visibility == Scope.PUBLIC ) or ( request.user in repository.collaborators ) 
-                or ( repository.visibility == Scope.FRIENDS_ONLY and have_common_user(request.user.friends, repository.collaborators) ) ):
+        if ( ( repository.visibility == Scope.PUBLIC ) or ( request.user in repository.collaborators.all() ) 
+                or ( repository.visibility == Scope.FRIENDS_ONLY and have_common_user(request.user.friends.all(), repository.collaborators.all()) ) ):
             
             collaborator_list = []
-            for user in repository.collaborators:
+            for user in repository.collaborators.all():
                 collaborator_list.append({
                     'username' : user.username,
                     # profile_picture
@@ -598,11 +616,11 @@ def repositoryCollaborators(request, repo_id):
         if ( not request.user.is_authenticated ) and ( repository.visibility != Scope.PUBLIC ):
             return HttpResponseNoPermission()
 
-        if ( ( repository.visibility == Scope.PUBLIC ) or ( request.user in repository.collaborators ) 
-                or ( repository.visibility == Scope.FRIENDS_ONLY and have_common_user(request.user.friends, repository.collaborators) ) ):
+        if ( ( repository.visibility == Scope.PUBLIC ) or ( request.user in repository.collaborators.all() ) 
+                or ( repository.visibility == Scope.FRIENDS_ONLY and have_common_user(request.user.friends.all(), repository.collaborators.all()) ) ):
             
             collaborator_list = []
-            for user in repository.collaborators:
+            for user in repository.collaborators.all():
                 collaborator_list.append({
                     'username' : user.username,
                     # profile_picture
@@ -622,7 +640,7 @@ def repositoryCollaborators(request, repo_id):
         except(Repository.DoesNotExist) as e:
             return HttpResponseNotExist()
         
-        if request.user not in repository.collaborators:
+        if request.user not in repository.collaborators.all():
             return HttpResponseNoPermission()
         
         try:
@@ -638,10 +656,10 @@ def repositoryCollaborators(request, repo_id):
             return HttpResponseInvalidInput()
 
         for user in new_collaborators:
-            if user in repository.collaborators:
+            if user in repository.collaborators.all():
                 return HttpResponseAlreadyProcessed()
         
-        for user in new_collaborators:
+        for user in new_collaborators.all():
             repository.collaborators.add(user)
         repository.save()
 
