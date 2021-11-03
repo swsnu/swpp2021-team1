@@ -3,7 +3,7 @@ from django.http.response import HttpResponseBadRequest, HttpResponseNotAllowed,
 from .httpResponse import *
 from .enum import Scope
 from django.http import HttpResponse
-from .models import User, Repository
+from .models import User, Repository, Discussion, DiscussionComment
 from django.contrib.auth import authenticate, login, logout
 import json
 from datetime import datetime
@@ -64,7 +64,16 @@ def signin(request):
         if user_signin is None:
             return HttpResponseNotLoggedIn()
         login(request, user_signin)
-        return HttpResponseSuccessUpdate()
+
+        response_dict = {
+            'username': request.user.username,
+            'bio' : request.user.bio,
+ ##         'profile_picture',
+            'visibility' : request.user.visibility,
+            'real_name' : request.user.real_name,
+            'email' : request.user.email,
+        }
+        return HttpResponseSuccessUpdate(response_dict)
 
     else:
         return HttpResponseNotAllowed(['POST'])
@@ -193,7 +202,7 @@ def userID(request, user_name):
             return HttpResponseNotExist()
         
         friends_list = []
-        for friend in user.friends:
+        for friend in user.friends.all():
             friends_list.append({
                 'username': friend.username,
                 # 'profile_image'
@@ -217,7 +226,7 @@ def userID(request, user_name):
             'visibility' : user.visibility,
         }
 
-        if request.user.is_authenticated() and user_name == request.user.username:
+        if request.user.is_authenticated and user_name == request.user.username:
             return HttpResponseSuccessGet(response_dict_original)
         if user.visibility == Scope.PUBLIC:
             return HttpResponseSuccessGet(response_dict_original)
@@ -258,7 +267,7 @@ def userFriends(request, user_name):
                 return HttpResponseSuccessGet(friends_list)
             else:
                 return HttpResponseNoPermission()
-        else:   # user.visibility == Scope.PRIVATE
+        else:    # user.visibility == Scope.PRIVATE
             return HttpResponseNoPermission()
         
     else:
@@ -326,9 +335,9 @@ def repositories(request):
                 return HttpResponseNoPermission()
 
             raw_travel_start_date = req_data['travel_start_date']
-            raw_travel_end_date = req_data['trave_end_date']
+            raw_travel_end_date = req_data['travel_end_date']
             visibility = req_data['visibility']
-            collaborators_name = req_data['collaborators']
+            collaborators_list = req_data['collaborators']
         except(KeyError, JSONDecodeError) as e:
             return HttpResponseBadRequest()
 
@@ -338,10 +347,10 @@ def repositories(request):
         try:
             owner = User.objects.get(username=owner_name)
             collaborators = []
-            for name in collaborators_name:
-                user = User.objects.get(username=name)
+            for collaborator in collaborators_list:
+                user = User.objects.get(username=collaborator['username'])
                 collaborators.append(user)
-            if owner_name not in collaborators_name:
+            if owner not in collaborators_list:
                 collaborators.append(owner)
         except(User.DoesNotExist) as e:
             return HttpResponseInvalidInput()
@@ -580,6 +589,7 @@ def repositoryID(request, repo_id):
 @ensure_csrf_cookie
 def repositoryCollaborators(request, repo_id):
     if request.method == 'GET':
+        
         try:
             repository = Repository.objects.get(repo_id=repo_id)
         except(Repository.DoesNotExist) as e:
@@ -663,3 +673,85 @@ def repositoryCollaboratorID(request, repo_id, collaborator_name):
 
     else:
         return HttpResponseNotAllowed(['DELETE'])
+
+@ensure_csrf_cookie
+def discussions(request, repo_id):
+    if request.method == 'POST':
+        if not request.user.is_authenticated:
+            return HttpResponseNotLoggedIn()
+        try:
+            repository = Repository.objects.get(repo_id=repo_id)
+        except(Repository.DoesNotExist) as e:
+            return HttpResponseNotExist()
+
+        if not request.user in repository.collaborators.all():
+            return HttpResponseNoPermission()
+
+        try:
+            req_data = json.loads(request.body.decode())
+            title = req_data['title']
+            text = req_data['text']
+        except(KeyError, JSONDecodeError) as e:
+            return HttpResponseBadRequest()
+
+        new_discussion = Discussion(repository=repository, author=request.user, title=title, text=text)
+        new_discussion.save()
+
+
+        response_dict = {
+            'discussion_id' : new_discussion.discussion_id,
+            'repository' : new_discussion.repository,
+            'author' : new_discussion.author.username,
+            'title' : new_discussion.title,
+            'text' : new_discussion.text,
+            'post_time' : new_discussion.post_time,
+        }
+        return HttpResponseSuccessUpdate(response_dict)
+    elif request.method == 'GET':
+        if not request.user.is_authenticated:
+            return HttpResponseNotLoggedIn()
+        try:
+            repository = Repository.objects.get(repo_id=repo_id)
+        except(Repository.DoesNotExist) as e:
+            return HttpResponseNotExist()
+
+        if not request.user in repository.collaborators.all():
+            return HttpResponseNoPermission()
+
+        discussion_list = []
+            
+        for discussion in repository.discussions:
+            discussion_list.append({
+                'discussion_id': discussion.discussion_id,
+                'repository': discussion.repository,
+                'author': discussion.author,
+                'title': discussion.title,
+                'text': discussion.text,
+                'post_time': discussion.post_time
+            })
+        return HttpResponseSuccessGet(discussion_list)
+    else:
+        return HttpResponseNotAllowed(['POST', 'GET'])
+"""
+def discussionID(request, discussion_id):
+    if request.method == 'GET':
+    elif request.method == 'DELETE':
+    elif request.method == 'PUT':
+    else:
+        return HttpResponseNotAllowed(['PUT','DELETE', 'GET'])
+
+def discussionComments(request, discussion_id):
+    if request.method == 'POST':
+    elif request.method == 'GET':
+    else:
+        return HttpResponseNotAllowed(['POST', 'GET'])
+
+def discussionCommentID(request, discussion_id, Discussion_comment_id):
+    if request.method == 'GET':
+    elif request.method == 'DELETE':
+    elif request.method == 'PUT':
+    else:
+        return HttpResponseNotAllowed(['PUT','DELETE', 'GET'])
+"""
+
+
