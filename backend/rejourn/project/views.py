@@ -718,7 +718,7 @@ def discussions(request, repo_id):
 
         response_dict = {
             'discussion_id' : new_discussion.discussion_id,
-            'repository' : new_discussion.repository,
+            'repository' : new_discussion.repository.repo_id,
             'author' : new_discussion.author.username,
             'title' : new_discussion.title,
             'text' : new_discussion.text,
@@ -738,11 +738,12 @@ def discussions(request, repo_id):
 
         discussion_list = []
             
-        for discussion in repository.discussions:
+        discussion_filtered = Discussion.objects.filter(repository=repository)
+        for discussion in discussion_filtered:
             discussion_list.append({
                 'discussion_id': discussion.discussion_id,
-                'repository': discussion.repository,
-                'author': discussion.author,
+                'repository': discussion.repository.repo_id,
+                'author': discussion.author.username,
                 'title': discussion.title,
                 'text': discussion.text,
                 'post_time': discussion.post_time
