@@ -31,13 +31,15 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
     const [show, setShow] = useState<boolean>(false);
     const [valid, setValid] = useState<(boolean|null)[]>([null, null, null]);
     const [visibility, setVisibility] = useState<Visibility>(Visibility.ALL);
+    const [flag, setFlag] = useState<boolean>(!!user);
     const history = useHistory();
 
     useEffect(() => {
-        if (user) {
+        if (!flag && user) {
             if (collaborators.filter((value) => value.username === user.username).length === 0) {
                 setCollaborators([user, ...collaborators]);
             }
+            setFlag(true);
         }
     }, [dispatch, user]);
 
@@ -46,7 +48,6 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
     }
 
     function createRepos() {
-        console.log(user?.username);
         dispatch(actionCreator.createRepository({
             repo_id: -1,
             repo_name: repoName,

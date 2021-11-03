@@ -26,7 +26,6 @@ export default function RepositoryList(props : RepositoryListProps) {
     const history = useHistory();
 
     useEffect(() => {
-        dispatch(fetchSession());
         if (user && !userIsLoading) {
             dispatch(actionCreator.fetchRepositories(user.username));
         }
