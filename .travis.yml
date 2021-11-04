@@ -28,5 +28,7 @@ jobs:
         - pylint **/*.py --load-plugins pylint_django
         - coverage run --source='.' manage.py test
         - coverage xml
-        - sonar-scanner
         - coveralls --merge=../../frontend/coverage.json
+        - cd ..
+        - cd ..
+        - sonar-scanner
