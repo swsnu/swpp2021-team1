@@ -20,7 +20,6 @@ export const signUp = createAsyncThunk<IUser, IUser>(
     "auth/signup",
     async (user, thunkAPI) => // payload creator
         await postUsers(user),
-
 );
 
 export const fetchUser = createAsyncThunk<IUser, string>(
@@ -85,6 +84,11 @@ const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
             state.isLoading = false;
             state.hasError = false;
             state.account = action.payload;
+        });
+
+        builder.addCase(fetchSession.rejected, (state: AuthState) => {
+            state.isLoading = false;
+            state.hasError = true;
         });
 
         builder.addCase(signUp.pending, (state: AuthState) => {
