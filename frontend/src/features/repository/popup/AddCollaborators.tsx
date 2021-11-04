@@ -23,7 +23,7 @@ export default function AddCollaborators(props : AddCollaboratorsProps) {
     const [collaborators, setCollaborators] = useState<IUser[]>(props.collaborators);
     const [queryString, setQueryString] = useState<string>("");
     const [clicked, setClicked] = useState<boolean>(false);
-    const [filteredFriend, setFilteredFriend] = useState<IUser[]>(props.user.friends as IUser[]);
+    const [filteredFriend, setFilteredFriend] = useState<IUser[]>(props.user.friends as IUser[]); // TODO
 
     function close() {
         props.setCollaborators(collaborators);
@@ -42,7 +42,6 @@ export default function AddCollaborators(props : AddCollaboratorsProps) {
     }
 
     function onAdd(user : IUser) {
-        console.log("added");
         setCollaborators([...collaborators, user]);
     }
 
@@ -67,6 +66,7 @@ export default function AddCollaborators(props : AddCollaboratorsProps) {
                     {filteredFriend.length > 0 ?
                         filteredFriend.map((value) => (
                             <Dropdown.Item
+                                key={value.username}
                                 onClick={() => onAdd(value)}
                                 disabled={collaborators.filter((value1) =>
                                     value1.username === value.username).length !== 0}
@@ -79,7 +79,8 @@ export default function AddCollaborators(props : AddCollaboratorsProps) {
                 <div className="d-flex ms-2 me-2">
                     {collaborators.map((value) => (
                         <Collaborator
-                            canDelete={value.username !== props.user.username}
+                            canDelete={props.collaborators.filter((value1) =>
+                                value1.username === value.username).length === 0}
                             user={value}
                             remove={remove}
                         />
