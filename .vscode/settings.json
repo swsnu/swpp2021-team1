@@ -1,0 +1,15 @@
+{
+   "projectManager.git.baseFolders": [
+      "/home/lemonshushu/workspace/swpp2021-team1/frontend/"
+   ],
+   "editor.tabSize": 3,
+   "editor.wordWrap": "on",
+   "editor.bracketPairColorization.enabled": true,
+   "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+   "editor.guides.bracketPairs": true,
+   "editor.linkedEditing": true,
+   "editor.parameterHints.cycle": true,
+   "editor.smoothScrolling": true,
+   "editor.tabCompletion": "on",
+   "editor.find.autoFindInSelection": "multiline",
+}
