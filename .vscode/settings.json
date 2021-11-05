@@ -12,4 +12,5 @@
    "editor.smoothScrolling": true,
    "editor.tabCompletion": "on",
    "editor.find.autoFindInSelection": "multiline",
+   "git.terminalAuthentication": false,
 }
