@@ -6,6 +6,11 @@ import App from "./app/App";
 import reportWebVitals from "./reportWebVitals";
 import store from "./app/store";
 import "./custom.scss";
+import worker from "./mocks/browser";
+
+if (process.env.NODE_ENV === "development") {
+    worker.start();
+}
 
 ReactDOM.render(
     <Provider store={store}>
