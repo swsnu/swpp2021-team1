@@ -99,8 +99,8 @@ const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
         builder.addCase(signUp.fulfilled, (state: AuthState, action : PayloadAction<IUser>) => {
             state.isLoading = false;
             state.hasError = false;
-            state.account = action.payload;
-            state.currentUser = action.payload;
+            // state.account = action.payload;
+            // state.currentUser = action.payload;
         });
 
         builder.addCase(signUp.rejected, (state: AuthState) => {
