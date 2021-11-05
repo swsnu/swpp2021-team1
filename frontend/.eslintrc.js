@@ -58,6 +58,7 @@ module.exports = {
         "operator-linebreak": ["error", "after"],
         "linebreak-style": "off",
         "react/jsx-no-bind": "off",
+        "import/no-extraneous-dependencies": ["error", { devDependencies: true }],
     },
     settings: {
         "import/resolver": {
