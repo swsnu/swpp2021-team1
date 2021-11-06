@@ -8,10 +8,10 @@ import Factory from "./dataGenerator";
 
 const fact = new Factory();
 
-export default [
-    rest.post("/signin/", (req, res, ctx) => {
+export const handlers = [
+    rest.get("/api/session/", (req, res, ctx) => {
         const user = fact.userGen();
-        res(ctx.json({
+        return res(ctx.json({
             username: user.username,
             bio: user.bio,
             profile_picture: user.profile_picture,
@@ -20,14 +20,28 @@ export default [
             email: user.email,
         }));
     }),
+    rest.post("/api/signin/", (req, res, ctx) => {
+        const user = fact.userGen();
+        console.log(user);
+        return res(
+            ctx.status(201), ctx.json({
+                username: user.username,
+                bio: user.bio,
+                profile_picture: user.profile_picture,
+                visibility: user.visibility,
+                real_name: user.real_name,
+                email: user.email,
+            }),
+        );
+    }),
 
-    rest.get("/signout/", (req, res, ctx) => res(
+    rest.get("/api/signout/", (req, res, ctx) => res(
         ctx.status(200),
     )),
 
-    rest.post("/users/", (req, res, ctx) => {
+    rest.post("/api/users/", (req, res, ctx) => {
         const user = fact.userGen();
-        res(
+        return res(
             ctx.json({
                 username: user.username,
                 bio: user.bio,
@@ -39,10 +53,10 @@ export default [
         );
     }),
 
-    rest.delete("/users/:username/", (req, res, ctx) => res(ctx.status(200))),
-    rest.put("/users/:username/", (req, res, ctx) => {
+    rest.delete("/api/users/:username/", (req, res, ctx) => res(ctx.status(200))),
+    rest.put("/api/users/:username/", (req, res, ctx) => {
         const fakeUser = fact.userGen();
-        res(
+        return res(
             ctx.json({
                 username: fakeUser.username,
                 bio: fakeUser.bio,
@@ -53,14 +67,14 @@ export default [
             }),
         );
     }),
-    rest.get("/users/:username", (req, res, ctx) => {
+    rest.get("/api/users/:username", (req, res, ctx) => {
         const fakeUser = fact.userGen();
         const friends = [];
         const n = faker.datatype.number({ min: 1, max: 10 });
         for (let i = 0; i < n; i += 1) {
             friends.push(fact.userGen());
         }
-        res(ctx.json({
+        return res(ctx.json({
             username: fakeUser.username,
             bio: fakeUser.bio,
             profile_picture: fakeUser.profile_picture,
@@ -71,7 +85,7 @@ export default [
         }));
     }),
 
-    rest.get("/users/:username/friends/", (req, res, ctx) => {
+    rest.get("/api/users/:username/friends/", (req, res, ctx) => {
         const friends = [];
         const n = faker.datatype.number({ min: 1, max: 10 });
         for (let i = 0; i < n; i += 1) {
@@ -80,10 +94,10 @@ export default [
                 username, profile_picture, bio,
             });
         }
-        res(ctx.json(friends));
+        return res(ctx.json(friends));
     }),
 
-    rest.post("/users/:username/friends/:fusername/", (req, res, ctx) => {
+    rest.post("/api/users/:username/friends/:fusername/", (req, res, ctx) => {
         const friends = [];
         const n = faker.datatype.number({ min: 1, max: 10 });
         for (let i = 0; i < n; i += 1) {
@@ -92,9 +106,9 @@ export default [
                 username, profile_picture, bio,
             });
         }
-        res(ctx.json(friends));
+        return res(ctx.json(friends));
     }),
-    rest.delete("/users/:username/friends/:fusername/", (req, res, ctx) => {
+    rest.delete("/api/users/:username/friends/:fusername/", (req, res, ctx) => {
         const friends = [];
         const n = faker.datatype.number({ min: 1, max: 10 });
         for (let i = 0; i < n; i += 1) {
@@ -103,18 +117,18 @@ export default [
                 username, profile_picture, bio,
             });
         }
-        res(ctx.json(friends));
+        return res(ctx.json(friends));
     }),
 
-    rest.post("/repositories/", (req, res, ctx) => {
+    rest.post("/api/repositories/", (req, res, ctx) => {
         const {
             repo_id, repo_name, owner, travel_start_date, travel_end_date, visibility, collaborators,
         } = fact.repoGen();
-        res(ctx.json({
+        return res(ctx.json({
             repo_id, repo_name, owner, travel_start_date, travel_end_date, visibility, collaborators,
         }));
     }),
-    rest.get("/repositories/", (req, res, ctx) => {
+    rest.get("/api/repositories/", (req, res, ctx) => {
         const n = faker.datatype.number({ min: 1, max: 3 });
         const repos = [];
         for (let i = 0; i < n; i += 1) {
@@ -125,49 +139,47 @@ export default [
                 repo_id, repo_name, owner, travel_start_date, travel_end_date, visibility, collaborators,
             });
         }
-        res(ctx.json(repos));
+        return res(ctx.json(repos));
     }),
 
-    rest.get("/repositories/:repo_id/", (req, res, ctx) => {
+    rest.get("/api/repositories/:repo_id/", (req, res, ctx) => {
         const {
             repo_id, repo_name, owner, travel_start_date, travel_end_date, visibility, collaborators,
         } = fact.repoGen();
-        res(ctx.json({
+        return res(ctx.json({
             repo_id, repo_name, owner, travel_start_date, travel_end_date, visibility, collaborators,
         }));
     }),
-    rest.delete("/repositories/:repo_id/", (req, res, ctx) => {
-        res(ctx.status(200));
-    }),
-    rest.put("/repositories/:repo_id/", (req, res, ctx) => {
+    rest.delete("/api/repositories/:repo_id/", (req, res, ctx) => res(ctx.status(200))),
+    rest.put("/api/repositories/:repo_id/", (req, res, ctx) => {
         const {
             repo_id, repo_name, owner, travel_start_date, travel_end_date, visibility, collaborators,
         } = fact.repoGen();
-        res(ctx.json({
+        return res(ctx.json({
             repo_id, repo_name, owner, travel_start_date, travel_end_date, visibility, collaborators,
         }));
     }),
 
-    rest.get("/repositories/:repo_id/collaborators/", (req, res, ctx) => {
+    rest.get("/api/repositories/:repo_id/collaborators/", (req, res, ctx) => {
         const collaborators = [];
         const n = faker.datatype.number({ min: 1, max: 5 });
         for (let i = 0; i < n; i += 1) {
             const { username, profile_picture, bio } = fact.userGen();
             collaborators.push({ username, profile_picture, bio });
         }
-        res(ctx.json(collaborators));
+        return res(ctx.json(collaborators));
     }),
-    rest.post("/repositories/:repo_id/collaborators/", (req, res, ctx) => {
+    rest.post("/api/repositories/:repo_id/collaborators/", (req, res, ctx) => {
         const collaborators = [];
         const n = faker.datatype.number({ min: 1, max: 5 });
         for (let i = 0; i < n; i += 1) {
             const { username, profile_picture, bio } = fact.userGen();
             collaborators.push({ username, profile_picture, bio });
         }
-        res(ctx.json(collaborators));
+        return res(ctx.json(collaborators));
     }),
 
-    rest.delete("/repositories/:repo_id/collaborators/:username", (req, res, ctx) => {
+    rest.delete("/api/repositories/:repo_id/collaborators/:username", (req, res, ctx) => {
         const friends = [];
         const n = faker.datatype.number({ min: 1, max: 10 });
         for (let i = 0; i < n; i += 1) {
@@ -176,6 +188,6 @@ export default [
                 username, profile_picture, bio,
             });
         }
-        res(ctx.json(friends));
+        return res(ctx.json(friends));
     }),
 ];
