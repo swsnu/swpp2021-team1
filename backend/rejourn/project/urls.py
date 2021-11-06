@@ -21,10 +21,17 @@ urlpatterns = [
      path('repositories/<int:repo_id>/collaborators/<str:collaborator_name>/',
          views.repositoryCollaboratorID, name='repositoryCollaboratorID'),
 
-     path('discussions/<int:repo_id>/', views.discussions, name='discussions'),
-     #path('discussions/<int:discussion_id>/', views.discussionID, name='discussionID'),
-     #path('discussion-comments/<int:discussion_id>/', views.discussionComments, name='discussionComments'),
-     #path('discussion-comments/<int:discussion_id>/<int:Discussion_comment_id>/', views.discussionCommentID, name='discussionCommentID')
-
     
 ]
+"""
+     path('repositories/<int:repo_id>/discussions/', views.discussions, name='discussions'),
+     path('discussions/<int:discussion_id>/', views.discussionID, name='discussionID'),
+     path('discussions/<int:discussion_id>/comments/', views.discussionComments, name='discussionComments'),
+     path('discussions/<int:discussion_id>/comments/<int:discussion_comment_id>/', views.discussionCommentID, name='discussionCommentID'),
+
+     path('users/<str:user_name>/posts/', views.userPosts, name='userPosts'),
+     path('repositories/<int:repo_id>/posts/', views.repoPosts, name='repoPosts'),
+     path('posts/<int:post_id>/', views.postID, name='postID'),
+     path('posts/<int:post_id>/comments', views.postComments, name='postComments'),
+     path('posts/<int:post_id>/comments/<int:post_comment_id>/', views.postCommentID, name='postCommentID'),
+"""
