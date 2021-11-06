@@ -6,7 +6,9 @@ import { AppDispatch, RootState } from "../../app/store";
 import { IRepository, IUser } from "../../common/Interfaces";
 import * as actionCreator from "./reposSlice";
 import AddCollaborators from "./popup/AddCollaborators";
-import RepositorySettings from "./RepositorySettings";
+import RepositorySettings from "./tab/RepositorySettings";
+import Group from "./tab/Group";
+import Mine from "./tab/Mine";
 
 interface RepositoryDetailProps {
 
@@ -65,6 +67,8 @@ export default function RepositoryDetail(props : RepositoryDetailProps) {
                     </Button>
                 )}
             </div>
+            {tab === RepositoryTab.Group && <Group />}
+            {tab === RepositoryTab.Mine && <Mine />}
             {tab === RepositoryTab.Setting && <RepositorySettings />}
         </div>
     );

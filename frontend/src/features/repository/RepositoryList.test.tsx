@@ -8,7 +8,7 @@ import { mount } from "enzyme";
 import authReducer from "../auth/authSlice";
 import reposReducer from "./reposSlice";
 import postsReducer from "../post/postsSlice";
-import RepositorySettings from "./RepositorySettings";
+import RepositorySettings from "./tab/RepositorySettings";
 import RepositoryList from "./RepositoryList";
 import { repositoryFactory, userFactory } from "../../common/Interfaces";
 import * as actionCreator from "./reposSlice";

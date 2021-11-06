@@ -4,10 +4,10 @@ import {
 } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
-import AddCollaborators from "./popup/AddCollaborators";
-import { IRepository, IUser, Visibility } from "../../common/Interfaces";
-import * as actionCreator from "./reposSlice";
-import { AppDispatch, RootState } from "../../app/store";
+import AddCollaborators from "../popup/AddCollaborators";
+import { IRepository, IUser, Visibility } from "../../../common/Interfaces";
+import * as actionCreator from "../reposSlice";
+import { AppDispatch, RootState } from "../../../app/store";
 
 interface RepositorySettingProps {
 
@@ -86,7 +86,7 @@ export default function RepositorySettings(props : RepositorySettingProps) {
     }
 
     function leaveRepo() {
-        dispatch(actionCreator.secedeRepository({ username: user.username, repoID: repo.repo_id }))
+        dispatch(actionCreator.leaveRepository({ username: user.username, repoID: repo.repo_id }))
             .then(() => {
                 history.push(`/main/${user.username}`);
             });
