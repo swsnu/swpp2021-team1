@@ -551,7 +551,7 @@ def repositoryID(request, repo_id):
                 return HttpResponseInvalidInput()
 
             raw_travel_start_date = req_data['travel_start_date']
-            raw_travel_end_date = req_data['trave_end_date']
+            raw_travel_end_date = req_data['travel_end_date']
             visibility = req_data['visibility']
         except(KeyError, JSONDecodeError) as e:
             return HttpResponseBadRequest()
@@ -1418,7 +1418,7 @@ def photos(request, repo_id):
                     or (repository.visibility == Scope.FRIENDS_ONLY and have_common_user(request.user.friends.all(), repository.collaborators.all()) ) ):
             
             photo_list = []
-            for photo in Photo.objects.filter(repo_id=repo_id):
+            for photo in Photo.objects.filter(repository=repository):
 
                 try:
                     photo_tag = PhotoTag.objects.get(photo=photo, user=request.user)
@@ -1429,7 +1429,7 @@ def photos(request, repo_id):
                 photo_list.append({
                     'photo_id' : photo.photo_id,
                     'repo_id' : photo.repository.repo_id,
-                    'image' : photo.image_file.path,
+                    'image' : photo.image_file.url,
                     'post_time' : photo.post_time.strftime("%Y-%m-%d-%H-%M-%S"),
                     'tag' : photo_tag_text,
                     'uploader' : photo.uploader.username,
@@ -1452,7 +1452,7 @@ def photos(request, repo_id):
             return HttpResponseNoPermission()
         
         try:
-            image_list = request.FILES['image']
+            image_list = request.FILES.getList('image')
         except(KeyError) as e:
             return HttpResponseBadRequest()
 
@@ -1462,7 +1462,7 @@ def photos(request, repo_id):
             new_photo.save()
 
         photo_list = []
-        for photo in Photo.objects.filter(repo_id=repo_id):
+        for photo in Photo.objects.filter(repository=repository):
 
             try:
                 photo_tag = PhotoTag.objects.get(photo=photo, user=request.user)
@@ -1473,7 +1473,7 @@ def photos(request, repo_id):
             photo_list.append({
                 'photo_id' : photo.photo_id,
                 'repo_id' : photo.repository.repo_id,
-                'image' : photo.image_file.path,
+                'image' : photo.image_file.url,
                 'post_time' : photo.post_time.strftime("%Y-%m-%d-%H-%M-%S"),
                 'tag' : photo_tag_text,
                 'uploader' : photo.uploader.username,
@@ -1521,7 +1521,7 @@ def photos(request, repo_id):
                 new_photo_tag.save()
 
         photo_list = []
-        for photo in Photo.objects.filter(repo_id=repo_id):
+        for photo in Photo.objects.filter(repository=repository):
 
             try:
                 photo_tag = PhotoTag.objects.get(photo=photo, user=request.user)
@@ -1532,7 +1532,7 @@ def photos(request, repo_id):
             photo_list.append({
                 'photo_id' : photo.photo_id,
                 'repo_id' : photo.repository.repo_id,
-                'image' : photo.image_file.path,
+                'image' : photo.image_file.url,
                 'post_time' : photo.post_time.strftime("%Y-%m-%d-%H-%M-%S"),
                 'tag' : photo_tag_text,
                 'uploader' : photo.uploader.username,
@@ -1572,7 +1572,7 @@ def photos(request, repo_id):
             photo.delete()
 
         photo_list = []
-        for photo in Photo.objects.filter(repo_id=repo_id):
+        for photo in Photo.objects.filter(repository=repository):
 
             try:
                 photo_tag = PhotoTag.objects.get(photo=photo, user=request.user)
@@ -1583,7 +1583,7 @@ def photos(request, repo_id):
             photo_list.append({
                 'photo_id' : photo.photo_id,
                 'repo_id' : photo.repository.repo_id,
-                'image' : photo.image_file.path,
+                'image' : photo.image_file.url,
                 'post_time' : photo.post_time.strftime("%Y-%m-%d-%H-%M-%S"),
                 'tag' : photo_tag_text,
                 'uploader' : photo.uploader.username,
