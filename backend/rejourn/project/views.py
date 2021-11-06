@@ -3,7 +3,7 @@ from django.http.response import HttpResponseBadRequest, HttpResponseNotAllowed,
 from .httpResponse import *
 from .enum import Scope
 from django.http import HttpResponse
-from .models import User, Repository, Discussion, DiscussionComment, Post, PostComment, PhotoInPost, Photo
+from .models import User, Repository, Discussion, DiscussionComment, Post, PostComment, PhotoInPost, Photo, PhotoTag
 from django.contrib.auth import authenticate, login, logout
 import json
 from datetime import datetime
@@ -551,7 +551,7 @@ def repositoryID(request, repo_id):
                 return HttpResponseInvalidInput()
 
             raw_travel_start_date = req_data['travel_start_date']
-            raw_travel_end_date = req_data['trave_end_date']
+            raw_travel_end_date = req_data['travel_end_date']
             visibility = req_data['visibility']
         except(KeyError, JSONDecodeError) as e:
             return HttpResponseBadRequest()
@@ -691,7 +691,7 @@ def repositoryCollaboratorID(request, repo_id, collaborator_name):
 
     else:
         return HttpResponseNotAllowed(['DELETE'])
-
+"""
 @ensure_csrf_cookie
 def discussions(request, repo_id):
     if request.method == 'POST':
@@ -1394,7 +1394,188 @@ def postCommentID(request, post_id, post_comment_id):
         return HttpResponseNotAllowed(['PUT','DELETE', 'GET'])
 
 
+"""
+def photos(request, repo_id):
+    if request.method == 'GET':
+        try:
+            repository = Repository.objects.get(repo_id=repo_id)
+        except(Repository.DoesNotExist) as e:
+            return HttpResponseNotExist()
+        
+        if ( (repository.visibility == Scope.PUBLIC) or (request.user in repository.collaborators.all())
+                    or (repository.visibility == Scope.FRIENDS_ONLY and have_common_user(request.user.friends.all(), repository.collaborators.all()) ) ):
+            
+            photo_list = []
+            for photo in Photo.objects.filter(repository=repository):
 
+                try:
+                    photo_tag = PhotoTag.objects.get(photo=photo, user=request.user)
+                    photo_tag_text = photo_tag.text
+                except(PhotoTag.DoesNotExist) as e:
+                    photo_tag_text = ""
 
+                photo_list.append({
+                    'photo_id' : photo.photo_id,
+                    'repo_id' : photo.repository.repo_id,
+                    'image' : photo.image_file.url,
+                    'post_time' : photo.post_time.strftime("%Y-%m-%d-%H-%M-%S"),
+                    'tag' : photo_tag_text,
+                    'uploader' : photo.uploader.username,
+                })
 
+            return HttpResponseSuccessGet(photo_list)
+        else:
+            return HttpResponseNoPermission()
+
+    elif request.method == 'POST':
+        if not request.user.is_authenticated:
+            return HttpResponseNotLoggedIn()
+
+        try:
+            repository = Repository.objects.get(repo_id=repo_id)
+        except(Repository.DoesNotExist) as e:
+            return HttpResponseNotExist()
+
+        if request.user not in repository.collaborators.all():
+            return HttpResponseNoPermission()
+        
+        try:
+            image_list = request.FILES.getList('image')
+        except(KeyError) as e:
+            return HttpResponseBadRequest()
+
+        for image in image_list:
+            new_photo = Photo(repository=repository, image_file=image, 
+                            uploader=request.user)
+            new_photo.save()
+
+        photo_list = []
+        for photo in Photo.objects.filter(repository=repository):
+
+            try:
+                photo_tag = PhotoTag.objects.get(photo=photo, user=request.user)
+                photo_tag_text = photo_tag.text
+            except(PhotoTag.DoesNotExist) as e:
+                photo_tag_text = ""
+
+            photo_list.append({
+                'photo_id' : photo.photo_id,
+                'repo_id' : photo.repository.repo_id,
+                'image' : photo.image_file.url,
+                'post_time' : photo.post_time.strftime("%Y-%m-%d-%H-%M-%S"),
+                'tag' : photo_tag_text,
+                'uploader' : photo.uploader.username,
+            })
+
+        return HttpResponseSuccessUpdate(photo_list)
+
+    elif request.method == 'PUT':
+        if not request.user.is_authenticated:
+            return HttpResponseNotLoggedIn()
+
+        try:
+            repository = Repository.objects.get(repo_id=repo_id)
+        except(Repository.DoesNotExist) as e:
+            return HttpResponseNotExist()
+
+        if request.user not in repository.collaborators.all():
+            return HttpResponseNoPermission()
+        
+        edited_photo_list = []
+        try:
+            req_data = json.loads(request.body.decode())
+            for photo_info in req_data:
+
+                try:
+                    photo = Photo.objects.get(photo_id=photo_info['photo_id'])
+                except(Photo.DoesNotExist) as e:
+                    return HttpResponseInvalidInput()
+                
+                edited_photo_list.append( ( photo, photo_info['tag'] ) )
+        except(JSONDecodeError, KeyError) as e:
+            return HttpResponseBadRequest()
+
+        for edited_photo in edited_photo_list:
+            
+            tag_count =  PhotoTag.objects.filter(photo=edited_photo[0], user=request.user).count()
+            if edited_photo[1] == "" and tag_count == 1:
+                photo_tag = PhotoTag.objects.get(photo=edited_photo[0], user=request.user)
+                photo_tag.delete()
+            elif edited_photo[1] != "" and tag_count == 1:
+                photo_tag = PhotoTag.objects.get(photo=edited_photo[0], user=request.user)
+                photo_tag.text = edited_photo[1]
+            elif edited_photo[1] != "" and tag_count == 0:
+                new_photo_tag = PhotoTag(photo=edited_photo[0], user=request.user, text=edited_photo[1] )
+                new_photo_tag.save()
+
+        photo_list = []
+        for photo in Photo.objects.filter(repository=repository):
+
+            try:
+                photo_tag = PhotoTag.objects.get(photo=photo, user=request.user)
+                photo_tag_text = photo_tag.text
+            except(PhotoTag.DoesNotExist) as e:
+                photo_tag_text = ""
+
+            photo_list.append({
+                'photo_id' : photo.photo_id,
+                'repo_id' : photo.repository.repo_id,
+                'image' : photo.image_file.url,
+                'post_time' : photo.post_time.strftime("%Y-%m-%d-%H-%M-%S"),
+                'tag' : photo_tag_text,
+                'uploader' : photo.uploader.username,
+            })
+
+        return HttpResponseSuccessUpdate(photo_list)
+
+    else: # request.method == DELETE
+        if not request.user.is_authenticated:
+            return HttpResponseNotLoggedIn()
+
+        try:
+            repository = Repository.objects.get(repo_id=repo_id)
+        except(Repository.DoesNotExist) as e:
+            return HttpResponseNotExist()
+
+        if request.user not in repository.collaborators.all():
+            return HttpResponseNoPermission()
+        
+        deleted_photo_id_list = []
+        try:
+            req_data = json.loads(request.body.decode())
+            for photo in req_data:
+                deleted_photo_id_list.append(photo['photo_id'])
+        except(JSONDecodeError, KeyError) as e:
+            return HttpResponseBadRequest()
+
+        deleted_photo_list = []
+        for photo_id in deleted_photo_id_list:
+            try:
+                deleted_photo = Photo.objects.get(photo_id=photo_id)
+                deleted_photo_list.append(deleted_photo)
+            except(Photo.DoesNotExist) as e:
+                return HttpResponseInvalidInput()
+
+        for photo in deleted_photo:
+            photo.delete()
+
+        photo_list = []
+        for photo in Photo.objects.filter(repository=repository):
+
+            try:
+                photo_tag = PhotoTag.objects.get(photo=photo, user=request.user)
+                photo_tag_text = photo_tag.text
+            except(PhotoTag.DoesNotExist) as e:
+                photo_tag_text = ""
+
+            photo_list.append({
+                'photo_id' : photo.photo_id,
+                'repo_id' : photo.repository.repo_id,
+                'image' : photo.image_file.url,
+                'post_time' : photo.post_time.strftime("%Y-%m-%d-%H-%M-%S"),
+                'tag' : photo_tag_text,
+                'uploader' : photo.uploader.username,
+            })
+
+        return HttpResponseSuccessDelete(photo_list)
 
