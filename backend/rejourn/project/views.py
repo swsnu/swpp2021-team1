@@ -1042,9 +1042,9 @@ def userPosts(request, user_name):
             if ( ( repository.visibility == Scope.PUBLIC ) or ( request.user in repository.collaborators.all() ) 
                     or ( repository.visibility == Scope.FRIENDS_ONLY and have_common_user(request.user.friends.all(), repository.collaborators.all()) ) ):
 
-                image_list = []
-                for image in PhotoInPost.objects.filter(post_id=post.id):
-                    image_list.append("image.photo_link")
+                photo_list = []
+                for photo in PhotoInPost.objects.filter(post_id=post.id):
+                    photo_list.append({'photo_id': photo.photo_id, 'local_tag': photo.local_tag, 'image':"image.photo_link"})
 
                 post_list.append({
                     'post_id': post.post_id,
@@ -1053,7 +1053,7 @@ def userPosts(request, user_name):
                     'title': post.title,
                     'text': post.text,
                     'post_time': post.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
-                    'images': image_list
+                    'photos': photo_list
                 })
 
         return HttpResponseSuccessGet(post_list)
@@ -1076,23 +1076,23 @@ def repoPosts(request, repo_id):
             req_data = json.loads(request.body.decode())
             title = req_data['title']
             text = req_data['text']
-            images = req_data['images']
-            local_tags = req_data['local_tags']
+            photos = req_data['photos']
         except(KeyError, JSONDecodeError) as e:
             return HttpResponseBadRequest()
 
         new_post = Post(repository=repository, author=request.user, title=title, text=text)
         new_post.save()
 
-        for image in images:
+        for ph in photos:
             i = 0
-            photo = Photo()
-            photo.save()
-            new_photoinpost = PhotoInPost(post=new_post, photo=image, order=i, local_tag=local_tags.get(photo))
-            image_list.append("image.photo_link")
+            try:
+                photo = Photo.objects.get(photo_id=ph.get('photo_id'))
+            except(Photo.DoesNotExist) as e:
+                return HttpResponseNotExist()
+            new_photoinpost = PhotoInPost(post=new_post, photo=photo, order=i, local_tag=ph.get('local_tag'))
+            i += 1
+            new_photoinpost.save()
 
-        
-        # new_photoinpost = PhotoInPost.save()
 
 
         response_dict = {
@@ -1102,7 +1102,7 @@ def repoPosts(request, repo_id):
             'title' : new_post.title,
             'text' : new_post.text,
             'post_time' : new_post.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
-            # 'images'
+            'photos' : photos
         }
         return HttpResponseSuccessUpdate(response_dict)
 
@@ -1122,6 +1122,12 @@ def repoPosts(request, repo_id):
             
         post_filtered = Post.objects.filter(repository=repository)
         for post in post_filtered:
+
+
+            photo_list = []
+            for photo in PhotoInPost.objects.filter(post_id=post.id):
+                photo_list.append({'photo_id': photo.photo_id, 'local_tag': photo.local_tag, 'image':"image.photo_link"})
+
             post_list.append({
                 'post_id': post.post_id,
                 'repo_id': post.repository.repo_id,
@@ -1129,8 +1135,7 @@ def repoPosts(request, repo_id):
                 'title': post.title,
                 'text': post.text,
                 'post_time': post.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
-                #'images'
-                #'local_tags'
+                'photos': photo_list
             })
         return HttpResponseSuccessGet(post_list)
     else:
@@ -1152,17 +1157,19 @@ def postID(request, post_id):
                 or ( repository.visibility == Scope.FRIENDS_ONLY and have_common_user(request.user.friends.all(), repository.collaborators.all()) ) ):
                 return HttpResponseNoPermission()
 
+        photo_list = []
+        for photo in PhotoInPost.objects.filter(post_id=post.id):
+            photo_list.append({'photo_id': photo.photo_id, 'local_tag': photo.local_tag, 'image':"image.photo_link"})
 
-        response_dict = {
-            'post_id' : post.post_id,
-            'repo_id' : post.repository.repo_id,
-            'author' : post.author.username,
-            'title' : post.title,
-            'text' : post.text,
-            'post_time' : post.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
-            # 'images' : ,
-            # 'local_tags' :
-        }
+            post_list.append({
+                'post_id': post.post_id,
+                'repo_id': post.repository.repo_id,
+                'author': post.author.username,
+                'title': post.title,
+                'text': post.text,
+                'post_time': post.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
+                'photos': photo_list
+            })
         return HttpResponseSuccessGet(response_dict)
         
 
@@ -1189,8 +1196,7 @@ def postID(request, post_id):
             req_data = json.loads(request.body.decode())
             title = req_data['title']
             text = req_data['text']
-            #images
-            #local_tags
+            photos = req_data['photos']
         except(KeyError, JSONDecodeError) as e:
             return HttpResponseBadRequest()
         if title == "" or text == "":
@@ -1209,9 +1215,22 @@ def postID(request, post_id):
         
         post.title = title
         post.text = text
-        #images
-        #local_tags
         post.save()
+
+        for ph in photos:
+            try:
+                photo = Photo.objects.get(photo_id=ph.get('photo_id'))
+            except(Photo.DoesNotExist) as e:
+                return HttpResponseNotExist()
+
+            try:
+                photoinpost = PhotoInPost.objects.get(photo=photo)
+            except(PhotoInPost.DoesNotExist) as e:
+                return HttpResponseNotExist() 
+            photoinpost.local_tag = ph.get('local_tag')
+            photoinpost.save()
+
+
 
         response_dict = {
             'post_id' : post.post_id,
@@ -1220,8 +1239,7 @@ def postID(request, post_id):
             'title' : post.title,
             'text' : post.text,
             'post_time' : post.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
-            #images
-            #loca_tags
+            'photos' : photos
         }
         return HttpResponseSuccessUpdate(response_dict)
     else:
