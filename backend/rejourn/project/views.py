@@ -276,7 +276,7 @@ def userFriends(request, user_name):
                 'bio': friend.bio
             })
 
-        if request.user.is_authenticated() and user_name == request.user.username:
+        if request.user.is_authenticated and user_name == request.user.username:
             return HttpResponseSuccessGet(friends_list)
         if user.visibility == Scope.PUBLIC:
             return HttpResponseSuccessGet(friends_list)
@@ -295,7 +295,7 @@ def userFriends(request, user_name):
 @ensure_csrf_cookie
 def userFriendID(request, user_name, friend_name):
     if request.method == 'POST':
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
         
         if user_name!=request.user.username:
@@ -315,7 +315,7 @@ def userFriendID(request, user_name, friend_name):
         return HttpResponseSuccessUpdate()
     
     elif request.method == 'DELETE':
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
         
         if user_name!=request.user.username:
@@ -341,7 +341,7 @@ def userFriendID(request, user_name, friend_name):
 @ensure_csrf_cookie
 def repositories(request):
     if request.method == 'POST':
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
         
         try:
