@@ -90,6 +90,7 @@ export function photoFactory() {
         image: randomString(),
         post_time: randomString(),
         tag: randomString(),
+        local_tag: randomString(),
         uploader: randomString(),
     } as IPhoto;
 }

@@ -12,7 +12,7 @@ interface FocusedPhotoProps {
 }
 
 export default function FocusedPhoto(props : FocusedPhotoProps) {
-    const [tag, setTag] = useState<string>(props.photo.tag ? props.photo.tag : "");
+    const [tag, setTag] = useState<string>(props.photo.tag as string);
 
     function onClose() {
         props.onEdit(tag);

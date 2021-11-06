@@ -22,9 +22,17 @@ export default function PhotoList(props : PhotoListProps) {
     const dispatch = useDispatch<AppDispatch>();
     const [photoShow, setPhotoShow] = useState<boolean>(false);
     const [addShow, setAddShow] = useState<boolean>(false);
+    const [deleteMode, setDeleteMode] = useState<boolean>(false);
+    const [checked, setChecked] = useState<{[id : number] : boolean}>({});
 
     useEffect(() => {
-        dispatch(actionCreator.fetchPhotos(parseInt(params.id)));
+        dispatch(actionCreator.fetchPhotos(parseInt(params.id))).then(() => {
+            const newChecked : {[id : number] : boolean} = {};
+            photoList.forEach((value) => {
+                newChecked[value.photo_id] = false;
+            });
+            setChecked(newChecked);
+        });
     }, [dispatch]);
 
     function onPhotoClick(photo_id : number) {
@@ -47,15 +55,73 @@ export default function PhotoList(props : PhotoListProps) {
         }));
     }
 
+    function onCheck(event : React.ChangeEvent<HTMLInputElement>) {
+        const id = parseInt(event.target.name) as number;
+        const temp = { ...checked };
+        temp[id] = !checked[id];
+        setChecked(temp);
+    }
+
+    function commitDelete() {
+        const photos_id : number[] = [];
+        Object.keys(checked).forEach((key) => {
+            if (checked[parseInt(key)]) photos_id.push(parseInt(key));
+        });
+        setDeleteMode(false);
+        dispatch(actionCreator.removePhotos({ repo_id: parseInt(params.id), photos_id }))
+            .then(() => {
+                const newChecked : {[id : number] : boolean} = {};
+                photoList.forEach((value) => {
+                    newChecked[value.photo_id] = false;
+                });
+                setChecked(newChecked);
+            });
+    }
+
+    function cancelDelete() {
+        const newChecked : {[id : number] : boolean} = {};
+        photoList.forEach((value) => {
+            newChecked[value.photo_id] = false;
+        });
+        setChecked(newChecked);
+        setDeleteMode(false);
+    }
+
     if (isLoading) return null;
     return (
         <div>
             <div className="d-flex mt-4 justify-content-between align-items-start">
                 <h4 className="m-2">Photos</h4>
-                <Button className="m-2" id="add-collaborator-button" onClick={addPhotos}>+</Button>
+                <div>
+                    {deleteMode && (
+                        <Button
+                            className="m-2"
+                            id="cancel-photo-button"
+                            onClick={cancelDelete}
+                        >
+                            Cancel
+                        </Button>
+                    )}
+                    <Button
+                        className="m-2"
+                        id="delete-photo-button"
+                        onClick={deleteMode ? commitDelete : () => setDeleteMode(true)}
+                    >
+                        {deleteMode ? "Commit" : "Delete"}
+                    </Button>
+                    <Button className="m-2" id="add-photo-button" onClick={addPhotos}>+</Button>
+                </div>
             </div>
             <ListGroup horizontal>
-                {photoList.map((value) => <Photo photo={value} onClick={onPhotoClick} />)}
+                {photoList.map((value) => (
+                    <Photo
+                        photo={value}
+                        onClick={onPhotoClick}
+                        checked={checked[value.photo_id]}
+                        mode={deleteMode}
+                        onCheck={onCheck}
+                    />
+                ))}
             </ListGroup>
             <AddPhoto show={addShow} setShow={setAddShow} commitPhotos={commitPhotos} />
             {currentPhoto && (
