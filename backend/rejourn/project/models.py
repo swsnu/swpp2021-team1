@@ -74,8 +74,16 @@ class PostComment(models.Model):
     post_time = models.DateTimeField(auto_now_add=True)
 
 class PhotoInPost(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    # photo = models.ForeignKey(Photo, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, primary_key=True, on_delete=models.CASCADE)
+    # photo = models.ForeignKey(primary_key=True, Photo, on_delete=models.CASCADE)
     order = models.IntegerField()
     local_tag = models.CharField(max_length=500)
+
+class Photo(models.Model):
+    photo_id = models.BigAutoField(primary_key=True)
+    repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
+    image_file = models.ImageField()
+    uploader = models.ForeignKey(User, on_delete=models.CASCADE)
+    # place = models.ForeignKey(Place, on_delete=models.SET_NULL)
+    post_time = models.DateTimeField(auto_now_add=True)
     
