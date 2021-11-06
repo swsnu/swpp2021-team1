@@ -3,8 +3,7 @@ from django.http.response import HttpResponseBadRequest, HttpResponseNotAllowed,
 from .httpResponse import *
 from .enum import Scope
 from django.http import HttpResponse
-from .models import User, Repository
-#, Discussion, DiscussionComment, Post, PostComment
+from .models import User, Repository, Discussion, DiscussionComment, Post, PostComment, Photo, PhotoTag
 from django.contrib.auth import authenticate, login, logout
 import json
 from datetime import datetime
@@ -897,7 +896,7 @@ def discussionComments(request, discussion_id):
         except(Discussion.DoesNotExist) as e:
             return HttpResponseNotExist()
         try:
-            repository = Repository.objects.get(repo_id=repo_id)
+            repository = Repository.objects.get(repo_id=disscussion.repo_id)
         except(Repository.DoesNotExist) as e:
             return HttpResponseNotExist()
 
@@ -927,7 +926,7 @@ def discussionCommentID(request, discussion_id, discussion_comment_id):
         
         try:
             comment = DiscussionComment.objects.get(discussion_comment_id=discussion_comment_id)
-        except(Discussioncomment.DoesNotExist) as e:
+        except(DiscussionComment.DoesNotExist) as e:
             return HttpResponseNotExist()
 
         try:
@@ -937,7 +936,7 @@ def discussionCommentID(request, discussion_id, discussion_comment_id):
 
         try:
             repository = Repository.objects.get(repo_id=discussion.repo_id)
-        except(Discussion.DoesNotExist) as e:
+        except(Repository.DoesNotExist) as e:
             return HttpResponseNotExist()
 
     
@@ -999,7 +998,7 @@ def discussionCommentID(request, discussion_id, discussion_comment_id):
 
         try:
             repository = Repository.objects.get(repo_id=discussion.repo_id)
-        except(Discussion.DoesNotExist) as e:
+        except(Repository.DoesNotExist) as e:
             return HttpResponseNotExist()
 
         if not request.user == comment.author:
@@ -1043,15 +1042,20 @@ def userPosts(request, user_name):
             if ( ( repository.visibility == Scope.PUBLIC ) or ( request.user in repository.collaborators.all() ) 
                     or ( repository.visibility == Scope.FRIENDS_ONLY and have_common_user(request.user.friends.all(), repository.collaborators.all()) ) ):
 
-            post_list.append({
-                'post_id': post.post_id,
-                'repo_id': post.repository.repo_id,
-                'author': post.author.username,
-                'title': post.title,
-                'text': post.text,
-                'post_time': post.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
-                #'images'
-            })
+                photo_list = []
+                for photo in PhotoInPost.objects.filter(post_id=post.id):
+                    photo_list.append({'photo_id': photo.photo_id, 'local_tag': photo.local_tag, 'image':"image.photo_link"})
+
+                post_list.append({
+                    'post_id': post.post_id,
+                    'repo_id': post.repository.repo_id,
+                    'author': post.author.username,
+                    'title': post.title,
+                    'text': post.text,
+                    'post_time': post.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
+                    'photos': photo_list
+                })
+
         return HttpResponseSuccessGet(post_list)
     else:
         return HttpResponseNotAllowed(['GET'])
@@ -1072,13 +1076,23 @@ def repoPosts(request, repo_id):
             req_data = json.loads(request.body.decode())
             title = req_data['title']
             text = req_data['text']
-            # images = req_data['images']
+            photos = req_data['photos']
         except(KeyError, JSONDecodeError) as e:
             return HttpResponseBadRequest()
 
         new_post = Post(repository=repository, author=request.user, title=title, text=text)
         new_post.save()
-        # new_photoinpost = PhotoInPost.save()
+
+        for ph in photos:
+            i = 0
+            try:
+                photo = Photo.objects.get(photo_id=ph.get('photo_id'))
+            except(Photo.DoesNotExist) as e:
+                return HttpResponseNotExist()
+            new_photoinpost = PhotoInPost(post=new_post, photo=photo, order=i, local_tag=ph.get('local_tag'))
+            i += 1
+            new_photoinpost.save()
+
 
 
         response_dict = {
@@ -1088,7 +1102,7 @@ def repoPosts(request, repo_id):
             'title' : new_post.title,
             'text' : new_post.text,
             'post_time' : new_post.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
-            # 'images'
+            'photos' : photos
         }
         return HttpResponseSuccessUpdate(response_dict)
 
@@ -1108,6 +1122,12 @@ def repoPosts(request, repo_id):
             
         post_filtered = Post.objects.filter(repository=repository)
         for post in post_filtered:
+
+
+            photo_list = []
+            for photo in PhotoInPost.objects.filter(post_id=post.id):
+                photo_list.append({'photo_id': photo.photo_id, 'local_tag': photo.local_tag, 'image':"image.photo_link"})
+
             post_list.append({
                 'post_id': post.post_id,
                 'repo_id': post.repository.repo_id,
@@ -1115,8 +1135,7 @@ def repoPosts(request, repo_id):
                 'title': post.title,
                 'text': post.text,
                 'post_time': post.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
-                #'images'
-                #'local_tags'
+                'photos': photo_list
             })
         return HttpResponseSuccessGet(post_list)
     else:
@@ -1138,17 +1157,19 @@ def postID(request, post_id):
                 or ( repository.visibility == Scope.FRIENDS_ONLY and have_common_user(request.user.friends.all(), repository.collaborators.all()) ) ):
                 return HttpResponseNoPermission()
 
+        photo_list = []
+        for photo in PhotoInPost.objects.filter(post_id=post.id):
+            photo_list.append({'photo_id': photo.photo_id, 'local_tag': photo.local_tag, 'image':"image.photo_link"})
 
-        response_dict = {
-            'post_id' : post.post_id,
-            'repo_id' : post.repository.repo_id,
-            'author' : post.author.username,
-            'title' : post.title,
-            'text' : post.text,
-            'post_time' : post.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
-            # 'images' : ,
-            # 'local_tags' :
-        }
+            post_list.append({
+                'post_id': post.post_id,
+                'repo_id': post.repository.repo_id,
+                'author': post.author.username,
+                'title': post.title,
+                'text': post.text,
+                'post_time': post.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
+                'photos': photo_list
+            })
         return HttpResponseSuccessGet(response_dict)
         
 
@@ -1175,8 +1196,7 @@ def postID(request, post_id):
             req_data = json.loads(request.body.decode())
             title = req_data['title']
             text = req_data['text']
-            #images
-            #local_tags
+            photos = req_data['photos']
         except(KeyError, JSONDecodeError) as e:
             return HttpResponseBadRequest()
         if title == "" or text == "":
@@ -1195,9 +1215,22 @@ def postID(request, post_id):
         
         post.title = title
         post.text = text
-        #images
-        #local_tags
         post.save()
+
+        for ph in photos:
+            try:
+                photo = Photo.objects.get(photo_id=ph.get('photo_id'))
+            except(Photo.DoesNotExist) as e:
+                return HttpResponseNotExist()
+
+            try:
+                photoinpost = PhotoInPost.objects.get(photo=photo)
+            except(PhotoInPost.DoesNotExist) as e:
+                return HttpResponseNotExist() 
+            photoinpost.local_tag = ph.get('local_tag')
+            photoinpost.save()
+
+
 
         response_dict = {
             'post_id' : post.post_id,
@@ -1206,8 +1239,7 @@ def postID(request, post_id):
             'title' : post.title,
             'text' : post.text,
             'post_time' : post.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
-            #images
-            #loca_tags
+            'photos' : photos
         }
         return HttpResponseSuccessUpdate(response_dict)
     else:
@@ -1241,10 +1273,10 @@ def postComments(request, post_id):
 
 
         response_dict = {
-            'comment_id' : new_comment.discussion_comment_id,
+            'comment_id' : new_comment.post_comment_id,
             'author' : new_comment.author.username,
             'text' : new_comment.text,
-            'parent_id' : new_comment.discussion.discussion_id,
+            'parent_id' : new_comment.post.post_id,
             'post_time' : new_comment.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
         }
         return HttpResponseSuccessUpdate(response_dict)
@@ -1253,44 +1285,309 @@ def postComments(request, post_id):
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
         try:
-            discussion = Discussion.objects.get(discussion_id=discussion_id)
-        except(Discussion.DoesNotExist) as e:
+            post = Post.objects.get(post_id=post_id)
+        except(Post.DoesNotExist) as e:
             return HttpResponseNotExist()
         try:
-            repository = Repository.objects.get(repo_id=repo_id)
+            repository = Repository.objects.get(repo_id=post.repo_id)
         except(Repository.DoesNotExist) as e:
             return HttpResponseNotExist()
 
-        if not request.user in repository.collaborators.all():
-            return HttpResponseNoPermission()
+        if not ( ( repository.visibility == Scope.PUBLIC ) or ( request.user in repository.collaborators.all() ) 
+                or ( repository.visibility == Scope.FRIENDS_ONLY and have_common_user(request.user.friends.all(), repository.collaborators.all()) ) ):
+                return HttpResponseNoPermission()
 
         comment_list = []
             
-        comment_filtered = Comment.objects.filter(discussion_id=discussion_id)
+        comment_filtered = Comment.objects.filter(post_id=post_id)
         for comment in comment_filtered:
             comment_list.append({
-                'comment_id' : new_comment.discussion_comment_id,
+                'comment_id' : new_comment.post_comment_id,
                 'author' : new_comment.author.username,
                 'text' : new_comment.text,
-                'parent_id' : new_comment.discussion.discussion_id,
+                'parent_id' : new_comment.post.post_id,
                 'post_time' : new_comment.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
             })
         return HttpResponseSuccessGet(comment_list)
     else:
         return HttpResponseNotAllowed(['POST', 'GET'])
 
+
 def postCommentID(request, post_id, post_comment_id):
     if request.method == 'GET':
-        return HttpResponse()
-    elif request.method == 'PUT':
-        return HttpResponse()
+        if not request.user.is_authenticated:
+            return HttpResponseNotLoggedIn()
+        
+        try:
+            comment = PostComment.objects.get(post_comment_id=post_comment_id)
+        except(Postcomment.DoesNotExist) as e:
+            return HttpResponseNotExist()
+
+        try:
+            post = Post.objects.get(post_id=comment.post_id)
+        except(Post.DoesNotExist) as e:
+            return HttpResponseNotExist()
+
+        try:
+            repository = Repository.objects.get(repo_id=post.repo_id)
+        except(Repository.DoesNotExist) as e:
+            return HttpResponseNotExist()
+
+    
+        if not request.user in repository.collaborators.all():
+            return HttpResponseNoPermission()
+        response_dict = {
+            'comment_id' : new_comment.discussion_comment_id,
+            'author' : new_comment.author.username,
+            'text' : new_comment.text,
+            'parent_id' : new_comment.discussion.discussion_id,
+            'post_time' : new_comment.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
+        }
+        return HttpResponseSuccessGet(response_dict)
+        
+
     elif request.method == 'DELETE':
-        return HttpResponse()
+        if not request.user.is_authenticated:
+            return HttpResponseNotLoggedIn()
+        try:
+            comment = PostComment.objects.get(post_comment_id=post_comment_id)
+        except(Postcomment.DoesNotExist) as e:
+            return HttpResponseNotExist()
+
+        try:
+            post = Post.objects.get(post_id=comment.post_id)
+        except(Post.DoesNotExist) as e:
+            return HttpResponseNotExist()
+
+
+        if not request.user == comment.author:
+            return HttpResponseNoPermission()
+        comment.delete()
+        return HttpResponseSuccessDelete()
+
+    elif request.method == 'PUT':
+        if not request.user.is_authenticated:
+            return HttpResponseNotLoggedIn()
+        try:
+            req_data = json.loads(request.body.decode())
+            text = req_data['text']
+        except(KeyError, JSONDecodeError) as e:
+            return HttpResponseBadRequest()
+        if text == "":
+            return HttpResponseInvalidInput()
+            
+        try:
+            comment = PostComment.objects.get(post_comment_id=post_comment_id)
+        except(PostComment.DoesNotExist) as e:
+            return HttpResponseNotExist()
+
+        try:
+            post = Post.objects.get(post_id=comment.post_id)
+        except(Post.DoesNotExist) as e:
+            return HttpResponseNotExist()
+
+
+        if not request.user == comment.author:
+            return HttpResponseNoPermission()
+        
+
+        comment.text = text
+        comment.save()
+
+        response_dict = {
+            'comment_id' : new_comment.post_comment_id,
+            'author' : new_comment.author.username,
+            'text' : new_comment.text,
+            'parent_id' : new_comment.post.post_id,
+            'post_time' : new_comment.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
+        }
+        return HttpResponseSuccessUpdate(response_dict)
     else:
         return HttpResponseNotAllowed(['PUT','DELETE', 'GET'])
 
 
-
-
 """
+def photos(request, repo_id):
+    if request.method == 'GET':
+        try:
+            repository = Repository.objects.get(repo_id=repo_id)
+        except(Repository.DoesNotExist) as e:
+            return HttpResponseNotExist()
+        
+        if ( (repository.visibility == Scope.PUBLIC) or (request.user in repository.collaborators.all())
+                    or (repository.visibility == Scope.FRIENDS_ONLY and have_common_user(request.user.friends.all(), repository.collaborators.all()) ) ):
+            
+            photo_list = []
+            for photo in Photo.objects.filter(repo_id=repo_id):
+
+                try:
+                    photo_tag = PhotoTag.objects.get(photo=photo, user=request.user)
+                    photo_tag_text = photo_tag.text
+                except(PhotoTag.DoesNotExist) as e:
+                    photo_tag_text = ""
+
+                photo_list.append({
+                    'photo_id' : photo.photo_id,
+                    'repo_id' : photo.repository.repo_id,
+                    'image' : photo.image_file.path,
+                    'post_time' : photo.post_time.strftime("%Y-%m-%d-%H-%M-%S"),
+                    'tag' : photo_tag_text,
+                    'uploader' : photo.uploader.username,
+                })
+
+            return HttpResponseSuccessGet(photo_list)
+        else:
+            return HttpResponseNoPermission()
+
+    elif request.method == 'POST':
+        if not request.user.is_authenticated:
+            return HttpResponseNotLoggedIn()
+
+        try:
+            repository = Repository.objects.get(repo_id=repo_id)
+        except(Repository.DoesNotExist) as e:
+            return HttpResponseNotExist()
+
+        if request.user not in repository.collaborators.all():
+            return HttpResponseNoPermission()
+        
+        try:
+            image_list = request.FILES['image']
+        except(KeyError) as e:
+            return HttpResponseBadRequest()
+
+        for image in image_list:
+            new_photo = Photo(repository=repository, image_file=image, 
+                            uploader=request.user)
+            new_photo.save()
+
+        photo_list = []
+        for photo in Photo.objects.filter(repo_id=repo_id):
+
+            try:
+                photo_tag = PhotoTag.objects.get(photo=photo, user=request.user)
+                photo_tag_text = photo_tag.text
+            except(PhotoTag.DoesNotExist) as e:
+                photo_tag_text = ""
+
+            photo_list.append({
+                'photo_id' : photo.photo_id,
+                'repo_id' : photo.repository.repo_id,
+                'image' : photo.image_file.path,
+                'post_time' : photo.post_time.strftime("%Y-%m-%d-%H-%M-%S"),
+                'tag' : photo_tag_text,
+                'uploader' : photo.uploader.username,
+            })
+
+        return HttpResponseSuccessUpdate(photo_list)
+
+    elif request.method == 'PUT':
+        if not request.user.is_authenticated:
+            return HttpResponseNotLoggedIn()
+
+        try:
+            repository = Repository.objects.get(repo_id=repo_id)
+        except(Repository.DoesNotExist) as e:
+            return HttpResponseNotExist()
+
+        if request.user not in repository.collaborators.all():
+            return HttpResponseNoPermission()
+        
+        edited_photo_list = []
+        try:
+            req_data = json.loads(request.body.decode())
+            for photo_info in req_data:
+
+                try:
+                    photo = Photo.objects.get(photo_id=photo_info['photo_id'])
+                except(Photo.DoesNotExist) as e:
+                    return HttpResponseInvalidInput()
+                
+                edited_photo_list.append( ( photo, photo_info['tag'] ) )
+        except(JSONDecodeError, KeyError) as e:
+            return HttpResponseBadRequest()
+
+        for edited_photo in edited_photo_list:
+            
+            tag_count =  PhotoTag.objects.filter(photo=edited_photo[0], user=request.user).count()
+            if edited_photo[1] == "" and tag_count == 1:
+                photo_tag = PhotoTag.objects.get(photo=edited_photo[0], user=request.user)
+                photo_tag.delete()
+            elif edited_photo[1] != "" and tag_count == 1:
+                photo_tag = PhotoTag.objects.get(photo=edited_photo[0], user=request.user)
+                photo_tag.text = edited_photo[1]
+            elif edited_photo[1] != "" and tag_count == 0:
+                new_photo_tag = PhotoTag(photo=edited_photo[0], user=request.user, text=edited_photo[1] )
+                new_photo_tag.save()
+
+        photo_list = []
+        for photo in Photo.objects.filter(repo_id=repo_id):
+
+            try:
+                photo_tag = PhotoTag.objects.get(photo=photo, user=request.user)
+                photo_tag_text = photo_tag.text
+            except(PhotoTag.DoesNotExist) as e:
+                photo_tag_text = ""
+
+            photo_list.append({
+                'photo_id' : photo.photo_id,
+                'repo_id' : photo.repository.repo_id,
+                'image' : photo.image_file.path,
+                'post_time' : photo.post_time.strftime("%Y-%m-%d-%H-%M-%S"),
+                'tag' : photo_tag_text,
+                'uploader' : photo.uploader.username,
+            })
+
+        return HttpResponseSuccessUpdate(photo_list)
+
+    else: # request.method == DELETE
+        if not request.user.is_authenticated:
+            return HttpResponseNotLoggedIn()
+
+        try:
+            repository = Repository.objects.get(repo_id=repo_id)
+        except(Repository.DoesNotExist) as e:
+            return HttpResponseNotExist()
+
+        if request.user not in repository.collaborators.all():
+            return HttpResponseNoPermission()
+        
+        deleted_photo_id_list = []
+        try:
+            req_data = json.loads(request.body.decode())
+            for photo in req_data:
+                deleted_photo_id_list.append(photo['photo_id'])
+        except(JSONDecodeError, KeyError) as e:
+            return HttpResponseBadRequest()
+
+        deleted_photo_list = []
+        for photo_id in deleted_photo_id_list:
+            try:
+                deleted_photo = Photo.objects.get(photo_id=photo_id)
+                deleted_photo_list.append(deleted_photo)
+            except(Photo.DoesNotExist) as e:
+                return HttpResponseInvalidInput()
+
+        for photo in deleted_photo:
+            photo.delete()
+
+        photo_list = []
+        for photo in Photo.objects.filter(repo_id=repo_id):
+
+            try:
+                photo_tag = PhotoTag.objects.get(photo=photo, user=request.user)
+                photo_tag_text = photo_tag.text
+            except(PhotoTag.DoesNotExist) as e:
+                photo_tag_text = ""
+
+            photo_list.append({
+                'photo_id' : photo.photo_id,
+                'repo_id' : photo.repository.repo_id,
+                'image' : photo.image_file.path,
+                'post_time' : photo.post_time.strftime("%Y-%m-%d-%H-%M-%S"),
+                'tag' : photo_tag_text,
+                'uploader' : photo.uploader.username,
+            })
+
+        return HttpResponseSuccessDelete(photo_list)
 
