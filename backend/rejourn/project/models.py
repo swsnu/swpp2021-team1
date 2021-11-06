@@ -27,8 +27,8 @@ class Repository(models.Model):
     visibility = models.IntegerField(choices=Scope.choices, default=0)
     owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     #route_id = models.ForeignKey(Route, on_delete=models.SET_DEFAULT)
-    travel_start_date = models.DateField('travel_start_date', default=timezone.localtime(), null=True)
-    travel_end_date = models.DateField('travel_end_date', default=timezone.localtime(), null=True)
+    travel_start_date = models.DateField('travel_start_date', default=timezone.localtime, null=True)
+    travel_end_date = models.DateField('travel_end_date', default=timezone.localtime, null=True)
     collaborators = models.ManyToManyField(
         User,
         related_name='repositories',
@@ -36,7 +36,7 @@ class Repository(models.Model):
 
     def __str__(self):
         return self.repo_name
-"""
+
 class Discussion(models.Model):
     discussion_id = models.BigAutoField(primary_key=True)
     repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
@@ -76,4 +76,6 @@ class PostComment(models.Model):
 class PhotoInPost(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     # photo = models.ForeignKey(Photo, on_delete=models.CASCADE)
-    """
+    order = models.IntegerField()
+    local_tag = models.CharField(max_length=500)
+    

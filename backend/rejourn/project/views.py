@@ -3,8 +3,7 @@ from django.http.response import HttpResponseBadRequest, HttpResponseNotAllowed,
 from .httpResponse import *
 from .enum import Scope
 from django.http import HttpResponse
-from .models import User, Repository
-#, Discussion, DiscussionComment, Post, PostComment
+from .models import User, Repository, Discussion, DiscussionComment, Post, PostComment
 from django.contrib.auth import authenticate, login, logout
 import json
 from datetime import datetime
@@ -277,7 +276,7 @@ def userFriends(request, user_name):
                 'bio': friend.bio
             })
 
-        if request.user.is_authenticated() and user_name == request.user.username:
+        if request.user.is_authenticated and user_name == request.user.username:
             return HttpResponseSuccessGet(friends_list)
         if user.visibility == Scope.PUBLIC:
             return HttpResponseSuccessGet(friends_list)
@@ -296,7 +295,7 @@ def userFriends(request, user_name):
 @ensure_csrf_cookie
 def userFriendID(request, user_name, friend_name):
     if request.method == 'POST':
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
         
         if user_name!=request.user.username:
@@ -316,7 +315,7 @@ def userFriendID(request, user_name, friend_name):
         return HttpResponseSuccessUpdate()
     
     elif request.method == 'DELETE':
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
         
         if user_name!=request.user.username:
@@ -342,7 +341,7 @@ def userFriendID(request, user_name, friend_name):
 @ensure_csrf_cookie
 def repositories(request):
     if request.method == 'POST':
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
         
         try:
@@ -692,7 +691,7 @@ def repositoryCollaboratorID(request, repo_id, collaborator_name):
 
     else:
         return HttpResponseNotAllowed(['DELETE'])
-"""
+
 @ensure_csrf_cookie
 def discussions(request, repo_id):
     if request.method == 'POST':
@@ -897,7 +896,7 @@ def discussionComments(request, discussion_id):
         except(Discussion.DoesNotExist) as e:
             return HttpResponseNotExist()
         try:
-            repository = Repository.objects.get(repo_id=repo_id)
+            repository = Repository.objects.get(repo_id=disscussion.repo_id)
         except(Repository.DoesNotExist) as e:
             return HttpResponseNotExist()
 
@@ -927,7 +926,7 @@ def discussionCommentID(request, discussion_id, discussion_comment_id):
         
         try:
             comment = DiscussionComment.objects.get(discussion_comment_id=discussion_comment_id)
-        except(Discussioncomment.DoesNotExist) as e:
+        except(DiscussionComment.DoesNotExist) as e:
             return HttpResponseNotExist()
 
         try:
@@ -937,7 +936,7 @@ def discussionCommentID(request, discussion_id, discussion_comment_id):
 
         try:
             repository = Repository.objects.get(repo_id=discussion.repo_id)
-        except(Discussion.DoesNotExist) as e:
+        except(Repository.DoesNotExist) as e:
             return HttpResponseNotExist()
 
     
@@ -999,7 +998,7 @@ def discussionCommentID(request, discussion_id, discussion_comment_id):
 
         try:
             repository = Repository.objects.get(repo_id=discussion.repo_id)
-        except(Discussion.DoesNotExist) as e:
+        except(Repository.DoesNotExist) as e:
             return HttpResponseNotExist()
 
         if not request.user == comment.author:
@@ -1043,15 +1042,20 @@ def userPosts(request, user_name):
             if ( ( repository.visibility == Scope.PUBLIC ) or ( request.user in repository.collaborators.all() ) 
                     or ( repository.visibility == Scope.FRIENDS_ONLY and have_common_user(request.user.friends.all(), repository.collaborators.all()) ) ):
 
-            post_list.append({
-                'post_id': post.post_id,
-                'repo_id': post.repository.repo_id,
-                'author': post.author.username,
-                'title': post.title,
-                'text': post.text,
-                'post_time': post.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
-                #'images'
-            })
+                image_list = []
+                for image in PhotoInPost.objects.filter(post_id=post.id):
+                    image_list.append("image.photo_link")
+
+                post_list.append({
+                    'post_id': post.post_id,
+                    'repo_id': post.repository.repo_id,
+                    'author': post.author.username,
+                    'title': post.title,
+                    'text': post.text,
+                    'post_time': post.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
+                    'images': image_list
+                })
+
         return HttpResponseSuccessGet(post_list)
     else:
         return HttpResponseNotAllowed(['GET'])
@@ -1072,12 +1076,22 @@ def repoPosts(request, repo_id):
             req_data = json.loads(request.body.decode())
             title = req_data['title']
             text = req_data['text']
-            # images = req_data['images']
+            images = req_data['images']
+            local_tags = req_data['local_tags']
         except(KeyError, JSONDecodeError) as e:
             return HttpResponseBadRequest()
 
         new_post = Post(repository=repository, author=request.user, title=title, text=text)
         new_post.save()
+
+        for image in images:
+            i = 0
+            photo = Photo()
+            photo.save()
+            new_photoinpost = PhotoInPost(post=new_post, photo=image, order=i, local_tag=local_tags.get(photo))
+            image_list.append("image.photo_link")
+
+        
         # new_photoinpost = PhotoInPost.save()
 
 
@@ -1241,10 +1255,10 @@ def postComments(request, post_id):
 
 
         response_dict = {
-            'comment_id' : new_comment.discussion_comment_id,
+            'comment_id' : new_comment.post_comment_id,
             'author' : new_comment.author.username,
             'text' : new_comment.text,
-            'parent_id' : new_comment.discussion.discussion_id,
+            'parent_id' : new_comment.post.post_id,
             'post_time' : new_comment.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
         }
         return HttpResponseSuccessUpdate(response_dict)
@@ -1253,44 +1267,128 @@ def postComments(request, post_id):
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
         try:
-            discussion = Discussion.objects.get(discussion_id=discussion_id)
-        except(Discussion.DoesNotExist) as e:
+            post = Post.objects.get(post_id=post_id)
+        except(Post.DoesNotExist) as e:
             return HttpResponseNotExist()
         try:
-            repository = Repository.objects.get(repo_id=repo_id)
+            repository = Repository.objects.get(repo_id=post.repo_id)
         except(Repository.DoesNotExist) as e:
             return HttpResponseNotExist()
 
-        if not request.user in repository.collaborators.all():
-            return HttpResponseNoPermission()
+        if not ( ( repository.visibility == Scope.PUBLIC ) or ( request.user in repository.collaborators.all() ) 
+                or ( repository.visibility == Scope.FRIENDS_ONLY and have_common_user(request.user.friends.all(), repository.collaborators.all()) ) ):
+                return HttpResponseNoPermission()
 
         comment_list = []
             
-        comment_filtered = Comment.objects.filter(discussion_id=discussion_id)
+        comment_filtered = Comment.objects.filter(post_id=post_id)
         for comment in comment_filtered:
             comment_list.append({
-                'comment_id' : new_comment.discussion_comment_id,
+                'comment_id' : new_comment.post_comment_id,
                 'author' : new_comment.author.username,
                 'text' : new_comment.text,
-                'parent_id' : new_comment.discussion.discussion_id,
+                'parent_id' : new_comment.post.post_id,
                 'post_time' : new_comment.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
             })
         return HttpResponseSuccessGet(comment_list)
     else:
         return HttpResponseNotAllowed(['POST', 'GET'])
 
+
 def postCommentID(request, post_id, post_comment_id):
     if request.method == 'GET':
-        return HttpResponse()
-    elif request.method == 'PUT':
-        return HttpResponse()
+        if not request.user.is_authenticated:
+            return HttpResponseNotLoggedIn()
+        
+        try:
+            comment = PostComment.objects.get(post_comment_id=post_comment_id)
+        except(Postcomment.DoesNotExist) as e:
+            return HttpResponseNotExist()
+
+        try:
+            post = Post.objects.get(post_id=comment.post_id)
+        except(Post.DoesNotExist) as e:
+            return HttpResponseNotExist()
+
+        try:
+            repository = Repository.objects.get(repo_id=post.repo_id)
+        except(Repository.DoesNotExist) as e:
+            return HttpResponseNotExist()
+
+    
+        if not request.user in repository.collaborators.all():
+            return HttpResponseNoPermission()
+        response_dict = {
+            'comment_id' : new_comment.discussion_comment_id,
+            'author' : new_comment.author.username,
+            'text' : new_comment.text,
+            'parent_id' : new_comment.discussion.discussion_id,
+            'post_time' : new_comment.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
+        }
+        return HttpResponseSuccessGet(response_dict)
+        
+
     elif request.method == 'DELETE':
-        return HttpResponse()
+        if not request.user.is_authenticated:
+            return HttpResponseNotLoggedIn()
+        try:
+            comment = PostComment.objects.get(post_comment_id=post_comment_id)
+        except(Postcomment.DoesNotExist) as e:
+            return HttpResponseNotExist()
+
+        try:
+            post = Post.objects.get(post_id=comment.post_id)
+        except(Post.DoesNotExist) as e:
+            return HttpResponseNotExist()
+
+
+        if not request.user == comment.author:
+            return HttpResponseNoPermission()
+        comment.delete()
+        return HttpResponseSuccessDelete()
+
+    elif request.method == 'PUT':
+        if not request.user.is_authenticated:
+            return HttpResponseNotLoggedIn()
+        try:
+            req_data = json.loads(request.body.decode())
+            text = req_data['text']
+        except(KeyError, JSONDecodeError) as e:
+            return HttpResponseBadRequest()
+        if text == "":
+            return HttpResponseInvalidInput()
+            
+        try:
+            comment = PostComment.objects.get(post_comment_id=post_comment_id)
+        except(PostComment.DoesNotExist) as e:
+            return HttpResponseNotExist()
+
+        try:
+            post = Post.objects.get(post_id=comment.post_id)
+        except(Post.DoesNotExist) as e:
+            return HttpResponseNotExist()
+
+
+        if not request.user == comment.author:
+            return HttpResponseNoPermission()
+        
+
+        comment.text = text
+        comment.save()
+
+        response_dict = {
+            'comment_id' : new_comment.post_comment_id,
+            'author' : new_comment.author.username,
+            'text' : new_comment.text,
+            'parent_id' : new_comment.post.post_id,
+            'post_time' : new_comment.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
+        }
+        return HttpResponseSuccessUpdate(response_dict)
     else:
         return HttpResponseNotAllowed(['PUT','DELETE', 'GET'])
 
 
 
 
-"""
+
 
