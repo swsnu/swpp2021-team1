@@ -213,6 +213,7 @@ class UserTestCase(TestCase):
             content_type='application/json'
         )
         self.assertEqual(response.status_code, 201)
+        self.assertIn("TEST_USER_A", response.content.decode())
         
         response = clientA.get('/api/session/')
         self.assertEqual(response.status_code, 200)
@@ -245,9 +246,138 @@ class UserTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 201)
 
+    def test_delete_userID(self):
+        client = Client()
+        response = client.delete(
+            '/api/users/TEST_USER_A/',
+        )
+        self.assertEqual(response.status_code, 401)
+        response = client.post(
+            '/api/signin/',
+            json.dumps({'username' : "TEST_USER_A", 'password' : "TEST_PASSWORD_A"}), 
+            content_type='application/json'
+        )
+        response = client.delete(
+            '/api/users/TEST_USER_B/',
+        )
+        self.assertEqual(response.status_code, 403)
+        response = client.delete(
+            '/api/users/TEST_USER_A/',
+        )
+        self.assertEqual(response.status_code, 202)
+
+    def test_put_userID(self):
+        client = Client()
+        response = client.post(
+            '/api/users/TEST_USER_A/',
+            json.dumps({
+                'username' : 'TEST_USER_E',
+                'real_name' : 'REAL_USER_E',
+                'email' : 'TEST_USER_E@test.com',
+                'password' : 'TEST_PASSWORD_E',
+                'visibility' : Scope.PRIVATE,
+                'bio' : 'My name is REAL_USER_E!',
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 405)
+        response = client.put(
+            '/api/users/TEST_USER_A/',
+            json.dumps({
+                'username' : 'TEST_USER_E',
+                'real_name' : 'REAL_USER_E',
+                'email' : 'TEST_USER_E@test.com',
+                'password' : 'TEST_PASSWORD_E',
+                'visibility' : Scope.PRIVATE,
+                'bio' : 'My name is REAL_USER_E!',
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 401)
+        response = client.post(
+            '/api/signin/',
+            json.dumps({'username' : "TEST_USER_A", 'password' : "TEST_PASSWORD_A"}), 
+            content_type='application/json'
+        )
+        response = client.put(
+            '/api/users/TEST_USER_B/',
+            json.dumps({
+                'username' : 'TEST_USER_E',
+                'real_name' : 'REAL_USER_E',
+                'email' : 'TEST_USER_E@test.com',
+                'password' : 'TEST_PASSWORD_E',
+                'visibility' : Scope.PRIVATE,
+                'bio' : 'My name is REAL_USER_E!',
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 403)
+        response = client.put(
+            '/api/users/TEST_USER_A/',
+            json.dumps({
+                'username' : 'TEST_USER_E',
+                'real_name' : 'REAL_USER_E',
+                'email' : 'TEST_USER_E@test.com',
+                'password' : 'TEST_PASSWORD_E',
+                'visibility' : Scope.PRIVATE,
+                'bio' : 'My name is REAL_USER_E!',
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertIn("TEST_USER_E", response.content.decode())
+
+    def test_get_userID(self):
+        client = Client()
+        response = client.get(
+            '/api/users/TEST_USER_Z/',
+        )
+        self.assertEqual(response.status_code, 404)
+        response = client.post(
+            '/api/signin/',
+            json.dumps({'username' : "TEST_USER_A", 'password' : "TEST_PASSWORD_A"}), 
+            content_type='application/json'
+        )
+        response = client.get(
+            '/api/users/TEST_USER_A/',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("REAL_USER_A", response.content.decode())
+        response = client.get(
+            '/api/users/TEST_USER_D/',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("TEST_USER_D@test.com", response.content.decode())
+        response = client.get(
+            '/api/users/TEST_USER_B/',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("TEST_USER_B@test.com", response.content.decode())
+
+
+        response = client.get(
+            '/api/signout/',
+        )
+
+        response = client.post(
+            '/api/signin/',
+            json.dumps({'username' : "TEST_USER_C", 'password' : "TEST_PASSWORD_C"}), 
+            content_type='application/json'
+        )
+        response = client.get(
+            '/api/users/TEST_USER_B/',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("TEST_USER_B@test.com", response.content.decode())
+        response = client.get(
+            '/api/users/TEST_USER_A/',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("TEST_USER_A@test.com", response.content.decode())
+        
+
 
 class RepositoryTestCase(TestCase):
-    
 
     def setUp(self):
         pass
@@ -258,3 +388,143 @@ class RepositoryTestCase(TestCase):
     
     def test_post_repositories(self):
         pass
+
+class DiscussionTestCase(TestCase):
+
+    
+    def setUp(self):
+        User.objects.create_user(username='TEST_A_USER', real_name='TEST_A_REAL', 
+                                email='TEST_A_EMAIL', password='TEST_A_PW', 
+                                visibility=Scope.PUBLIC, bio='TEST_A_BIO')
+        User.objects.create_user(username='TEST_B_USER', real_name='TEST_B_REAL', 
+                                email='TEST_B_EMAIL', password='TEST_B_PW', 
+                                visibility=Scope.PUBLIC, bio='TEST_B_BIO')
+        User.objects.create_user(username='TEST_C_USER', real_name='TEST_C_REAL', 
+                                email='TEST_C_EMAIL', password='TEST_C_PW', 
+                                visibility=Scope.PUBLIC, bio='TEST_C_BIO')
+        userA = User.objects.get(user_id=1)
+        repoA = Repository(repo_name='REPO_A_NAME', visibility=Scope.PUBLIC, owner=userA)   
+        repoA.save()
+        repoA.collaborators.add(userA)
+        dissB = Discussion(repository=repoA, author=userA, title='DISS_B_TITLE', text='DISS_B_TEXT')
+        dissB.save()
+        
+    
+    def tearDown(self):
+        User.objects.all().delete()
+        Repository.objects.all().delete()
+        Discussion.objects.all().delete()
+
+    def test_post_discussions(self):
+        client = Client()
+        response = client.delete(
+            '/api/discussions/1/'
+        )
+        self.assertEqual(response.status_code, 405)
+
+        response = client.post(
+            '/api/discussions/1/',
+            json.dumps({'title' : "DISS_A_TITLE", 'text': "DISS_A_TEXT"}), 
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 401)
+
+        response = client.post(
+            '/api/signin/',
+            json.dumps({'username' : "TEST_C_USER", 'password' : "TEST_C_PW"}), 
+            content_type='application/json'
+        )
+
+        response = client.post(
+            '/api/discussions/5/',
+            json.dumps({'title' : "DISS_A_TITLE", 'text': "DISS_A_TEXT"}), 
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 404)
+
+        response = client.get(
+            '/api/signout/',
+        )
+
+        response = client.post(
+            '/api/signin/',
+            json.dumps({'username' : "TEST_C_USER", 'password' : "TEST_C_PW"}), 
+            content_type='application/json'
+        )
+
+        response = client.post(
+            '/api/discussions/1/',
+            json.dumps({'title' : "DISS_A_TITLE", 'text': "DISS_A_TEXT"}), 
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 403)
+
+        response = client.get(
+            '/api/signout/',
+        )
+
+        response = client.post(
+            '/api/signin/',
+            json.dumps({'username' : "TEST_A_USER", 'password' : "TEST_A_PW"}), 
+            content_type='application/json'
+        )
+
+        response = client.post(
+            '/api/discussions/1/',
+            json.dumps({'title' : "DISS_A_TITLE", 'text': "DISS_A_TEXT"}), 
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertIn("DISS_A_TITLE", response.content.decode())
+
+        response = client.post(
+            '/api/discussions/1/',
+            json.dumps({'title' : "DISS_A_TITLE"}), 
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_get_discussions(self):
+        client = Client()
+        response = client.get(
+            '/api/discussions/1/',
+        )
+        self.assertEqual(response.status_code, 401)
+
+
+        response = client.post(
+            '/api/signin/',
+            json.dumps({'username' : "TEST_B_USER", 'password' : "TEST_B_PW"}), 
+            content_type='application/json'
+        )
+
+        response = client.get(
+            '/api/discussions/5/',
+        )
+        self.assertEqual(response.status_code, 404)
+
+        response = client.get(
+            '/api/discussions/1/',
+        )
+        self.assertEqual(response.status_code, 403)
+
+        response = client.get(
+            '/api/signout/',
+        )
+
+        response = client.post(
+            '/api/signin/',
+            json.dumps({'username' : "TEST_A_USER", 'password' : "TEST_A_PW"}), 
+            content_type='application/json'
+        )
+
+        response = client.get(
+            '/api/discussions/1/',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('DISS_B_TITLE', response.content.decode())
+
+
+
+
+

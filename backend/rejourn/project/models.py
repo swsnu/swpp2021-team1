@@ -36,3 +36,44 @@ class Repository(models.Model):
 
     def __str__(self):
         return self.repo_name
+"""
+class Discussion(models.Model):
+    discussion_id = models.BigAutoField(primary_key=True)
+    repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=120)
+    text = models.CharField(max_length=1000)
+    post_time = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+class DiscussionComment(models.Model):
+    discussion_comment_id = models.BigAutoField(primary_key=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    text = models.CharField(max_length=500)
+    discussion = models.ForeignKey(Discussion, on_delete=models.CASCADE)
+    post_time = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.text
+
+class Post(models.Model):
+    post_id = models.BigAutoField(primary_key=True)
+    repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=120)
+    text = models.CharField(max_length=1000)
+    post_time = models.DateTimeField(auto_now_add=True)
+
+class PostComment(models.Model):
+    post_comment_id = models.BigAutoField(primary_key=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    text = models.CharField(max_length=500)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    post_time = models.DateTimeField(auto_now_add=True)
+
+class PhotoInPost(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    # photo = models.ForeignKey(Photo, on_delete=models.CASCADE)
+    """
