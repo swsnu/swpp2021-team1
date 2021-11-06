@@ -35,15 +35,15 @@ export async function postUsers(user : IUser) {
 }
 
 export async function getUser(username : string) {
-    return (await axios.get<any, AxiosResponse<IUser>>(`/api/users/${username}`)).data;
+    return (await axios.get<any, AxiosResponse<IUser>>(`/api/users/${username}/`)).data;
 }
 
 export async function putUser(user : IUser) {
-    return (await axios.put<any, AxiosResponse<IUser>>(`/api/users/${user.username}`, user)).data;
+    return (await axios.put<any, AxiosResponse<IUser>>(`/api/users/${user.username}/`, user)).data;
 }
 
 export async function deleteUser(username : string) {
-    await axios.delete(`/api/users/${username}`);
+    await axios.delete(`/api/users/${username}/`);
 }
 
 export async function getFriends(username : string) {
@@ -51,11 +51,11 @@ export async function getFriends(username : string) {
 }
 
 export async function postFriends(from : string, to : string) {
-    await axios.post(`/api/users/${from}/friends/${to}`);
+    await axios.post(`/api/users/${from}/friends/${to}/`);
 }
 
 export async function deleteFriends(from : string, to : string) {
-    await axios.delete(`/api/users/${from}/friends/${to}`);
+    await axios.delete(`/api/users/${from}/friends/${to}/`);
 }
 
 export async function postRepositories(repo : IRepository) {
@@ -63,23 +63,23 @@ export async function postRepositories(repo : IRepository) {
 }
 
 export async function getRepositories(username : string) {
-    return (await axios.get<any, AxiosResponse<IRepository[]>>(`/api/repositories/?username=${username}`)).data;
+    return (await axios.get<any, AxiosResponse<IRepository[]>>(`/api/repositories/?username=${username}/`)).data;
 }
 
 export async function getRepository(repo_id : number) {
-    return (await axios.get<any, AxiosResponse<IRepository>>(`/api/repositories/${repo_id}`)).data;
+    return (await axios.get<any, AxiosResponse<IRepository>>(`/api/repositories/${repo_id}/`)).data;
 }
 
 export async function deleteRepository(repo_id : number) { // added
-    await axios.delete(`/api/repositories/${repo_id}`);
+    await axios.delete(`/api/repositories/${repo_id}/`);
 }
 
 export async function putRepository(repo : IRepository) {
-    return (await axios.put<any, AxiosResponse<IRepository>>(`/api/repositories/${repo.repo_id}`)).data;
+    return (await axios.put<any, AxiosResponse<IRepository>>(`/api/repositories/${repo.repo_id}/`, repo)).data;
 }
 
 export async function getCollaborators(repo_id : number) {
-    return (await axios.get<any, AxiosResponse<IUser[]>>(`/api/repositories/${repo_id}/collaborators`)).data;
+    return (await axios.get<any, AxiosResponse<IUser[]>>(`/api/repositories/${repo_id}/collaborators/`)).data;
 }
 
 export async function postCollaborators(repo_id : number, users : string[]) { // added

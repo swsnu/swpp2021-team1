@@ -58,12 +58,14 @@ export default function PhotoList(props : PhotoListProps) {
                 {photoList.map((value) => <Photo photo={value} onClick={onPhotoClick} />)}
             </ListGroup>
             <AddPhoto show={addShow} setShow={setAddShow} commitPhotos={commitPhotos} />
-            <FocusedPhoto
-                photo={currentPhoto as IPhoto}
-                onEdit={onEdit}
-                show={photoShow}
-                setShow={setPhotoShow}
-            />
+            {currentPhoto && (
+                <FocusedPhoto
+                    photo={currentPhoto}
+                    onEdit={onEdit}
+                    show={photoShow}
+                    setShow={setPhotoShow}
+                />
+            )}
         </div>
     );
 }
