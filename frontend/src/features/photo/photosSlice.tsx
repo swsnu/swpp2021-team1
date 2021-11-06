@@ -54,7 +54,7 @@ const photosSlice = createSlice<PhotosState, SliceCaseReducers<PhotosState>>({
     initialState: photosInitialState,
     reducers: {
         toBeLoaded: (state : PhotosState, action: PayloadAction<null>) => {
-            state.isLoading = false;
+            state.isLoading = true;
         },
         handleError: (state : PhotosState, action: PayloadAction<null>) => {
             state.hasError = false;

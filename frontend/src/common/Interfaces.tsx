@@ -82,6 +82,17 @@ interface IPhoto {
     uploader : string; // sure?
 }
 
+export function photoFactory() {
+    return {
+        photo_id: randomInt(),
+        repo_id: randomInt(),
+        image: randomString(),
+        post_time: randomString(),
+        tag: randomString(),
+        uploader: randomString(),
+    } as IPhoto;
+}
+
 interface IDiscussion {
     discussion_id : number;
     repo_id : number;

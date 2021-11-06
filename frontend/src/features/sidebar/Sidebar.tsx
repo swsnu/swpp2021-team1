@@ -21,8 +21,8 @@ function Sidebar(props: SidebarProps) {
         [state.auth.isLoading, state.auth.hasError, state.auth.account]);
 
     useEffect(() => {
-        dispatch(actionCreators.fetchSession());
-    });
+        if (!account) dispatch(actionCreators.fetchSession());
+    }, [dispatch]);
 
     if (isLoading) return null;
     if (hasError) {
