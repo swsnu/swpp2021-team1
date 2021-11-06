@@ -1,6 +1,8 @@
 import axios, { AxiosResponse } from "axios";
 import { afterWrite } from "@popperjs/core";
-import { IRepository, IUser, Visibility } from "./Interfaces";
+import {
+    IPhoto, IRepository, IUser, Visibility,
+} from "./Interfaces";
 
 axios.defaults.xsrfCookieName = "csrftoken";
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -86,4 +88,21 @@ export async function postCollaborators(repo_id : number, users : string[]) { //
 
 export async function deleteCollaborators(repo_id : number, username : string) { // added
     await axios.delete(`/api/repositories/${repo_id}/collaborators/${username}/`);
+}
+
+export async function getPhotos(repo_id : number) {
+    return (await axios.get<any, AxiosResponse<IPhoto[]>>(`/api/repositories/${repo_id}/photos/`)).data;
+}
+
+export async function postPhotos(repo_id : number, images : FormData) {
+    return (await axios.post<any, AxiosResponse<IPhoto[]>>(`/api/repositories/${repo_id}/photos/`, images)).data;
+}
+
+export async function putPhotos(repo_id : number, photos : IPhoto[]) {
+    return (await axios.put<any, AxiosResponse<IPhoto[]>>(`/api/repositories/${repo_id}/photos/`, photos)).data;
+}
+
+export async function deletePhotos(repo_id : number, photos_id : number[]) {
+    return (await axios.delete<any, AxiosResponse<IPhoto[]>>(`/api/repositories/${repo_id}/photos/`,
+        { data: photos_id })).data;
 }

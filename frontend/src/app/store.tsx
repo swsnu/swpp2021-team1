@@ -3,12 +3,14 @@ import { CombinedState } from "redux";
 import authReducer, { AuthState } from "../features/auth/authSlice";
 import reposReducer, { ReposState } from "../features/repository/reposSlice";
 import postsReducer from "../features/post/postsSlice";
+import photosReducer from "../features/photo/photosSlice";
 
 const store = configureStore({
     reducer: {
         auth: authReducer,
         repos: reposReducer,
         posts: postsReducer,
+        photos: photosReducer,
     /*
         repositories : filtersReducer,
         posts :

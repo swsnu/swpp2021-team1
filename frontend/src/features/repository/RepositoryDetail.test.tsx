@@ -8,9 +8,11 @@ import { mount } from "enzyme";
 import authReducer from "../auth/authSlice";
 import reposReducer from "./reposSlice";
 import postsReducer from "../post/postsSlice";
+import photosReducer from "../photo/photosSlice";
 import * as actionCreator from "./reposSlice";
 import { repositoryFactory, userFactory } from "../../common/Interfaces";
 import RepositoryDetail from "./RepositoryDetail";
+import PhotoList from "../photo/PhotoList";
 
 const history = createBrowserHistory();
 const historyMock = { ...history, push: jest.fn(), listen: jest.fn() };
@@ -21,6 +23,7 @@ function makeStoredComponent() {
             auth: authReducer,
             repos: reposReducer,
             posts: postsReducer,
+            photos: photosReducer,
         },
     });
 
@@ -54,9 +57,17 @@ describe("RepositoryDetail", () => {
                 hasError: false,
                 isLoading: false,
             },
+            photos: {
+                isLoading: true,
+                hasError: false,
+                currentPhoto: null,
+                photoList: [],
+            },
         }));
 
         const effect = jest.spyOn(React, "useEffect").mockImplementation(jest.fn);
+        const mockPhotoList = jest.mock("../photo/PhotoList", () => jest.fn((props) => (
+            <div />)));
     });
 
     afterEach(() => {
@@ -132,6 +143,12 @@ describe("RepositoryDetail", () => {
                 currentRepo: { ...repositoryFactory(), collaborators: [user] },
                 hasError: false,
                 isLoading: false,
+            },
+            photos: {
+                isLoading: true,
+                hasError: false,
+                currentPhoto: null,
+                photoList: [],
             },
         }));
         const component = mount(makeStoredComponent());

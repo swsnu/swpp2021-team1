@@ -50,8 +50,8 @@ export const addCollaborators = createAsyncThunk<void, {repoID : number, users :
     },
 );
 
-export const secedeRepository = createAsyncThunk<void, {username : string, repoID : number}>( // added
-    "repos/secede",
+export const leaveRepository = createAsyncThunk<void, {username : string, repoID : number}>( // added
+    "repos/leave",
     async ({ username, repoID }, thunkAPI) =>
         await deleteCollaborators(repoID, username),
 );
@@ -176,17 +176,17 @@ const reposSlice = createSlice<ReposState, SliceCaseReducers<ReposState>>({
             state.hasError = true;
         });
 
-        builder.addCase(secedeRepository.pending, (state : ReposState) => {
+        builder.addCase(leaveRepository.pending, (state : ReposState) => {
             state.isLoading = true;
             state.hasError = false;
         });
 
-        builder.addCase(secedeRepository.fulfilled, (state : ReposState) => {
+        builder.addCase(leaveRepository.fulfilled, (state : ReposState) => {
             state.isLoading = false;
             state.hasError = false;
         });
 
-        builder.addCase(secedeRepository.rejected, (state : ReposState) => {
+        builder.addCase(leaveRepository.rejected, (state : ReposState) => {
             state.isLoading = false;
             state.hasError = true;
         });
