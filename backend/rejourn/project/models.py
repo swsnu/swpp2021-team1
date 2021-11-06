@@ -1,8 +1,27 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db.models.fields import CharField, DateTimeField
 from .enum import Scope
 from django.utils import timezone
+from uuid import uuid4
+import os
 
+# util function
+def profile_upload_to_func(instance, filename):
+    prefix = timezone.now().strftime("%Y/%m/%d")
+    file_name = uuid4().hex
+    extension = os.path.splitext(filename)[1].lower()
+    return "/".join(
+        ["profiles", prefix, file_name, extension,]
+    )
+
+def photo_upload_to_func(instance, filename):
+    prefix = timezone.now().strftime("%Y/%m/%d")
+    file_name = uuid4().hex
+    extension = os.path.splitext(filename)[1].lower()
+    return "/".join(
+        ["photos", prefix, file_name, extension,]
+    )
 
 class User(AbstractUser):
     
@@ -10,7 +29,7 @@ class User(AbstractUser):
     # password
     user_id = models.BigAutoField(primary_key=True)
     username = models.CharField(max_length=150, unique=True)
-    profile_picture = models.ImageField(blank=True, null=True, upload_to="profiles")
+    profile_picture = models.ImageField(blank=True, null=True, upload_to=profile_upload_to_func)
     bio = models.CharField(max_length=500, blank=True, default="")
     visibility = models.IntegerField(choices=Scope.choices, default=0)
     real_name = models.CharField(max_length=150, default="")
@@ -36,6 +55,38 @@ class Repository(models.Model):
 
     def __str__(self):
         return self.repo_name
+
+
+class Photo(models.Model):
+    photo_id = models.BigAutoField(primary_key=True)
+    repository = models.ForeignKey(
+        Repository, 
+        on_delete=models.CASCADE)
+    image_file = models.ImageField(upload_to = photo_upload_to_func)
+    uploader = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE)
+    # place = models.ForeignKey(Place, on_delete=models.SET_NULL)
+    post_time = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.photo_id
+
+class PhotoTag(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+    photo = models.ForeignKey(
+        Photo,
+        on_delete=models.CASCADE
+    )
+    text = CharField(max_length=500)
+    edit_time = DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.text
+
 
 class Discussion(models.Model):
     discussion_id = models.BigAutoField(primary_key=True)
@@ -66,6 +117,20 @@ class Post(models.Model):
     text = models.CharField(max_length=1000)
     post_time = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.title
+
+
+class PhotoInPost(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    photo = models.ForeignKey(Photo, on_delete=models.CASCADE)
+    order = models.IntegerField()
+    local_tag = models.CharField(max_length=500)
+
+    def __str__(self):
+        return f"{self.post.post_id}, {self.order}"
+
+
 class PostComment(models.Model):
     post_comment_id = models.BigAutoField(primary_key=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -73,17 +138,5 @@ class PostComment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     post_time = models.DateTimeField(auto_now_add=True)
 
-class PhotoInPost(models.Model):
-    post = models.ForeignKey(Post, primary_key=True, on_delete=models.CASCADE)
-    # photo = models.ForeignKey(primary_key=True, Photo, on_delete=models.CASCADE)
-    order = models.IntegerField()
-    local_tag = models.CharField(max_length=500)
-
-class Photo(models.Model):
-    photo_id = models.BigAutoField(primary_key=True)
-    repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
-    image_file = models.ImageField()
-    uploader = models.ForeignKey(User, on_delete=models.CASCADE)
-    # place = models.ForeignKey(Place, on_delete=models.SET_NULL)
-    post_time = models.DateTimeField(auto_now_add=True)
-    
+    def __str__(self):
+        return self.text
