@@ -31,14 +31,12 @@ export default function RepositoryList(props : RepositoryListProps) {
         }
     }, [dispatch, user]);
 
-    useEffect(() => {
-    // TODO
-    }, [dispatch]);
-
     function onClick() {
         dispatch(actionCreator.toBeLoaded(null));
         history.push("/repos/create");
     }
+
+    console.log("hello");
 
     // if (hasError) return (<div>Fatal Error!!!</div>);
     return (

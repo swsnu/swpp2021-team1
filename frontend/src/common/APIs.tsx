@@ -63,7 +63,7 @@ export async function postRepositories(repo : IRepository) {
 }
 
 export async function getRepositories(username : string) {
-    return (await axios.get<any, AxiosResponse<IRepository[]>>(`/api/repositories/?username=${username}/`)).data;
+    return (await axios.get<any, AxiosResponse<IRepository[]>>(`/api/repositories/?username=${username}`)).data;
 }
 
 export async function getRepository(repo_id : number) {

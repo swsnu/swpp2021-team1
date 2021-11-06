@@ -16,13 +16,17 @@ export default function AddPhoto(props : AddPhotoProps) {
 
     function onAddFiles(event : React.ChangeEvent<HTMLInputElement>) {
         const temp = new FormData();
+        const sources : string[] = [];
         if (!event.target.files) return;
-        Array.from(event.target.files).forEach((value) => {
+        Array.from(event.target.files).forEach((value, index) => {
             temp.append("file", value);
             const fileReader = new FileReader();
             fileReader.readAsDataURL(value);
             fileReader.onload = (e) => {
-                setSrcs([...srcs, e.target?.result as string]);
+                sources.push(e.target?.result as string);
+                if (event.target.files && index === event.target.files.length - 1) {
+                    setSrcs(sources);
+                }
             };
         });
         setFormData(temp);
@@ -52,10 +56,9 @@ export default function AddPhoto(props : AddPhotoProps) {
     return (
         <Modal show={props.show}>
             <Modal.Header>
-                <Modal.Title>Add Collaborators</Modal.Title>
+                <Modal.Title>Select Photos to Add</Modal.Title>
             </Modal.Header>
             <Form.Group controlId="formFileMultiple" className="mb-3">
-                <Form.Label>Select Photos to Add</Form.Label>
                 <Form.Control type="file" multiple accept="image/jpeg, image/png" onChange={onAddFiles} />
             </Form.Group>
             {srcs.map((value) => (

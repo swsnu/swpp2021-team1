@@ -1,7 +1,7 @@
-import {Form, ListGroup } from "react-bootstrap";
-import {IPhoto, Visibility} from "../../common/Interfaces";
-import {type} from "os";
+import { Form, ListGroup } from "react-bootstrap";
+import { type } from "os";
 import React from "react";
+import { IPhoto, Visibility } from "../../common/Interfaces";
 
 interface PhotoProps {
     photo : IPhoto;
