@@ -61,41 +61,53 @@ export function repositoryFactory() {
 
 interface IPost {
     post_id : number;
-    repo_id : number;
-    author : string;
+    repo_id? : number;
+    author? : string;
     title : string;
     text? : string; // Post List에서는 필요 없음
-    post_time : string;
-    images? : string[];
+    post_time? : string;
+    photos : IPhoto[];
     comments? : IComment[]; // Post List에서는 필요 없음
     // 좋아요는 일단 나중에 생각...
 }
 
 interface IPhoto {
     photo_id : number;
-    repo_id : number;
+    repo_id? : number;
     image : string; // db에는 image_file이라고 되어있는데 바꿔야하나?
-    post_time : string;
+    post_time? : string;
     tag? : string;
+    local_tag? : string;
     label? : ILabel[];
     place? : IPlace;
-    uploader : string; // sure?
+    uploader? : string; // sure?
+}
+
+export function photoFactory() {
+    return {
+        photo_id: randomInt(),
+        repo_id: randomInt(),
+        image: randomString(),
+        post_time: randomString(),
+        tag: randomString(),
+        uploader: randomString(),
+    } as IPhoto;
 }
 
 interface IDiscussion {
     discussion_id : number;
-    repo_id : number;
-    author : string;
+    repo_id? : number;
+    author? : string;
     title : string;
     text? : string; // Discussion list에서는 필요 없음
-    post_time : string;
+    post_time? : string;
     comments? : IComment[]; // Discussion list에서는 필요 없음
 }
 
 interface IComment {
     comment_id : number;
     parent_id : number; // discussion_id / post_id parent_id로 바꿔서 줘야함
-    author : string;
+    author? : string;
     text : string;
 }
 
