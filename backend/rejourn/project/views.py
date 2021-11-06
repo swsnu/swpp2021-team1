@@ -691,7 +691,7 @@ def repositoryCollaboratorID(request, repo_id, collaborator_name):
 
     else:
         return HttpResponseNotAllowed(['DELETE'])
-
+"""
 @ensure_csrf_cookie
 def discussions(request, repo_id):
     if request.method == 'POST':
@@ -1406,7 +1406,7 @@ def postCommentID(request, post_id, post_comment_id):
         return HttpResponseNotAllowed(['PUT','DELETE', 'GET'])
 
 
-
+"""
 def photos(request, repo_id):
     if request.method == 'GET':
         try:
