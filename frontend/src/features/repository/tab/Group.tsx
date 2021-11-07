@@ -1,4 +1,4 @@
-import PhotoList from "../../photo/PhotoList";
+import PhotoPreview from "../../photo/PhotoPreview";
 
 interface GroupProps {
 
@@ -7,7 +7,7 @@ interface GroupProps {
 export default function Group(props : GroupProps) {
     return (
         <div>
-            <PhotoList />
+            <PhotoPreview />
         </div>
     );
 }

@@ -1,7 +1,8 @@
-import { Form, ListGroup } from "react-bootstrap";
+import { Form, Image, ListGroup } from "react-bootstrap";
 import { type } from "os";
 import React from "react";
 import { IPhoto, Visibility } from "../../common/Interfaces";
+import "./Photo.css";
 
 interface PhotoProps {
     photo : IPhoto;
@@ -13,16 +14,22 @@ interface PhotoProps {
 
 export default function Photo(props : PhotoProps) {
     return (
-        <ListGroup.Item>
-            <button disabled={props.mode} onClick={() => props.onClick(props.photo.photo_id)} type="button">
-                <img src={props.photo.image} alt={props.photo.image} />
+        <button
+            className="photo-wrapper-button mb-1"
+            disabled={props.mode}
+            onClick={() => props.onClick(props.photo.photo_id)}
+            type="button"
+        >
+            <Image className="h-100" src={props.photo.image} alt={props.photo.image} rounded />
+            {props.mode && (
                 <Form.Check
+                    className="photo-checkbox m-1 me-3"
                     type="checkbox"
                     checked={props.checked}
                     name={props.photo.photo_id.toString()}
                     onChange={(e) => props.onCheck(e)}
                 />
-            </button>
-        </ListGroup.Item>
+            )}
+        </button>
     );
 }

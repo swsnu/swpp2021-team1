@@ -65,13 +65,13 @@ describe("photosSlice", () => {
     it("Should remove photos correctly + handleError + toBeLoaded + focusPhoto", () => {
         const photo : IPhoto = photoFactory();
         mockedAPIs.deletePhotos.mockResolvedValue([photo]);
-        store.dispatch(removePhotos({ repo_id: 1, photos_id: [1] })).then(() => {
+        store.dispatch(removePhotos({ repo_id: 1, photos_id: [{ photo_id: 1 }] })).then(() => {
             expect(store.getState().photos.photoList.length).toEqual(1);
             store.dispatch(focusPhoto(photo.photo_id));
             expect(store.getState().photos.currentPhoto).toEqual(photo);
         });
         mockedAPIs.deletePhotos.mockRejectedValue(undefined);
-        store.dispatch(removePhotos({ repo_id: 1, photos_id: [1] })).then(() => {
+        store.dispatch(removePhotos({ repo_id: 1, photos_id: [{ photo_id: 1 }] })).then(() => {
             expect(store.getState().photos.hasError).toEqual(true);
         });
         store.dispatch(handleError(null));

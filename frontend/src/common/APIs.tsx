@@ -1,6 +1,8 @@
-import axios, { AxiosResponse } from "axios";
+import axios, { Axios, AxiosResponse } from "axios";
 import { afterWrite } from "@popperjs/core";
 import {
+    IComment,
+    IDiscussion,
     IPhoto, IRepository, IUser, Visibility,
 } from "./Interfaces";
 
@@ -102,7 +104,59 @@ export async function putPhotos(repo_id : number, photos : IPhoto[]) {
     return (await axios.put<any, AxiosResponse<IPhoto[]>>(`/api/repositories/${repo_id}/photos/`, photos)).data;
 }
 
-export async function deletePhotos(repo_id : number, photos_id : number[]) {
+export async function deletePhotos(repo_id : number, photos_id : {photo_id : number}[]) {
     return (await axios.delete<any, AxiosResponse<IPhoto[]>>(`/api/repositories/${repo_id}/photos/`,
         { data: photos_id })).data;
+}
+
+export async function getDiscussions(repo_id : number) {
+    return (await axios.get<any, AxiosResponse<IDiscussion[]>>(`/api/repositories/${repo_id}/discussions/`)).data;
+}
+
+export async function postDiscussions(repo_id : number, discussion : IDiscussion) {
+    return (await axios.post<any, AxiosResponse<IDiscussion>>(
+        `/api/repositories/${repo_id}/discussions/`, discussion,
+    )).data;
+}
+
+export async function getDiscussion(discussion_id : number) {
+    return (await axios.get<any, AxiosResponse<IDiscussion>>(`/api/discussions/${discussion_id}/`)).data;
+}
+
+export async function putDiscussion(discussion : IDiscussion) {
+    return (await axios.put<any, AxiosResponse<IDiscussion>>(
+        `/api/discussions/${discussion.discussion_id}/`, discussion,
+    )).data;
+}
+
+export async function deleteDiscussion(discussion_id : number) {
+    await axios.delete(`/api/discussions/${discussion_id}/`);
+}
+
+export async function getDiscussionComments(discussion_id : number) {
+    return (await axios.get<any, AxiosResponse<IComment[]>>(`/api/discussions/${discussion_id}/comments/`)).data;
+}
+
+export async function postDiscussionComments(discussion_id : number, comment: IComment) {
+    return (await axios.post<any, AxiosResponse<IComment[]>>(
+        `/api/discussions/${discussion_id}/comments/`, comment,
+    )).data;
+}
+
+export async function getDiscussionComment(discussion_id : number, comment_id : number) {
+    return (await axios.get<any, AxiosResponse<IComment[]>>(
+        `/api/discussions/${discussion_id}/comments/${comment_id}/`,
+    )).data;
+}
+
+export async function putDiscussionComment(comment : IComment) {
+    return (await axios.put<any, AxiosResponse<IComment[]>>(
+        `/api/discussions/${comment.parent_id}/comments/${comment.comment_id}/`, comment,
+    )).data;
+}
+
+export async function deleteDiscussionComment(discussion_id : number, comment_id : number) {
+    return (await axios.delete<any, AxiosResponse<IComment[]>>(
+        `/api/discussions/${discussion_id}/comments/${comment_id}/`,
+    )).data;
 }

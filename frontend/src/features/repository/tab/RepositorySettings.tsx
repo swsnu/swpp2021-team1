@@ -194,10 +194,12 @@ export default function RepositorySettings(props : RepositorySettingProps) {
             </div>
             <h5>
                 {repo.collaborators.map((value) => (
-                    <Badge className="m-2 p-sm-2" pill>
-                        {value.username}
-                        {" "}
-                    </Badge>
+                    <React.Fragment key={value.username}>
+                        <Badge className="m-2 p-sm-2" pill>
+                            {value.username}
+                            {" "}
+                        </Badge>
+                    </React.Fragment>
                 ))}
             </h5>
             <Button

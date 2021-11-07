@@ -8,12 +8,13 @@ import * as actionCreator from "./photosSlice";
 import Photo from "./Photo";
 import AddPhoto from "./popup/AddPhoto";
 import FocusedPhoto from "./popup/FocusedPhoto";
+import "./PhotoPreview.css";
 
-interface PhotoListProps {
+interface PhotoPreviewProps {
 
 }
 
-export default function PhotoList(props : PhotoListProps) {
+export default function PhotoPreview(props : PhotoPreviewProps) {
     const [index, setIndex] = useState<number>(0);
     const [isLoading, hasError, currentPhoto, photoList] = useSelector<RootState,
         [boolean, boolean, IPhoto|null, IPhoto[]]>((state) =>
@@ -37,6 +38,7 @@ export default function PhotoList(props : PhotoListProps) {
 
     function onPhotoClick(photo_id : number) {
         dispatch(actionCreator.focusPhoto(photo_id));
+        console.log(currentPhoto?.tag);
         setPhotoShow(true);
     }
 
@@ -63,9 +65,9 @@ export default function PhotoList(props : PhotoListProps) {
     }
 
     function commitDelete() {
-        const photos_id : number[] = [];
+        const photos_id : {photo_id : number}[] = [];
         Object.keys(checked).forEach((key) => {
-            if (checked[parseInt(key)]) photos_id.push(parseInt(key));
+            if (checked[parseInt(key)]) photos_id.push({ photo_id: parseInt(key) });
         });
         setDeleteMode(false);
         dispatch(actionCreator.removePhotos({ repo_id: parseInt(params.id), photos_id }))
@@ -112,17 +114,19 @@ export default function PhotoList(props : PhotoListProps) {
                     <Button className="m-2" id="add-photo-button" onClick={addPhotos}>+</Button>
                 </div>
             </div>
-            <ListGroup horizontal>
+            <div className="d-flex flex-row photo-list overflow-auto mt-2">
                 {photoList.map((value) => (
-                    <Photo
-                        photo={value}
-                        onClick={onPhotoClick}
-                        checked={checked[value.photo_id]}
-                        mode={deleteMode}
-                        onCheck={onCheck}
-                    />
+                    <React.Fragment key={value.photo_id.toString()}>
+                        <Photo
+                            photo={value}
+                            onClick={onPhotoClick}
+                            checked={checked[value.photo_id]}
+                            mode={deleteMode}
+                            onCheck={onCheck}
+                        />
+                    </React.Fragment>
                 ))}
-            </ListGroup>
+            </div>
             <AddPhoto show={addShow} setShow={setAddShow} commitPhotos={commitPhotos} />
             {currentPhoto && (
                 <FocusedPhoto

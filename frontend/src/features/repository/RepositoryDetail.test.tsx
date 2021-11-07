@@ -12,7 +12,7 @@ import photosReducer from "../photo/photosSlice";
 import * as actionCreator from "./reposSlice";
 import { repositoryFactory, userFactory } from "../../common/Interfaces";
 import RepositoryDetail from "./RepositoryDetail";
-import PhotoList from "../photo/PhotoList";
+import PhotoPreview from "../photo/PhotoPreview";
 
 const history = createBrowserHistory();
 const historyMock = { ...history, push: jest.fn(), listen: jest.fn() };
@@ -66,7 +66,7 @@ describe("RepositoryDetail", () => {
         }));
 
         const effect = jest.spyOn(React, "useEffect").mockImplementation(jest.fn);
-        const mockPhotoList = jest.mock("../photo/PhotoList", () => jest.fn((props) => (
+        const mockPhotoList = jest.mock("../photo/PhotoPreview", () => jest.fn((props) => (
             <div />)));
     });
 

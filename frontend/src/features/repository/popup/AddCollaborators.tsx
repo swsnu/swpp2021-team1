@@ -78,12 +78,14 @@ export default function AddCollaborators(props : AddCollaboratorsProps) {
                 </Dropdown.Menu>
                 <div className="d-flex ms-2 me-2">
                     {collaborators.map((value) => (
-                        <Collaborator
-                            canDelete={props.collaborators.filter((value1) =>
-                                value1.username === value.username).length === 0}
-                            user={value}
-                            remove={remove}
-                        />
+                        <React.Fragment key={value.username}>
+                            <Collaborator
+                                canDelete={props.collaborators.filter((value1) =>
+                                    value1.username === value.username).length === 0}
+                                user={value}
+                                remove={remove}
+                            />
+                        </React.Fragment>
                     ))}
                 </div>
             </Dropdown>
@@ -102,13 +104,11 @@ interface CollaboratorProps {
 
 function Collaborator(props : CollaboratorProps) {
     return (
-        <React.Fragment key={props.user.username}>
-            <h5>
-                <Badge className="m-2 p-sm-2" pill>
-                    {props.user.username}
-                    {props.canDelete && <CloseButton onClick={() => props.remove(props.user.username)} />}
-                </Badge>
-            </h5>
-        </React.Fragment>
+        <h5>
+            <Badge className="m-2 p-sm-2" pill>
+                {props.user.username}
+                {props.canDelete && <CloseButton onClick={() => props.remove(props.user.username)} />}
+            </Badge>
+        </h5>
     );
 }

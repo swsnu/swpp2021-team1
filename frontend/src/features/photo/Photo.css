@@ -1,0 +1,16 @@
+.photo-wrapper-button {
+    background: transparent;
+    border: 0;
+    width: fit-content;
+    position: relative;
+}
+
+.photo-checkbox {
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 10000;
+}
+
+.photo-image {
+}

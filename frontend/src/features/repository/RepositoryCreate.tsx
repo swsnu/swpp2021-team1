@@ -175,10 +175,12 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
             </div>
             <h5>
                 {collaborators.map((value) => (
-                    <Badge className="m-2 p-sm-2" pill>
-                        {value.username}
-                        {" "}
-                    </Badge>
+                    <React.Fragment key={value.username}>
+                        <Badge className="m-2 p-sm-2" pill>
+                            {value.username}
+                            {" "}
+                        </Badge>
+                    </React.Fragment>
                 ))}
             </h5>
             <div className="d-flex flex-row-reverse">

@@ -15,7 +15,6 @@ export default function Repository(props : RepositoryProps) {
         collabString += (`${value.username}, `);
     });
     collabString = collabString.slice(0, collabString.length - 2);
-    collabString = "johndoe, ddony_0530"; // 테스팅용 임시
 
     return (
         <ListGroup.Item

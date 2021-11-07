@@ -28,7 +28,7 @@ export const editPhotos = createAsyncThunk<IPhoto[], {repo_id : number, photos :
 
 );
 
-export const removePhotos = createAsyncThunk<IPhoto[], {repo_id : number, photos_id : number[]}>( // added
+export const removePhotos = createAsyncThunk<IPhoto[], {repo_id : number, photos_id : {photo_id : number}[]}>( // added
     "photos/remove",
     async ({ repo_id, photos_id }, thunkAPI) => // payload creator
         await deletePhotos(repo_id, photos_id),
@@ -80,44 +80,45 @@ const photosSlice = createSlice<PhotosState, SliceCaseReducers<PhotosState>>({
         });
 
         builder.addCase(addPhotos.pending, (state: PhotosState) => {
-            state.isLoading = true;
+            // state.isLoading = true;
             state.hasError = false;
         });
         builder.addCase(addPhotos.fulfilled, (state : PhotosState, action: PayloadAction<IPhoto[]>) => {
-            state.isLoading = false;
+            // state.isLoading = false;
             state.hasError = false;
             state.photoList = action.payload;
         });
         builder.addCase(addPhotos.rejected, (state: PhotosState) => {
-            state.isLoading = false;
+            // state.isLoading = false;
             state.hasError = true;
         });
 
         builder.addCase(editPhotos.pending, (state: PhotosState) => {
-            state.isLoading = true;
+            // state.isLoading = true;
             state.hasError = false;
         });
         builder.addCase(editPhotos.fulfilled, (state : PhotosState, action: PayloadAction<IPhoto[]>) => {
-            state.isLoading = false;
+            // state.isLoading = false;
             state.hasError = false;
             state.photoList = action.payload;
+            state.currentPhoto = null;
         });
         builder.addCase(editPhotos.rejected, (state: PhotosState) => {
-            state.isLoading = false;
+            // state.isLoading = false;
             state.hasError = true;
         });
 
         builder.addCase(removePhotos.pending, (state: PhotosState) => {
-            state.isLoading = true;
+            // state.isLoading = true;
             state.hasError = false;
         });
         builder.addCase(removePhotos.fulfilled, (state : PhotosState, action: PayloadAction<IPhoto[]>) => {
-            state.isLoading = false;
+            // state.isLoading = false;
             state.hasError = false;
             state.photoList = action.payload;
         });
         builder.addCase(removePhotos.rejected, (state: PhotosState) => {
-            state.isLoading = false;
+            // state.isLoading = false;
             state.hasError = true;
         });
     },
