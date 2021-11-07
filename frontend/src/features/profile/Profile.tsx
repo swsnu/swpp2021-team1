@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { fetchUser } from "../auth/authSlice";
 import { getFriends } from "../../common/APIs";
 import FriendList from "./popup/FriendList";
+<<<<<<< HEAD
 
 interface MatchParams {
     user: string
@@ -14,6 +15,11 @@ interface MatchParams {
 
 interface ProfileProps extends RouteComponentProps<MatchParams> {
 
+=======
+
+interface ProfileProps {
+    user: string
+>>>>>>> mock-server
 }
 
 export default function Profile(props: ProfileProps) {
@@ -23,7 +29,11 @@ export default function Profile(props: ProfileProps) {
     const hasError = useAppSelector((state) => state.auth.hasError);
     const [friendList, setFriendList] = useState<IUser[]>([]);
     const [friendModalShow, setFriendModalShow] = useState<boolean>(false);
+<<<<<<< HEAD
     const { user } = props.match.params;
+=======
+    const { user } = props;
+>>>>>>> mock-server
 
     const history = useHistory();
 
@@ -42,6 +52,12 @@ export default function Profile(props: ProfileProps) {
     const onAddFriendClick = () => {
         // TODO
     };
+    const onFriendsClick = () => setFriendModalShow(true);
+    const onClose = () => setFriendModalShow(false);
+
+    const avatar_src = "../../common/assets/avatar.jpg";
+    const profile_picture = currentUser && currentUser.profile_picture ? currentUser.profile_picture : avatar_src;
+    const real_name = currentUser ? currentUser.real_name : "Error";
 
     return (
         <div>
@@ -49,13 +65,13 @@ export default function Profile(props: ProfileProps) {
                 <div className="row g-0">
                     <div className="col-md-4 d-flex align-center">
                         <div id="profile-image">
-                            <img src={currentUser && currentUser.profile_picture ? currentUser.profile_picture : "../../common/assets/avatar.jpg"} className="img-fluid" alt="profile" />
+                            <img src={profile_picture} className="img-fluid" alt="profile" />
                         </div>
                     </div>
                     <div className="col-md-8">
                         <div className="card-body">
                             <div className="d-flex align-items-center mb-2">
-                                <h4 id="real-name" className="card-title me-2 mb-0">{currentUser ? currentUser.real_name : "Error"}</h4>
+                                <h4 id="real-name" className="card-title me-2 mb-0">{real_name}</h4>
                                 <p id="username" className="small text-muted mb-0">
                                     @
                                     {currentUser ? currentUser.username : "error"}
@@ -65,13 +81,20 @@ export default function Profile(props: ProfileProps) {
                                 {currentUser ? currentUser.bio : ""}
                             </p>
                             <ButtonGroup>
-                                <Button id="num-of-friends" variant="link" onClick={() => setFriendModalShow(true)} className="ms-0 ps-0">
+                                <Button id="num-of-friends" onClick={onFriendsClick} className="ms-0 ps-0">
                                     {friendList.length}
                                     {" "}
                                     friends
                                 </Button>
-                                <FriendList modalShow={friendModalShow} friendList={friendList} handleClose={() => setFriendModalShow(false)} />
-                                <Button id="add-friend-button" onClick={onAddFriendClick} variant="link" className="ms-0 ps-0">+ Add Friend</Button>
+                                <FriendList modalShow={friendModalShow} friendList={friendList} handleClose={onClose} />
+                                <Button
+                                    id="add-friend-button"
+                                    onClick={onAddFriendClick}
+                                    variant="link"
+                                    className="ms-0 ps-0"
+                                >
+                                    + Add Friend
+                                </Button>
                             </ButtonGroup>
                             <div className="d-flex">
                                 <Link id="view-posts-button" to={`/main/${currentUser?.username}`}>Show posts</Link>

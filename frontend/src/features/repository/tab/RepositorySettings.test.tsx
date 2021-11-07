@@ -5,13 +5,13 @@ import { Route, Router } from "react-router-dom";
 import React from "react";
 import * as redux from "react-redux";
 import { mount } from "enzyme";
-import authReducer from "../auth/authSlice";
-import reposReducer from "./reposSlice";
-import postsReducer from "../post/postsSlice";
-import SignUp from "../auth/login/popup/SignUp";
+import authReducer from "../../auth/authSlice";
+import reposReducer from "../reposSlice";
+import postsReducer from "../../post/postsSlice";
+import SignUp from "../../auth/login/popup/SignUp";
 import RepositorySettings from "./RepositorySettings";
-import * as actionCreator from "./reposSlice";
-import { repositoryFactory, userFactory } from "../../common/Interfaces";
+import * as actionCreator from "../reposSlice";
+import { repositoryFactory, userFactory } from "../../../common/Interfaces";
 
 const history = createBrowserHistory();
 const historyMock = { ...history, push: jest.fn(), listen: jest.fn() };
@@ -49,7 +49,7 @@ describe("RepositorySettings", () => {
         collabMock = jest.spyOn(actionCreator, "addCollaborators").mockImplementation(jest.fn);
         editMock = jest.spyOn(actionCreator, "editRepository").mockImplementation(jest.fn);
         removeMock = jest.spyOn(actionCreator, "removeRepository").mockImplementation(jest.fn);
-        secedeMock = jest.spyOn(actionCreator, "secedeRepository").mockImplementation(jest.fn);
+        secedeMock = jest.spyOn(actionCreator, "leaveRepository").mockImplementation(jest.fn);
         mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => {
             e({ auth: { account: undefined }, repos: { currentRepo: undefined } });
             return [{ ...userFactory(), friends: [] }, { ...repositoryFactory(), collaborators: [userFactory()] }];

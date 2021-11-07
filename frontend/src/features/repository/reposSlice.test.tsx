@@ -5,7 +5,7 @@ import reposReducer, {
     addCollaborators,
     createRepository, editRepository,
     fetchRepositories, fetchRepository, handleError, removeRepository,
-    reposInitialState, secedeRepository,
+    reposInitialState, leaveRepository,
     toBeLoaded,
 } from "./reposSlice";
 
@@ -102,11 +102,11 @@ describe("reposSlice", () => {
     it("Should secede from repo correctly + handle error + to be loaded", () => {
         const repository : IRepository = repositoryFactory();
         mockedAPIs.deleteCollaborators.mockResolvedValue();
-        store.dispatch(secedeRepository({ repoID: 1, username: "a" })).then(() => {
+        store.dispatch(leaveRepository({ repoID: 1, username: "a" })).then(() => {
             expect(store.getState().repos.isLoading).toEqual(false);
         });
         mockedAPIs.deleteCollaborators.mockRejectedValue(undefined);
-        store.dispatch(secedeRepository({ repoID: 1, username: "a" })).then(() => {
+        store.dispatch(leaveRepository({ repoID: 1, username: "a" })).then(() => {
             expect(store.getState().repos.hasError).toEqual(true);
         });
         // handle error

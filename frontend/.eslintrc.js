@@ -59,6 +59,8 @@ module.exports = {
         "linebreak-style": "off",
         "react/jsx-no-bind": "off",
         "import/no-extraneous-dependencies": ["error", { devDependencies: true }],
+        "no-plusplus": "off",
+        "jsx-a11y/control-has-associated-label": "off",
     },
     settings: {
         "import/resolver": {

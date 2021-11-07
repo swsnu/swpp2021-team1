@@ -9,17 +9,13 @@ import Friend from "../Friend";
 
 
 interface FriendListProps {
-    modalShow: boolean,
-    friendList: IUser[],
-    handleClose: () => void,
+    modalShow: boolean
 }
 
 
 
 export default function FriendList(props : FriendListProps) {
-
-    const currentUser = useAppSelector((state) => state.auth.currentUser);
-
+    const { modalShow } = props;
     return (
         <Modal show={props.modalShow} onHide={props.handleClose}>
             <Modal.Header closeButton>

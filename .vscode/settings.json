@@ -12,4 +12,11 @@
    "editor.smoothScrolling": true,
    "editor.tabCompletion": "on",
    "editor.find.autoFindInSelection": "multiline",
+   "git.terminalAuthentication": false,
+   "eslint.format.enable": true,
+   "editor.formatOnPaste": true,
+   "editor.formatOnSave": true,
+   "javascript.format.semicolons": "insert",
+   "typescript.format.semicolons": "insert",
+   "typescript.preferences.quoteStyle": "double",
 }
