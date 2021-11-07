@@ -31,13 +31,23 @@ export default function App() {
                                 </Col>
                                 <Col xs="9" style={{ marginTop: 55 }}>
                                     <Switch>
-                                        <Route exact path={["/main/:user", "/main/:user/repos"]}>
-                                            <Profile />
-                                            <Switch>
-                                                <Route path="/main/:user" exact component={Post} />
-                                                <Route path="/main/:user/repos" exact component={RepositoryList} />
-                                            </Switch>
-                                        </Route>
+                                        <Route
+                                            exact
+                                            path={["/main/:user", "/main/:user/repos"]}
+                                            render={({ match }) => (
+                                                <>
+                                                    <Profile user={match.params.user} />
+                                                    <Switch>
+                                                        <Route path="/main/:user" exact component={Post} />
+                                                        <Route
+                                                            path="/main/:user/repos"
+                                                            exact
+                                                            component={RepositoryList}
+                                                        />
+                                                    </Switch>
+                                                </>
+                                            )}
+                                        />
                                         <Route path="/main/:user/setting" exact component={ProfileSetting} />
                                         <Route path="/repos/create" exact component={RepositoryCreate} />
                                         <Route path="/repos/:id" exact component={RepositoryDetail} />
