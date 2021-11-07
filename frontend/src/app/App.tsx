@@ -12,6 +12,9 @@ import RepositoryList from "../features/repository/RepositoryList";
 import RepositoryDetail from "../features/repository/RepositoryDetail";
 import RepositoryCreate from "../features/repository/RepositoryCreate";
 import Topbar from "../common/topbar/Topbar";
+import DiscussionList from "../features/discussion/DiscussionList";
+import DiscussionCreate from "../features/discussion/DiscussionCreate";
+import DiscussionDetail from "../features/discussion/DiscussionDetail";
 
 export default function App() {
     return (
@@ -38,6 +41,13 @@ export default function App() {
                                         <Route path="/main/:user/setting" exact component={ProfileSetting} />
                                         <Route path="/repos/create" exact component={RepositoryCreate} />
                                         <Route path="/repos/:id" exact component={RepositoryDetail} />
+                                        <Route path="/repos/:id/discussion" exact component={DiscussionList} />
+                                        <Route path="/repos/:id/discussion/create" exact component={DiscussionCreate} />
+                                        <Route
+                                            path="/repos/:id/discussion/create/:id2"
+                                            exact
+                                            component={DiscussionDetail}
+                                        />
                                         <Redirect from="/" to="/login" />
                                     </Switch>
                                 </Col>
