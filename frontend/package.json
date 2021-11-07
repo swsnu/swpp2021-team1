@@ -13,10 +13,6 @@
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
     "@types/enzyme": "^3.10.9",
-<<<<<<< HEAD
-=======
-    "@types/faker": "^5.5.9",
->>>>>>> mock-server
     "@types/jest": "^27.0.2",
     "@types/node": "^16.10.3",
     "@types/react": "^17.0.27",
@@ -29,10 +25,7 @@
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-17-updated": "^1.0.2",
     "enzyme-to-json": "^3.6.2",
-<<<<<<< HEAD
-=======
     "faker": "^5.5.3",
->>>>>>> mock-server
     "react": "^17.0.2",
     "react-bootstrap": "^2.0.0",
     "react-dom": "^17.0.2",

@@ -7,27 +7,29 @@ import { getFriends } from "../../../common/APIs";
 import { IUser } from "../../../common/Interfaces";
 import Friend from "../Friend";
 
-
 interface FriendListProps {
     modalShow: boolean
+    handleClose(): void
+    friendList: IUser[]
+    currentUser: string
 }
 
-
-
 export default function FriendList(props : FriendListProps) {
-    const { modalShow } = props;
+    const { modalShow, handleClose, currentUser } = props;
+
     return (
-        <Modal show={props.modalShow} onHide={props.handleClose}>
+        <Modal show={modalShow} onHide={handleClose}>
             <Modal.Header closeButton>
                 <Modal.Title>
-                    {currentUser && currentUser.real_name ? currentUser.real_name : ""}'s friends
+                    {currentUser}
+                    {currentUser.match(/s$/) ? "' friends" : "'s friends"}
                 </Modal.Title>
-                <Modal.Body>
-                    <ListGroup>
-                        {props.friendList.map((friend) => <Friend friend={friend} />)}
-                    </ListGroup>
-                </Modal.Body>
             </Modal.Header>
+            <Modal.Body>
+                <ListGroup>
+                    {props.friendList.map((friend) => <Friend friend={friend} />)}
+                </ListGroup>
+            </Modal.Body>
         </Modal>
     );
 }

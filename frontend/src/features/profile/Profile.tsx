@@ -1,45 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { useHistory, Link } from "react-router-dom";
 import { RouteComponentProps } from "react-router";
-import { ButtonGroup, Button } from "react-bootstrap";
+import {
+    ButtonGroup, Button, Image, AccordionButton,
+} from "react-bootstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUserPlus } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
 import { IUser } from "../../common/Interfaces";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { fetchUser } from "../auth/authSlice";
 import { getFriends } from "../../common/APIs";
 import FriendList from "./popup/FriendList";
-<<<<<<< HEAD
+import "./Profile.css";
 
-interface MatchParams {
-    user: string
-}
-
-interface ProfileProps extends RouteComponentProps<MatchParams> {
-
-=======
-
-interface ProfileProps {
-    user: string
->>>>>>> mock-server
-}
+interface ProfileProps {}
 
 export default function Profile(props: ProfileProps) {
     const dispatch = useAppDispatch();
     const currentUser = useAppSelector((state) => state.auth.currentUser);
+    const account = useAppSelector((state) => state.auth.account);
     const isLoading = useAppSelector((state) => state.auth.isLoading);
     const hasError = useAppSelector((state) => state.auth.hasError);
     const [friendList, setFriendList] = useState<IUser[]>([]);
     const [friendModalShow, setFriendModalShow] = useState<boolean>(false);
-<<<<<<< HEAD
-    const { user } = props.match.params;
-=======
-    const { user } = props;
->>>>>>> mock-server
 
     const history = useHistory();
-
-    useEffect(() => {
-        dispatch(fetchUser(user));
-    }, [dispatch]);
 
     useEffect(() => {
         const fetchAndSetFriendList = async (username: string) => {
@@ -50,58 +35,90 @@ export default function Profile(props: ProfileProps) {
     }, [currentUser]);
 
     const onAddFriendClick = () => {
-        // TODO
+        const addFriend = async () => {
+            axios.post(`/api/users/${account?.username}/friends/${currentUser?.username}`);
+        };
+        addFriend();
     };
     const onFriendsClick = () => setFriendModalShow(true);
     const onClose = () => setFriendModalShow(false);
 
     const avatar_src = "../../common/assets/avatar.jpg";
     const profile_picture = currentUser && currentUser.profile_picture ? currentUser.profile_picture : avatar_src;
-    const real_name = currentUser ? currentUser.real_name : "Error";
+
+    if (isLoading) {
+        return (
+            <div id="profile-card" className="d-flex mx-auto">
+                <span className="placeholder" />
+            </div>
+        );
+    }
 
     return (
-        <div>
-            <div id="profile-card" className="card mb-3 pt-3 pb-4">
-                <div className="row g-0">
-                    <div className="col-md-4 d-flex align-center">
-                        <div id="profile-image">
-                            <img src={profile_picture} className="img-fluid" alt="profile" />
-                        </div>
-                    </div>
-                    <div className="col-md-8">
-                        <div className="card-body">
-                            <div className="d-flex align-items-center mb-2">
-                                <h4 id="real-name" className="card-title me-2 mb-0">{real_name}</h4>
-                                <p id="username" className="small text-muted mb-0">
-                                    @
-                                    {currentUser ? currentUser.username : "error"}
-                                </p>
-                            </div>
-                            <p className="card-text mb-0">
-                                {currentUser ? currentUser.bio : ""}
-                            </p>
-                            <ButtonGroup>
-                                <Button id="num-of-friends" onClick={onFriendsClick} className="ms-0 ps-0">
-                                    {friendList.length}
-                                    {" "}
-                                    friends
-                                </Button>
-                                <FriendList modalShow={friendModalShow} friendList={friendList} handleClose={onClose} />
-                                <Button
-                                    id="add-friend-button"
-                                    onClick={onAddFriendClick}
-                                    variant="link"
-                                    className="ms-0 ps-0"
-                                >
-                                    + Add Friend
-                                </Button>
-                            </ButtonGroup>
-                            <div className="d-flex">
-                                <Link id="view-posts-button" to={`/main/${currentUser?.username}`}>Show posts</Link>
-                                <Link id="view-repos-button" to={`/main/${currentUser?.username}/repos`}>Show repos</Link>
-                            </div>
-                        </div>
-                    </div>
+        <div id="profile-card" className="d-flex mx-auto">
+            <div className="flex-shrink-0">
+                <Image id="profile-image" src={profile_picture} roundedCircle alt="profile" />
+            </div>
+            <div className="flex-grow-1 mx-4">
+                <div className="d-flex align-items-center mb-2">
+                    <h4
+                        id="real-name"
+                        className="me-2 mb-0"
+                    >
+                        {currentUser && currentUser.real_name ? currentUser.real_name : ""}
+                    </h4>
+                    <p id="username" className="small text-muted mb-0">
+                        @
+                        {currentUser ? currentUser.username : "error"}
+                    </p>
+                </div>
+                <p className="card-text mb-0">
+                    {currentUser ? currentUser.bio : ""}
+                </p>
+                <ButtonGroup>
+                    <Button
+                        id="num-of-friends"
+                        onClick={onFriendsClick}
+                        className="ms-0 ps-0 text-decoration-none"
+                        variant="link"
+                    >
+                        <strong>{friendList.length}</strong>
+                                    &nbsp;friends
+                    </Button>
+                    <FriendList
+                        currentUser={currentUser && currentUser.real_name ? currentUser.real_name : ""}
+                        modalShow={friendModalShow}
+                        friendList={friendList}
+                        handleClose={onClose}
+                    />
+                    {
+                        <Button
+                            id="add-friend-button"
+                            onClick={onAddFriendClick}
+                            variant="link"
+                            className="ms-0 ps-0"
+                        >
+                            <FontAwesomeIcon className="me-1" icon={faUserPlus} color="#f69d72" />
+                            Add friend
+                        </Button> && (account?.username !== currentUser?.username)
+                    }
+                </ButtonGroup>
+                <div className="fit-content ms-auto d-flex">
+                    <Link
+                        id="view-posts-button"
+                        to={`/main/${currentUser?.username}`}
+                        className="me-3 text-decoration-none text-muted small"
+                    >
+                        Show posts
+
+                    </Link>
+                    <Link
+                        id="view-repos-button"
+                        to={`/main/${currentUser?.username}/repos`}
+                        className="text-decoration-none small text-muted"
+                    >
+                        Show repos
+                    </Link>
                 </div>
             </div>
         </div>

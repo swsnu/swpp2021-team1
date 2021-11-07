@@ -1,22 +1,11 @@
 #profile-card {
-  border: none;
-  margin-top: 3rem;
+  border: 1px solid lightgrey;
+  border-radius: 1rem;
   width: fit-content;
-  /* margin-left: auto; */
-  margin-right: auto;
+  margin: 2rem auto;
+  padding: 1rem;
 }
 
-#profile-img {
-}
-
-
-#profile-img, #profile-img img {
-  width: 150px;
-  height: 150px;
-  border-radius: 75px;
-  margin: auto;
-}
-
-.btn-group button {
-  color: var(--primary-dark);
+.fit-content {
+  width: fit-content
 }
