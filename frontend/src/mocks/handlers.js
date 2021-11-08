@@ -1,28 +1,24 @@
 // src/mocks/handlers.js
 import faker from "faker";
 import { rest } from "msw";
-// import {
-//     IUser, IRepository, IPost, IPhoto, IDiscussion, IComment, ILabel, IPlace,
-// } from "../common/Interfaces";
 import Factory from "./dataGenerator";
 
 const fact = new Factory();
 
-export const handlers = [
-    rest.get("/api/session/", (req, res, ctx) => {
-        const user = fact.userGen();
-        return res(ctx.json({
-            username: user.username,
-            bio: user.bio,
-            profile_picture: user.profile_picture,
-            visibility: user.visibility,
-            real_name: user.real_name,
-            email: user.email,
-        }));
-    }),
+export default [
+    // rest.get("/api/session/", (req, res, ctx) => {
+    //     const user = fact.userGen();
+    //     return res(ctx.json({
+    //         username: user.username,
+    //         bio: user.bio,
+    //         profile_picture: user.profile_picture,
+    //         visibility: user.visibility,
+    //         real_name: user.real_name,
+    //         email: user.email,
+    //     }));
+    // }),
     rest.post("/api/signin/", (req, res, ctx) => {
         const user = fact.userGen();
-        console.log(user);
         return res(
             ctx.status(201), ctx.json({
                 username: user.username,
@@ -89,9 +85,11 @@ export const handlers = [
         const friends = [];
         const n = faker.datatype.number({ min: 1, max: 10 });
         for (let i = 0; i < n; i += 1) {
-            const { username, profile_picture, bio } = fact.userGen();
+            const {
+                real_name, username, profile_picture, bio,
+            } = fact.userGen();
             friends.push({
-                username, profile_picture, bio,
+                real_name, username, profile_picture, bio,
             });
         }
         return res(ctx.json(friends));

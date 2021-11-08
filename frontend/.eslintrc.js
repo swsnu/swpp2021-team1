@@ -61,6 +61,7 @@ module.exports = {
         "import/no-extraneous-dependencies": ["error", { devDependencies: true }],
         "no-plusplus": "off",
         "jsx-a11y/control-has-associated-label": "off",
+        "import/prefer-default-export": "off",
     },
     settings: {
         "import/resolver": {

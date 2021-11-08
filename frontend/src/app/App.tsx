@@ -15,8 +15,10 @@ import Topbar from "../common/topbar/Topbar";
 import DiscussionList from "../features/discussion/DiscussionList";
 import DiscussionCreate from "../features/discussion/DiscussionCreate";
 import DiscussionDetail from "../features/discussion/DiscussionDetail";
+import { useAppSelector } from "./hooks";
 
 export default function App() {
+    const account = useAppSelector((state) => state.auth.account);
     return (
         <BrowserRouter>
             <div className="App">

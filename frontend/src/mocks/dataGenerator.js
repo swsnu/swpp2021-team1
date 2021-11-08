@@ -22,7 +22,7 @@ class Factory {
 
     repository = () => ({
         repo_id: faker.datatype.number(),
-        repo_name: faker.hacker.phrase(),
+        repo_name: faker.lorem.sentence(2).replace(".", ""),
         owner: faker.internet.userName(),
         travel_start_date: faker.date.past(),
         travel_end_date: faker.date.past(),
@@ -79,6 +79,7 @@ class Factory {
 
     userGen = () => {
         const user = this.user();
+        user.username = user.real_name.replace(/\s/g, "").toLowerCase();
         const n = faker.datatype.number({ min: 3, max: 10 });
         for (let i = 0; i < n; i += 1) {
             user.friends.push(this.user());
