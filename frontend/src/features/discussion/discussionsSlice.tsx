@@ -90,13 +90,13 @@ const discussionsSlice = createSlice<DiscussionsState, SliceCaseReducers<Discuss
             state.hasError = false;
         });
         builder.addCase(fetchDiscussions.fulfilled, (state: DiscussionsState, action: PayloadAction<IDiscussion[]>) => {
-            state.isLoading = true;
+            state.isLoading = false;
             state.hasError = false;
             state.discussionList = action.payload;
         });
         builder.addCase(fetchDiscussions.rejected, (state: DiscussionsState) => {
-            state.isLoading = true;
-            state.hasError = false;
+            state.isLoading = false;
+            state.hasError = true;
         });
 
         builder.addCase(createDiscussion.pending, (state: DiscussionsState) => {
@@ -104,13 +104,13 @@ const discussionsSlice = createSlice<DiscussionsState, SliceCaseReducers<Discuss
             state.hasError = false;
         });
         builder.addCase(createDiscussion.fulfilled, (state: DiscussionsState, action: PayloadAction<IDiscussion>) => {
-            state.isLoading = true;
+            state.isLoading = false;
             state.hasError = false;
             state.currentDiscussion = action.payload;
         });
         builder.addCase(createDiscussion.rejected, (state: DiscussionsState) => {
-            state.isLoading = true;
-            state.hasError = false;
+            state.isLoading = false;
+            state.hasError = true;
         });
 
         builder.addCase(fetchDiscussion.pending, (state: DiscussionsState) => {
@@ -118,27 +118,24 @@ const discussionsSlice = createSlice<DiscussionsState, SliceCaseReducers<Discuss
             state.hasError = false;
         });
         builder.addCase(fetchDiscussion.fulfilled, (state: DiscussionsState, action: PayloadAction<IDiscussion>) => {
-            state.isLoading = true;
+            state.isLoading = false;
             state.hasError = false;
             state.currentDiscussion = action.payload;
         });
         builder.addCase(fetchDiscussion.rejected, (state: DiscussionsState) => {
-            state.isLoading = true;
-            state.hasError = false;
+            state.isLoading = false;
+            state.hasError = true;
         });
 
         builder.addCase(editDiscussion.pending, (state: DiscussionsState) => {
-            state.isLoading = true;
             state.hasError = false;
         });
         builder.addCase(editDiscussion.fulfilled, (state: DiscussionsState, action: PayloadAction<IDiscussion>) => {
-            state.isLoading = true;
             state.hasError = false;
             state.currentDiscussion = action.payload;
         });
         builder.addCase(editDiscussion.rejected, (state: DiscussionsState) => {
-            state.isLoading = true;
-            state.hasError = false;
+            state.hasError = true;
         });
 
         builder.addCase(removeDiscussion.pending, (state: DiscussionsState) => {
@@ -146,60 +143,51 @@ const discussionsSlice = createSlice<DiscussionsState, SliceCaseReducers<Discuss
             state.hasError = false;
         });
         builder.addCase(removeDiscussion.fulfilled, (state: DiscussionsState) => {
-            state.isLoading = true;
+            state.isLoading = false;
             state.hasError = false;
         });
         builder.addCase(removeDiscussion.rejected, (state: DiscussionsState) => {
-            state.isLoading = true;
-            state.hasError = false;
+            state.isLoading = false;
+            state.hasError = true;
         });
 
         builder.addCase(createComment.pending, (state: DiscussionsState) => {
-            state.isLoading = true;
             state.hasError = false;
         });
         builder.addCase(createComment.fulfilled, (state: DiscussionsState, action: PayloadAction<IComment[]>) => {
-            state.isLoading = true;
             state.hasError = false;
             if (state.currentDiscussion) {
                 state.currentDiscussion = { ...state.currentDiscussion, comments: action.payload };
             }
         });
         builder.addCase(createComment.rejected, (state: DiscussionsState) => {
-            state.isLoading = true;
-            state.hasError = false;
+            state.hasError = true;
         });
 
         builder.addCase(editComment.pending, (state: DiscussionsState) => {
-            state.isLoading = true;
             state.hasError = false;
         });
         builder.addCase(editComment.fulfilled, (state: DiscussionsState, action: PayloadAction<IComment[]>) => {
-            state.isLoading = true;
             state.hasError = false;
             if (state.currentDiscussion) {
                 state.currentDiscussion = { ...state.currentDiscussion, comments: action.payload };
             }
         });
         builder.addCase(editComment.rejected, (state: DiscussionsState) => {
-            state.isLoading = true;
-            state.hasError = false;
+            state.hasError = true;
         });
 
         builder.addCase(removeComment.pending, (state: DiscussionsState) => {
-            state.isLoading = true;
             state.hasError = false;
         });
         builder.addCase(removeComment.fulfilled, (state: DiscussionsState, action: PayloadAction<IComment[]>) => {
-            state.isLoading = true;
             state.hasError = false;
             if (state.currentDiscussion) {
                 state.currentDiscussion = { ...state.currentDiscussion, comments: action.payload };
             }
         });
         builder.addCase(removeComment.rejected, (state: DiscussionsState) => {
-            state.isLoading = true;
-            state.hasError = false;
+            state.hasError = true;
         });
     },
 });

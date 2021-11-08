@@ -41,7 +41,10 @@ export default function DiscussionPreview(props : DiscussionPreviewProps) {
                     <Button
                         className="m-2"
                         id="discussion-create-button"
-                        onClick={() => history.push(`/repos/${params.id}/discussion/create`)}
+                        onClick={() => {
+                            actionCreators.toBeLoaded(null);
+                            history.push(`/repos/${params.id}/discussion/create`);
+                        }}
                     >
                         +
                     </Button>

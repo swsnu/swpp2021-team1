@@ -1,5 +1,10 @@
-import { FloatingLabel, Form } from "react-bootstrap";
+import { Button, FloatingLabel, Form } from "react-bootstrap";
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Redirect, useParams } from "react-router-dom";
+import { AppDispatch, RootState } from "../../app/store";
+import * as actionCreators from "./discussionsSlice";
+import { IDiscussion } from "../../common/Interfaces";
 
 interface DiscussionCreateProps {
 
@@ -8,9 +13,29 @@ interface DiscussionCreateProps {
 export default function DiscussionCreate(props : DiscussionCreateProps) {
     const [title, setTitle] = useState<string>("");
     const [text, setText] = useState<string>("");
+    const dispatch = useDispatch<AppDispatch>();
+    const params = useParams<{id : string}>();
+    const [isLoading, currentDiscussion] = useSelector<RootState, [boolean, IDiscussion|null]>((state) =>
+        [state.discussions.isLoading, state.discussions.currentDiscussion]);
+
+    function onCreate() {
+        dispatch(actionCreators.createDiscussion({
+            repo_id: parseInt(params.id),
+            discussion: {
+                discussion_id: -1,
+                title,
+                text,
+            },
+        }));
+    }
 
     return (
         <div>
+            {!isLoading && currentDiscussion && (
+                <Redirect
+                    to={`/repos/${currentDiscussion.repo_id}/discussion/${currentDiscussion.discussion_id}`}
+                />
+            )}
             <FloatingLabel label="Title">
                 <Form.Control
                     as="textarea"
@@ -26,6 +51,7 @@ export default function DiscussionCreate(props : DiscussionCreateProps) {
                     onChange={(event) => setText(event.target.value)}
                 />
             </FloatingLabel>
+            <Button disabled={text === "" || title === ""} onClick={onCreate}>Confirm</Button>
         </div>
     );
 }
