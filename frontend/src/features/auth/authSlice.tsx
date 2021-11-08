@@ -6,7 +6,7 @@ import {
 } from "@reduxjs/toolkit";
 import { IUser } from "../../common/Interfaces";
 import {
-    getSession, getUser, postSignIn, postUsers,
+    getSession, getSignOut, getUser, postSignIn, postUsers,
 } from "../../common/APIs";
 
 export const signIn = createAsyncThunk<IUser, {username : string, password : string}>(
@@ -22,9 +22,10 @@ export const signUp = createAsyncThunk<IUser, IUser>(
         await postUsers(user),
 );
 
-export const fetchUser = createAsyncThunk<IUser, string>(
-    "auth/user",
-    async (username, thunkAPI) => await getUser(username),
+export const signOut = createAsyncThunk<void, void>(
+    "auth/signout",
+    async (thunkAPI) =>
+        await getSignOut(),
 );
 
 export const fetchSession = createAsyncThunk<IUser, void>(
@@ -107,22 +108,9 @@ const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
             state.isLoading = false;
             state.hasError = true;
         });
-
-        builder.addCase(fetchUser.pending, (state: AuthState) => {
-            state.isLoading = true;
-            state.hasError = false;
-        });
-
-        builder.addCase(fetchUser.fulfilled,
-            (state: AuthState, action : PayloadAction<IUser>) => {
-                state.isLoading = false;
-                state.hasError = false;
-                state.currentUser = action.payload;
-            });
-
-        builder.addCase(fetchUser.rejected, (state: AuthState) => {
-            state.isLoading = false;
-            state.hasError = true;
+        builder.addCase(signOut.fulfilled, (state: AuthState) => {
+            state.account = null;
+            state.currentUser = null;
         });
     },
 });
