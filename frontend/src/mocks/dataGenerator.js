@@ -80,6 +80,7 @@ class Factory {
     userGen = () => {
         const user = this.user();
         user.username = user.real_name.replace(/\s/g, "").toLowerCase();
+        user.email = user.email.replace(/.*@/, `${user.username}@`);
         const n = faker.datatype.number({ min: 3, max: 10 });
         for (let i = 0; i < n; i += 1) {
             user.friends.push(this.user());

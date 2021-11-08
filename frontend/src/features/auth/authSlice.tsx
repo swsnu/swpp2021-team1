@@ -6,8 +6,9 @@ import {
 } from "@reduxjs/toolkit";
 import { IUser } from "../../common/Interfaces";
 import {
-    getSession, getSignOut, getUser, postSignIn, postUsers,
+    getSession, getSignOut, getUser, postFriends, postSignIn, postUsers, putUser,
 } from "../../common/APIs";
+import store, { RootState } from "../../app/store";
 
 export const signIn = createAsyncThunk<IUser, {username : string, password : string}>(
     "auth/signin", // action type
@@ -28,9 +29,55 @@ export const signOut = createAsyncThunk<void, void>(
         await getSignOut(),
 );
 
+export const addFriend = createAsyncThunk<IUser, string, {state: RootState}>(
+    "auth/addfriend",
+    async (friendUsername, thunkAPI) => {
+        const { auth: { account } } = thunkAPI.getState();
+        await postFriends(account?.username as string, friendUsername);
+        const friendObject = await getUser(friendUsername);
+        return friendObject;
+    },
+);
+
+export const switchCurrentUser = createAsyncThunk<IUser,
+string, {state: RootState}>(
+    "auth/switchCurrentUser",
+    async (username, thunkAPI) => {
+        const { auth: { account } } = thunkAPI.getState();
+        if (username === account?.username) return account;
+        return await getUser(username);
+    },
+);
+
 export const fetchSession = createAsyncThunk<IUser, void>(
     "auth/session",
     async (thunkAPI) => await getSession(),
+);
+
+interface IProfileForm {
+    // TODO: profile picture, visibility
+    email: string,
+    real_name: string,
+    bio: string,
+    password: string
+}
+
+export const updateProfile = createAsyncThunk<IProfileForm, IProfileForm, {state: RootState}>(
+    "auth/updateProfile",
+    async (form, thunkAPI) => {
+        const { auth }: {auth: AuthState} = thunkAPI.getState();
+        const { account } = auth;
+        if (account) {
+            await putUser({
+                ...account,
+                email: form.email,
+                real_name: form.real_name,
+                bio: form.bio,
+                password: form.password,
+            });
+        }
+        return form;
+    },
 );
 
 interface AuthState {
@@ -111,6 +158,44 @@ const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
         builder.addCase(signOut.fulfilled, (state: AuthState) => {
             state.account = null;
             state.currentUser = null;
+        });
+        builder.addCase(switchCurrentUser.pending, (state) => {
+            state.isLoading = true;
+        });
+
+        builder.addCase(switchCurrentUser.fulfilled, (state: AuthState, action: PayloadAction<IUser>) => {
+            state.currentUser = action.payload;
+            state.isLoading = false;
+            state.hasError = false;
+        });
+        builder.addCase(switchCurrentUser.rejected, (state) => {
+            state.currentUser = null;
+            state.isLoading = false;
+            state.hasError = true;
+        });
+        builder.addCase(addFriend.fulfilled, (state: AuthState, action: PayloadAction<IUser>) => {
+            const friendObject = action.payload;
+            if (state.account?.friends) state.account?.friends.push(friendObject);
+            if (state.currentUser?.username === friendObject.username) {
+                if (state.currentUser?.friends && state.account) state.currentUser?.friends.push(state.account);
+            }
+        });
+        builder.addCase(updateProfile.fulfilled, (state: AuthState, action: PayloadAction<IProfileForm>) => {
+            const {
+                email, bio, real_name, password,
+            } = action.payload;
+            if (state.account) {
+                state.account = {
+                    ...state.account, email, bio, real_name, password,
+                };
+                if (state.currentUser) {
+                    if (state.account.username === state.currentUser.username) {
+                        state.currentUser = {
+                            ...state.currentUser, email, bio, real_name, password,
+                        };
+                    }
+                }
+            }
         });
     },
 });

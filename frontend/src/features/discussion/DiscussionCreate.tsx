@@ -1,5 +1,5 @@
 import { Button, FloatingLabel, Form } from "react-bootstrap";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Redirect, useParams } from "react-router-dom";
 import { AppDispatch, RootState } from "../../app/store";
@@ -36,22 +36,25 @@ export default function DiscussionCreate(props : DiscussionCreateProps) {
                     to={`/repos/${currentDiscussion.repo_id}/discussion/${currentDiscussion.discussion_id}`}
                 />
             )}
-            <FloatingLabel label="Title">
+            <h3 className="mt-4">Create Discussions</h3>
+            <FloatingLabel controlId="title" label="Title" className="mt-4">
                 <Form.Control
                     as="textarea"
                     value={title}
                     onChange={(event) => setTitle(event.target.value)}
                 />
             </FloatingLabel>
-            <FloatingLabel label="Content">
+            <FloatingLabel controlId="text" label="Content" className="mt-4">
                 <Form.Control
                     as="textarea"
-                    style={{ height: "600px" }}
+                    style={{ height: "400px" }}
                     value={text}
                     onChange={(event) => setText(event.target.value)}
                 />
             </FloatingLabel>
-            <Button disabled={text === "" || title === ""} onClick={onCreate}>Confirm</Button>
+            <div className="d-flex flex-row-reverse">
+                <Button className="mt-4" disabled={text === "" || title === ""} onClick={onCreate}>Confirm</Button>
+            </div>
         </div>
     );
 }

@@ -35,14 +35,11 @@ export default function RepositoryDetail(props : RepositoryDetailProps) {
 
     if (userIsLoading) return null;
     if (isLoading) return null;
-    if (hasError) return (<div>404 Error : You cannot watch this repository.</div>);
     if (!currentRepo) return (<div>Unexpected Error!</div>);
     const hasAuth = user && currentRepo.collaborators.filter((value) => user.username === value.username).length > 0;
     return (
         <div>
-            <h2 className="mt-3">{currentRepo.repo_name}</h2>
-            <h5 className="mt-3">{`${currentRepo.travel_start_date} ~ ${currentRepo.travel_end_date}`}</h5>
-            <Tabs defaultActiveKey="group" className="mt-3">
+            <Tabs defaultActiveKey="group" className="mt-4">
                 <Tab eventKey="group" title="Group">
                     <Group />
                 </Tab>

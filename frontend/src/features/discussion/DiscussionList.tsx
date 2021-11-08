@@ -24,24 +24,24 @@ export default function DiscussionList(props : DiscussionListProps) {
     }, [dispatch]);
 
     if (isLoading) return null;
+    // if (hasError) return <div>404Error. You can not watch this repository.</div>
     return (
         <div>
             <div className="d-flex mt-4 justify-content-between align-items-start">
-                <h4 className="m-2">Discussions</h4>
+                <h3>Discussions</h3>
                 <div>
                     <Button
-                        className="m-2"
                         id="discussion-create-button"
                         onClick={() => {
                             actionCreators.toBeLoaded(null);
                             history.push(`/repos/${params.id}/discussion/create`);
                         }}
                     >
-                        +
+                        New Discussion
                     </Button>
                 </div>
             </div>
-            <ListGroup>
+            <ListGroup className="mt-4">
                 {discussionList.slice(index, index + 20).map((value) =>
                     (
                         <React.Fragment key={value.discussion_id}>
@@ -49,18 +49,52 @@ export default function DiscussionList(props : DiscussionListProps) {
                         </React.Fragment>
                     ))}
             </ListGroup>
-            <Button
-                disabled={(index <= 0)}
-                onClick={() => setIndex(index - 20)}
-            >
-                Prev
-            </Button>
-            <Button
-                disabled={(index + 20 >= discussionList.length)}
-                onClick={() => setIndex(index + 20)}
-            >
-                Next
-            </Button>
+            <div className="mt-4 d-flex justify-content-center">
+                <Button
+                    disabled={(index <= 0)}
+                    onClick={() => setIndex(index - 20)}
+                    variant="link"
+                    className="ms-1 me-1"
+                >
+                    Prev
+                </Button>
+                {[-2, -1, 0, 1, 2].map((value) => {
+                    if (value === 0) {
+                        return (
+                            <React.Fragment key={value.toString()}>
+                                <Button
+                                    variant="primary"
+                                    className="ms-1 me-1"
+                                >
+                                    {(index / 20 + 1).toString()}
+                                </Button>
+                            </React.Fragment>
+                        );
+                    }
+                    if (index + 20 * value >= 0 && index + 20 * value < discussionList.length) {
+                        return (
+                            <React.Fragment key={value.toString()}>
+                                <Button
+                                    variant="outline-primary"
+                                    onClick={() => setIndex(index + 20 * value)}
+                                    className="ms-1 me-1"
+                                >
+                                    {(index / 20 + value + 1).toString()}
+                                </Button>
+                            </React.Fragment>
+                        );
+                    }
+                    return null;
+                })}
+                <Button
+                    disabled={(index + 20 >= discussionList.length)}
+                    onClick={() => setIndex(index + 20)}
+                    variant="link"
+                    className="ms-1 me-1"
+                >
+                    Next
+                </Button>
+            </div>
         </div>
     );
 }

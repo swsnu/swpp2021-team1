@@ -15,6 +15,7 @@ import Topbar from "../common/topbar/Topbar";
 import DiscussionList from "../features/discussion/DiscussionList";
 import DiscussionCreate from "../features/discussion/DiscussionCreate";
 import DiscussionDetail from "../features/discussion/DiscussionDetail";
+import RepositoryHeader from "../features/repository/RepositoryHeader";
 
 export default function App() {
     return (
@@ -31,12 +32,16 @@ export default function App() {
                                 </Col>
                                 <Col xs="9" style={{ marginTop: 55 }}>
                                     <Switch>
+                                        <Route path="/repos/create" />
+                                        <Route path="/repos/:id" component={RepositoryHeader} />
+                                    </Switch>
+                                    <Switch>
                                         <Route
                                             exact
                                             path={["/main/:user", "/main/:user/repos"]}
                                             render={({ match }) => (
                                                 <>
-                                                    <Profile user={match.params.user} />
+                                                    <Profile />
                                                     <Switch>
                                                         <Route path="/main/:user" exact component={Post} />
                                                         <Route

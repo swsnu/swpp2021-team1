@@ -14,6 +14,8 @@ import { repositoryFactory, userFactory } from "../../common/Interfaces";
 import RepositoryDetail from "./RepositoryDetail";
 import PhotoPreview from "../photo/PhotoPreview";
 
+//TODO
+
 const history = createBrowserHistory();
 const historyMock = { ...history, push: jest.fn(), listen: jest.fn() };
 

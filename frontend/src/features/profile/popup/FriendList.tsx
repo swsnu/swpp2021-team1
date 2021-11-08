@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ListGroup, Modal } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { useAppSelector } from "../../../app/hooks";
@@ -16,9 +16,17 @@ interface FriendListProps {
 
 export default function FriendList(props : FriendListProps) {
     const { modalShow, handleClose, currentUser } = props;
-
+    const [modalShoww, setModalShoww] = useState(modalShow);
+    const realtimeCurrentUser = useAppSelector((state) => state.auth.currentUser);
+    useEffect(() => {
+        setModalShoww(false);
+        handleClose();
+    }, [realtimeCurrentUser]);
+    useEffect(() => {
+        setModalShoww(modalShow);
+    }, [modalShow]);
     return (
-        <Modal show={modalShow} onHide={handleClose}>
+        <Modal show={modalShoww} onHide={handleClose}>
             <Modal.Header closeButton>
                 <Modal.Title>
                     {currentUser}

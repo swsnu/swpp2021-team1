@@ -67,23 +67,25 @@ export default function DiscussionDetail(props : DiscussionDetailProps) {
                     <Button onClick={() => changeMode}>Edit</Button>
                 )}
             </div>
-            <h6>
+            <h6 className="mt-2">
                 {`${currentDiscussion?.author}, ${currentDiscussion?.post_time}`}
             </h6>
-            {mode ? (
-                <FloatingLabel label="Content">
-                    <Form.Control
-                        as="textarea"
-                        style={{ height: "600px" }}
-                        value={text}
-                        onChange={(event) => setText(event.target.value)}
-                    />
-                </FloatingLabel>
-            ) : (
-                <p>
-                    {currentDiscussion?.text}
-                </p>
-            )}
+            <div className="mt-4">
+                {mode ? (
+                    <FloatingLabel label="Content">
+                        <Form.Control
+                            as="textarea"
+                            style={{ height: "600px" }}
+                            value={text}
+                            onChange={(event) => setText(event.target.value)}
+                        />
+                    </FloatingLabel>
+                ) : (
+                    <p>
+                        {currentDiscussion?.text}
+                    </p>
+                )}
+            </div>
             {/* TODO : Comment */}
         </div>
     );
