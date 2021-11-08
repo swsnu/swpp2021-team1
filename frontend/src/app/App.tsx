@@ -59,7 +59,7 @@ export default function App() {
                                         <Route path="/repos/:id/discussion" exact component={DiscussionList} />
                                         <Route path="/repos/:id/discussion/create" exact component={DiscussionCreate} />
                                         <Route
-                                            path="/repos/:id/discussion/create/:id2"
+                                            path="/repos/:id/discussion/:id2"
                                             exact
                                             component={DiscussionDetail}
                                         />

@@ -24,8 +24,8 @@ class Factory {
         repo_id: faker.datatype.number(),
         repo_name: faker.lorem.sentence(2).replace(".", ""),
         owner: faker.internet.userName(),
-        travel_start_date: faker.date.past(),
-        travel_end_date: faker.date.past(),
+        travel_start_date: faker.date.past().toISOString().match(/....-..-../),
+        travel_end_date: faker.date.past().toISOString().match(/....-..-../),
         collaborators: [],
         visibility: faker.datatype.number(({ min: 0, max: 2 })),
     });
@@ -36,7 +36,7 @@ class Factory {
         author: faker.internet.userName(),
         title: faker.lorem.sentence(),
         text: faker.lorem.paragraph(),
-        post_time: faker.date.past(),
+        post_time: faker.date.past().toISOString().match(/....-..-../),
         images: [],
         comments: [],
     });
@@ -45,7 +45,7 @@ class Factory {
         photo_id: faker.datatype.number(),
         repo_id: faker.datatype.number(),
         image: faker.image.city(),
-        post_time: faker.date.past(),
+        post_time: faker.date.past().toISOString().match(/....-..-../),
         tag: faker.lorem.sentence(),
         label: [],
         place: undefined,
@@ -58,7 +58,7 @@ class Factory {
         author: faker.internet.userName(),
         title: faker.lorem.sentence(),
         text: faker.lorem.paragraph(),
-        post_time: faker.date.past(),
+        post_time: faker.date.past().toISOString().match(/....-..-../),
         comments: [],
     });
 

@@ -8,10 +8,10 @@ import store from "./app/store";
 import "./custom.scss";
 import worker from "./mocks/browser";
 
-if (process.env.NODE_ENV === "development") {
-    // worker.start();
+if (process.argv.find((val, index) => val === "--mock")) {
+    worker.start();
 }
-
+worker.start();
 ReactDOM.render(
     <Provider store={store}>
         <App />
