@@ -6,7 +6,7 @@ import {
 } from "@reduxjs/toolkit";
 import { IUser } from "../../common/Interfaces";
 import {
-    getSession, getSignOut, getUser, postFriends, postSignIn, postUsers,
+    getSession, getSignOut, getUser, postFriends, postSignIn, postUsers, putUser,
 } from "../../common/APIs";
 import store, { RootState } from "../../app/store";
 
@@ -52,6 +52,32 @@ string, {state: RootState}>(
 export const fetchSession = createAsyncThunk<IUser, void>(
     "auth/session",
     async (thunkAPI) => await getSession(),
+);
+
+interface IProfileForm {
+    // TODO: profile picture, visibility
+    email: string,
+    real_name: string,
+    bio: string,
+    password: string
+}
+
+export const updateProfile = createAsyncThunk<IProfileForm, IProfileForm, {state: RootState}>(
+    "auth/updateProfile",
+    async (form, thunkAPI) => {
+        const { auth }: {auth: AuthState} = thunkAPI.getState();
+        const { account } = auth;
+        if (account) {
+            await putUser({
+                ...account,
+                email: form.email,
+                real_name: form.real_name,
+                bio: form.bio,
+                password: form.password,
+            });
+        }
+        return form;
+    },
 );
 
 interface AuthState {
@@ -152,6 +178,23 @@ const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
             if (state.account?.friends) state.account?.friends.push(friendObject);
             if (state.currentUser?.username === friendObject.username) {
                 if (state.currentUser?.friends && state.account) state.currentUser?.friends.push(state.account);
+            }
+        });
+        builder.addCase(updateProfile.fulfilled, (state: AuthState, action: PayloadAction<IProfileForm>) => {
+            const {
+                email, bio, real_name, password,
+            } = action.payload;
+            if (state.account) {
+                state.account = {
+                    ...state.account, email, bio, real_name, password,
+                };
+                if (state.currentUser) {
+                    if (state.account.username === state.currentUser.username) {
+                        state.currentUser = {
+                            ...state.currentUser, email, bio, real_name, password,
+                        };
+                    }
+                }
             }
         });
     },

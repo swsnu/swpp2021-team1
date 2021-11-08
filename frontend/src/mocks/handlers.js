@@ -86,10 +86,10 @@ export default [
         const n = faker.datatype.number({ min: 1, max: 10 });
         for (let i = 0; i < n; i += 1) {
             const {
-                real_name, username, profile_picture, bio,
+                username, profile_picture, bio,
             } = fact.userGen();
             friends.push({
-                real_name, username, profile_picture, bio,
+                username, profile_picture, bio,
             });
         }
         return res(ctx.json(friends));

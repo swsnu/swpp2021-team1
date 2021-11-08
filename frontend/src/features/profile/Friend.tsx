@@ -24,15 +24,12 @@ export default function Friend(props : FriendProps) {
                         id="profile-image"
                         src={friend.profile_picture}
                         roundedCircle
+                        width="100px"
+                        height="100px"
                     />
                 </div>
                 <div className="flex-grow-1 mx-4 mb-0">
-                    <h5
-                        id="real-name"
-                    >
-                        {friend.real_name ? friend.real_name : ""}
-                    </h5>
-                    <p id="username" className="small text-muted mb-2">
+                    <p id="username" className="text-muted mb-2">
                         @
                         {friend.username}
                         {" "}

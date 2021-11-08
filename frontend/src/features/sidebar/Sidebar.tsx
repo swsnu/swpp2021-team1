@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./Sidebar.css";
 import { Dropdown } from "react-bootstrap";
+import { useHistory } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faBell, faBook, faCompass, faPencilAlt,
@@ -20,6 +21,7 @@ function Sidebar(props: SidebarProps) {
     const dispatch = useAppDispatch();
     const [isLoading, hasError, account] = useAppSelector((state) =>
         [state.auth.isLoading, state.auth.hasError, state.auth.account]);
+    const history = useHistory();
 
     useEffect(() => {
         if (!account) dispatch(actionCreators.fetchSession());
@@ -91,12 +93,11 @@ function Sidebar(props: SidebarProps) {
                     <strong>{account?.real_name}</strong>
                 </Dropdown.Toggle>
                 <Dropdown.Menu className="text-small shadow">
-                    <Link
-                        to={`/main/${account?.username}/setting`}
-                        className="text-decoration-none"
+                    <Dropdown.Item
+                        onClick={() => history.push(`/main/${account?.username}/setting`)}
                     >
-                        <Dropdown.Item>Settings</Dropdown.Item>
-                    </Link>
+                        Settings
+                    </Dropdown.Item>
                     <hr className="dropdown-divider" />
                     <Dropdown.Item onClick={onSignOutClick}>Sign out</Dropdown.Item>
                 </Dropdown.Menu>

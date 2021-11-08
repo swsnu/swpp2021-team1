@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import {
     Container, Form, Button, Image,
 } from "react-bootstrap";
+import { useHistory } from "react-router";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { updateProfile } from "../auth/authSlice";
 
 interface ProfileSettingProps {
 
@@ -12,26 +14,38 @@ export default function ProfileSetting(props : ProfileSettingProps) {
     const account = useAppSelector((state) => state.auth.account);
     const [profileImage, setProfileImage] = useState<string>("");
     const [email, setEmail] = useState<string>("");
-    const [realName, setRealName] = useState<string>("");
+    const [real_name, setreal_name] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [bio, setBio] = useState<string>("");
     const dispatch = useAppDispatch();
+    const history = useHistory();
 
     useEffect(() => {
         if (account) {
             if (account.email) setEmail(account.email);
-            if (account.real_name) setRealName(account.real_name);
+            if (account.real_name) setreal_name(account.real_name);
             if (account.bio) setBio(account.bio);
+            if (account.password) setPassword(account.password);
         }
     }, [dispatch]);
 
     const onSubmit = () => {
-        // TODO
+        const submit = async () => {
+            await dispatch(updateProfile({
+                email, real_name, bio, password: password || account?.password as string,
+            }));
+            alert("Changes saved");
+        };
+        submit();
     };
 
     if (!account) return <div>Error!</div>;
 
+    // TODO: Signup form에 맞춰서 좀 고쳐야 할듯...
+    // TODO: Form validaaaaaation
+
     return (
+        // Todo: Photo upload
         <Container style={{ maxWidth: 500 }} className="mt-3">
             <h4 className="mb-3 mt-5">Profile Settings</h4>
             <Form>
@@ -42,8 +56,7 @@ export default function ProfileSetting(props : ProfileSettingProps) {
                             id="change-profile-image-input"
                             type="file"
                             accept=".jpg, .jpeg, .png"
-                            value={profileImage}
-                            onChange={({ target }) => setProfileImage(target.value)}
+                            // onChange={({ target }) => setProfileImage(target.)}
                             className="mx-4"
                         />
                         <Image
@@ -58,6 +71,7 @@ export default function ProfileSetting(props : ProfileSettingProps) {
                     <Form.Label>Email</Form.Label>
                     <Form.Control
                         id="change-email-input"
+                        type="email"
                         value={email}
                         onChange={({ target }) => setEmail(target.value)}
                     />
@@ -66,8 +80,8 @@ export default function ProfileSetting(props : ProfileSettingProps) {
                     <Form.Label>Full Name</Form.Label>
                     <Form.Control
                         id="change-real-name-input"
-                        value={realName}
-                        onChange={({ target }) => setRealName(target.value)}
+                        value={real_name}
+                        onChange={({ target }) => setreal_name(target.value)}
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">
