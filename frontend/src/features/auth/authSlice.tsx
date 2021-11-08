@@ -8,6 +8,7 @@ import { IUser } from "../../common/Interfaces";
 import {
     getSession, getSignOut, getUser, postSignIn, postUsers,
 } from "../../common/APIs";
+import store, { RootState } from "../../app/store";
 
 export const signIn = createAsyncThunk<IUser, {username : string, password : string}>(
     "auth/signin", // action type
@@ -26,6 +27,17 @@ export const signOut = createAsyncThunk<void, void>(
     "auth/signout",
     async (thunkAPI) =>
         await getSignOut(),
+);
+
+export const switchCurrentUser = createAsyncThunk<IUser,
+string, {state: RootState}>(
+    "auth/switchCurrentUser",
+    async (username, thunkAPI) => {
+        const { getState } = thunkAPI;
+        const { auth: { account } } = thunkAPI.getState();
+        if (username === account?.username) return account;
+        return await getUser(username);
+    },
 );
 
 export const fetchSession = createAsyncThunk<IUser, void>(
@@ -111,6 +123,20 @@ const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
         builder.addCase(signOut.fulfilled, (state: AuthState) => {
             state.account = null;
             state.currentUser = null;
+        });
+        builder.addCase(switchCurrentUser.pending, (state) => {
+            state.isLoading = true;
+        });
+
+        builder.addCase(switchCurrentUser.fulfilled, (state: AuthState, action: PayloadAction<IUser>) => {
+            state.currentUser = action.payload;
+            state.isLoading = false;
+            state.hasError = false;
+        });
+        builder.addCase(switchCurrentUser.rejected, (state) => {
+            state.currentUser = null;
+            state.isLoading = false;
+            state.hasError = true;
         });
     },
 });

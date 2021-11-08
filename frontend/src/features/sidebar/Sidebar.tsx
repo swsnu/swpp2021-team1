@@ -91,7 +91,10 @@ function Sidebar(props: SidebarProps) {
                     <strong>{account?.real_name}</strong>
                 </Dropdown.Toggle>
                 <Dropdown.Menu className="text-small shadow">
-                    <Link to="#" className="text-decoration-none">
+                    <Link
+                        to={`/main/${account?.username}/setting`}
+                        className="text-decoration-none"
+                    >
                         <Dropdown.Item>Settings</Dropdown.Item>
                     </Link>
                     <hr className="dropdown-divider" />

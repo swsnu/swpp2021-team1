@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Container, Form, Button } from "react-bootstrap";
+import {
+    Container, Form, Button, Image,
+} from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 
 interface ProfileSettingProps {
@@ -30,17 +32,27 @@ export default function ProfileSetting(props : ProfileSettingProps) {
     if (!account) return <div>Error!</div>;
 
     return (
-        <Container style={{ maxWidth: 400 }} className="mt-3">
-            <h4 className="mb-3">Profile Settings</h4>
+        <Container style={{ maxWidth: 500 }} className="mt-3">
+            <h4 className="mb-3 mt-5">Profile Settings</h4>
             <Form>
                 <Form.Group>
-                    <Form.Label>Profile Image</Form.Label>
-                    <Form.Control
-                        id="change-profile-image-input"
-                        type="file"
-                        value={profileImage}
-                        onChange={({ target }) => setProfileImage(target.value)}
-                    />
+                    <Form.Label className="d-block">Profile Image</Form.Label>
+                    <div className="d-flex align-items-center">
+                        <Form.Control
+                            id="change-profile-image-input"
+                            type="file"
+                            accept=".jpg, .jpeg, .png"
+                            value={profileImage}
+                            onChange={({ target }) => setProfileImage(target.value)}
+                            className="mx-4"
+                        />
+                        <Image
+                            roundedCircle
+                            src={account.profile_picture}
+                            width="150px"
+                            className="mx-3 mb-2"
+                        />
+                    </div>
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>Email</Form.Label>

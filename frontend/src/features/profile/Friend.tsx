@@ -1,6 +1,8 @@
 import React from "react";
 import { Image, ListGroup } from "react-bootstrap";
+import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
+import { useAppDispatch } from "../../app/hooks";
 import { IUser } from "../../common/Interfaces";
 
 interface FriendProps {
@@ -8,10 +10,15 @@ interface FriendProps {
 }
 
 export default function Friend(props : FriendProps) {
+    const dispatch = useAppDispatch();
+    const history = useHistory();
     const { friend } = props;
     return (
-        <Link to={`/main/${props.friend.username}/`} className="text-decoration-none">
-            <ListGroup.Item key={props.friend.username} className="d-flex">
+        <Link to={`/main/${props.friend.username}`} className="text-decoration-none">
+            <ListGroup.Item
+                key={props.friend.username}
+                className="d-flex"
+            >
                 <div className="flex-shrink-0">
                     <Image
                         id="profile-image"
@@ -33,6 +40,7 @@ export default function Friend(props : FriendProps) {
                     <p className="small">{friend.bio}</p>
                 </div>
             </ListGroup.Item>
+
         </Link>
     );
 }

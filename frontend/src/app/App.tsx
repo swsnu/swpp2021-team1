@@ -31,6 +31,7 @@ export default function App() {
                                     </Col>
                                     <Col xs="9" style={{ marginTop: 55 }}>
                                         <Switch>
+                                            <Route exact path="/main/:user/setting" component={ProfileSetting} />
                                             <Route
                                                 exact
                                                 path={["/main/:user", "/main/:user/repos"]}
@@ -48,7 +49,6 @@ export default function App() {
                                                     </>
                                                 )}
                                             />
-                                            <Route path="/main/:user/setting" exact component={ProfileSetting} />
                                             <Route path="/repos/create" exact component={RepositoryCreate} />
                                             <Route path="/repos/:id" exact component={RepositoryDetail} />
                                             <Redirect from="/" to="/login" />

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useHistory, Link } from "react-router-dom";
-import { RouteComponentProps } from "react-router";
+import { RouteComponentProps, useParams } from "react-router";
 import {
     ButtonGroup, Button, Image, AccordionButton,
 } from "react-bootstrap";
@@ -12,6 +12,7 @@ import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { getFriends } from "../../common/APIs";
 import FriendList from "./popup/FriendList";
 import "./Profile.css";
+import { switchCurrentUser, toBeLoaded } from "../auth/authSlice";
 
 interface ProfileProps {}
 
@@ -23,15 +24,24 @@ export default function Profile(props: ProfileProps) {
     const hasError = useAppSelector((state) => state.auth.hasError);
     const [friendList, setFriendList] = useState<IUser[]>([]);
     const [friendModalShow, setFriendModalShow] = useState<boolean>(false);
+    const { user } = useParams<{user?: string}>();
 
-    const history = useHistory();
+    useEffect(() => {
+        const switchToUser = () => {
+            dispatch(switchCurrentUser(user as string));
+        };
+        if (user !== currentUser?.username ||
+            (user === currentUser?.username && currentUser?.username !== account?.username)) {
+            switchToUser();
+        }
+    }, [user]);
 
     useEffect(() => {
         const fetchAndSetFriendList = async (username: string) => {
             const response = await getFriends(username);
             setFriendList(response);
         };
-        if (currentUser) fetchAndSetFriendList(currentUser.username);
+        fetchAndSetFriendList(currentUser?.username as string);
     }, [currentUser]);
 
     const onAddFriendClick = () => {
@@ -49,9 +59,23 @@ export default function Profile(props: ProfileProps) {
     if (isLoading) {
         return (
             <div id="profile-card" className="d-flex mx-auto">
-                <span className="placeholder" />
+                <div className="flex-shrink-0">
+                    <Image id="profile-image" src="..." roundedCircle alt="profile" width="200px" height="200px" />
+                </div>
+                <div className="flex-grow-1 mx-4">
+                    <div className="d-flex align-items-center mb-2">
+                        <span className="placeholder col-8" />
+                    </div>
+                    <p className="card-text mb-0">
+                        <span className="placeholder col-12" />
+                        <span className="placeholder col-4" />
+                    </p>
+                </div>
             </div>
         );
+    }
+    if (hasError) {
+        return <div>error!</div>;
     }
 
     return (
@@ -83,7 +107,8 @@ export default function Profile(props: ProfileProps) {
                         variant="link"
                     >
                         <strong>{friendList.length}</strong>
-                                    &nbsp;friends
+                                    &nbsp;friend
+                        {friendList.length === 1 ? "" : "s"}
                     </Button>
                     <FriendList
                         currentUser={currentUser && currentUser.real_name ? currentUser.real_name : ""}
@@ -92,15 +117,17 @@ export default function Profile(props: ProfileProps) {
                         handleClose={onClose}
                     />
                     {
-                        <Button
-                            id="add-friend-button"
-                            onClick={onAddFriendClick}
-                            variant="link"
-                            className="ms-0 ps-0"
-                        >
-                            <FontAwesomeIcon className="me-1" icon={faUserPlus} color="#f69d72" />
-                            Add friend
-                        </Button> && (account?.username !== currentUser?.username)
+                        (
+                            <Button
+                                id="add-friend-button"
+                                onClick={onAddFriendClick}
+                                variant="link"
+                                className="ms-0 ps-0"
+                            >
+                                <FontAwesomeIcon className="me-1" icon={faUserPlus} color="#f69d72" />
+                                Add friend
+                            </Button>
+                        ) && (account?.username !== currentUser?.username)
                     }
                 </ButtonGroup>
                 <div className="fit-content ms-auto d-flex">
