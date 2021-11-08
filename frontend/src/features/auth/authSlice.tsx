@@ -6,7 +6,7 @@ import {
 } from "@reduxjs/toolkit";
 import { IUser } from "../../common/Interfaces";
 import {
-    getSession, getSignOut, getUser, postSignIn, postUsers,
+    getSession, getSignOut, getUser, postFriends, postSignIn, postUsers,
 } from "../../common/APIs";
 import store, { RootState } from "../../app/store";
 
@@ -29,11 +29,20 @@ export const signOut = createAsyncThunk<void, void>(
         await getSignOut(),
 );
 
+export const addFriend = createAsyncThunk<IUser, string, {state: RootState}>(
+    "auth/addfriend",
+    async (friendUsername, thunkAPI) => {
+        const { auth: { account } } = thunkAPI.getState();
+        await postFriends(account?.username as string, friendUsername);
+        const friendObject = await getUser(friendUsername);
+        return friendObject;
+    },
+);
+
 export const switchCurrentUser = createAsyncThunk<IUser,
 string, {state: RootState}>(
     "auth/switchCurrentUser",
     async (username, thunkAPI) => {
-        const { getState } = thunkAPI;
         const { auth: { account } } = thunkAPI.getState();
         if (username === account?.username) return account;
         return await getUser(username);
@@ -137,6 +146,13 @@ const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
             state.currentUser = null;
             state.isLoading = false;
             state.hasError = true;
+        });
+        builder.addCase(addFriend.fulfilled, (state: AuthState, action: PayloadAction<IUser>) => {
+            const friendObject = action.payload;
+            if (state.account?.friends) state.account?.friends.push(friendObject);
+            if (state.currentUser?.username === friendObject.username) {
+                if (state.currentUser?.friends && state.account) state.currentUser?.friends.push(state.account);
+            }
         });
     },
 });

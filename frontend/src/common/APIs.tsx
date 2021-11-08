@@ -40,7 +40,7 @@ export async function getFriends(username : string) {
 }
 
 export async function postFriends(from : string, to : string) {
-    await axios.post(`/api/users/${from}/friends/${to}/`);
+    return (await axios.post(`/api/users/${from}/friends/${to}/`)).data;
 }
 
 export async function deleteFriends(from : string, to : string) {

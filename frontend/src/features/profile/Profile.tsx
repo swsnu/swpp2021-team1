@@ -12,7 +12,7 @@ import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { getFriends } from "../../common/APIs";
 import FriendList from "./popup/FriendList";
 import "./Profile.css";
-import { switchCurrentUser, toBeLoaded } from "../auth/authSlice";
+import { addFriend, switchCurrentUser, toBeLoaded } from "../auth/authSlice";
 
 interface ProfileProps {}
 
@@ -45,16 +45,16 @@ export default function Profile(props: ProfileProps) {
     }, [currentUser]);
 
     const onAddFriendClick = () => {
-        const addFriend = async () => {
-            axios.post(`/api/users/${account?.username}/friends/${currentUser?.username}`);
-        };
-        addFriend();
+        dispatch(addFriend(currentUser?.username as string));
     };
     const onFriendsClick = () => setFriendModalShow(true);
     const onClose = () => setFriendModalShow(false);
 
     const avatar_src = "../../common/assets/avatar.jpg";
     const profile_picture = currentUser && currentUser.profile_picture ? currentUser.profile_picture : avatar_src;
+
+    const isBeFriendable = (currentUser?.username !== account?.username) &&
+    (!(account?.friends?.find((friend) => friend.username === currentUser?.username)));
 
     if (isLoading) {
         return (
@@ -117,7 +117,7 @@ export default function Profile(props: ProfileProps) {
                         handleClose={onClose}
                     />
                     {
-                        (
+                        (isBeFriendable) ? (
                             <Button
                                 id="add-friend-button"
                                 onClick={onAddFriendClick}
@@ -127,7 +127,8 @@ export default function Profile(props: ProfileProps) {
                                 <FontAwesomeIcon className="me-1" icon={faUserPlus} color="#f69d72" />
                                 Add friend
                             </Button>
-                        ) && (account?.username !== currentUser?.username)
+                        ) :
+                            ""
                     }
                 </ButtonGroup>
                 <div className="fit-content ms-auto d-flex">
@@ -150,30 +151,4 @@ export default function Profile(props: ProfileProps) {
             </div>
         </div>
     );
-
-    // ! UI 먼저 짜려고 아래 로직은 일단 주석처리함
-    // error에 대한 처리 필요
-    // if (isLoading && !hasError) return null;
-    // return (
-    //     <div>
-    //         {!isLoading && hasError && (!account ? <Redirect to='login'/> :
-    //         <Redirect to={`/main/${account.realName}`}/>)}
-    //         {/*Make Component with currentUser*/}
-    //         <div>Profile Image : {currentUser?.profilePicture}</div>
-    //         <div>RealName : {currentUser?.realName}</div>
-    //         <div>Username : {currentUser?.username}</div>
-    //         {account?.realName === currentUser?.username && <button
-    //             onClick={() => history.push(`/main/${currentUser?.username}/setting`)}>
-    //             Setting
-    //         </button>}
-    //         <div>Friends</div>
-    //         {friends.map(value => <React.Fragment key={value.realName}><Friend user={value}/></React.Fragment>)}
-    //         <button onClick={() => setCurrentTab("Post")}
-    //                 disabled={currentTab === 'Post'}>Post</button>
-    //         <button onClick={() => setCurrentTab("Repo")}
-    //                 disabled={currentTab === 'Repo'}>Repository</button>
-    //         <button onClick={() => setCurrentTab("Explore")}
-    //                 disabled={currentTab === 'Explore'}>Explore</button>
-    //     </div>
-    // )
 }
