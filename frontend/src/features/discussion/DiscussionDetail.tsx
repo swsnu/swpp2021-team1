@@ -25,6 +25,7 @@ export default function DiscussionDetail(props : DiscussionDetailProps) {
     const [mode, setMode] = useState<boolean>(false);
     const account = useSelector<RootState, IUser|null>((state) => state.auth.account);
     const history = useHistory();
+    const [comment, setComment] = useState<string>("");
 
     useEffect(() => {
         if (!currentDiscussion || currentDiscussion.discussion_id !== parseInt(params.id2)) {
@@ -50,6 +51,19 @@ export default function DiscussionDetail(props : DiscussionDetailProps) {
         dispatch(actionCreators.removeDiscussion(parseInt(params.id2))).then(() => {
             history.push(`/repos/${params.id}/discussion`);
         });
+    }
+
+    function onAddComment() {
+        // dispatch(actionCreators.createComment(parseInt(params.id2), comment));
+        setComment("");
+    }
+
+    function onDeleteComment(id : number) {
+        dispatch(actionCreators.removeComment({ discussion_id: parseInt(params.id2), comment_id: id }));
+    }
+
+    function onEditComment(id : number, text : string) {
+        // dispatch(actionCreators.editComment({ discussion_id: parseInt(params.id2)}));
     }
 
     if (isLoading) return null;
