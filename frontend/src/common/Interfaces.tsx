@@ -108,7 +108,7 @@ interface IDiscussion {
 interface IComment {
     comment_id : number;
     parent_id : number; // discussion_id / post_id parent_id로 바꿔서 줘야함
-    author? : string;
+    author? : IUser;
     text : string;
     post_time? : string;
 }
