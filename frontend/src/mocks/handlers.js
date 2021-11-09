@@ -188,4 +188,202 @@ export default [
         }
         return res(ctx.json(friends));
     }),
+
+    rest.get("/api/repositories/:repo_id/photos/", (req, res, ctx) => {
+        const photos = [];
+        const n = faker.datatype.number({ min: 10, max: 30 });
+        for (let i = 0; i < n; i++) {
+            const photo = fact.photoGen();
+            photos.push(photo);
+        }
+        return res(ctx.json(photos));
+    }),
+    rest.post("/api/repositories/:repo_id/photos/", (req, res, ctx) => {
+        const photos = [];
+        const n = faker.datatype.number({ min: 10, max: 30 });
+        for (let i = 0; i < n; i++) {
+            const photo = fact.photoGen();
+            photos.push(photo);
+        }
+        return res(ctx.json(photos));
+    }),
+    rest.put("/api/repositories/:repo_id/photos/", (req, res, ctx) => {
+        const photos = [];
+        const n = faker.datatype.number({ min: 10, max: 30 });
+        for (let i = 0; i < n; i++) {
+            const photo = fact.photoGen();
+            photos.push(photo);
+        }
+        return res(ctx.json(photos));
+    }),
+    rest.delete("/api/repositories/:repo_id/photos/", (req, res, ctx) => {
+        const photos = [];
+        const n = faker.datatype.number({ min: 10, max: 30 });
+        for (let i = 0; i < n; i++) {
+            const photo = fact.photoGen();
+            photos.push(photo);
+        }
+        return res(ctx.json(photos));
+    }),
+
+    rest.get("/api/repositories/:repo_id/discussions/", (req, res, ctx) => {
+        const discussions = [];
+        const n = faker.datatype.number({ min: 4, max: 10 });
+        for (let i = 0; i < n; i++) {
+            const discussion = fact.discussionGen();
+            discussions.push(discussion);
+        }
+        return res(ctx.json(discussions));
+    }),
+    rest.post("/api/repositories/:repo_id/discussions/", (req, res, ctx) => {
+        const disc = fact.discussionGen();
+        return res(ctx.json({
+            discussion_id: disc.discussion_id,
+            repo_id: disc.repo_id,
+            author: disc.author,
+            title: disc.title,
+            text: disc.text,
+            post_time: disc.post_time,
+        }));
+    }),
+
+    rest.get("/api/discussions/:discussion_id", (req, res, ctx) => {
+        const discussion = faker.discussionGen();
+        return res(ctx.json(discussion));
+    }),
+    rest.put("/api/discussions/:discussion_id", (req, res, ctx) => {
+        const discussion = faker.discussionGen();
+        return res(ctx.json(discussion));
+    }),
+    rest.delete("/api/discussions/:discussion_id", (req, res, ctx) => res(ctx.status(200))),
+    rest.get("/api/discussions/:discussion_id/comments/", (req, res, ctx) => {
+        const comments = [];
+        const n = faker.datatype.number({ min: 0, max: 10 });
+        for (let i = 0; i < n; i++) {
+            const comment = fact.commentGen();
+            comments.push(comment);
+        }
+        return res(ctx.json(comments));
+    }),
+    rest.post("/api/discussions/:discussion_id/comments", (req, res, ctx) => {
+        const comments = [];
+        const n = faker.datatype.number({ min: 0, max: 10 });
+        for (let i = 0; i < n; i++) {
+            const comment = fact.commentGen();
+            comments.push(comment);
+        }
+        return res(ctx.json(comments));
+    }),
+
+    rest.get("/api/discussions/:discussion_id/comments/:discussion_comment_id/",
+        (req, res, ctx) => res(ctx.json(fact.commentGen()))),
+    rest.put("/api/discussions/:discussion_id/comments/:discussion_comment_id/", (req, res, ctx) => {
+        const comments = [];
+        const n = faker.datatype.number({ min: 0, max: 10 });
+        for (let i = 0; i < n; i++) {
+            const comment = fact.commentGen();
+            comments.push(comment);
+        }
+        return res(ctx.json(comments));
+    }),
+    rest.delete("/api/discussions/:discussion_id/comments/:discussion_comment_id/", (req, res, ctx) => {
+        const comments = [];
+        const n = faker.datatype.number({ min: 0, max: 10 });
+        for (let i = 0; i < n; i++) {
+            const comment = fact.commentGen();
+            comments.push(comment);
+        }
+        return res(ctx.json(comments));
+    }),
+
+    rest.get("/api/users/:username/posts/", (req, res, ctx) => {
+        const posts = [];
+        const n = faker.datatype.number({ min: 8, max: 15 });
+        for (let i = 0; i < n; i++) {
+            const post = fact.postGen();
+            posts.push(post);
+        }
+        return res(ctx.json(posts));
+    }),
+
+    rest.get("/api/repositories/:repo_id/posts/", (req, res, ctx) => {
+        const posts = [];
+        const n = faker.datatype.number({ min: 8, max: 15 });
+        for (let i = 0; i < n; i++) {
+            const post = fact.postGen();
+            posts.push({
+                post_id: post.post_id,
+                repo_id: post.repo_id,
+                title: post.title,
+                post_time: post.post_time,
+                photos: post.photos,
+            });
+        }
+        return res(ctx.json(posts));
+    }),
+    rest.post("/api/repositories/:repo_id/posts/", (req, res, ctx) => {
+        const post = fact.postGen();
+        return res(ctx.json({
+            post_id: post.post_id,
+            repo_id: post.repo_id,
+            author: post.author,
+            title: post.title,
+            text: post.text,
+            post_time: post.post_time,
+            photos: post.photos,
+            comments: [],
+        }));
+    }),
+
+    rest.get("/api/posts/:post_id/", (req, res, ctx) => {
+        const post = fact.postGen();
+        return res(ctx.json(post));
+    }),
+    rest.put("/api/posts/:post_id/", (req, res, ctx) => {
+        const post = fact.postGen();
+        return res(ctx.json(post));
+    }),
+    rest.delete("/api/posts/:post_id/", (req, res, ctx) => res(ctx.status(200))),
+
+    rest.get("/api/posts/:post_id/comments/", (req, res, ctx) => {
+        const comments = [];
+        const n = faker.datatype.number({ min: 0, max: 8 });
+        for (let i = 0; i < n; i++) {
+            const comment = fact.commentGen();
+            comments.push(comment);
+        }
+        return res(ctx.json(comments));
+    }),
+    rest.post("/api/posts/:post_id/comments/", (req, res, ctx) => {
+        const comments = [];
+        const n = faker.datatype.number({ min: 0, max: 8 });
+        for (let i = 0; i < n; i++) {
+            const comment = fact.commentGen();
+            comments.push(comment);
+        }
+        return res(ctx.json(comments));
+    }),
+
+    rest.get("/api/posts/:post_id/comments/:post_comment_id/", (req, res, ctx) => {
+        const comment = fact.commentGen();
+        return res(ctx.json(comment));
+    }),
+    rest.put("/api/posts/:post_id/comments/:post_comment_id/", (req, res, ctx) => {
+        const comments = [];
+        const n = faker.datatype.number({ min: 0, max: 8 });
+        for (let i = 0; i < n; i++) {
+            const comment = fact.commentGen();
+            comments.push(comment);
+        }
+        return res(ctx.json(comments));
+    }),
+    rest.delete("/api/posts/:post_id/comments/:post_comment_id/", (req, res, ctx) => {
+        const comments = [];
+        const n = faker.datatype.number({ min: 0, max: 8 });
+        for (let i = 0; i < n; i++) {
+            const comment = fact.commentGen();
+            comments.push(comment);
+        }
+        return res(ctx.json(comments));
+    }),
 ];

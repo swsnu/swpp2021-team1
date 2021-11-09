@@ -691,7 +691,7 @@ def repositoryCollaboratorID(request, repo_id, collaborator_name):
 
     else:
         return HttpResponseNotAllowed(['DELETE'])
-"""
+
 @ensure_csrf_cookie
 def discussions(request, repo_id):
     if request.method == 'POST':
@@ -722,7 +722,7 @@ def discussions(request, repo_id):
             'author' : new_discussion.author.username,
             'title' : new_discussion.title,
             'text' : new_discussion.text,
-            'post_time' : new_discussion.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
+            'post_time' : new_discussion.post_time.strftime('%Y-%m-%d %H:%M:%S'),
         }
         return HttpResponseSuccessUpdate(response_dict)
     elif request.method == 'GET':
@@ -746,7 +746,7 @@ def discussions(request, repo_id):
                 'author': discussion.author.username,
                 'title': discussion.title,
                 'text': discussion.text,
-                'post_time': discussion.post_time.strftime('%Y-%m-%d-%H-%M-%S')
+                'post_time': discussion.post_time.strftime('%Y-%m-%d %H:%M:%S')
             })
         return HttpResponseSuccessGet(discussion_list)
     else:
@@ -771,7 +771,7 @@ def discussionID(request, discussion_id):
                 'author' : comment.author.username,
                 'text' : comment.text,
                 'parent_id' : comment.discussion.discussion_id,
-                'post_time' : comment.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
+                'post_time' : comment.post_time.strftime('%Y-%m-%d %H:%M:%S'),
             })
         response_dict = {
             'discussion_id' : discussion.discussion_id,
@@ -779,7 +779,7 @@ def discussionID(request, discussion_id):
             'author' : discussion.author.username,
             'title' : discussion.title,
             'text' : discussion.text,
-            'post_time' : discussion.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
+            'post_time' : discussion.post_time.strftime('%Y-%m-%d %H:%M:%S'),
             'comments' : comment_list,
         }
         return HttpResponseSuccessGet(response_dict)
@@ -833,7 +833,7 @@ def discussionID(request, discussion_id):
                 'author' : comment.author.username,
                 'text' : comment.text,
                 'parent_id' : comment.discussion.discussion_id,
-                'post_time' : comment.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
+                'post_time' : comment.post_time.strftime('%Y-%m-%d %H:%M:%S'),
             })
         response_dict = {
             'discussion_id' : discussion.discussion_id,
@@ -841,7 +841,7 @@ def discussionID(request, discussion_id):
             'author' : discussion.author.username,
             'title' : discussion.title,
             'text' : discussion.text,
-            'post_time' : discussion.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
+            'post_time' : discussion.post_time.strftime('%Y-%m-%d %H:%M:%S'),
             'comments' : comment_list,
         }
         return HttpResponseSuccessUpdate(response_dict)
@@ -880,7 +880,7 @@ def discussionComments(request, discussion_id):
             'author' : new_comment.author.username,
             'text' : new_comment.text,
             'parent_id' : new_comment.discussion.discussion_id,
-            'post_time' : new_comment.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
+            'post_time' : new_comment.post_time.strftime('%Y-%m-%d %H:%M:%S'),
         }
         return HttpResponseSuccessUpdate(response_dict)
         
@@ -892,7 +892,7 @@ def discussionComments(request, discussion_id):
         except(Discussion.DoesNotExist) as e:
             return HttpResponseNotExist()
         try:
-            repository = Repository.objects.get(repo_id=disscussion.repo_id)
+            repository = Repository.objects.get(repo_id=discussion.repo_id)
         except(Repository.DoesNotExist) as e:
             return HttpResponseNotExist()
 
@@ -901,14 +901,14 @@ def discussionComments(request, discussion_id):
 
         comment_list = []
             
-        comment_filtered = Comment.objects.filter(discussion_id=discussion_id)
+        comment_filtered = DiscussionComment.objects.filter(discussion=discussion)
         for comment in comment_filtered:
             comment_list.append({
                 'comment_id' : comment.discussion_comment_id,
                 'author' : comment.author.username,
                 'text' : comment.text,
                 'parent_id' : comment.discussion.discussion_id,
-                'post_time' : comment.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
+                'post_time' : comment.post_time.strftime('%Y-%m-%d %H:%M:%S'),
             })
         return HttpResponseSuccessGet(comment_list)
     else:
@@ -943,7 +943,7 @@ def discussionCommentID(request, discussion_id, discussion_comment_id):
             'author' : comment.author.username,
             'text' : comment.text,
             'parent_id' : comment.discussion.discussion_id,
-            'post_time' : comment.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
+            'post_time' : comment.post_time.strftime('%Y-%m-%d %H:%M:%S'),
         }
         return HttpResponseSuccessGet(response_dict)
         
@@ -953,7 +953,7 @@ def discussionCommentID(request, discussion_id, discussion_comment_id):
             return HttpResponseNotLoggedIn()
         try:
             comment = DiscussionComment.objects.get(discussion_comment_id=discussion_comment_id)
-        except(Discussioncomment.DoesNotExist) as e:
+        except(DiscussionComment.DoesNotExist) as e:
             return HttpResponseNotExist()
 
         try:
@@ -984,7 +984,7 @@ def discussionCommentID(request, discussion_id, discussion_comment_id):
             
         try:
             comment = DiscussionComment.objects.get(discussion_comment_id=discussion_comment_id)
-        except(Discussioncomment.DoesNotExist) as e:
+        except(DiscussionComment.DoesNotExist) as e:
             return HttpResponseNotExist()
 
         try:
@@ -1009,7 +1009,7 @@ def discussionCommentID(request, discussion_id, discussion_comment_id):
             'author' : comment.author.username,
             'text' : comment.text,
             'parent_id' : comment.discussion.discussion_id,
-            'post_time' : comment.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
+            'post_time' : comment.post_time.strftime('%Y-%m-%d %H:%M:%S'),
         }
         return HttpResponseSuccessUpdate(response_dict)
     else:
@@ -1044,7 +1044,7 @@ def userPosts(request, user_name):
                     'author': post.author.username,
                     'title': post.title,
                     'text': post.text,
-                    'post_time': post.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
+                    'post_time': post.post_time.strftime('%Y-%m-%d %H:%M:%S'),
                     'photos': photo_list
                 })
             else:
@@ -1095,7 +1095,7 @@ def repoPosts(request, repo_id):
             'author' : new_post.author.username,
             'title' : new_post.title,
             'text' : new_post.text,
-            'post_time' : new_post.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
+            'post_time' : new_post.post_time.strftime('%Y-%m-%d %H:%M:%S'),
             'photos' : photos
         }
         return HttpResponseSuccessUpdate(response_dict)
@@ -1128,7 +1128,7 @@ def repoPosts(request, repo_id):
                 'author': post.author.username,
                 'title': post.title,
                 'text': post.text,
-                'post_time': post.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
+                'post_time': post.post_time.strftime('%Y-%m-%d %H:%M:%S'),
                 'photos': photo_list
             })
         return HttpResponseSuccessGet(post_list)
@@ -1158,7 +1158,7 @@ def postID(request, post_id):
             'author': post.author.username,
             'title': post.title,
             'text': post.text,
-            'post_time': post.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
+            'post_time': post.post_time.strftime('%Y-%m-%d %H:%M:%S'),
             'photos': photo_list
         }
         return HttpResponseSuccessGet(response_dict)
@@ -1226,7 +1226,7 @@ def postID(request, post_id):
             'author' : post.author.username,
             'title' : post.title,
             'text' : post.text,
-            'post_time' : post.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
+            'post_time' : post.post_time.strftime('%Y-%m-%d %H:%M:%S'),
             'photos' : photos
         }
         return HttpResponseSuccessUpdate(response_dict)
@@ -1256,7 +1256,7 @@ def postComments(request, post_id):
         except(KeyError, JSONDecodeError) as e:
             return HttpResponseBadRequest()
 
-        new_comment = PostComment(author=request.user, text=text, discussion=discussion)
+        new_comment = PostComment(author=request.user, text=text, post=post)
         new_comment.save()
 
 
@@ -1265,7 +1265,7 @@ def postComments(request, post_id):
             'author' : new_comment.author.username,
             'text' : new_comment.text,
             'parent_id' : new_comment.post.post_id,
-            'post_time' : new_comment.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
+            'post_time' : new_comment.post_time.strftime('%Y-%m-%d %H:%M:%S'),
         }
         return HttpResponseSuccessUpdate(response_dict)
         
@@ -1287,14 +1287,14 @@ def postComments(request, post_id):
 
         comment_list = []
             
-        comment_filtered = Comment.objects.filter(post_id=post_id)
+        comment_filtered = PostComment.objects.filter(post=post)
         for comment in comment_filtered:
             comment_list.append({
                 'comment_id' : comment.post_comment_id,
                 'author' : comment.author.username,
                 'text' : comment.text,
                 'parent_id' : comment.post.post_id,
-                'post_time' : comment.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
+                'post_time' : comment.post_time.strftime('%Y-%m-%d %H:%M:%S'),
             })
         return HttpResponseSuccessGet(comment_list)
     else:
@@ -1308,7 +1308,7 @@ def postCommentID(request, post_id, post_comment_id):
         
         try:
             comment = PostComment.objects.get(post_comment_id=post_comment_id)
-        except(Postcomment.DoesNotExist) as e:
+        except(PostComment.DoesNotExist) as e:
             return HttpResponseNotExist()
 
         try:
@@ -1329,7 +1329,7 @@ def postCommentID(request, post_id, post_comment_id):
             'author' : comment.author.username,
             'text' : comment.text,
             'parent_id' : comment.post.post_id,
-            'post_time' : comment.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
+            'post_time' : comment.post_time.strftime('%Y-%m-%d %H:%M:%S'),
         }
         return HttpResponseSuccessGet(response_dict)
         
@@ -1339,7 +1339,7 @@ def postCommentID(request, post_id, post_comment_id):
             return HttpResponseNotLoggedIn()
         try:
             comment = PostComment.objects.get(post_comment_id=post_comment_id)
-        except(Postcomment.DoesNotExist) as e:
+        except(PostComment.DoesNotExist) as e:
             return HttpResponseNotExist()
 
         try:
@@ -1387,14 +1387,13 @@ def postCommentID(request, post_id, post_comment_id):
             'author' : comment.author.username,
             'text' : comment.text,
             'parent_id' : comment.post.post_id,
-            'post_time' : comment.post_time.strftime('%Y-%m-%d-%H-%M-%S'),
+            'post_time' : comment.post_time.strftime('%Y-%m-%d %H:%M:%S'),
         }
         return HttpResponseSuccessUpdate(response_dict)
     else:
         return HttpResponseNotAllowed(['PUT','DELETE', 'GET'])
 
 
-"""
 def photos(request, repo_id):
     if request.method == 'GET':
         try:
@@ -1418,7 +1417,7 @@ def photos(request, repo_id):
                     'photo_id' : photo.photo_id,
                     'repo_id' : photo.repository.repo_id,
                     'image' : photo.image_file.url,
-                    'post_time' : photo.post_time.strftime("%Y-%m-%d-%H-%M-%S"),
+                    'post_time' : photo.post_time.strftime("%Y-%m-%d %H:%M:%S"),
                     'tag' : photo_tag_text,
                     'uploader' : photo.uploader.username,
                 })
@@ -1462,7 +1461,7 @@ def photos(request, repo_id):
                 'photo_id' : photo.photo_id,
                 'repo_id' : photo.repository.repo_id,
                 'image' : photo.image_file.url,
-                'post_time' : photo.post_time.strftime("%Y-%m-%d-%H-%M-%S"),
+                'post_time' : photo.post_time.strftime("%Y-%m-%d %H:%M:%S"),
                 'tag' : photo_tag_text,
                 'uploader' : photo.uploader.username,
             })
@@ -1521,7 +1520,7 @@ def photos(request, repo_id):
                 'photo_id' : photo.photo_id,
                 'repo_id' : photo.repository.repo_id,
                 'image' : photo.image_file.url,
-                'post_time' : photo.post_time.strftime("%Y-%m-%d-%H-%M-%S"),
+                'post_time' : photo.post_time.strftime("%Y-%m-%d %H:%M:%S"),
                 'tag' : photo_tag_text,
                 'uploader' : photo.uploader.username,
             })
@@ -1572,7 +1571,7 @@ def photos(request, repo_id):
                 'photo_id' : photo.photo_id,
                 'repo_id' : photo.repository.repo_id,
                 'image' : photo.image_file.url,
-                'post_time' : photo.post_time.strftime("%Y-%m-%d-%H-%M-%S"),
+                'post_time' : photo.post_time.strftime("%Y-%m-%d %H:%M:%S"),
                 'tag' : photo_tag_text,
                 'uploader' : photo.uploader.username,
             })
