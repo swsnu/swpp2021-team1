@@ -852,11 +852,13 @@ def repositoryCollaboratorID(request, repo_id, collaborator_name):
     else:
         return HttpResponseNotAllowed(['DELETE'])
 
+
 @ensure_csrf_cookie
 def discussions(request, repo_id):
     if request.method == 'POST':
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
+            
         try:
             repository = Repository.objects.get(repo_id=repo_id)
         except(Repository.DoesNotExist) as e:
@@ -875,57 +877,67 @@ def discussions(request, repo_id):
         new_discussion = Discussion(repository=repository, author=request.user, title=title, text=text)
         new_discussion.save()
 
-
+        author_info = {
+            'username' : new_discussion.author.username,
+            'bio' : new_discussion.author.bio,
+        }
+        if new_discussion.author.profile_picture != None:
+            author_info['profile_picture'] = new_discussion.author.profile_picture.url
         response_dict = {
             'discussion_id' : new_discussion.discussion_id,
             'repo_id' : new_discussion.repository.repo_id,
-            'author' : new_discussion.author.username,
+            'author' : author_info,
             'title' : new_discussion.title,
             'text' : new_discussion.text,
             'post_time' : new_discussion.post_time.strftime('%Y-%m-%d %H:%M:%S'),
         }
         return HttpResponseSuccessUpdate(response_dict)
+
     elif request.method == 'GET':
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
+
         try:
             repository = Repository.objects.get(repo_id=repo_id)
         except(Repository.DoesNotExist) as e:
             return HttpResponseNotExist()
 
-        if not request.user in repository.collaborators.all():
+        if request.user not in repository.collaborators.all():
             return HttpResponseNoPermission()
 
         discussion_list = []
             
         discussion_filtered = Discussion.objects.filter(repository=repository)
         for discussion in discussion_filtered:
-            discussion_list.append({
+            discussion_list.insert(0, {
                 'discussion_id': discussion.discussion_id,
                 'repo_id': discussion.repository.repo_id,
                 'author': discussion.author.username,
                 'title': discussion.title,
-                'text': discussion.text,
                 'post_time': discussion.post_time.strftime('%Y-%m-%d %H:%M:%S')
             })
         return HttpResponseSuccessGet(discussion_list)
     else:
         return HttpResponseNotAllowed(['POST', 'GET'])
 
+
 def discussionID(request, discussion_id):
     if request.method == 'GET':
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
+
         try:
             discussion = Discussion.objects.get(discussion_id=discussion_id)
         except(Discussion.DoesNotExist) as e:
             return HttpResponseNotExist()
-        repository = Repository.objects.get(repo_id=discussion.repository.repo_id)
+
+        repository = discussion.repository
 
         if not request.user in repository.collaborators.all():
             return HttpResponseNoPermission()
+
         comment_list = []
-        for comment in DiscussionComment.objects.filter(discussion_id=discussion_id):
+        for comment in DiscussionComment.objects.filter(discussion=discussion):
             comment_list.append({
                 'comment_id' : comment.discussion_comment_id,
                 'author' : comment.author.username,
@@ -933,10 +945,17 @@ def discussionID(request, discussion_id):
                 'parent_id' : comment.discussion.discussion_id,
                 'post_time' : comment.post_time.strftime('%Y-%m-%d %H:%M:%S'),
             })
+        
+        author_info = {
+            'username' : discussion.author.username,
+            'bio' : discussion.author.bio,
+        }
+        if discussion.author.profile_picture != None:
+            author_info['profile_picture'] = discussion.author.profile_picture.url
         response_dict = {
             'discussion_id' : discussion.discussion_id,
             'repo_id' : discussion.repository.repo_id,
-            'author' : discussion.author.username,
+            'author' : author_info,
             'title' : discussion.title,
             'text' : discussion.text,
             'post_time' : discussion.post_time.strftime('%Y-%m-%d %H:%M:%S'),
@@ -944,7 +963,6 @@ def discussionID(request, discussion_id):
         }
         return HttpResponseSuccessGet(response_dict)
         
-
     elif request.method == 'DELETE':
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
@@ -952,42 +970,42 @@ def discussionID(request, discussion_id):
             discussion = Discussion.objects.get(discussion_id=discussion_id)
         except(Discussion.DoesNotExist) as e:
             return HttpResponseNotExist()
-        
-        repository = Repository.objects.get(repo_id=discussion.repository.repo_id)
 
         if not request.user == discussion.author:
             return HttpResponseNoPermission()
+        
         discussion.delete()
+
         return HttpResponseSuccessDelete()
 
     elif request.method == 'PUT':
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
+
         try:
             discussion = Discussion.objects.get(discussion_id=discussion_id)
         except(Discussion.DoesNotExist) as e:
             return HttpResponseNotExist()
+
         if not request.user == discussion.author:
             return HttpResponseNoPermission()
+
         try:
             req_data = json.loads(request.body.decode())
             title = req_data['title']
             text = req_data['text']
         except(KeyError, JSONDecodeError) as e:
             return HttpResponseBadRequest()
+
         if title == "" or text == "":
             return HttpResponseInvalidInput()
 
-        repository = Repository.objects.get(repo_id=discussion.repository.repo_id)
-
-
-        
         discussion.title = title
         discussion.text = text
         discussion.save()
 
         comment_list = []
-        for comment in DiscussionComment.objects.filter(discussion_id=discussion_id):
+        for comment in DiscussionComment.objects.filter(discussion=discussion):
             comment_list.append({
                 'comment_id' : comment.discussion_comment_id,
                 'author' : comment.author.username,
@@ -995,32 +1013,39 @@ def discussionID(request, discussion_id):
                 'parent_id' : comment.discussion.discussion_id,
                 'post_time' : comment.post_time.strftime('%Y-%m-%d %H:%M:%S'),
             })
+
+        author_info = {
+            'username' : discussion.author.username,
+            'bio' : discussion.author.bio,
+        }
+        if discussion.author.profile_picture != None:
+            author_info['profile_picture'] = discussion.author.profile_picture.url
         response_dict = {
             'discussion_id' : discussion.discussion_id,
             'repo_id' : discussion.repository.repo_id,
-            'author' : discussion.author.username,
+            'author' : author_info,
             'title' : discussion.title,
             'text' : discussion.text,
             'post_time' : discussion.post_time.strftime('%Y-%m-%d %H:%M:%S'),
             'comments' : comment_list,
         }
         return HttpResponseSuccessUpdate(response_dict)
+
     else:
-        return HttpResponseNotAllowed(['PUT','DELETE', 'GET'])
+        return HttpResponseNotAllowed(['PUT', 'DELETE', 'GET'])
 
 
 def discussionComments(request, discussion_id):
     if request.method == 'POST':
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
+
         try:
             discussion = Discussion.objects.get(discussion_id=discussion_id)
         except(Discussion.DoesNotExist) as e:
             return HttpResponseNotExist()
-        try:
-            repository = Repository.objects.get(repo_id=discussion.repo_id)
-        except(Repository.DoesNotExist) as e:
-            return HttpResponseNotExist()
+
+        repository = discussion.repository
 
         if not request.user in repository.collaborators.all():
             return HttpResponseNoPermission()
@@ -1034,15 +1059,23 @@ def discussionComments(request, discussion_id):
         new_comment = DiscussionComment(author=request.user, text=text, discussion=discussion)
         new_comment.save()
 
+        comment_list = []
+        for comment in DiscussionComment.objects.filter(discussion=discussion):
+            author_info = {
+                'username' : comment.author.username,
+                'bio' : comment.author.bio,
+            }
+            if comment.author.profile_picture != None:
+                author_info['profile_picture'] = comment.author.profile_picture.url
+            comment_list.insert(0, {
+                'comment_id' : comment.discussion_comment_id,
+                'author' : author_info,
+                'text' : comment.text,
+                'parent_id' : comment.discussion.discussion_id,
+                'post_time' : comment.post_time.strftime('%Y-%m-%d %H:%M:%S'),
+            } )
 
-        response_dict = {
-            'comment_id' : new_comment.discussion_comment_id,
-            'author' : new_comment.author.username,
-            'text' : new_comment.text,
-            'parent_id' : new_comment.discussion.discussion_id,
-            'post_time' : new_comment.post_time.strftime('%Y-%m-%d %H:%M:%S'),
-        }
-        return HttpResponseSuccessUpdate(response_dict)
+        return HttpResponseSuccessUpdate(comment_list)
         
     elif request.method == 'GET':
         if not request.user.is_authenticated:
@@ -1051,26 +1084,29 @@ def discussionComments(request, discussion_id):
             discussion = Discussion.objects.get(discussion_id=discussion_id)
         except(Discussion.DoesNotExist) as e:
             return HttpResponseNotExist()
-        try:
-            repository = Repository.objects.get(repo_id=discussion.repo_id)
-        except(Repository.DoesNotExist) as e:
-            return HttpResponseNotExist()
-
+        
+        repository = discussion.repository
         if not request.user in repository.collaborators.all():
             return HttpResponseNoPermission()
 
         comment_list = []
-            
-        comment_filtered = DiscussionComment.objects.filter(discussion=discussion)
-        for comment in comment_filtered:
+        for comment in DiscussionComment.objects.filter(discussion=discussion):
+            author_info = {
+                'username' : comment.author.username,
+                'bio' : comment.author.bio,
+            }
+            if comment.author.profile_picture != None:
+                author_info['profile_picture'] = comment.author.profile_picture.url
             comment_list.append({
                 'comment_id' : comment.discussion_comment_id,
-                'author' : comment.author.username,
+                'author' : author_info,
                 'text' : comment.text,
                 'parent_id' : comment.discussion.discussion_id,
                 'post_time' : comment.post_time.strftime('%Y-%m-%d %H:%M:%S'),
             })
+
         return HttpResponseSuccessGet(comment_list)
+
     else:
         return HttpResponseNotAllowed(['POST', 'GET'])
 
@@ -1079,61 +1115,100 @@ def discussionCommentID(request, discussion_id, discussion_comment_id):
     if request.method == 'GET':
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
-        
+
         try:
             comment = DiscussionComment.objects.get(discussion_comment_id=discussion_comment_id)
         except(DiscussionComment.DoesNotExist) as e:
             return HttpResponseNotExist()
 
         try:
-            discussion = Discussion.objects.get(discussion_id=comment.discussion_id)
+            discussion = Discussion.objects.get(discussion_id=discussion_id)
         except(Discussion.DoesNotExist) as e:
             return HttpResponseNotExist()
 
-        try:
-            repository = Repository.objects.get(repo_id=discussion.repo_id)
-        except(Repository.DoesNotExist) as e:
-            return HttpResponseNotExist()
+        if discussion != comment.discussion:
+            return HttpResponseInvalidInput()
 
+        repository = discussion.repository
     
         if not request.user in repository.collaborators.all():
             return HttpResponseNoPermission()
+        
+        author_info = {
+            'username' : comment.author.username,
+            'bio' : comment.author.bio,
+        }
+        if comment.author.profile_picture != None:
+            author_info['profile_picture'] = comment.author.profile_picture.url
         response_dict = {
             'comment_id' : comment.discussion_comment_id,
-            'author' : comment.author.username,
+            'author' : author_info,
             'text' : comment.text,
             'parent_id' : comment.discussion.discussion_id,
             'post_time' : comment.post_time.strftime('%Y-%m-%d %H:%M:%S'),
         }
         return HttpResponseSuccessGet(response_dict)
-        
 
     elif request.method == 'DELETE':
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
+
         try:
             comment = DiscussionComment.objects.get(discussion_comment_id=discussion_comment_id)
         except(DiscussionComment.DoesNotExist) as e:
             return HttpResponseNotExist()
 
         try:
-            discussion = Discussion.objects.get(discussion_id=comment.discussion_id)
+            discussion = Discussion.objects.get(discussion_id=discussion_id)
         except(Discussion.DoesNotExist) as e:
             return HttpResponseNotExist()
 
-        try:
-            repository = Repository.objects.get(repo_id=discussion.repo_id)
-        except(Discussion.DoesNotExist) as e:
-            return HttpResponseNotExist()
+        if discussion != comment.discussion:
+            return HttpResponseInvalidInput()
 
         if not request.user == comment.author:
             return HttpResponseNoPermission()
+
         comment.delete()
-        return HttpResponseSuccessDelete()
+
+        comment_list = []
+        for comment in DiscussionComment.objects.filter(discussion=discussion):
+            author_info = {
+                'username' : comment.author.username,
+                'bio' : comment.author.bio,
+            }
+            if comment.author.profile_picture != None:
+                author_info['profile_picture'] = comment.author.profile_picture.url
+            comment_list.append({
+                'comment_id' : comment.discussion_comment_id,
+                'author' : author_info,
+                'text' : comment.text,
+                'parent_id' : comment.discussion.discussion_id,
+                'post_time' : comment.post_time.strftime('%Y-%m-%d %H:%M:%S'),
+            })
+
+        return HttpResponseSuccessDelete(comment_list)
 
     elif request.method == 'PUT':
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
+        
+        try:
+            comment = DiscussionComment.objects.get(discussion_comment_id=discussion_comment_id)
+        except(DiscussionComment.DoesNotExist) as e:
+            return HttpResponseNotExist()
+
+        try:
+            discussion = Discussion.objects.get(discussion_id=discussion_id)
+        except(Discussion.DoesNotExist) as e:
+            return HttpResponseNotExist()
+
+        if discussion != comment.discussion:
+            return HttpResponseInvalidInput()
+
+        if not request.user == comment.author:
+            return HttpResponseNoPermission()
+        
         try:
             req_data = json.loads(request.body.decode())
             text = req_data['text']
@@ -1142,38 +1217,29 @@ def discussionCommentID(request, discussion_id, discussion_comment_id):
         if text == "":
             return HttpResponseInvalidInput()
             
-        try:
-            comment = DiscussionComment.objects.get(discussion_comment_id=discussion_comment_id)
-        except(DiscussionComment.DoesNotExist) as e:
-            return HttpResponseNotExist()
-
-        try:
-            discussion = Discussion.objects.get(discussion_id=comment.discussion_id)
-        except(Discussion.DoesNotExist) as e:
-            return HttpResponseNotExist()
-
-        try:
-            repository = Repository.objects.get(repo_id=discussion.repo_id)
-        except(Repository.DoesNotExist) as e:
-            return HttpResponseNotExist()
-
-        if not request.user == comment.author:
-            return HttpResponseNoPermission()
-        
-
         comment.text = text
         comment.save()
 
-        response_dict = {
-            'comment_id' : comment.discussion_comment_id,
-            'author' : comment.author.username,
-            'text' : comment.text,
-            'parent_id' : comment.discussion.discussion_id,
-            'post_time' : comment.post_time.strftime('%Y-%m-%d %H:%M:%S'),
-        }
-        return HttpResponseSuccessUpdate(response_dict)
+        comment_list = []
+        for comment in DiscussionComment.objects.filter(discussion=discussion):
+            author_info = {
+                'username' : comment.author.username,
+                'bio' : comment.author.bio,
+            }
+            if comment.author.profile_picture != None:
+                author_info['profile_picture'] = comment.author.profile_picture.url
+            comment_list.append({
+                'comment_id' : comment.discussion_comment_id,
+                'author' : author_info,
+                'text' : comment.text,
+                'parent_id' : comment.discussion.discussion_id,
+                'post_time' : comment.post_time.strftime('%Y-%m-%d %H:%M:%S'),
+            })
+
+        return HttpResponseSuccessUpdate(comment_list)
+
     else:
-        return HttpResponseNotAllowed(['PUT','DELETE', 'GET'])
+        return HttpResponseNotAllowed(['PUT', 'DELETE', 'GET'])
 
 
 def userPosts(request, user_name):
