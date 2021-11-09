@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useAppDispatch } from "../../app/hooks";
-import { getUser } from "../../common/APIs";
+import { Form } from "react-bootstrap";
 import { IComment, IUser } from "../../common/Interfaces";
 import "./Comments.css";
 
 interface CommentProps {
     comment: IComment,
     isEditable: boolean,
-    edit: (original: string) => void,
+    edit: (text: string) => void,
     del: () => void,
 }
 
@@ -18,8 +17,19 @@ const Comment = (props: CommentProps) => {
     } = props;
     // const [loading, setLoading] = useState<"idle" | "pending" | "succeeded" | "failed">("idle");
     const { author } = comment;
+    const [text, setText] = useState<string>(comment.text);
+    const [mode, setMode] = useState<boolean>(false);
     // const [author, setAuthor] = useState<IUser | null>(null);
 
+    function onEdit() {
+        edit(text);
+        setMode(false);
+    }
+
+    function changeMode() {
+        setText(comment.text);
+        setMode(true);
+    }
     // useEffect(() => {
     //     const getAuthorInfo = async (username: string) => {
     //         setLoading("pending");
@@ -55,9 +65,19 @@ const Comment = (props: CommentProps) => {
                         <span className="date text-black-50">{comment.post_time as string}</span>
                     </div>
                 </div>
-                <div className="mt-2">
-                    <p className="comment-text">{comment.text}</p>
-                </div>
+                { mode ? (
+                    <Form.Control
+                        as="textarea"
+                        className="mt-2"
+                        value={text}
+                        onChange={(event) => setText(event.target.value)}
+                        style={{ height: "75px" }}
+                    />
+                ) : (
+                    <div className="mt-2">
+                        <p className="comment-text">{comment.text}</p>
+                    </div>
+                )}
             </div>
             <div className="bg-white">
                 <div className="d-flex flex-row fs-12">
@@ -68,16 +88,29 @@ const Comment = (props: CommentProps) => {
                     {
                         isEditable && (
                             <>
-                                <div
-                                    className="like p-2 cursor"
-                                    role="button"
-                                    tabIndex={0}
-                                    onClick={() => edit(comment.text)}
-                                    onKeyDown={() => edit(comment.text)}
-                                >
-                                    <i className="fa fa-edit-o" />
-                                    <span className="ml-1">Edit</span>
-                                </div>
+                                {mode ? (
+                                    <div
+                                        className="like p-2 cursor"
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={onEdit}
+                                        onKeyDown={onEdit}
+                                    >
+                                        <i className="fa fa-edit-o" />
+                                        <span className="ml-1">Commit</span>
+                                    </div>
+                                ) : (
+                                    <div
+                                        className="like p-2 cursor"
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={changeMode}
+                                        onKeyDown={changeMode}
+                                    >
+                                        <i className="fa fa-edit-o" />
+                                        <span className="ml-1">Edit</span>
+                                    </div>
+                                )}
                                 <div
                                     className="like p-2 cursor"
                                     role="button"
