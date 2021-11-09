@@ -247,12 +247,13 @@ export default [
         }));
     }),
 
-    rest.get("/api/discussions/:discussion_id", (req, res, ctx) => {
-        const discussion = faker.discussionGen();
+    rest.get("/api/discussions/:discussion_id/", (req, res, ctx) => {
+        console.log("dfd");
+        const discussion = fact.discussionGen();
         return res(ctx.json(discussion));
     }),
-    rest.put("/api/discussions/:discussion_id", (req, res, ctx) => {
-        const discussion = faker.discussionGen();
+    rest.put("/api/discussions/:discussion_id/", (req, res, ctx) => {
+        const discussion = fact.discussionGen();
         return res(ctx.json(discussion));
     }),
     rest.delete("/api/discussions/:discussion_id", (req, res, ctx) => res(ctx.status(200))),

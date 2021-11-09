@@ -3,7 +3,7 @@ import { afterWrite } from "@popperjs/core";
 import {
     IComment,
     IDiscussion,
-    IPhoto, IRepository, IUser, Visibility,
+    IPhoto, IPost, IRepository, IUser, Visibility,
 } from "./Interfaces";
 
 axios.defaults.xsrfCookieName = "csrftoken";
@@ -126,21 +126,21 @@ export async function getDiscussionComments(discussion_id : number) {
     return (await axios.get<any, AxiosResponse<IComment[]>>(`/api/discussions/${discussion_id}/comments/`)).data;
 }
 
-export async function postDiscussionComments(discussion_id : number, comment: IComment) {
+export async function postDiscussionComment(discussion_id : number, text: string) {
     return (await axios.post<any, AxiosResponse<IComment[]>>(
-        `/api/discussions/${discussion_id}/comments/`, comment,
+        `/api/discussions/${discussion_id}/comments/`, { text },
     )).data;
 }
 
 export async function getDiscussionComment(discussion_id : number, comment_id : number) {
-    return (await axios.get<any, AxiosResponse<IComment[]>>(
+    return (await axios.get<any, AxiosResponse<IComment>>(
         `/api/discussions/${discussion_id}/comments/${comment_id}/`,
     )).data;
 }
 
-export async function putDiscussionComment(comment : IComment) {
+export async function putDiscussionComment(discussionId: number, commentId: number, text: string) {
     return (await axios.put<any, AxiosResponse<IComment[]>>(
-        `/api/discussions/${comment.parent_id}/comments/${comment.comment_id}/`, comment,
+        `/api/discussions/${discussionId}/comments/${commentId}/`, { text },
     )).data;
 }
 
@@ -148,4 +148,72 @@ export async function deleteDiscussionComment(discussion_id : number, comment_id
     return (await axios.delete<any, AxiosResponse<IComment[]>>(
         `/api/discussions/${discussion_id}/comments/${comment_id}/`,
     )).data;
+}
+
+export async function getUserPosts(username: string) {
+    return (await axios.get<any, AxiosResponse<IPost[]>>(
+        `/api/users/${username}/posts/`,
+    )).data;
+}
+
+export async function getRepositoryPosts(repo_id: number) {
+    return (await axios.get<any, AxiosResponse<IPost[]>>(
+        `/api/repositories/${repo_id}/posts/`,
+    )).data;
+}
+
+interface ILocalPhoto {
+    photo_id: number,
+    local_tag: string,
+    image: string
+}
+
+export async function postPost(repo_id: number, post: {title: string, text: string, photos: ILocalPhoto[]}) {
+    return (await axios.post<any, AxiosResponse<IPost>>(
+        `/api/respositories/${repo_id}/posts/`, post,
+    )).data;
+}
+
+export async function getPost(post_id: number) {
+    return (await axios.get<any, AxiosResponse<IPost>>(
+        `/api/posts/${post_id}/`,
+    )).data;
+}
+
+export async function putPost(post_id: number, title: string, text: string, photos: ILocalPhoto[]) {
+    return (await axios.put<any, AxiosResponse<IPost>>(
+        `/api/posts/${post_id}/`, { title, text, photos },
+    )).data;
+}
+
+export async function deletePost(post_id: number) {
+    await axios.delete(`/api/posts/${post_id}`);
+}
+
+export async function getPostComments(post_id: number) {
+    return (await axios.get<any, AxiosResponse<IComment[]>>(
+        `/api/posts/${post_id}/comments/`,
+    )).data;
+}
+
+export async function postPostComment(post_id: number, text: string) {
+    return (await axios.post<any, AxiosResponse<IComment[]>>(
+        `/api/posts/${post_id}/comments/`, { text },
+    )).data;
+}
+
+export async function getPostComment(post_id: number, post_comment_id: number) {
+    return (await axios.get<any, AxiosResponse<IComment>>(
+        `/api/posts/${post_id}/comments/${post_comment_id}/`,
+    )).data;
+}
+
+export async function putPostComment(postId: number, commentId: number, content: string) {
+    return (await axios.put<any, AxiosResponse<IComment[]>>(
+        `/api/posts/${postId}/comments/${commentId}/`, { content },
+    )).data;
+}
+
+export async function deletePostComment(post_id: number, post_comment_id: number) {
+    await axios.delete(`/api/posts/${post_id}/comments/${post_comment_id}/`);
 }
