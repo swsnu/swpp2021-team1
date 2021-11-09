@@ -43,7 +43,7 @@ export const fetchRepository = createAsyncThunk<IRepository, number>( // added
     async (repoID, thunkAPI) => await getRepository(repoID),
 );
 
-export const addCollaborators = createAsyncThunk<void, {repoID : number, users : string[]}>( // added
+export const addCollaborators = createAsyncThunk<void, {repoID : number, users : {username: string}[]}>( // added
     "repos/collaborators",
     async ({ repoID, users }, thunkAPI) => {
         await postCollaborators(repoID, users);

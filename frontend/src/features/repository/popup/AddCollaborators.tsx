@@ -8,7 +8,7 @@ import {
     InputGroup,
     Modal,
 } from "react-bootstrap";
-import { IUser, SetStateAction } from "../../../common/Interfaces";
+import { IUser, SetStateAction, userFactory } from "../../../common/Interfaces";
 import "./AddCollaborators.css";
 
 interface AddCollaboratorsProps {
@@ -107,7 +107,12 @@ function Collaborator(props : CollaboratorProps) {
         <h5>
             <Badge className="m-2 p-sm-2" pill>
                 {props.user.username}
-                {props.canDelete && <CloseButton onClick={() => props.remove(props.user.username)} />}
+                {props.canDelete && (
+                    <CloseButton
+                        className="small-close-button"
+                        onClick={() => props.remove(props.user.username)}
+                    />
+                )}
             </Badge>
         </h5>
     );

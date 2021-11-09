@@ -2,9 +2,10 @@ import { Button, FloatingLabel, Form } from "react-bootstrap";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import { useHistory } from "react-router";
 import { AppDispatch, RootState } from "../../app/store";
 import * as actionCreators from "./discussionsSlice";
-import { IDiscussion } from "../../common/Interfaces";
+import { IDiscussion, IUser } from "../../common/Interfaces";
 import { fetchDiscussion } from "./discussionsSlice";
 
 interface DiscussionDetailProps {
@@ -22,6 +23,8 @@ export default function DiscussionDetail(props : DiscussionDetailProps) {
         >((state) =>
             [state.discussions.isLoading, state.discussions.hasError, state.discussions.currentDiscussion]);
     const [mode, setMode] = useState<boolean>(false);
+    const account = useSelector<RootState, IUser|null>((state) => state.auth.account);
+    const history = useHistory();
 
     useEffect(() => {
         if (!currentDiscussion || currentDiscussion.discussion_id !== parseInt(params.id2)) {
@@ -43,6 +46,12 @@ export default function DiscussionDetail(props : DiscussionDetailProps) {
         setMode(true);
     }
 
+    function onDelete() {
+        dispatch(actionCreators.removeDiscussion(parseInt(params.id2))).then(() => {
+            history.push(`/repos/${params.id}/discussion`);
+        });
+    }
+
     if (isLoading) return null;
     if (hasError) return <div>404Error : Discussion Not Found</div>;
     return (
@@ -61,14 +70,19 @@ export default function DiscussionDetail(props : DiscussionDetailProps) {
                         {currentDiscussion?.title}
                     </h3>
                 )}
-                {mode ? (
-                    <Button disabled={text === "" || title === ""} onClick={onEdit}>Confirm</Button>
-                ) : (
-                    <Button onClick={() => changeMode}>Edit</Button>
+                { account && currentDiscussion && account.username === currentDiscussion.author?.username && (
+                    <div>
+                        {mode ? (
+                            <Button disabled={text === "" || title === ""} onClick={onEdit}>Confirm</Button>
+                        ) : (
+                            <Button onClick={changeMode}>Edit</Button>
+                        )}
+                        <Button onClick={onDelete}>Delete</Button>
+                    </div>
                 )}
             </div>
             <h6 className="mt-2">
-                {`${currentDiscussion?.author}, ${currentDiscussion?.post_time}`}
+                {`${currentDiscussion?.author?.username}, ${currentDiscussion?.post_time}`}
             </h6>
             <div className="mt-4">
                 {mode ? (

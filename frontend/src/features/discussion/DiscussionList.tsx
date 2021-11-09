@@ -24,7 +24,7 @@ export default function DiscussionList(props : DiscussionListProps) {
     }, [dispatch]);
 
     if (isLoading) return null;
-    // if (hasError) return <div>404Error. You can not watch this repository.</div>
+    if (hasError) return null;
     return (
         <div>
             <div className="d-flex mt-4 justify-content-between align-items-start">
