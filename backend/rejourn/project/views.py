@@ -382,9 +382,6 @@ def userFriendID(request, user_name, friend_name):
         except(User.DoesNotExist) as e:
             return HttpResponseNotExist()
         
-        if to_user in from_user.friends.all():
-            return HttpResponseAlreadyProcessed()
-        
         from_user.friends.add(to_user)
         from_user.save()
 
@@ -416,9 +413,6 @@ def userFriendID(request, user_name, friend_name):
             to_user = User.objects.get(username=friend_name)
         except(User.DoesNotExist) as e:
             return HttpResponseNotExist()
-        
-        if to_user not in from_user.friends.all():
-            return HttpResponseAlreadyProcessed()
         
         from_user.friends.remove(to_user)
         from_user.save()
@@ -740,7 +734,6 @@ def repositoryID(request, repo_id):
     else:
         return HttpResponseNotAllowed(['GET', 'DELETE', 'PUT'])
         
-# todo
 
 @ensure_csrf_cookie
 def repositoryCollaborators(request, repo_id):
@@ -755,7 +748,8 @@ def repositoryCollaborators(request, repo_id):
             return HttpResponseNoPermission()
 
         if ( ( repository.visibility == Scope.PUBLIC ) or ( request.user in repository.collaborators.all() ) 
-                or ( repository.visibility == Scope.FRIENDS_ONLY and have_common_user(request.user.friends.all(), repository.collaborators.all()) ) ):
+                or ( repository.visibility == Scope.FRIENDS_ONLY and 
+                have_common_user(request.user.friends.all(), repository.collaborators.all()) ) ):
             
             collaborator_list = []
             for user in repository.collaborators.all():
@@ -799,10 +793,6 @@ def repositoryCollaborators(request, repo_id):
         except(User.DoesNotExist) as e:
             return HttpResponseInvalidInput()
 
-        for user in new_collaborators:
-            if user in repository.collaborators.all():
-                return HttpResponseAlreadyProcessed()
-        
         for user in new_collaborators.all():
             repository.collaborators.add(user)
         repository.save()
@@ -826,9 +816,6 @@ def repositoryCollaboratorID(request, repo_id, collaborator_name):
         
         if deleted != request.user:
             return HttpResponseNoPermission()
-        
-        if deleted not in repository:
-            return HttpResponseAlreadyProcessed()
         
         repository.collaborator.remove(deleted)
         return HttpResponseSuccessDelete()
