@@ -98,7 +98,7 @@ export function photoFactory() {
 interface IDiscussion {
     discussion_id : number;
     repo_id? : number;
-    author? : string;
+    author? : IUser;
     title : string;
     text? : string; // Discussion list에서는 필요 없음
     post_time? : string;
