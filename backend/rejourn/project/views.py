@@ -37,21 +37,31 @@ def session(request):
 
         friends = []
         for friend in session_user.friends.all():
-            friends.append({
+            if friend.profile_picture == None:
+                friends.append({
                 'username' : friend.username,
-                # profile_image,
                 'bio' : friend.bio,
-            })
+                })
+            else:
+                friends.append({
+                'username' : friend.username,
+                'profile_picture' : friend.profile_picture.url,
+                'bio' : friend.bio,
+                })
+            
 
         response_dict = {
             'username': session_user.username,
             'bio' : session_user.bio,
- ##         'profile_picture',
             'visibility' : session_user.visibility,
             'real_name' : session_user.real_name,
             'email' : session_user.email,
             'friends' : friends,
         }
+
+        if session_user.profile_picture != None:
+            response_dict['profile_picture'] = session_user.profile_picture.url
+
         return HttpResponseSuccessGet(response_dict)
 
     else:
@@ -149,6 +159,50 @@ def users(request):
     else:
         return HttpResponseNotAllowed(['POST'])
 
+
+def profilePicture(request, user_name):
+    if request.method == 'POST':
+        if not request.user.is_authenticated:
+            return HttpResponseNotLoggedIn()
+        
+        try:
+            user = User.objects.get(username=user_name)
+        except(User.DoesNotExist) as e:
+            return HttpResponseNotExist()
+        
+        if request.user != user:
+            return HttpResponseNoPermission()
+        
+        try:
+            image = request.FILES.get['image']
+        except(KeyError) as e:
+            return HttpResponseBadRequest()
+        
+        user.profile_picture = image
+        user.save()
+
+        return HttpResponseSuccessUpdate()
+
+    elif request.method == 'DELETE':
+        if not request.user.is_authenticated:
+            return HttpResponseNotLoggedIn()
+        
+        try:
+            user = User.objects.get(username=user_name)
+        except(User.DoesNotExist) as e:
+            return HttpResponseNotExist()
+        
+        if request.user != user:
+            return HttpResponseNoPermission()
+        
+        user.profile_picture = None
+        user.save()
+
+        return HttpResponseSuccessDelete()
+
+    else:
+        return HttpResponseNotAllowed(['POST', 'DELETE'])
+    
 
 @ensure_csrf_cookie
 def userID(request, user_name):
@@ -1391,7 +1445,7 @@ def postCommentID(request, post_id, post_comment_id):
         }
         return HttpResponseSuccessUpdate(response_dict)
     else:
-        return HttpResponseNotAllowed(['PUT','DELETE', 'GET'])
+        return HttpResponseNotAllowed(['PUT', 'DELETE', 'GET'])
 
 
 def photos(request, repo_id):
@@ -1439,7 +1493,7 @@ def photos(request, repo_id):
             return HttpResponseNoPermission()
         
         try:
-            image_list = request.FILES.getList('image')
+            image_list = request.FILES.getlist('image')
         except(KeyError) as e:
             return HttpResponseBadRequest()
 
@@ -1503,6 +1557,7 @@ def photos(request, repo_id):
             elif edited_photo[1] != "" and tag_count == 1:
                 photo_tag = PhotoTag.objects.get(photo=edited_photo[0], user=request.user)
                 photo_tag.text = edited_photo[1]
+                photo_tag.save()
             elif edited_photo[1] != "" and tag_count == 0:
                 new_photo_tag = PhotoTag(photo=edited_photo[0], user=request.user, text=edited_photo[1] )
                 new_photo_tag.save()
@@ -1555,7 +1610,7 @@ def photos(request, repo_id):
             except(Photo.DoesNotExist) as e:
                 return HttpResponseInvalidInput()
 
-        for photo in deleted_photo:
+        for photo in deleted_photo_list:
             photo.delete()
 
         photo_list = []
