@@ -797,7 +797,21 @@ def repositoryCollaborators(request, repo_id):
             repository.collaborators.add(user)
         repository.save()
 
-        return HttpResponseSuccessUpdate()            
+        collaborator_list = []
+        for user in repository.collaborators.all():
+            if user.profile_picture == None:
+                collaborator_list.append({
+                    'username' : user.username,
+                    'bio' : user.bio,
+                })
+            else:
+                collaborator_list.append({
+                    'username' : user.username,
+                    'profile_picture' : user.profile_picture.url,
+                    'bio' : user.bio,
+                })
+
+        return HttpResponseSuccessUpdate(collaborator_list)
 
     else:
         return HttpResponseNotAllowed(['GET', 'POST'])
@@ -818,7 +832,22 @@ def repositoryCollaboratorID(request, repo_id, collaborator_name):
             return HttpResponseNoPermission()
         
         repository.collaborator.remove(deleted)
-        return HttpResponseSuccessDelete()
+
+        collaborator_list = []
+        for user in repository.collaborators.all():
+            if user.profile_picture == None:
+                collaborator_list.append({
+                    'username' : user.username,
+                    'bio' : user.bio,
+                })
+            else:
+                collaborator_list.append({
+                    'username' : user.username,
+                    'profile_picture' : user.profile_picture.url,
+                    'bio' : user.bio,
+                })
+
+        return HttpResponseSuccessDelete(collaborator_list)
 
     else:
         return HttpResponseNotAllowed(['DELETE'])
