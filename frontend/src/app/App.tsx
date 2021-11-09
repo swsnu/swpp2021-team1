@@ -16,6 +16,7 @@ import DiscussionList from "../features/discussion/DiscussionList";
 import DiscussionCreate from "../features/discussion/DiscussionCreate";
 import DiscussionDetail from "../features/discussion/DiscussionDetail";
 import RepositoryHeader from "../features/repository/RepositoryHeader";
+import PostList from "../features/post/PostList";
 
 export default function App() {
     return (
@@ -43,7 +44,7 @@ export default function App() {
                                                 <>
                                                     <Profile />
                                                     <Switch>
-                                                        <Route path="/main/:user" exact component={Post} />
+                                                        <Route path="/main/:user" exact component={PostList} />
                                                         <Route
                                                             path="/main/:user/repos"
                                                             exact

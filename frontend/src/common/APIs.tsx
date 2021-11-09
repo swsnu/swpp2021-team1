@@ -215,5 +215,7 @@ export async function putPostComment(postId: number, commentId: number, content:
 }
 
 export async function deletePostComment(post_id: number, post_comment_id: number) {
-    await axios.delete(`/api/posts/${post_id}/comments/${post_comment_id}/`);
+    return (await axios.delete<any, AxiosResponse<IComment[]>>(
+        `/api/posts/${post_id}/comments/${post_comment_id}/`,
+    )).data;
 }
