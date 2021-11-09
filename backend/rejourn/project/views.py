@@ -39,14 +39,14 @@ def session(request):
         for friend in session_user.friends.all():
             if friend.profile_picture == None:
                 friends.append({
-                'username' : friend.username,
-                'bio' : friend.bio,
+                    'username' : friend.username,
+                    'bio' : friend.bio,
                 })
             else:
                 friends.append({
-                'username' : friend.username,
-                'profile_picture' : friend.profile_picture.url,
-                'bio' : friend.bio,
+                    'username' : friend.username,
+                    'profile_picture' : friend.profile_picture.url,
+                    'bio' : friend.bio,
                 })
             
 
@@ -58,7 +58,6 @@ def session(request):
             'email' : session_user.email,
             'friends' : friends,
         }
-
         if session_user.profile_picture != None:
             response_dict['profile_picture'] = session_user.profile_picture.url
 
@@ -86,21 +85,30 @@ def signin(request):
 
         friends = []
         for friend in user_signin.friends.all():
-            friends.append({
-                'username' : friend.username,
-                # profile_image,
-                'bio' : friend.bio,
-            })
+            if friend.profile_picture == None:
+                friends.append({
+                    'username' : friend.username,
+                    'bio' : friend.bio,
+                })
+            else:
+                friends.append({
+                    'username' : friend.username,
+                    'bio' : friend.bio,
+                    'profile_picture' : friend.profile_picture.url,
+                })
+            
 
         response_dict = {
             'username': request.user.username,
             'bio' : request.user.bio,
- ##         'profile_picture',
             'visibility' : request.user.visibility,
             'real_name' : request.user.real_name,
             'email' : request.user.email,
             'friends' : friends,
         }
+        if request.user.profile_picture != None:
+            response_dict['profile_picture'] = request.user.profile_picture.url
+
         return HttpResponseSuccessUpdate(response_dict)
 
     else:
@@ -131,7 +139,6 @@ def users(request):
             real_name = req_data['real_name']
             email = req_data['email']
             password = req_data['password']
-            # profile_picture
         except(KeyError, JSONDecodeError) as e:
             return HttpResponseBadRequest()
 
@@ -242,7 +249,6 @@ def userID(request, user_name):
             password = req_data['password']
             visibility = req_data['visibility']
             bio = req_data['bio']
-            # profile_picture
         except(KeyError, JSONDecodeError) as e:
             return HttpResponseBadRequest()
         
@@ -260,11 +266,12 @@ def userID(request, user_name):
         response_dict = {
             'username' : user.username,
             'visibility' : user.visibility,
-            # profile_picture,
             'real_name' : user.real_name,
             'bio' : user.bio,
             'email' : user.email,
         }
+        if user.profile_picture != None:
+            response_dict['profile_picture'] = user.profile_picture.url
         return HttpResponseSuccessUpdate(response_dict)
             
     elif request.method == 'GET':
@@ -275,28 +282,36 @@ def userID(request, user_name):
         
         friends_list = []
         for friend in user.friends.all():
-            friends_list.append({
-                'username': friend.username,
-                # 'profile_image'
-                'bio': friend.bio
-            })
+            if friend.profile_picture == None:
+                friends_list.append({
+                    'username' : friend.username,
+                    'bio' : friend.bio,
+                })
+            else:
+                friends_list.append({
+                    'username' : friend.username,
+                    'bio' : friend.bio,
+                    'profile_picture' : friend.profile_picture.url,
+                })
 
         response_dict_original = {
             'username' : user.username,
             'bio' : user.bio,
-            # 'profile_image'
             'visibility' : user.visibility,
             'real_name' : user.real_name,
             'email' : user.email,
             'friends' : friends_list,
         }
+        if user.profile_picture != None:
+            response_dict_original['profile_picture'] = user.profile_picture.url
 
         response_dict_censored = {
             'username' : user.username,
             'bio' : user.bio,
-            # 'profile_image'
             'visibility' : user.visibility,
         }
+        if user.profile_picture != None:
+            response_dict_censored['profile_picture'] = user.profile_picture.url
 
         if request.user.is_authenticated and user_name == request.user.username:
             return HttpResponseSuccessGet(response_dict_original)
@@ -324,11 +339,17 @@ def userFriends(request, user_name):
         
         friends_list = []
         for friend in user.friends.all():
-            friends_list.append({
-                'username': friend.username,
-                # 'profile_image'
-                'bio': friend.bio
-            })
+            if friend.profile_picture == None:
+                friends_list.append({
+                    'username' : friend.username,
+                    'bio' : friend.bio,
+                })
+            else:
+                friends_list.append({
+                    'username' : friend.username,
+                    'bio' : friend.bio,
+                    'profile_picture' : friend.profile_picture.url,
+                })
 
         if request.user.is_authenticated and user_name == request.user.username:
             return HttpResponseSuccessGet(friends_list)
@@ -366,8 +387,23 @@ def userFriendID(request, user_name, friend_name):
         
         from_user.friends.add(to_user)
         from_user.save()
-        return HttpResponseSuccessUpdate()
-    
+
+        friends_list = []
+        for friend in from_user.friends.all():
+            if friend.profile_picture == None:
+                friends_list.append({
+                    'username' : friend.username,
+                    'bio' : friend.bio,
+                })
+            else:
+                friends_list.append({
+                    'username' : friend.username,
+                    'bio' : friend.bio,
+                    'profile_picture' : friend.profile_picture.url,
+                })
+
+        return HttpResponseSuccessUpdate(friends_list)
+
     elif request.method == 'DELETE':
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
@@ -386,6 +422,21 @@ def userFriendID(request, user_name, friend_name):
         
         from_user.friends.remove(to_user)
         from_user.save()
+
+        friends_list = []
+        for friend in from_user.friends.all():
+            if friend.profile_picture == None:
+                friends_list.append({
+                    'username' : friend.username,
+                    'bio' : friend.bio,
+                })
+            else:
+                friends_list.append({
+                    'username' : friend.username,
+                    'bio' : friend.bio,
+                    'profile_picture' : friend.profile_picture.url,
+                })
+
         return HttpResponseSuccessDelete()
 
     else:
@@ -444,11 +495,18 @@ def repositories(request):
 
         collaborators_censored = []
         for user in new_repo.collaborators.all():
-            collaborators_censored.append({
-                'username' : user.username,
-                # profile_picture
-                'bio' : user.bio,
-            })
+            if user.profile_picture == None:
+                collaborators_censored.append({
+                    'username' : user.username,
+                    'bio' : user.bio,
+                })
+            else:
+                collaborators_censored.append({
+                    'username' : user.username,
+                    'profile_picture' : user.profile_picture.url,
+                    'bio' : user.bio,
+                })
+
         response_dict = {
             'repo_id' : new_repo.repo_id,
             'repo_name' : new_repo.repo_name,
@@ -481,12 +539,18 @@ def repositories(request):
                             (repository.visibility == Scope.FRIENDS_ONLY and have_common_user(current_user.friends.all(), repository.collaborators.all()) ) ):
                     collaborator_list = []
                     for user in repository.collaborators.all():
-                        collaborator_list.append({
-                            'username' : user.username,
-                            # profile_picture
-                            'bio': user.bio,
-                        })
-                    repository_list.append({
+                        if user.profile_picture == None:
+                            collaborator_list.append({
+                                'username' : user.username,
+                                'bio' : user.bio,
+                            })
+                        else:
+                            collaborator_list.append({
+                                'username' : user.username,
+                                'profile_picture' : user.profile_picture.url,
+                                'bio' : user.bio,
+                            })
+                    repository_list.insert(0, {
                         'repo_id' : repository.repo_id,
                         'repo_name' : repository.repo_name,
                         'owner' : repository.owner.username,
@@ -512,15 +576,22 @@ def repositories(request):
                 if repository.owner != owner:
                     continue
                 if ( (current_user in repository.collaborators.all()) or (repository.visibility == Scope.PUBLIC) or
-                            (repository.visibility == Scope.FRIENDS_ONLY and have_common_user(current_user.friends.all(), repository.collaborators.all()) ) ):
+                            (repository.visibility == Scope.FRIENDS_ONLY and
+                            have_common_user(current_user.friends.all(), repository.collaborators.all()) ) ):
                     collaborator_list = []
                     for user in repository.collaborators.all():
-                        collaborator_list.append({
-                            'username' : user.username,
-                            # profile_picture
-                            'bio': user.bio,
-                        })
-                    repository_list.append({
+                        if user.profile_picture == None:
+                            collaborator_list.append({
+                                'username' : user.username,
+                                'bio' : user.bio,
+                            })
+                        else:
+                            collaborator_list.append({
+                                'username' : user.username,
+                                'profile_picture' : user.profile_picture.url,
+                                'bio' : user.bio,
+                            })
+                    repository_list.insert(0, {
                         'repo_id' : repository.repo_id,
                         'repo_name' : repository.repo_name,
                         'owner' : repository.owner.username,
@@ -555,11 +626,17 @@ def repositoryID(request, repo_id):
             
             collaborator_list = []
             for user in repository.collaborators.all():
-                collaborator_list.append({
-                    'username' : user.username,
-                    # profile_picture
-                    'bio': user.bio,
-                })
+                if user.profile_picture == None:
+                    collaborator_list.append({
+                        'username' : user.username,
+                        'bio' : user.bio,
+                    })
+                else:
+                    collaborator_list.append({
+                        'username' : user.username,
+                        'profile_picture' : user.profile_picture.url,
+                        'bio' : user.bio,
+                    })
             
             response_dict = {
                 'repo_id' : repository.repo_id,
@@ -638,11 +715,17 @@ def repositoryID(request, repo_id):
 
         collaborators = []
         for user in repository.collaborators.all():
-            collaborators.append({
-                'username' : user.username,
-                # profile_picture
-                'bio' : user.bio,
-            })
+            if user.profile_picture == None:
+                collaborators.append({
+                    'username' : user.username,
+                    'bio' : user.bio,
+                })
+            else:
+                collaborators.append({
+                    'username' : user.username,
+                    'profile_picture' : user.profile_picture.url,
+                    'bio' : user.bio,
+                })
         response_dict = {
             'repo_id' : repository.repo_id,
             'repo_name' : repository.repo_name,
@@ -655,8 +738,9 @@ def repositoryID(request, repo_id):
         return HttpResponseSuccessUpdate(response_dict)
     
     else:
-        return HttpResponseNotAllowed(['GET', 'DELETE','PUT'])
+        return HttpResponseNotAllowed(['GET', 'DELETE', 'PUT'])
         
+# todo
 
 @ensure_csrf_cookie
 def repositoryCollaborators(request, repo_id):
@@ -675,11 +759,17 @@ def repositoryCollaborators(request, repo_id):
             
             collaborator_list = []
             for user in repository.collaborators.all():
-                collaborator_list.append({
-                    'username' : user.username,
-                    # profile_picture
-                    'bio': user.bio,
-                })
+                if user.profile_picture == None:
+                    collaborator_list.append({
+                        'username' : user.username,
+                        'bio' : user.bio,
+                    })
+                else:
+                    collaborator_list.append({
+                        'username' : user.username,
+                        'profile_picture' : user.profile_picture.url,
+                        'bio' : user.bio,
+                    })
             return HttpResponseSuccessGet(collaborator_list)
         
         else:
