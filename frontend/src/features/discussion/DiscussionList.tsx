@@ -6,6 +6,7 @@ import { AppDispatch, RootState } from "../../app/store";
 import { IDiscussion } from "../../common/Interfaces";
 import * as actionCreators from "./discussionsSlice";
 import Discussion from "./Disucssion";
+import "./DiscussionDetail.css";
 
 interface DiscussionListProps {
 
@@ -26,14 +27,14 @@ export default function DiscussionList(props : DiscussionListProps) {
     if (isLoading) return null;
     if (hasError) return null;
     return (
-        <div>
+        <div className="mt-4 p-2 discussion-list-wrapper">
             <div className="d-flex mt-4 justify-content-between align-items-start">
                 <h3>Discussions</h3>
                 <div>
                     <Button
                         id="discussion-create-button"
                         onClick={() => {
-                            actionCreators.toBeLoaded(null);
+                            dispatch(actionCreators.toBeLoaded(null));
                             history.push(`/repos/${params.id}/discussion/create`);
                         }}
                     >
@@ -56,7 +57,7 @@ export default function DiscussionList(props : DiscussionListProps) {
                     variant="link"
                     className="ms-1 me-1"
                 >
-                    Prev
+                    {"<Prev"}
                 </Button>
                 {[-2, -1, 0, 1, 2].map((value) => {
                     if (value === 0) {
@@ -92,7 +93,7 @@ export default function DiscussionList(props : DiscussionListProps) {
                     variant="link"
                     className="ms-1 me-1"
                 >
-                    Next
+                    {"Next>"}
                 </Button>
             </div>
         </div>

@@ -18,7 +18,7 @@ export default function Discussion(props : DiscussionProps) {
                 history.push(`/repos/${props.discussion.repo_id}/discussion/${props.discussion.discussion_id}`)}
         >
             <div className="ms-2 me-auto">
-                <h5 className="fw-bold">{props.discussion.title}</h5>
+                <h5 className="fw-normal">{props.discussion.title}</h5>
                 {props.discussion.author?.username}
             </div>
             <div>

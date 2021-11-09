@@ -42,7 +42,7 @@ export default function DiscussionPreview(props : DiscussionPreviewProps) {
                         className="m-2"
                         id="discussion-create-button"
                         onClick={() => {
-                            actionCreators.toBeLoaded(null);
+                            dispatch(actionCreators.toBeLoaded(null));
                             history.push(`/repos/${params.id}/discussion/create`);
                         }}
                     >
@@ -50,7 +50,7 @@ export default function DiscussionPreview(props : DiscussionPreviewProps) {
                     </Button>
                 </div>
             </div>
-            <ListGroup>
+            <ListGroup className="mt-4">
                 {discussionList.map((value, key) =>
                     (key < 5) && (
                         <React.Fragment key={value.discussion_id}>

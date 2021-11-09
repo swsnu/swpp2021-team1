@@ -38,7 +38,6 @@ export default function PhotoPreview(props : PhotoPreviewProps) {
 
     function onPhotoClick(photo_id : number) {
         dispatch(actionCreator.focusPhoto(photo_id));
-        console.log(currentPhoto?.tag);
         setPhotoShow(true);
     }
 
