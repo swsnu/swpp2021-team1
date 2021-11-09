@@ -110,6 +110,7 @@ interface IComment {
     parent_id : number; // discussion_id / post_id parent_id로 바꿔서 줘야함
     author? : string;
     text : string;
+    post_time? : string;
 }
 
 interface ILabel {

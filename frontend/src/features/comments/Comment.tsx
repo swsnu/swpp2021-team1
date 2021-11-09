@@ -1,52 +1,103 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useAppDispatch } from "../../app/hooks";
+import { getUser } from "../../common/APIs";
+import { IComment, IUser } from "../../common/Interfaces";
 import "./Comments.css";
 
 interface CommentProps {
-
+    comment: IComment,
+    isEditable: boolean,
+    edit: () => void,
+    del: () => void,
 }
 
 const Comment = (props: CommentProps) => {
     const dispatch = useAppDispatch();
-    return (
-        <>
-            <div className="bg-white p-2">
-                <div className="d-flex flex-row user-info">
-                    <img
-                        className="rounded-circle"
-                        src="https://i.imgur.com/RpzrMR2.jpg"
-                        width="40"
-                        alt="profile"
-                    />
-                    <div className="d-flex flex-column justify-content-start ml-2">
-                        <span className="d-block font-weight-bold name">Marry Andrews</span>
-                        <span className="date text-black-50">Shared publicly - Jan 2020</span>
+    const {
+        comment, isEditable, edit, del,
+    } = props;
+    const [loading, setLoading] = useState<"idle" | "pending" | "succeeded" | "failed">("idle");
+    const [author, setAuthor] = useState<IUser | null>(null);
+
+    useEffect(() => {
+        const getAuthorInfo = async (username: string) => {
+            setLoading("pending");
+            try {
+                const user = await getUser(username);
+                setAuthor(user);
+                setLoading("succeeded");
+            }
+            catch (e) {
+                setLoading("failed");
+            }
+        };
+        if (loading === "idle" && comment.author) {
+            getAuthorInfo(comment.author);
+        }
+    }, [dispatch]);
+
+    if (loading === "succeeded") {
+        return (
+            <>
+                <div className="bg-white p-2">
+                    <div className="d-flex flex-row user-info">
+                        <img
+                            className="rounded-circle"
+                            src={author?.profile_picture}
+                            width="40"
+                            alt="author profile"
+                        />
+                        <div className="d-flex flex-column justify-content-start ml-2">
+                            <span className="d-block name">
+                                @
+                                {author?.username}
+                            </span>
+                            <span className="date text-black-50">{comment.post_time as string}</span>
+                        </div>
+                    </div>
+                    <div className="mt-2">
+                        <p className="comment-text">{comment.text}</p>
                     </div>
                 </div>
-                <div className="mt-2">
-                    <p className="comment-text">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                    </p>
+                <div className="bg-white">
+                    <div className="d-flex flex-row fs-12">
+                        <div className="like p-2 cursor">
+                            <i className="fa fa-thumbs-o-up" />
+                            <span className="ml-1">Like</span>
+                        </div>
+                        {
+                            isEditable && (
+                                <>
+                                    <div
+                                        className="like p-2 cursor"
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={edit}
+                                        onKeyDown={edit}
+                                    >
+                                        <i className="fa fa-edit-o" />
+                                        <span className="ml-1">Edit</span>
+                                    </div>
+                                    <div
+                                        className="like p-2 cursor"
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={del}
+                                        onKeyDown={del}
+                                    >
+                                        <i className="fa fa-trash" />
+                                        <span className="ml-1">Delete</span>
+                                    </div>
+                                </>
+                            )
+                        }
+                    </div>
                 </div>
-            </div>
-            <div className="bg-white">
-                <div className="d-flex flex-row fs-12">
-                    <div className="like p-2 cursor">
-                        <i className="fa fa-thumbs-o-up" />
-                        <span className="ml-1">Like</span>
-                    </div>
-                    <div className="like p-2 cursor">
-                        <i className="fa fa-commenting-o" />
-                        <span className="ml-1">Comment</span>
-                    </div>
-                    <div className="like p-2 cursor">
-                        <i className="fa fa-share" />
-                        <span className="ml-1">Share</span>
-                    </div>
-                </div>
-            </div>
-        </>
-    );
+            </>
+        );
+    }
+    if (loading === "failed") return <>Failed to load comment!</>;
+    return <></>;
 };
 
 export default Comment;

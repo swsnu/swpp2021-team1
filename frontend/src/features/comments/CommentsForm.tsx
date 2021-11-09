@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { postPostComment } from "../../common/APIs";
 import "./Comments.css";
+import { newCommentPosted } from "./commentsSlice";
 
 interface CommentsFormProps {
-
 }
 
 const CommentsForm = (props: CommentsFormProps) => {
@@ -24,16 +25,15 @@ const CommentsForm = (props: CommentsFormProps) => {
                     <textarea className="form-control ml-1 shadow-none textarea" />
                 </div>
                 <div className="mt-2 text-right">
-                    <button
+                    {/* <button
                         className="btn btn-primary btn-sm shadow-none"
                         type="button"
+                        onClick={() => dispatch(newCommentPosted())}
                     >
                         Post comment
-
-                    </button>
+                    </button> */}
                     <button className="btn btn-outline-primary btn-sm ml-1 shadow-none" type="button">
                         Cancel
-
                     </button>
                 </div>
             </div>

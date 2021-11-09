@@ -10,7 +10,7 @@ import {
 import { IComment } from "../../common/Interfaces";
 
 const commentsAdapter = createEntityAdapter<IComment>({
-    selectId: (comment) => comment.comment_id,
+    selectId: (comment: IComment) => comment.comment_id,
     //  sortComparer: (a, b) => a
 });
 
@@ -140,3 +140,5 @@ export default commentsSlice.reducer;
 const commentsSelectors = commentsAdapter.getSelectors<RootState>((state) => state.comments);
 export const allComments = commentsSelectors.selectAll(store.getState());
 export const loadingStatus = store.getState().comments.loading;
+export const selectComment = (commentId: number) => commentsSelectors.selectById(store.getState(), commentId);
+export const { selectTotal } = commentsSelectors;
