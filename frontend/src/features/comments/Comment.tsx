@@ -7,7 +7,7 @@ import "./Comments.css";
 interface CommentProps {
     comment: IComment,
     isEditable: boolean,
-    edit: () => void,
+    edit: (original: string) => void,
     del: () => void,
 }
 
@@ -72,8 +72,8 @@ const Comment = (props: CommentProps) => {
                                     className="like p-2 cursor"
                                     role="button"
                                     tabIndex={0}
-                                    onClick={edit}
-                                    onKeyDown={edit}
+                                    onClick={() => edit(comment.text)}
+                                    onKeyDown={() => edit(comment.text)}
                                 >
                                     <i className="fa fa-edit-o" />
                                     <span className="ml-1">Edit</span>
