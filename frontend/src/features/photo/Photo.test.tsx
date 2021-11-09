@@ -7,7 +7,7 @@ import Photo from "./Photo";
 const mockFunction = jest.fn();
 const mockCheck = jest.fn();
 
-describe("FocusedPhoto", () => {
+describe("Photo", () => {
     it("Should display image and can focus image", async () => {
         const photo = photoFactory();
         const component = mount(

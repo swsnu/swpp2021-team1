@@ -73,7 +73,7 @@ export async function getCollaborators(repo_id : number) {
     return (await axios.get<any, AxiosResponse<IUser[]>>(`/api/repositories/${repo_id}/collaborators/`)).data;
 }
 
-export async function postCollaborators(repo_id : number, users : string[]) { // added
+export async function postCollaborators(repo_id : number, users : {username : string}[]) { // added
     await axios.post(`/api/repositories/${repo_id}/collaborators/`, users);
 }
 

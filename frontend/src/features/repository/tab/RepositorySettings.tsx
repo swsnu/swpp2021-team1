@@ -62,7 +62,7 @@ export default function RepositorySettings(props : RepositorySettingProps) {
     function setCollaborators(collaborators : IUser[]) {
         dispatch(actionCreator.addCollaborators({
             repoID: repo.repo_id,
-            users: collaborators.map((value) => value.username),
+            users: collaborators.map((value) => ({ username: value.username })),
         }));
     }
 
@@ -202,14 +202,16 @@ export default function RepositorySettings(props : RepositorySettingProps) {
                     </React.Fragment>
                 ))}
             </h5>
-            <Button
-                className="mt-2"
-                id="leave-repo-button"
-                onClick={leaveRepo}
-                variant="secondary"
-            >
-                Leave This Repository
-            </Button>
+            { repo.owner !== user.username && (
+                <Button
+                    className="mt-2"
+                    id="leave-repo-button"
+                    onClick={leaveRepo}
+                    variant="secondary"
+                >
+                    Leave This Repository
+                </Button>
+            )}
             <AddCollaborators
                 user={user}
                 show={show}
