@@ -1798,30 +1798,66 @@ def photos(request, repo_id):
         except(Repository.DoesNotExist) as e:
             return HttpResponseNotExist()
         
-        if ( (repository.visibility == Scope.PUBLIC) or (request.user in repository.collaborators.all())
-                    or (repository.visibility == Scope.FRIENDS_ONLY and have_common_user(request.user.friends.all(), repository.collaborators.all()) ) ):
-            
-            photo_list = []
-            for photo in Photo.objects.filter(repository=repository):
-
-                try:
-                    photo_tag = PhotoTag.objects.get(photo=photo, user=request.user)
-                    photo_tag_text = photo_tag.text
-                except(PhotoTag.DoesNotExist) as e:
-                    photo_tag_text = ""
-
-                photo_list.append({
-                    'photo_id' : photo.photo_id,
-                    'repo_id' : photo.repository.repo_id,
-                    'image' : photo.image_file.url,
-                    'post_time' : photo.post_time.strftime("%Y-%m-%d %H:%M:%S"),
-                    'tag' : photo_tag_text,
-                    'uploader' : photo.uploader.username,
-                })
-
-            return HttpResponseSuccessGet(photo_list)
-        else:
+        if not ( (repository.visibility == Scope.PUBLIC) or (request.user in repository.collaborators.all())
+                    or (repository.visibility == Scope.FRIENDS_ONLY 
+                    and have_common_user(request.user.friends.all(), repository.collaborators.all()) ) ):
             return HttpResponseNoPermission()
+        
+        criteria = request.GET.get('criteria', None)
+        raw_post_time = request.GET.get('post_time', None)
+        if raw_post_time != None:
+            post_time = datetime.strptime(raw_post_time, '%Y-%m-%d')
+            post_time = timezone.make_aware(post_time)
+        label = request.GET.get('label', None)
+        place = request.GET.get('place', None)
+        if criteria != None and (raw_post_time and label and place) != None:
+            return HttpResponseInvalidInput()
+
+        photo_list = []
+        for photo in Photo.objects.filter(repository=repository):
+
+            try:
+                photo_tag = PhotoTag.objects.get(photo=photo, user=request.user)
+                photo_tag_text = photo_tag.text
+            except(PhotoTag.DoesNotExist) as e:
+                photo_tag_text = ""
+
+            photo_list.insert(0, {
+                'photo_id' : photo.photo_id,
+                'repo_id' : photo.repository.repo_id,
+                'image' : photo.image_file.url,
+                'post_time' : photo.post_time.strftime("%Y-%m-%d %H:%M:%S"),
+                'tag' : photo_tag_text,
+                'uploader' : photo.uploader.username,
+            })
+
+        if len(photo_list) == 0:
+            response_list = []
+        elif criteria != None:
+            response_list = []
+            one_day = []
+            current_day = photo_list[0].post_time.strftime("%Y-%m-%d")
+            photo_count = 0
+            while(photo_count < len(photo_list)):
+                next_day = photo_list[photo_count].post_time.strftime("%Y-%m-%d")
+                if current_day != next_day:
+                    response_list.append(one_day)
+                    one_day = [photo_list[photo_count]]
+                    current_day = next_day
+                else:
+                    one_day.insert(0, photo_list[photo_count])
+                photo_count += 1
+            response_list.append(one_day)
+        elif raw_post_time != None:
+            response_list = filter(
+                lambda photo : photo.post_time.year == post_time.year 
+                            and photo.post_time.month == post_time.month
+                            and photo.post_time.day == post_time.day,
+                        photo_list)
+        else:
+            response_list = photo_list
+
+        return HttpResponseSuccessGet(response_list)
 
     elif request.method == 'POST':
         if not request.user.is_authenticated:
@@ -1902,7 +1938,7 @@ def photos(request, repo_id):
                 photo_tag.text = edited_photo[1]
                 photo_tag.save()
             elif edited_photo[1] != "" and tag_count == 0:
-                new_photo_tag = PhotoTag(photo=edited_photo[0], user=request.user, text=edited_photo[1] )
+                new_photo_tag = PhotoTag(photo=edited_photo[0], user=request.user, text=edited_photo[1])
                 new_photo_tag.save()
 
         photo_list = []
