@@ -10,6 +10,8 @@ interface DiscussionProps {
 export default function Discussion(props : DiscussionProps) {
     const history = useHistory();
 
+    console.log(props.discussion.author);
+
     return (
         <ListGroup.Item
             className="d-flex justify-content-between align-items-start"

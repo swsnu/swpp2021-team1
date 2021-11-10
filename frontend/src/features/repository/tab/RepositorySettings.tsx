@@ -81,14 +81,14 @@ export default function RepositorySettings(props : RepositorySettingProps) {
     function deleteRepo() {
         dispatch(actionCreator.removeRepository(repo.repo_id))
             .then(() => {
-                history.push(`/main/${user.username}`);
+                history.push(`/main/${user.username}/repos`);
             });
     }
 
     function leaveRepo() {
         dispatch(actionCreator.leaveRepository({ username: user.username, repoID: repo.repo_id }))
             .then(() => {
-                history.push(`/main/${user.username}`);
+                history.push(`/main/${user.username}/repos`);
             });
     }
 

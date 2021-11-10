@@ -39,6 +39,7 @@ export default function DiscussionDetail(props : DiscussionDetailProps) {
     }, [dispatch]);
 
     function onEdit() {
+        setMode(false);
         dispatch(actionCreators.editDiscussion({
             discussion_id: (currentDiscussion as IDiscussion).discussion_id,
             title,
@@ -80,36 +81,44 @@ export default function DiscussionDetail(props : DiscussionDetailProps) {
                     {mode ? (
                         <FloatingLabel label="Title">
                             <Form.Control
-                                as="textarea"
                                 value={title}
                                 onChange={(event) => setTitle(event.target.value)}
+                                style={{ width: "700px" }}
                             />
                         </FloatingLabel>
                     ) : (
-                        <h4>
+                        <h4 className="pt-2">
                             {currentDiscussion?.title}
                         </h4>
                     )}
                     { account && currentDiscussion && account.username === currentDiscussion.author?.username && (
                         <div>
                             {mode ? (
-                                <Button disabled={text === "" || title === ""} onClick={onEdit}>Confirm</Button>
+                                <Button
+                                    className="m-2"
+                                    disabled={text === "" || title === ""}
+                                    onClick={onEdit}
+                                >
+                                    Confirm
+                                </Button>
                             ) : (
-                                <Button onClick={changeMode}>Edit</Button>
+                                <Button className="m-2" onClick={changeMode}>Edit</Button>
                             )}
-                            <Button onClick={onDelete}>Delete</Button>
+                            <Button className="m-2" onClick={onDelete}>Delete</Button>
                         </div>
                     )}
                 </div>
-                <h6 className="mt-2">
-                    {`${currentDiscussion?.author?.username}, ${currentDiscussion?.post_time}`}
-                </h6>
+                {!mode && (
+                    <h6 style={{ color: "gray" }}>
+                        {`${currentDiscussion?.author?.username}, ${currentDiscussion?.post_time}`}
+                    </h6>
+                )}
                 <div className="mt-4">
                     {mode ? (
                         <FloatingLabel label="Content">
                             <Form.Control
                                 as="textarea"
-                                style={{ height: "600px" }}
+                                style={{ height: "400px" }}
                                 value={text}
                                 onChange={(event) => setText(event.target.value)}
                             />
@@ -138,7 +147,7 @@ export default function DiscussionDetail(props : DiscussionDetailProps) {
                     ))}
                 </div>
                 <div className="d-flex flex-column comment-section">
-                    <div className="bg-light p-2">
+                    <div className="bg-light p-3">
                         <div className="d-flex flex-row align-items-start">
                             <img
                                 className="rounded-circle me-2"
@@ -154,7 +163,7 @@ export default function DiscussionDetail(props : DiscussionDetailProps) {
                                 placeholder="Comment"
                             />
                         </div>
-                        <div className="mt-2 text-right">
+                        <div className="mt-2 d-flex flex-row-reverse text-right">
                             <button
                                 className="btn btn-primary btn-sm shadow-none"
                                 type="button"
@@ -166,6 +175,11 @@ export default function DiscussionDetail(props : DiscussionDetailProps) {
                         </div>
                     </div>
                 </div>
+            </div>
+            <div className="mt-4 d-flex justify-content-end">
+                <Button onClick={() => history.push(`/repos/${params.id}/discussion`)}>
+                    Back to List
+                </Button>
             </div>
         </div>
     );
