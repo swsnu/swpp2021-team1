@@ -138,7 +138,7 @@ export const commentsSlice = createSlice({
 
 export default commentsSlice.reducer;
 const commentsSelectors = commentsAdapter.getSelectors<RootState>((state) => state.comments);
-export const allComments = commentsSelectors.selectAll(store.getState());
+/* export const allComments = commentsSelectors.selectAll(store.getState());
 export const loadingStatus = store.getState().comments.loading;
 export const selectComment = (commentId: number) => commentsSelectors.selectById(store.getState(), commentId);
-export const { selectTotal } = commentsSelectors;
+export const { selectTotal } = commentsSelectors; */

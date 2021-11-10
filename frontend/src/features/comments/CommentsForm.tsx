@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { postPostComment } from "../../common/APIs";
+// import { postPostComment } from "../../common/APIs";
 import "./Comments.css";
-import { newCommentPosted } from "./commentsSlice";
+// import { newCommentPosted } from "./commentsSlice";
 
 interface CommentsFormProps {
 }

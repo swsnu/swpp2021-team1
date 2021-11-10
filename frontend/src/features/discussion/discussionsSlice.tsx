@@ -7,7 +7,7 @@ import {
 import {
     deleteDiscussion, deleteDiscussionComment,
     getDiscussion,
-    getDiscussions, postDiscussionComments,
+    getDiscussions, postDiscussionComment,
     postDiscussions, putDiscussion, putDiscussionComment,
 } from "../../common/APIs";
 
@@ -41,17 +41,18 @@ export const removeDiscussion = createAsyncThunk<void, number>( // added
         await deleteDiscussion(discussion_id),
 );
 
-export const createComment = createAsyncThunk<IComment[], {discussion_id : number, comment : IComment}>( // added
+export const createComment = createAsyncThunk<IComment[], {discussion_id : number, text : string}>( // added
     "discussion/comments/add",
-    async ({ discussion_id, comment }, thunkAPI) => // payload creator
-        await postDiscussionComments(discussion_id, comment),
+    async ({ discussion_id, text }, thunkAPI) => // payload creator
+        await postDiscussionComment(discussion_id, text),
 );
 
-export const editComment = createAsyncThunk<IComment[], IComment>( // added
-    "discussion/comments/edit",
-    async (comment, thunkAPI) => // payload creator
-        await putDiscussionComment(comment),
-);
+export const editComment = createAsyncThunk<IComment[],
+    { discussion_id : number, comment_id : number, text : string }>( // added
+        "discussion/comments/edit",
+        async ({ discussion_id, comment_id, text }, thunkAPI) => // payload creator
+            await putDiscussionComment(discussion_id, comment_id, text),
+    );
 
 export const removeComment = createAsyncThunk<IComment[], {discussion_id : number, comment_id : number}>( // added
     "discussion/comments/remove",
@@ -78,6 +79,7 @@ const discussionsSlice = createSlice<DiscussionsState, SliceCaseReducers<Discuss
     initialState: discussionsInitialState,
     reducers: {
         toBeLoaded: (state : DiscussionsState, action: PayloadAction<null>) => {
+            console.log("Hello");
             state.isLoading = true;
         },
         handleError: (state : DiscussionsState, action: PayloadAction<null>) => {

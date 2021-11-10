@@ -4,6 +4,7 @@ import { useHistory, useParams } from "react-router-dom";
 import * as actionCreator from "./reposSlice";
 import { AppDispatch, RootState } from "../../app/store";
 import { IRepository, IUser } from "../../common/Interfaces";
+import "./RepositoryHeader.css";
 
 interface RepositoryHeaderProps {
 
