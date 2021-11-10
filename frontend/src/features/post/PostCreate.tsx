@@ -131,7 +131,7 @@ export default function Postcreate(props : PostcreateProps) {
                 <Form.Label className="mt-4">Content</Form.Label>
                 <Form.Control
                     as="textarea"
-                    style={{ height: "400px" }}
+                    style={{ height: "250px" }}
                     value={text}
                     onChange={(event) => setText(event.target.value)}
                 />
