@@ -1067,7 +1067,7 @@ def discussionComments(request, discussion_id):
             }
             if comment.author.profile_picture != None:
                 author_info['profile_picture'] = comment.author.profile_picture.url
-            comment_list.insert(0, {
+            comment_list.append({
                 'comment_id' : comment.discussion_comment_id,
                 'author' : author_info,
                 'text' : comment.text,
@@ -1244,9 +1244,6 @@ def discussionCommentID(request, discussion_id, discussion_comment_id):
 
 def userPosts(request, user_name):
     if request.method == 'GET':
-        if not request.user.is_authenticated:
-            return HttpResponseNotLoggedIn()
-
         try:
             user = User.objects.get(username=user_name)
         except(User.DoesNotExist) as e:
@@ -1313,8 +1310,6 @@ def repoPosts(request, repo_id):
             i += 1
             new_photoinpost.save()
 
-
-
         response_dict = {
             'post_id' : new_post.post_id,
             'repo_id' : new_post.repository.repo_id,
@@ -1343,7 +1338,6 @@ def repoPosts(request, repo_id):
         post_filtered = Post.objects.filter(repository=repository)
         for post in post_filtered:
 
-
             photo_list = []
             for photo in PhotoInPost.objects.filter(post_id=post.post_id):
                 photo_list.append({'photo_id': photo.photo_id, 'local_tag': photo.local_tag, 'image':"image.photo_link"})
@@ -1360,6 +1354,7 @@ def repoPosts(request, repo_id):
         return HttpResponseSuccessGet(post_list)
     else:
         return HttpResponseNotAllowed(['POST', 'GET'])
+
 
 def postID(request, post_id):
     if request.method == 'GET':
@@ -1389,7 +1384,6 @@ def postID(request, post_id):
         }
         return HttpResponseSuccessGet(response_dict)
         
-
     elif request.method == 'DELETE':
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
@@ -1426,7 +1420,6 @@ def postID(request, post_id):
             
         repository = Repository.objects.get(repo_id=post.repository.repo_id)
         
-        
         post.title = title
         post.text = text
         post.save()
@@ -1444,8 +1437,6 @@ def postID(request, post_id):
             photoinpost.local_tag = ph.get('local_tag')
             photoinpost.save()
 
-
-
         response_dict = {
             'post_id' : post.post_id,
             'repo_id' : post.repository.repo_id,
@@ -1456,25 +1447,27 @@ def postID(request, post_id):
             'photos' : photos
         }
         return HttpResponseSuccessUpdate(response_dict)
+
     else:
         return HttpResponseNotAllowed(['PUT','DELETE', 'GET'])
+
 
 def postComments(request, post_id):
     if request.method == 'POST':
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
+        
         try:
             post = Post.objects.get(post_id=post_id)
         except(Post.DoesNotExist) as e:
             return HttpResponseNotExist()
-        try:
-            repository = Repository.objects.get(repo_id=post.repo_id)
-        except(Repository.DoesNotExist) as e:
-            return HttpResponseNotExist()
+
+        repository = post.repository
 
         if not ( ( repository.visibility == Scope.PUBLIC ) or ( request.user in repository.collaborators.all() ) 
-                or ( repository.visibility == Scope.FRIENDS_ONLY and have_common_user(request.user.friends.all(), repository.collaborators.all()) ) ):
-                return HttpResponseNoPermission()
+                or ( repository.visibility == Scope.FRIENDS_ONLY and
+                have_common_user(request.user.friends.all(), repository.collaborators.all()) ) ):
+            return HttpResponseNoPermission()
 
         try:
             req_data = json.loads(request.body.decode())
@@ -1485,84 +1478,137 @@ def postComments(request, post_id):
         new_comment = PostComment(author=request.user, text=text, post=post)
         new_comment.save()
 
-
-        response_dict = {
-            'comment_id' : new_comment.post_comment_id,
-            'author' : new_comment.author.username,
-            'text' : new_comment.text,
-            'parent_id' : new_comment.post.post_id,
-            'post_time' : new_comment.post_time.strftime('%Y-%m-%d %H:%M:%S'),
-        }
-        return HttpResponseSuccessUpdate(response_dict)
+        comment_list = []
+        for comment in PostComment.objects.filter(post=post):
+            author_info = {
+                'username' : comment.author.username,
+                'bio' : comment.author.bio,
+            }
+            if comment.author.profile_picture != None:
+                author_info['profile_picture'] = comment.author.profile_picture.url
+            comment_list.append({
+                'comment_id' : comment.post_comment_id,
+                'author' : author_info,
+                'text' : comment.text,
+                'parent_id' : comment.post.post_id,
+                'post_time' : comment.post_time.strftime('%Y-%m-%d %H:%M:%S'),
+            })
+        return HttpResponseSuccessUpdate(comment_list)
         
     elif request.method == 'GET':
-        if not request.user.is_authenticated:
-            return HttpResponseNotLoggedIn()
         try:
             post = Post.objects.get(post_id=post_id)
         except(Post.DoesNotExist) as e:
             return HttpResponseNotExist()
-        try:
-            repository = Repository.objects.get(repo_id=post.repo_id)
-        except(Repository.DoesNotExist) as e:
-            return HttpResponseNotExist()
+        
+        repository = post.repository
 
         if not ( ( repository.visibility == Scope.PUBLIC ) or ( request.user in repository.collaborators.all() ) 
-                or ( repository.visibility == Scope.FRIENDS_ONLY and have_common_user(request.user.friends.all(), repository.collaborators.all()) ) ):
-                return HttpResponseNoPermission()
+                or ( repository.visibility == Scope.FRIENDS_ONLY 
+                and have_common_user(request.user.friends.all(), repository.collaborators.all()) ) ):
+            return HttpResponseNoPermission()
 
         comment_list = []
-            
-        comment_filtered = PostComment.objects.filter(post=post)
-        for comment in comment_filtered:
+        for comment in PostComment.objects.filter(post=post):
+            author_info = {
+                'username' : comment.author.username,
+                'bio' : comment.author.bio,
+            }
+            if comment.author.profile_picture != None:
+                author_info['profile_picture'] = comment.author.profile_picture.url
             comment_list.append({
                 'comment_id' : comment.post_comment_id,
-                'author' : comment.author.username,
+                'author' : author_info,
                 'text' : comment.text,
                 'parent_id' : comment.post.post_id,
                 'post_time' : comment.post_time.strftime('%Y-%m-%d %H:%M:%S'),
             })
         return HttpResponseSuccessGet(comment_list)
+
     else:
         return HttpResponseNotAllowed(['POST', 'GET'])
 
 
 def postCommentID(request, post_id, post_comment_id):
     if request.method == 'GET':
-        if not request.user.is_authenticated:
-            return HttpResponseNotLoggedIn()
-        
         try:
             comment = PostComment.objects.get(post_comment_id=post_comment_id)
         except(PostComment.DoesNotExist) as e:
             return HttpResponseNotExist()
 
         try:
-            post = Post.objects.get(post_id=comment.post_id)
+            post = Post.objects.get(post_id=post_id)
         except(Post.DoesNotExist) as e:
             return HttpResponseNotExist()
 
-        try:
-            repository = Repository.objects.get(repo_id=post.repo_id)
-        except(Repository.DoesNotExist) as e:
-            return HttpResponseNotExist()
+        if comment.post != post:
+            return HttpResponseInvalidInput()
 
+        repository = post.repository
     
-        if not request.user in repository.collaborators.all():
+        if not ( ( repository.visibility == Scope.PUBLIC ) or ( request.user in repository.collaborators.all() ) 
+                or ( repository.visibility == Scope.FRIENDS_ONLY 
+                and have_common_user(request.user.friends.all(), repository.collaborators.all()) ) ):
             return HttpResponseNoPermission()
+        
+        author_info = {
+                'username' : comment.author.username,
+                'bio' : comment.author.bio,
+            }
+        if comment.author.profile_picture != None:
+            author_info['profile_picture'] = comment.author.profile_picture.url
         response_dict = {
             'comment_id' : comment.post_comment_id,
-            'author' : comment.author.username,
+            'author' : author_info,
             'text' : comment.text,
             'parent_id' : comment.post.post_id,
             'post_time' : comment.post_time.strftime('%Y-%m-%d %H:%M:%S'),
         }
         return HttpResponseSuccessGet(response_dict)
         
-
     elif request.method == 'DELETE':
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
+
+        try:
+            comment = PostComment.objects.get(post_comment_id=post_comment_id)
+        except(PostComment.DoesNotExist) as e:
+            return HttpResponseNotExist()
+
+        try:
+            post = Post.objects.get(post_id=post_id)
+        except(Post.DoesNotExist) as e:
+            return HttpResponseNotExist()
+
+        if post != comment.post:
+            return HttpResponseInvalidInput()
+
+        if request.user != comment.author:
+            return HttpResponseNoPermission()
+
+        comment.delete()
+
+        comment_list = []
+        for comment in PostComment.objects.filter(post=post):
+            author_info = {
+                'username' : comment.author.username,
+                'bio' : comment.author.bio,
+            }
+            if comment.author.profile_picture != None:
+                author_info['profile_picture'] = comment.author.profile_picture.url
+            comment_list.append({
+                'comment_id' : comment.post_comment_id,
+                'author' : author_info,
+                'text' : comment.text,
+                'parent_id' : comment.post.post_id,
+                'post_time' : comment.post_time.strftime('%Y-%m-%d %H:%M:%S'),
+            })
+        return HttpResponseSuccessDelete(comment_list)
+
+    elif request.method == 'PUT':
+        if not request.user.is_authenticated:
+            return HttpResponseNotLoggedIn()
+
         try:
             comment = PostComment.objects.get(post_comment_id=post_comment_id)
         except(PostComment.DoesNotExist) as e:
@@ -1573,49 +1619,40 @@ def postCommentID(request, post_id, post_comment_id):
         except(Post.DoesNotExist) as e:
             return HttpResponseNotExist()
 
-
-        if not request.user == comment.author:
-            return HttpResponseNoPermission()
-        comment.delete()
-        return HttpResponseSuccessDelete()
-
-    elif request.method == 'PUT':
-        if not request.user.is_authenticated:
-            return HttpResponseNotLoggedIn()
         try:
             req_data = json.loads(request.body.decode())
             text = req_data['text']
         except(KeyError, JSONDecodeError) as e:
             return HttpResponseBadRequest()
+
+        if comment.post != post:
+            return HttpResponseInvalidInput()
         if text == "":
             return HttpResponseInvalidInput()
-            
-        try:
-            comment = PostComment.objects.get(post_comment_id=post_comment_id)
-        except(PostComment.DoesNotExist) as e:
-            return HttpResponseNotExist()
-
-        try:
-            post = Post.objects.get(post_id=comment.post_id)
-        except(Post.DoesNotExist) as e:
-            return HttpResponseNotExist()
-
 
         if not request.user == comment.author:
-            return HttpResponseNoPermission()
-        
+            return HttpResponseNoPermission()        
 
         comment.text = text
         comment.save()
 
-        response_dict = {
-            'comment_id' : comment.post_comment_id,
-            'author' : comment.author.username,
-            'text' : comment.text,
-            'parent_id' : comment.post.post_id,
-            'post_time' : comment.post_time.strftime('%Y-%m-%d %H:%M:%S'),
-        }
-        return HttpResponseSuccessUpdate(response_dict)
+        comment_list = []
+        for comment in PostComment.objects.filter(post=post):
+            author_info = {
+                'username' : comment.author.username,
+                'bio' : comment.author.bio,
+            }
+            if comment.author.profile_picture != None:
+                author_info['profile_picture'] = comment.author.profile_picture.url
+            comment_list.append({
+                'comment_id' : comment.post_comment_id,
+                'author' : author_info,
+                'text' : comment.text,
+                'parent_id' : comment.post.post_id,
+                'post_time' : comment.post_time.strftime('%Y-%m-%d %H:%M:%S'),
+            })
+        return HttpResponseSuccessUpdate(comment_list)
+        
     else:
         return HttpResponseNotAllowed(['PUT', 'DELETE', 'GET'])
 
