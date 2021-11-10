@@ -23,6 +23,7 @@ def photo_upload_to_func(instance, filename):
         ["photos", prefix, file_name, extension,]
     )
 
+
 class User(AbstractUser):
     
     # email
@@ -72,6 +73,7 @@ class Photo(models.Model):
     def __str__(self):
         return self.photo_id
 
+
 class PhotoTag(models.Model):
     user = models.ForeignKey(
         User,
@@ -99,6 +101,7 @@ class Discussion(models.Model):
     def __str__(self):
         return self.title
 
+
 class DiscussionComment(models.Model):
     discussion_comment_id = models.BigAutoField(primary_key=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -108,6 +111,7 @@ class DiscussionComment(models.Model):
 
     def __str__(self):
         return self.text
+
 
 class Post(models.Model):
     post_id = models.BigAutoField(primary_key=True)
