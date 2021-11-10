@@ -26,8 +26,8 @@ function Sidebar(props: SidebarProps) {
     const history = useHistory();
 
     useEffect(() => {
-        if (!account) dispatch(actionCreators.fetchSession());
-    }, [dispatch]);
+        dispatch(actionCreators.fetchSession());
+    });
 
     if (isLoading) return null;
     if (hasError) {

@@ -55,7 +55,7 @@ export default function DiscussionList(props : DiscussionListProps) {
                     disabled={(index <= 0)}
                     onClick={() => setIndex(index - 20)}
                     variant="link"
-                    className="ms-1 me-1"
+                    className="ms-1 me-1 text-decoration-none"
                 >
                     {"<Prev"}
                 </Button>
@@ -91,7 +91,7 @@ export default function DiscussionList(props : DiscussionListProps) {
                     disabled={(index + 20 >= discussionList.length)}
                     onClick={() => setIndex(index + 20)}
                     variant="link"
-                    className="ms-1 me-1"
+                    className="ms-1 me-1 text-decoration-none"
                 >
                     {"Next>"}
                 </Button>

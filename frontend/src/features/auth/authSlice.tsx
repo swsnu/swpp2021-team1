@@ -124,7 +124,8 @@ const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
         });
 
         builder.addCase(fetchSession.pending, (state : AuthState) => {
-            state.isLoading = true;
+            if (state.account) state.isLoading = false;
+            else state.isLoading = true;
             state.hasError = false;
         });
 

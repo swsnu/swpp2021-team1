@@ -50,7 +50,13 @@ export default function AddPhoto(props : AddPhotoProps) {
     }
 
     return (
-        <Modal show={props.show}>
+        <Modal
+            show={props.show}
+            onHide={() => {
+                props.setShow(false);
+                reset();
+            }}
+        >
             <Modal.Header>
                 <Modal.Title>Select Photos to Add</Modal.Title>
             </Modal.Header>

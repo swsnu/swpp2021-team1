@@ -10,6 +10,8 @@ interface DiscussionProps {
 export default function Discussion(props : DiscussionProps) {
     const history = useHistory();
 
+    console.log(props.discussion.author);
+
     return (
         <ListGroup.Item
             className="d-flex justify-content-between align-items-start"
@@ -19,7 +21,9 @@ export default function Discussion(props : DiscussionProps) {
         >
             <div className="ms-2 me-auto">
                 <h5 className="fw-normal">{props.discussion.title}</h5>
-                {props.discussion.author?.username}
+                <div className="text-muted">
+                    {props.discussion.author?.username}
+                </div>
             </div>
             <div>
                 {props.discussion.post_time}

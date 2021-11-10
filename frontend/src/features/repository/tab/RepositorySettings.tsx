@@ -24,6 +24,7 @@ export default function RepositorySettings(props : RepositorySettingProps) {
     const [valid, setValid] = useState<(boolean)[]>([true, true, true]);
     const [visibility, setVisibility] = useState<Visibility>(repo.visibility);
     const history = useHistory();
+    console.log(repo);
 
     function onChange(event : React.ChangeEvent<HTMLInputElement>) {
         switch (event.target.name) {
@@ -81,14 +82,14 @@ export default function RepositorySettings(props : RepositorySettingProps) {
     function deleteRepo() {
         dispatch(actionCreator.removeRepository(repo.repo_id))
             .then(() => {
-                history.push(`/main/${user.username}`);
+                history.push(`/main/${user.username}/repos`);
             });
     }
 
     function leaveRepo() {
         dispatch(actionCreator.leaveRepository({ username: user.username, repoID: repo.repo_id }))
             .then(() => {
-                history.push(`/main/${user.username}`);
+                history.push(`/main/${user.username}/repos`);
             });
     }
 

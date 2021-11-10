@@ -41,7 +41,6 @@ export default function DiscussionCreate(props : DiscussionCreateProps) {
             <h3 className="mt-4">Create Discussions</h3>
             <FloatingLabel controlId="title" label="Title" className="mt-4">
                 <Form.Control
-                    as="textarea"
                     value={title}
                     onChange={(event) => setTitle(event.target.value)}
                 />
