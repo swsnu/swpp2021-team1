@@ -23,7 +23,7 @@ export default function AddCollaborators(props : AddCollaboratorsProps) {
     const [collaborators, setCollaborators] = useState<IUser[]>(props.collaborators);
     const [queryString, setQueryString] = useState<string>("");
     const [clicked, setClicked] = useState<boolean>(false);
-    const [filteredFriend, setFilteredFriend] = useState<IUser[]>(props.user.friends as IUser[]); // TODO
+    const [filteredFriend, setFilteredFriend] = useState<IUser[]>(props.user.friends as IUser[]);
 
     function close() {
         props.setCollaborators(collaborators);

@@ -74,7 +74,7 @@ export async function getCollaborators(repo_id : number) {
 }
 
 export async function postCollaborators(repo_id : number, users : {username : string}[]) { // added
-    await axios.post(`/api/repositories/${repo_id}/collaborators/`, users);
+    return (await axios.post<any, AxiosResponse<IUser[]>>(`/api/repositories/${repo_id}/collaborators/`, users)).data;
 }
 
 export async function deleteCollaborators(repo_id : number, username : string) { // added

@@ -33,6 +33,8 @@ export default function RepositoryDetail(props : RepositoryDetailProps) {
         }
     }, [dispatch]);
 
+    console.log(currentRepo);
+
     if (userIsLoading) return null;
     if (isLoading) return null;
     if (!currentRepo) return (<div>Unexpected Error!</div>);

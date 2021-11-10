@@ -1,9 +1,9 @@
 import React from "react";
 
 enum Visibility {
-    ONLY_MEMBERS,
-    MEMBER_AND_FRIENDS,
     ALL,
+    MEMBER_AND_FRIENDS,
+    ONLY_MEMBERS,
 }
 
 function randomString() {

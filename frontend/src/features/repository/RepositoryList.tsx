@@ -36,8 +36,6 @@ export default function RepositoryList(props : RepositoryListProps) {
         history.push("/repos/create");
     }
 
-    console.log("hello");
-
     // if (hasError) return (<div>Fatal Error!!!</div>);
     return (
         <div>

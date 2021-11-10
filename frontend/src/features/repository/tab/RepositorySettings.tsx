@@ -24,6 +24,7 @@ export default function RepositorySettings(props : RepositorySettingProps) {
     const [valid, setValid] = useState<(boolean)[]>([true, true, true]);
     const [visibility, setVisibility] = useState<Visibility>(repo.visibility);
     const history = useHistory();
+    console.log(repo);
 
     function onChange(event : React.ChangeEvent<HTMLInputElement>) {
         switch (event.target.name) {
