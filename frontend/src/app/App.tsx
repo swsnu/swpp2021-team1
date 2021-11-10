@@ -72,13 +72,13 @@ export default function App() {
                                         />
                                         <Route
                                             exact
-                                            path="/repos/:repo_id/posts"
-                                            component={PostList}
+                                            path="/repos/:repo_id/posts/create"
+                                            render={() => <PostCreate mode="create/repo" />}
                                         />
                                         <Route
-                                            path="/main/repos/:repo_id/posts/create"
                                             exact
-                                            render={() => <PostCreate mode="create/repo" />}
+                                            path="/repos/:repo_id/posts"
+                                            component={PostList}
                                         />
                                         <Route
                                             path="/main/:user/create"

@@ -19,10 +19,6 @@ import PCPhotoSelect from "./PCPhotoSelect";
 interface PostcreateProps {
     mode: "create/user" | "create/repo" | "edit"
 }
-function useQuery() {
-    const { search } = useLocation();
-    return React.useMemo(() => new URLSearchParams(search), [search]);
-}
 
 export default function Postcreate(props : PostcreateProps) {
     const [loading, setLoading] = useState<"pending" | "idle" | "succeeded" | "failed">("idle");
@@ -39,7 +35,8 @@ export default function Postcreate(props : PostcreateProps) {
     const [selectedRepoId, setSelectedRepoId] = useState<number>(-1);
     const [submitEnabled, setSubmitEnabled] = useState<boolean>(false);
 
-    const repoId = useQuery().get("repo_id"); // Only in "create/repo"
+    const params = useParams<{repo_id: string | undefined, post_id: string | undefined}>();
+
     const [currentPost, setCurrentPost] = useState<IPost | null>(null); // Only in "edit"
 
     const onRepoSelect = (e: FormEvent<HTMLSelectElement>): void =>
@@ -63,10 +60,10 @@ export default function Postcreate(props : PostcreateProps) {
             data.forEach((repo) => results.push(getPhotos(repo.repo_id)));
             setAllPhotos((await Promise.all(results)).flat());
             if (props.mode === "create/repo") {
-                if (repoId) setSelectedRepoId(parseInt(repoId));
+                if (params.repo_id) setSelectedRepoId(parseInt(params.repo_id));
             }
             else if (props.mode === "edit") {
-                const postId = parseInt(useParams<{post_id: string}>().post_id);
+                const postId = parseInt(params.post_id as string);
                 setCurrentPost(await getPost(postId));
                 setTitle(currentPost?.title as string);
                 setText(currentPost?.text as string);
