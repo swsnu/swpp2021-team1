@@ -37,7 +37,7 @@ def session(request):
 
         friends = []
         for friend in session_user.friends.all():
-            if friend.profile_picture == None:
+            if not bool(friend.profile_picture):
                 friends.append({
                     'username' : friend.username,
                     'bio' : friend.bio,
@@ -58,7 +58,7 @@ def session(request):
             'email' : session_user.email,
             'friends' : friends,
         }
-        if session_user.profile_picture != None:
+        if bool(session_user.profile_picture):
             response_dict['profile_picture'] = session_user.profile_picture.url
 
         return HttpResponseSuccessGet(response_dict)
@@ -85,7 +85,7 @@ def signin(request):
 
         friends = []
         for friend in user_signin.friends.all():
-            if friend.profile_picture == None:
+            if not bool(friend.profile_picture):
                 friends.append({
                     'username' : friend.username,
                     'bio' : friend.bio,
@@ -106,7 +106,7 @@ def signin(request):
             'email' : request.user.email,
             'friends' : friends,
         }
-        if request.user.profile_picture != None:
+        if bool(request.user.profile_picture):
             response_dict['profile_picture'] = request.user.profile_picture.url
 
         return HttpResponseSuccessUpdate(response_dict)
@@ -270,7 +270,7 @@ def userID(request, user_name):
             'bio' : user.bio,
             'email' : user.email,
         }
-        if user.profile_picture != None:
+        if bool(user.profile_picture):
             response_dict['profile_picture'] = user.profile_picture.url
         return HttpResponseSuccessUpdate(response_dict)
             
@@ -282,7 +282,7 @@ def userID(request, user_name):
         
         friends_list = []
         for friend in user.friends.all():
-            if friend.profile_picture == None:
+            if not bool(friend.profile_picture):
                 friends_list.append({
                     'username' : friend.username,
                     'bio' : friend.bio,
@@ -302,7 +302,7 @@ def userID(request, user_name):
             'email' : user.email,
             'friends' : friends_list,
         }
-        if user.profile_picture != None:
+        if bool(user.profile_picture):
             response_dict_original['profile_picture'] = user.profile_picture.url
 
         response_dict_censored = {
@@ -310,7 +310,7 @@ def userID(request, user_name):
             'bio' : user.bio,
             'visibility' : user.visibility,
         }
-        if user.profile_picture != None:
+        if bool(user.profile_picture):
             response_dict_censored['profile_picture'] = user.profile_picture.url
 
         if request.user.is_authenticated and user_name == request.user.username:
@@ -339,7 +339,7 @@ def userFriends(request, user_name):
         
         friends_list = []
         for friend in user.friends.all():
-            if friend.profile_picture == None:
+            if not bool(friend.profile_picture):
                 friends_list.append({
                     'username' : friend.username,
                     'bio' : friend.bio,
@@ -387,7 +387,7 @@ def userFriendID(request, user_name, friend_name):
 
         friends_list = []
         for friend in from_user.friends.all():
-            if friend.profile_picture == None:
+            if not bool(friend.profile_picture):
                 friends_list.append({
                     'username' : friend.username,
                     'bio' : friend.bio,
@@ -419,7 +419,7 @@ def userFriendID(request, user_name, friend_name):
 
         friends_list = []
         for friend in from_user.friends.all():
-            if friend.profile_picture == None:
+            if not bool(friend.profile_picture):
                 friends_list.append({
                     'username' : friend.username,
                     'bio' : friend.bio,
@@ -489,7 +489,7 @@ def repositories(request):
 
         collaborators_censored = []
         for user in new_repo.collaborators.all():
-            if user.profile_picture == None:
+            if not bool(user.profile_picture):
                 collaborators_censored.append({
                     'username' : user.username,
                     'bio' : user.bio,
@@ -533,7 +533,7 @@ def repositories(request):
                             (repository.visibility == Scope.FRIENDS_ONLY and have_common_user(current_user.friends.all(), repository.collaborators.all()) ) ):
                     collaborator_list = []
                     for user in repository.collaborators.all():
-                        if user.profile_picture == None:
+                        if not bool(user.profile_picture):
                             collaborator_list.append({
                                 'username' : user.username,
                                 'bio' : user.bio,
@@ -574,7 +574,7 @@ def repositories(request):
                             have_common_user(current_user.friends.all(), repository.collaborators.all()) ) ):
                     collaborator_list = []
                     for user in repository.collaborators.all():
-                        if user.profile_picture == None:
+                        if not bool(user.profile_picture):
                             collaborator_list.append({
                                 'username' : user.username,
                                 'bio' : user.bio,
@@ -620,7 +620,7 @@ def repositoryID(request, repo_id):
             
             collaborator_list = []
             for user in repository.collaborators.all():
-                if user.profile_picture == None:
+                if not bool(user.profile_picture):
                     collaborator_list.append({
                         'username' : user.username,
                         'bio' : user.bio,
@@ -709,7 +709,7 @@ def repositoryID(request, repo_id):
 
         collaborators = []
         for user in repository.collaborators.all():
-            if user.profile_picture == None:
+            if not bool(user.profile_picture):
                 collaborators.append({
                     'username' : user.username,
                     'bio' : user.bio,
@@ -753,7 +753,7 @@ def repositoryCollaborators(request, repo_id):
             
             collaborator_list = []
             for user in repository.collaborators.all():
-                if user.profile_picture == None:
+                if not bool(user.profile_picture):
                     collaborator_list.append({
                         'username' : user.username,
                         'bio' : user.bio,
@@ -799,7 +799,7 @@ def repositoryCollaborators(request, repo_id):
 
         collaborator_list = []
         for user in repository.collaborators.all():
-            if user.profile_picture == None:
+            if not bool(user.profile_picture):
                 collaborator_list.append({
                     'username' : user.username,
                     'bio' : user.bio,
@@ -835,7 +835,7 @@ def repositoryCollaboratorID(request, repo_id, collaborator_name):
 
         collaborator_list = []
         for user in repository.collaborators.all():
-            if user.profile_picture == None:
+            if not bool(user.profile_picture):
                 collaborator_list.append({
                     'username' : user.username,
                     'bio' : user.bio,
@@ -881,7 +881,7 @@ def discussions(request, repo_id):
             'username' : new_discussion.author.username,
             'bio' : new_discussion.author.bio,
         }
-        if new_discussion.author.profile_picture != None:
+        if bool(new_discussion.author.profile_picture):
             author_info['profile_picture'] = new_discussion.author.profile_picture.url
         response_dict = {
             'discussion_id' : new_discussion.discussion_id,
@@ -943,7 +943,7 @@ def discussionID(request, discussion_id):
                 'username' : comment.author.username,
                 'bio' : comment.author.bio,
             }
-            if comment.author.profile_picture != None:
+            if bool(comment.author.profile_picture):
                 author_info['profile_picture'] = comment.author.profile_picture.url
             comment_list.append({
                 'comment_id' : comment.discussion_comment_id,
@@ -957,7 +957,7 @@ def discussionID(request, discussion_id):
             'username' : discussion.author.username,
             'bio' : discussion.author.bio,
         }
-        if discussion.author.profile_picture != None:
+        if bool(discussion.author.profile_picture):
             author_info['profile_picture'] = discussion.author.profile_picture.url
         response_dict = {
             'discussion_id' : discussion.discussion_id,
@@ -1017,7 +1017,7 @@ def discussionID(request, discussion_id):
                 'username' : comment.author.username,
                 'bio' : comment.author.bio,
             }
-            if comment.author.profile_picture != None:
+            if bool(comment.author.profile_picture):
                 author_info['profile_picture'] = comment.author.profile_picture.url
             comment_list.append({
                 'comment_id' : comment.discussion_comment_id,
@@ -1031,7 +1031,7 @@ def discussionID(request, discussion_id):
             'username' : discussion.author.username,
             'bio' : discussion.author.bio,
         }
-        if discussion.author.profile_picture != None:
+        if bool(discussion.author.profile_picture):
             author_info['profile_picture'] = discussion.author.profile_picture.url
         response_dict = {
             'discussion_id' : discussion.discussion_id,
@@ -1078,7 +1078,7 @@ def discussionComments(request, discussion_id):
                 'username' : comment.author.username,
                 'bio' : comment.author.bio,
             }
-            if comment.author.profile_picture != None:
+            if bool(comment.author.profile_picture):
                 author_info['profile_picture'] = comment.author.profile_picture.url
             comment_list.append({
                 'comment_id' : comment.discussion_comment_id,
@@ -1108,7 +1108,7 @@ def discussionComments(request, discussion_id):
                 'username' : comment.author.username,
                 'bio' : comment.author.bio,
             }
-            if comment.author.profile_picture != None:
+            if bool(comment.author.profile_picture):
                 author_info['profile_picture'] = comment.author.profile_picture.url
             comment_list.append({
                 'comment_id' : comment.discussion_comment_id,
@@ -1151,7 +1151,7 @@ def discussionCommentID(request, discussion_id, discussion_comment_id):
             'username' : comment.author.username,
             'bio' : comment.author.bio,
         }
-        if comment.author.profile_picture != None:
+        if bool(comment.author.profile_picture):
             author_info['profile_picture'] = comment.author.profile_picture.url
         response_dict = {
             'comment_id' : comment.discussion_comment_id,
@@ -1190,7 +1190,7 @@ def discussionCommentID(request, discussion_id, discussion_comment_id):
                 'username' : comment.author.username,
                 'bio' : comment.author.bio,
             }
-            if comment.author.profile_picture != None:
+            if bool(comment.author.profile_picture):
                 author_info['profile_picture'] = comment.author.profile_picture.url
             comment_list.append({
                 'comment_id' : comment.discussion_comment_id,
@@ -1239,7 +1239,7 @@ def discussionCommentID(request, discussion_id, discussion_comment_id):
                 'username' : comment.author.username,
                 'bio' : comment.author.bio,
             }
-            if comment.author.profile_picture != None:
+            if bool(comment.author.profile_picture):
                 author_info['profile_picture'] = comment.author.profile_picture.url
             comment_list.append({
                 'comment_id' : comment.discussion_comment_id,
@@ -1357,7 +1357,7 @@ def repoPosts(request, repo_id):
             'username' : new_post.author.username,
             'bio' : new_post.author.bio,
         }
-        if new_post.author.profile_picture != None:
+        if bool(new_post.author.profile_picture):
             author_info['profile_picture'] = new_post.author.profile_picture.url
         response_dict = {
             'post_id' : new_post.post_id,
@@ -1434,7 +1434,7 @@ def postID(request, post_id):
             'username' : post.author.username,
             'bio' : post.author.bio,
         }
-        if post.author.profile_picture != None:
+        if bool(post.author.profile_picture):
             author_info['profile_picture'] = post.author.profile_picture.url
 
         comment_list = []
@@ -1443,7 +1443,7 @@ def postID(request, post_id):
                 'username' : comment.author.username,
                 'bio' : comment.author.bio,
             }
-            if comment.author.profile_picture != None:
+            if bool(comment.author.profile_picture):
                 author_info['profile_picture'] = comment.author.profile_picture.url
             comment_list.append({
                 'comment_id' : comment.post_comment_id,
@@ -1551,7 +1551,7 @@ def postID(request, post_id):
             'username' : post.author.username,
             'bio' : post.author.bio,
         }
-        if post.author.profile_picture != None:
+        if bool(post.author.profile_picture):
             author_info['profile_picture'] = post.author.profile_picture.url
 
         comment_list = []
@@ -1560,7 +1560,7 @@ def postID(request, post_id):
                 'username' : comment.author.username,
                 'bio' : comment.author.bio,
             }
-            if comment.author.profile_picture != None:
+            if bool(comment.author.profile_picture):
                 author_info['profile_picture'] = comment.author.profile_picture.url
             comment_list.append({
                 'comment_id' : comment.post_comment_id,
@@ -1618,7 +1618,7 @@ def postComments(request, post_id):
                 'username' : comment.author.username,
                 'bio' : comment.author.bio,
             }
-            if comment.author.profile_picture != None:
+            if bool(comment.author.profile_picture):
                 author_info['profile_picture'] = comment.author.profile_picture.url
             comment_list.append({
                 'comment_id' : comment.post_comment_id,
@@ -1648,7 +1648,7 @@ def postComments(request, post_id):
                 'username' : comment.author.username,
                 'bio' : comment.author.bio,
             }
-            if comment.author.profile_picture != None:
+            if bool(comment.author.profile_picture):
                 author_info['profile_picture'] = comment.author.profile_picture.url
             comment_list.append({
                 'comment_id' : comment.post_comment_id,
@@ -1689,7 +1689,7 @@ def postCommentID(request, post_id, post_comment_id):
                 'username' : comment.author.username,
                 'bio' : comment.author.bio,
             }
-        if comment.author.profile_picture != None:
+        if bool(comment.author.profile_picture):
             author_info['profile_picture'] = comment.author.profile_picture.url
         response_dict = {
             'comment_id' : comment.post_comment_id,
@@ -1728,7 +1728,7 @@ def postCommentID(request, post_id, post_comment_id):
                 'username' : comment.author.username,
                 'bio' : comment.author.bio,
             }
-            if comment.author.profile_picture != None:
+            if bool(comment.author.profile_picture):
                 author_info['profile_picture'] = comment.author.profile_picture.url
             comment_list.append({
                 'comment_id' : comment.post_comment_id,
@@ -1776,7 +1776,7 @@ def postCommentID(request, post_id, post_comment_id):
                 'username' : comment.author.username,
                 'bio' : comment.author.bio,
             }
-            if comment.author.profile_picture != None:
+            if bool(comment.author.profile_picture):
                 author_info['profile_picture'] = comment.author.profile_picture.url
             comment_list.append({
                 'comment_id' : comment.post_comment_id,
