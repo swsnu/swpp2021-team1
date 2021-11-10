@@ -4,6 +4,7 @@ import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
 import { useAppDispatch } from "../../app/hooks";
 import { IUser } from "../../common/Interfaces";
+import avatar from "../../common/assets/avatar.jpg";
 
 interface FriendProps {
     friend : IUser;
@@ -22,7 +23,7 @@ export default function Friend(props : FriendProps) {
                 <div className="flex-shrink-0">
                     <Image
                         id="profile-image"
-                        src={friend.profile_picture}
+                        src={friend.profile_picture ? friend.profile_picture : avatar}
                         roundedCircle
                         width="100px"
                         height="100px"

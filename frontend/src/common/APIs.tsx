@@ -26,7 +26,9 @@ export async function postUsers(user : IUser) {
 }
 
 export async function getUser(username : string) {
-    return (await axios.get<any, AxiosResponse<IUser>>(`/api/users/${username}/`)).data;
+    const { data } = await axios.get<any, AxiosResponse<IUser>>(`/api/users/${username}/`);
+    console.log(data);
+    return data;
 }
 
 export async function putUser(user : IUser) {

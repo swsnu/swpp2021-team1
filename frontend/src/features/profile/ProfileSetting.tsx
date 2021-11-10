@@ -6,6 +6,8 @@ import { useHistory } from "react-router";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { updateProfile } from "../auth/authSlice";
 
+import avatar from "../../common/assets/avatar.jpg";
+
 interface ProfileSettingProps {
 
 }
@@ -61,7 +63,7 @@ export default function ProfileSetting(props : ProfileSettingProps) {
                         />
                         <Image
                             roundedCircle
-                            src={account.profile_picture}
+                            src={account.profile_picture ? account.profile_picture : avatar}
                             width="150px"
                             className="mx-3 mb-2"
                         />

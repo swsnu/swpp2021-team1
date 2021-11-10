@@ -35,7 +35,7 @@ export default function Profile(props: ProfileProps) {
             (user === currentUser?.username && currentUser?.username !== account?.username)) {
             switchToUser();
         }
-    }, [user]);
+    }, [dispatch]);
 
     useEffect(() => {
         const fetchAndSetFriendList = async (username: string) => {
@@ -93,7 +93,7 @@ export default function Profile(props: ProfileProps) {
                         {currentUser ? currentUser.username : "error"}
                     </h4>
                     <p id="username" className="small text-muted mb-0">
-                        @
+
                         {currentUser && currentUser.real_name ? currentUser.real_name : ""}
                     </p>
                 </div>
@@ -112,7 +112,7 @@ export default function Profile(props: ProfileProps) {
                         {friendList.length === 1 ? "" : "s"}
                     </Button>
                     <FriendList
-                        currentUser={currentUser && currentUser.real_name ? currentUser.real_name : ""}
+                        currentUser={currentUser ? currentUser.username : ""}
                         modalShow={friendModalShow}
                         friendList={friendList}
                         handleClose={onClose}
