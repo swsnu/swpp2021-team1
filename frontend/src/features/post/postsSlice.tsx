@@ -1,5 +1,9 @@
-import { createAsyncThunk, createEntityAdapter, createSlice } from "@reduxjs/toolkit";
-import store, { RootState } from "../../app/store";
+import {
+    createAsyncThunk, createEntityAdapter, createSlice, EntityState,
+} from "@reduxjs/toolkit";
+import { ReactReduxContext } from "react-redux";
+import { useContext } from "react";
+import { RootState } from "../../app/store";
 import { IComment, IPost } from "../../common/Interfaces";
 import {
     getPostComments, getPostComment, postPostComment, putPostComment, deletePostComment,
@@ -221,12 +225,18 @@ export const postsSlice = createSlice({
         builder.addCase(postCommentDeleted.rejected, (state, action) => {
             state.loading = "failed";
         });
+        builder.addCase(fetchSinglePost.pending, (state, action) => {
+            state.loading = "pending";
+        });
+        builder.addCase(fetchSinglePost.fulfilled, (state, action) => {
+            state.currentPost = action.payload;
+            state.loading = "succeeded";
+        });
+        builder.addCase(fetchSinglePost.rejected, (state, action) => {
+            state.loading = "failed";
+        });
     },
 });
 
 export default postsSlice.reducer;
-const postsSelectors = postsAdapter.getSelectors<RootState>((state) => state.posts);
-export const allPosts = postsSelectors.selectAll(store.getState());
-export const postLoadingStatus = store.getState().posts.loading;
-export const selectPost = (postId: number) => postsSelectors.selectById(store.getState(), postId);
-export const selectPostsTotal = postsSelectors.selectTotal;
+export const postsSelectors = postsAdapter.getSelectors<RootState>((state) => state.posts);

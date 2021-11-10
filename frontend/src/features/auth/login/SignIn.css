@@ -6,8 +6,13 @@
 }
 
 #form-container {
+  position: relative;
+  top: 30%;
   margin: auto;
+  width: -moz-fit-content;
   width: fit-content;
+  height: fit-content;
+  height: -moz-fit-content;
   background-color: rgba(256, 256, 256, 0.8);
   border-radius: 50px;
 }

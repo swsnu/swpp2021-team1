@@ -1,5 +1,5 @@
 :root {
-  box-sizing: content-box;
+  box-sizing: border-box;
   --primary: #f69d72;
   --primary-dark: #e08a60;
   --divider: #dedede;

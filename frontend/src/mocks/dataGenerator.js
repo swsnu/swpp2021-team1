@@ -37,7 +37,7 @@ class Factory {
         title: faker.lorem.sentence(),
         text: faker.lorem.paragraph(),
         post_time: faker.date.past().toISOString().match(/....-..-../),
-        images: [],
+        photos: [],
         comments: [],
     });
 
@@ -101,11 +101,11 @@ class Factory {
         const post = this.post();
         const n1 = faker.datatype.number({ min: 3, max: 10 });
         for (let index = 0; index < n1; index += 1) {
-            post.images.push(faker.datatype.number());
+            post.photos.push(this.photo());
         }
         const n2 = faker.datatype.number({ min: 0, max: 8 });
         for (let index = 0; index < n2; index += 1) {
-            post.images.push(this.comment());
+            post.comments.push(this.comment());
         }
         return post;
     }

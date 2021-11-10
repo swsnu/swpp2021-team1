@@ -5,7 +5,6 @@ import reposReducer, { ReposState } from "../features/repository/reposSlice";
 import postsReducer from "../features/post/postsSlice";
 import photosReducer from "../features/photo/photosSlice";
 import discussionsReducer from "../features/discussion/discussionsSlice";
-import commentsReducer from "../features/comments/commentsSlice";
 
 const store = configureStore({
     reducer: {
@@ -14,7 +13,6 @@ const store = configureStore({
         posts: postsReducer,
         photos: photosReducer,
         discussions: discussionsReducer,
-        comments: commentsReducer,
     /*
         repositories : filtersReducer,
         posts :

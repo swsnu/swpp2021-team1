@@ -35,7 +35,7 @@ export default function FriendList(props : FriendListProps) {
             </Modal.Header>
             <Modal.Body>
                 <ListGroup>
-                    {props.friendList.map((friend) => <Friend friend={friend} />)}
+                    {props.friendList.map((friend) => <Friend friend={friend} key={friend.username} />)}
                 </ListGroup>
             </Modal.Body>
         </Modal>
