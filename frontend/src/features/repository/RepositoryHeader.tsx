@@ -28,7 +28,7 @@ export default function RepositoryHeader() {
     if (hasError) return (<div>404 Error : You cannot watch this repository.</div>);
     if (!currentRepo) return (<div>Unexpected Error!</div>);
     return (
-        <a href={`/repos/${currentRepo.repo_id}`} className="text-decoration-none">
+        <a href={`/repos/${currentRepo.repo_id}`} className="text-decoration-none text-black">
             <h2 className="mt-4">{currentRepo.repo_name}</h2>
             <h6 className="mt-2">{`${currentRepo.travel_start_date} ~ ${currentRepo.travel_end_date}`}</h6>
         </a>
