@@ -27,7 +27,7 @@ function Sidebar(props: SidebarProps) {
 
     useEffect(() => {
         dispatch(actionCreators.fetchSession());
-    });
+    }, []);
 
     if (isLoading) return null;
     if (hasError) {
