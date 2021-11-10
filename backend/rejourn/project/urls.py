@@ -1,10 +1,7 @@
 from django.urls import path
 
-from project.views.userAPI import userViews
-from project.views.repositoryAPI import repositoryViews
-from project.views.discussionAPI import discussionViews
-from project.views.postAPI import postViews
-from project.views.photoAPI import photoViews
+from project.views import userViews, repositoryViews, discussionViews, postViews, photoViews
+
 
 urlpatterns = [
 
