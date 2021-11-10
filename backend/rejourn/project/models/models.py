@@ -1,27 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models.fields import CharField, DateTimeField
-from .enum import Scope
+from project.enum import Scope
 from django.utils import timezone
-from uuid import uuid4
-import os
-
-# util function
-def profile_upload_to_func(instance, filename):
-    prefix = timezone.now().strftime("%Y/%m/%d")
-    file_name = uuid4().hex
-    extension = os.path.splitext(filename)[1].lower()
-    return "/".join(
-        ["profiles", prefix, file_name, extension,]
-    )
-
-def photo_upload_to_func(instance, filename):
-    prefix = timezone.now().strftime("%Y/%m/%d")
-    file_name = uuid4().hex
-    extension = os.path.splitext(filename)[1].lower()
-    return "/".join(
-        ["photos", prefix, file_name, extension,]
-    )
+from project.utils import profile_upload_to_func, photo_upload_to_func
 
 
 class User(AbstractUser):
