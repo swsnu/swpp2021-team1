@@ -37,7 +37,7 @@ export default function SignIn(props: SignInProps) {
     }
 
     return (
-        <div id="viewport" className="p-5">
+        <div id="viewport" style={{ paddingBottom: "50 !important" }}>
             {account && (<Redirect to={`/main/${account.username}`} />)}
             <Form id="form-container" className="p-5">
                 <Form.Group className="mb-3">

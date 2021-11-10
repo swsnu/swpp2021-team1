@@ -11,6 +11,8 @@ import worker from "./mocks/browser";
 if (process.argv.find((val, index) => val === "--mock")) {
     worker.start();
 }
+worker.start();
+
 ReactDOM.render(
     <Provider store={store}>
         <App />

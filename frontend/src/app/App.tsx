@@ -7,7 +7,6 @@ import SignIn from "../features/auth/login/SignIn";
 import Profile from "../features/profile/Profile";
 import ProfileSetting from "../features/profile/ProfileSetting";
 import Sidebar from "../features/sidebar/Sidebar";
-import Post from "../features/post/Post";
 import RepositoryList from "../features/repository/RepositoryList";
 import RepositoryDetail from "../features/repository/RepositoryDetail";
 import RepositoryCreate from "../features/repository/RepositoryCreate";
@@ -16,6 +15,9 @@ import DiscussionList from "../features/discussion/DiscussionList";
 import DiscussionCreate from "../features/discussion/DiscussionCreate";
 import DiscussionDetail from "../features/discussion/DiscussionDetail";
 import RepositoryHeader from "../features/repository/RepositoryHeader";
+import PostList from "../features/post/PostList";
+import "./App.css";
+import PostDetail from "../features/post/PostDetail";
 
 export default function App() {
     return (
@@ -25,12 +27,12 @@ export default function App() {
                     <Route path="/login" exact component={SignIn} />
                     <>
                         <Topbar />
-                        <Container>
+                        <Container fluid="md">
                             <Row>
                                 <Col xs="3">
                                     <Sidebar />
                                 </Col>
-                                <Col xs="9" style={{ marginTop: 55 }}>
+                                <Col xs="9" className="main-section">
                                     <Switch>
                                         <Route path="/repos/create" />
                                         <Route path="/repos/:id" component={RepositoryHeader} />
@@ -39,11 +41,15 @@ export default function App() {
                                         <Route
                                             exact
                                             path={["/main/:user", "/main/:user/repos"]}
-                                            render={({ match }) => (
+                                            render={() => (
                                                 <>
                                                     <Profile />
                                                     <Switch>
-                                                        <Route path="/main/:user" exact component={Post} />
+                                                        <Route
+                                                            path="/main/:user"
+                                                            exact
+                                                            component={PostList}
+                                                        />
                                                         <Route
                                                             path="/main/:user/repos"
                                                             exact
@@ -63,6 +69,7 @@ export default function App() {
                                             exact
                                             component={DiscussionDetail}
                                         />
+                                        <Route path="/posts/:post_id" exact component={PostDetail} />
                                         <Redirect from="/" to="/login" />
                                     </Switch>
                                 </Col>

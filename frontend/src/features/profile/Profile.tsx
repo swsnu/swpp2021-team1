@@ -90,11 +90,11 @@ export default function Profile(props: ProfileProps) {
                         id="real-name"
                         className="me-2 mb-0"
                     >
-                        {currentUser && currentUser.real_name ? currentUser.real_name : ""}
+                        {currentUser ? currentUser.username : "error"}
                     </h4>
                     <p id="username" className="small text-muted mb-0">
                         @
-                        {currentUser ? currentUser.username : "error"}
+                        {currentUser && currentUser.real_name ? currentUser.real_name : ""}
                     </p>
                 </div>
                 <p className="card-text mb-0">
