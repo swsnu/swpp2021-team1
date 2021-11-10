@@ -711,7 +711,7 @@ class PostTestCase(TestCase):
         response = client.get(
             '/api/users/U1_USERNAME/posts/',
         )
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 200)
 
         response = client.post(
             '/api/signin/',
@@ -726,6 +726,7 @@ class PostTestCase(TestCase):
         response = client.get(
             '/api/users/U1_USERNAME/posts/',
         )
+
         self.assertEqual(response.status_code, 200)
         self.assertIn('P1_TITLE', response.content.decode())
         self.assertIn('U1_USERNAME', response.content.decode())
@@ -741,7 +742,7 @@ class PostTestCase(TestCase):
         response = client.get(
             '/api/users/U2_USERNAME/posts/',
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 200)
 
     def test_repoPosts_post(self):
         client = Client()
@@ -797,7 +798,7 @@ class PostTestCase(TestCase):
         response = client.get(
             '/api/repositories/1/posts/',
         )
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 403)
 
         response = client.post(
             '/api/signin/',
@@ -836,7 +837,7 @@ class PostTestCase(TestCase):
         response = client.get(
             '/api/posts/1/',
         )
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 403)
 
         response = client.post(
             '/api/signin/',

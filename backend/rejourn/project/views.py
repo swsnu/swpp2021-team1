@@ -530,7 +530,8 @@ def repositories(request):
 
             for repository in collaborator.repositories.all():
                 if ( (current_user in repository.collaborators.all()) or (repository.visibility == Scope.PUBLIC) or
-                            (repository.visibility == Scope.FRIENDS_ONLY and have_common_user(current_user.friends.all(), repository.collaborators.all()) ) ):
+                            (repository.visibility == Scope.FRIENDS_ONLY
+                            and have_common_user(current_user.friends.all(), repository.collaborators.all()) ) ):
                     collaborator_list = []
                     for user in repository.collaborators.all():
                         if not bool(user.profile_picture):
@@ -616,7 +617,8 @@ def repositoryID(request, repo_id):
             return HttpResponseNoPermission()
 
         if ( ( repository.visibility == Scope.PUBLIC ) or ( request.user in repository.collaborators.all() ) 
-                or ( repository.visibility == Scope.FRIENDS_ONLY and have_common_user(request.user.friends.all(), repository.collaborators.all()) ) ):
+                or ( repository.visibility == Scope.FRIENDS_ONLY 
+                and have_common_user(request.user.friends.all(), repository.collaborators.all()) ) ):
             
             collaborator_list = []
             for user in repository.collaborators.all():
@@ -793,7 +795,7 @@ def repositoryCollaborators(request, repo_id):
         except(User.DoesNotExist) as e:
             return HttpResponseInvalidInput()
 
-        for user in new_collaborators.all():
+        for user in new_collaborators:
             repository.collaborators.add(user)
         repository.save()
 
@@ -908,14 +910,19 @@ def discussions(request, repo_id):
 
         discussion_list = []
             
-        discussion_filtered = Discussion.objects.filter(repository=repository)
-        for discussion in discussion_filtered:
+        for discussion in Discussion.objects.filter(repository=repository):
+            author_info = {
+                'username' : discussion.author.username,
+                'bio' : discussion.author.bio,
+            }
+            if bool(discussion.author.profile_picture):
+                author_info['profile_picture'] = discussion.author.profile_picture.url
             discussion_list.insert(0, {
-                'discussion_id': discussion.discussion_id,
-                'repo_id': discussion.repository.repo_id,
-                'author': discussion.author.username,
-                'title': discussion.title,
-                'post_time': discussion.post_time.strftime('%Y-%m-%d %H:%M:%S')
+                'discussion_id' : discussion.discussion_id,
+                'repo_id' : discussion.repository.repo_id,
+                'author' : author_info,
+                'title' : discussion.title,
+                'post_time' : discussion.post_time.strftime('%Y-%m-%d %H:%M:%S')
             })
         return HttpResponseSuccessGet(discussion_list)
     else:
@@ -1265,8 +1272,7 @@ def userPosts(request, user_name):
         post_list = []
         for post in Post.objects.filter(author=user):
             repository = post.repository
-
-            if not ( ( repository.visibility == Scope.PUBLIC ) or ( request.user in repository.collaborators.all() ) 
+            if ( ( repository.visibility == Scope.PUBLIC ) or ( request.user in repository.collaborators.all() ) 
                     or ( repository.visibility == Scope.FRIENDS_ONLY 
                     and have_common_user(request.user.friends.all(), repository.collaborators.all()) ) ):
         
@@ -1278,10 +1284,17 @@ def userPosts(request, user_name):
                         'image' : photo_order.photo.image_file.url,
                     })
 
+                author_info = {
+                    'username' : post.author.username,
+                    'bio' : post.author.bio,
+                }
+                if bool(post.author.profile_picture):
+                    author_info['profile_picture'] = post.author.profile_picture.url
+
                 post_list.insert(0, {
                     'post_id' : post.post_id,
                     'repo_id' : post.repository.repo_id,
-                    'author' : post.author.username,
+                    'author' : author_info,
                     'title' : post.title,
                     'post_time' : post.post_time.strftime('%Y-%m-%d %H:%M:%S'),
                     'photos' : photo_list,
@@ -1394,13 +1407,20 @@ def repoPosts(request, repo_id):
                     'image' : photo_order.photo.image_file.url,
                 })
 
+            author_info = {
+                'username' : post.author.username,
+                'bio' : post.author.bio,
+            }
+            if bool(post.author.profile_picture):
+                author_info['profile_picture'] = post.author.profile_picture.url
+
             post_list.insert(0, {
                 'post_id' : post.post_id,
                 'repo_id' : post.repository.repo_id,
-                'author' : post.author.username,
+                'author' : author_info,
                 'title' : post.title,
                 'post_time' : post.post_time.strftime('%Y-%m-%d %H:%M:%S'),
-                'photos' : photo_list
+                'photos' : photo_list,
             })
         return HttpResponseSuccessGet(post_list)
         
