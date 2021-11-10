@@ -164,13 +164,7 @@ export async function getRepositoryPosts(repo_id: number) {
     )).data;
 }
 
-interface ILocalPhoto {
-    photo_id: number,
-    local_tag: string,
-    image: string
-}
-
-export async function postPost(repo_id: number, post: {title: string, text: string, photos: ILocalPhoto[]}) {
+export async function postPost(repo_id: number, post: {title: string, text: string, photos: IPhoto[]}) {
     return (await axios.post<any, AxiosResponse<IPost>>(
         `/api/respositories/${repo_id}/posts/`, post,
     )).data;
@@ -182,7 +176,7 @@ export async function getPost(post_id: number) {
     )).data;
 }
 
-export async function putPost(post_id: number, title: string, text: string, photos: ILocalPhoto[]) {
+export async function putPost(post_id: number, title: string, text: string, photos: IPhoto[]) {
     return (await axios.put<any, AxiosResponse<IPost>>(
         `/api/posts/${post_id}/`, { title, text, photos },
     )).data;

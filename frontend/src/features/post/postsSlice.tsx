@@ -4,7 +4,7 @@ import {
 import { ReactReduxContext } from "react-redux";
 import { useContext } from "react";
 import { RootState } from "../../app/store";
-import { IComment, IPost } from "../../common/Interfaces";
+import { IComment, IPhoto, IPost } from "../../common/Interfaces";
 import {
     getPostComments, getPostComment, postPostComment, putPostComment, deletePostComment,
     getUserPosts, getRepositoryPosts, postPost, getPost, putPost, deletePost,
@@ -61,12 +61,6 @@ export const postCommentDeleted = createAsyncThunk<{postId: number, comments: IC
         },
     );
 
-interface ILocalPhoto {
-    photo_id: number,
-    local_tag: string,
-    image: string
-}
-
 export const fetchUserPosts = createAsyncThunk<IPost[], string>(
     "post/fetchUserPosts",
     async (username: string) => (await getUserPosts(username)),
@@ -78,7 +72,7 @@ export const fetchRepoPosts = createAsyncThunk<IPost[], number>(
 );
 
 export const newRepoPost = createAsyncThunk<
-IPost, {repo_id: number, title: string, text: string, photos: ILocalPhoto[]}>(
+IPost, {repo_id: number, title: string, text: string, photos: IPhoto[]}>(
     "post/newRepoPost",
     async ({
         repo_id, title, text, photos,
@@ -91,7 +85,7 @@ export const fetchSinglePost = createAsyncThunk<IPost, number>(
 );
 
 export const postEdited = createAsyncThunk<IPost, {
-    post_id: number, title: string, text: string, photos: ILocalPhoto[]
+    post_id: number, title: string, text: string, photos: IPhoto[]
 }>(
     "post/postEdited",
     async ({
@@ -138,48 +132,48 @@ export const postsSlice = createSlice({
         builder.addCase(fetchRepoPosts.rejected, (state, action) => {
             state.loading = "failed";
         });
-        builder.addCase(newRepoPost.pending, (state, action) => {
-            state.loading = "pending";
-        });
+        // builder.addCase(newRepoPost.pending, (state, action) => {
+        //     state.loading = "pending";
+        // });
         builder.addCase(newRepoPost.fulfilled, (state, action) => {
             postsAdapter.addOne(state, action.payload);
-            state.loading = "succeeded";
+            // state.loading = "succeeded";
         });
-        builder.addCase(newRepoPost.rejected, (state, action) => {
-            state.loading = "failed";
-        });
-        builder.addCase(postEdited.pending, (state, action) => {
-            state.loading = "pending";
-        });
+        // builder.addCase(newRepoPost.rejected, (state, action) => {
+        //     state.loading = "failed";
+        // });
+        // builder.addCase(postEdited.pending, (state, action) => {
+        //     state.loading = "pending";
+        // });
         builder.addCase(postEdited.fulfilled, (state, action) => {
             postsAdapter.setOne(state, action.payload);
-            state.loading = "succeeded";
+            // state.loading = "succeeded";
         });
-        builder.addCase(postEdited.rejected, (state, action) => {
-            state.loading = "failed";
-        });
-        builder.addCase(postDeleted.pending, (state, action) => {
-            state.loading = "pending";
-        });
+        // builder.addCase(postEdited.rejected, (state, action) => {
+        //     state.loading = "failed";
+        // });
+        // builder.addCase(postDeleted.pending, (state, action) => {
+        //     state.loading = "pending";
+        // });
         builder.addCase(postDeleted.fulfilled, (state, action) => {
-            state.loading = "succeeded";
+            // state.loading = "succeeded";
             postsAdapter.removeOne(state, action.payload);
         });
-        builder.addCase(postDeleted.rejected, (state, action) => {
-            state.loading = "failed";
-        });
+        // builder.addCase(postDeleted.rejected, (state, action) => {
+        //     state.loading = "failed";
+        // });
 
-        builder.addCase(fetchPostComments.pending, (state, action) => {
-            state.loading = "pending";
-        });
+        // builder.addCase(fetchPostComments.pending, (state, action) => {
+        //     state.loading = "pending";
+        // });
         builder.addCase(fetchPostComments.fulfilled, (state, action) => {
             const { postId, comments } = action.payload;
             postsAdapter.updateOne(state, { id: postId, changes: { comments } });
-            state.loading = "succeeded";
+            // state.loading = "succeeded";
         });
-        builder.addCase(fetchPostComments.rejected, (state, action) => {
-            state.loading = "failed";
-        });
+        // builder.addCase(fetchPostComments.rejected, (state, action) => {
+        //     state.loading = "failed";
+        // });
 
         // builder.addCase(fetchPostComment.pending, (state, action) => {
         //     state.loading = "pending";
@@ -192,49 +186,39 @@ export const postsSlice = createSlice({
         //     state.loading = "failed";
         // });
 
-        builder.addCase(newPostComment.pending, (state, action) => {
-            state.loading = "pending";
-        });
+        // builder.addCase(newPostComment.pending, (state, action) => {
+        //     state.loading = "pending";
+        // });
         builder.addCase(newPostComment.fulfilled, (state, action) => {
             const { postId, comments } = action.payload;
             postsAdapter.updateOne(state, { id: postId, changes: { comments } });
-            state.loading = "succeeded";
+            // state.loading = "succeeded";
         });
-        builder.addCase(newPostComment.rejected, (state, action) => {
-            state.loading = "failed";
-        });
-        builder.addCase(postCommentEdited.pending, (state, action) => {
-            state.loading = "pending";
-        });
+        // builder.addCase(newPostComment.rejected, (state, action) => {
+        // });
+        // builder.addCase(postCommentEdited.pending, (state, action) => {
+        // });
         builder.addCase(postCommentEdited.fulfilled, (state, action) => {
             const { postId, comments } = action.payload;
             postsAdapter.updateOne(state, { id: postId, changes: { comments } });
-            state.loading = "succeeded";
         });
-        builder.addCase(postCommentEdited.rejected, (state, action) => {
-            state.loading = "failed";
-        });
-        builder.addCase(postCommentDeleted.pending, (state, action) => {
-            state.loading = "pending";
-        });
+        // builder.addCase(postCommentEdited.rejected, (state, action) => {
+        // });
+        // builder.addCase(postCommentDeleted.pending, (state, action) => {
+        // });
         builder.addCase(postCommentDeleted.fulfilled, (state, action) => {
             const { postId, comments } = action.payload;
             postsAdapter.updateOne(state, { id: postId, changes: { comments } });
-            state.loading = "succeeded";
         });
-        builder.addCase(postCommentDeleted.rejected, (state, action) => {
-            state.loading = "failed";
-        });
-        builder.addCase(fetchSinglePost.pending, (state, action) => {
-            state.loading = "pending";
-        });
+        // builder.addCase(postCommentDeleted.rejected, (state, action) => {
+        // });
+        // builder.addCase(fetchSinglePost.pending, (state, action) => {
+        // });
         builder.addCase(fetchSinglePost.fulfilled, (state, action) => {
             state.currentPost = action.payload;
-            state.loading = "succeeded";
         });
-        builder.addCase(fetchSinglePost.rejected, (state, action) => {
-            state.loading = "failed";
-        });
+        // builder.addCase(fetchSinglePost.rejected, (state, action) => {
+        // });
     },
 });
 

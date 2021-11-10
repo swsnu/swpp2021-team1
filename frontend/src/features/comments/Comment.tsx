@@ -69,45 +69,46 @@ const Comment = (props: CommentProps) => {
                         <p className="comment-text">{comment.text}</p>
                     </div>
                 )}
-            </div>
-            <div className="bg-white">
-                <div className="d-flex flex-row">
-                    {isEditable && (
-                        <>
-                            {mode ? (
+
+                <div className="bg-white">
+                    <div className="d-flex flex-row">
+                        {isEditable && (
+                            <>
+                                {mode ? (
+                                    <div
+                                        className="like p-2 cursor"
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={onEdit}
+                                        onKeyDown={onEdit}
+                                    >
+                                        <span className="ml-1">Commit</span>
+                                    </div>
+                                ) : (
+                                    <div
+                                        className="like p-2 cursor"
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={changeMode}
+                                        onKeyDown={changeMode}
+                                    >
+                                        <FontAwesomeIcon icon="edit" />
+                                        <span className="ml-1">Edit</span>
+                                    </div>
+                                )}
                                 <div
                                     className="like p-2 cursor"
                                     role="button"
                                     tabIndex={0}
-                                    onClick={onEdit}
-                                    onKeyDown={onEdit}
+                                    onClick={del}
+                                    onKeyDown={del}
                                 >
-                                    <span className="ml-1">Commit</span>
+                                    <FontAwesomeIcon icon="trash" />
+                                    <span className="ml-1">Delete</span>
                                 </div>
-                            ) : (
-                                <div
-                                    className="like p-2 cursor"
-                                    role="button"
-                                    tabIndex={0}
-                                    onClick={changeMode}
-                                    onKeyDown={changeMode}
-                                >
-                                    <FontAwesomeIcon icon="edit" />
-                                    <span className="ml-1">Edit</span>
-                                </div>
-                            )}
-                            <div
-                                className="like p-2 cursor"
-                                role="button"
-                                tabIndex={0}
-                                onClick={del}
-                                onKeyDown={del}
-                            >
-                                <FontAwesomeIcon icon="trash" />
-                                <span className="ml-1">Delete</span>
-                            </div>
-                        </>
-                    )}
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
         </>
