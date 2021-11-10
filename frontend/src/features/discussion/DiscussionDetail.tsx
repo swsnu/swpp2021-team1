@@ -10,6 +10,7 @@ import { fetchDiscussion } from "./discussionsSlice";
 import Comment from "../comments/Comment";
 import "../comments/Comments.css";
 import "./DiscussionDetail.css";
+import avatar from "../../common/assets/avatar.jpg";
 
 interface DiscussionDetailProps {
 
@@ -122,6 +123,7 @@ export default function DiscussionDetail(props : DiscussionDetailProps) {
             </div>
             <div className="p-3">
                 <div className="mt-4">
+                    {console.log(currentDiscussion?.comments)}
                     {currentDiscussion?.comments && currentDiscussion.comments.map((value) => (
                         <React.Fragment key={value.comment_id}>
                             <Comment
@@ -139,8 +141,8 @@ export default function DiscussionDetail(props : DiscussionDetailProps) {
                     <div className="bg-light p-2">
                         <div className="d-flex flex-row align-items-start">
                             <img
-                                className="rounded-circle"
-                                src={account?.profile_picture}
+                                className="rounded-circle me-2"
+                                src={account?.profile_picture ? account.profile_picture : avatar}
                                 width="40"
                                 alt="profile"
                             />
@@ -148,6 +150,8 @@ export default function DiscussionDetail(props : DiscussionDetailProps) {
                                 className="form-control ml-1 shadow-none textarea"
                                 onChange={(event) => setComment(event.target.value)}
                                 value={comment}
+                                style={{ height: "75px" }}
+                                placeholder="Comment"
                             />
                         </div>
                         <div className="mt-2 text-right">

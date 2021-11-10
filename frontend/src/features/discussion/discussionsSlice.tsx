@@ -79,7 +79,6 @@ const discussionsSlice = createSlice<DiscussionsState, SliceCaseReducers<Discuss
     initialState: discussionsInitialState,
     reducers: {
         toBeLoaded: (state : DiscussionsState, action: PayloadAction<null>) => {
-            console.log("Hello");
             state.isLoading = true;
         },
         handleError: (state : DiscussionsState, action: PayloadAction<null>) => {
