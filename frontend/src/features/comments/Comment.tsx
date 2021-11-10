@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Form } from "react-bootstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { IComment, IUser } from "../../common/Interfaces";
 import "./Comments.css";
 import avatar from "../../common/assets/avatar.jpg";
@@ -31,7 +32,7 @@ const Comment = (props: CommentProps) => {
 
     return (
         <>
-            <div className="bg-white p-2">
+            <div className="bg-white p-2" style={{ border: "1px solid lightgrey" }}>
 
                 <div className="d-flex flex-row user-info">
                     <img
@@ -81,7 +82,6 @@ const Comment = (props: CommentProps) => {
                                     onClick={onEdit}
                                     onKeyDown={onEdit}
                                 >
-                                    <i className="fa fa-edit-o" />
                                     <span className="ml-1">Commit</span>
                                 </div>
                             ) : (
@@ -92,7 +92,7 @@ const Comment = (props: CommentProps) => {
                                     onClick={changeMode}
                                     onKeyDown={changeMode}
                                 >
-                                    <i className="fa fa-edit-o" />
+                                    <FontAwesomeIcon icon="edit" />
                                     <span className="ml-1">Edit</span>
                                 </div>
                             )}
@@ -103,7 +103,7 @@ const Comment = (props: CommentProps) => {
                                 onClick={del}
                                 onKeyDown={del}
                             >
-                                <i className="fa fa-trash" />
+                                <FontAwesomeIcon icon="trash" />
                                 <span className="ml-1">Delete</span>
                             </div>
                         </>

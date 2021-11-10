@@ -82,7 +82,7 @@ export default function Profile(props: ProfileProps) {
     return (
         <div id="profile-card" className="d-flex mx-auto">
             <div className="flex-shrink-0">
-                <Image id="profile-image" src={profile_picture} roundedCircle alt="profile" />
+                <Image width="100" height="100" id="profile-image" src={profile_picture} roundedCircle alt="profile" />
             </div>
             <div className="flex-grow-1 mx-4">
                 <div className="d-flex align-items-center mb-2">
