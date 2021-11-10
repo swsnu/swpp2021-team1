@@ -1272,8 +1272,7 @@ def userPosts(request, user_name):
         post_list = []
         for post in Post.objects.filter(author=user):
             repository = post.repository
-
-            if not ( ( repository.visibility == Scope.PUBLIC ) or ( request.user in repository.collaborators.all() ) 
+            if ( ( repository.visibility == Scope.PUBLIC ) or ( request.user in repository.collaborators.all() ) 
                     or ( repository.visibility == Scope.FRIENDS_ONLY 
                     and have_common_user(request.user.friends.all(), repository.collaborators.all()) ) ):
         
