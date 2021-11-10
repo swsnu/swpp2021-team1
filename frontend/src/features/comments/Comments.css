@@ -1,29 +1,22 @@
-.date {
-    font-size: 11px
-}
-
-.comment-text {
-    font-size: 12px
-}
 
 .fs-12 {
-    font-size: 12px
+    font-size: 12px !important
 }
 
 .shadow-none {
-    box-shadow: none
+    box-shadow: none !important
 }
 
 .name {
-    color: var(--primary)
+    color: var(--primary) !important
 }
 
 .cursor:hover {
-    color: var(--primary-dark)
+    color: var(--primary-dark) !important
 }
 
 .cursor {
-    cursor: pointer
+    cursor: pointer !important
 }
 
 .textarea {

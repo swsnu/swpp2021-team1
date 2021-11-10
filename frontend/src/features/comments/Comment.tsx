@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { Form } from "react-bootstrap";
 import { IComment, IUser } from "../../common/Interfaces";
 import "./Comments.css";
@@ -31,6 +32,7 @@ const Comment = (props: CommentProps) => {
     return (
         <>
             <div className="bg-white p-2">
+
                 <div className="d-flex flex-row user-info">
                     <img
                         className="rounded-circle me-2"
@@ -40,9 +42,16 @@ const Comment = (props: CommentProps) => {
                         alt="author profile"
                     />
                     <div className="d-flex flex-column justify-content-start ml-2">
-                        <strong className="d-block name text-dark">
-                            {comment.author?.username}
-                        </strong>
+                        <Link
+                            to={`/main/${comment.author?.username}`}
+                            id="author-username"
+                            className="text-decoration-none text-dark"
+                        >
+                            <strong className="d-block name text-dark">
+                                {comment.author?.username}
+                            </strong>
+
+                        </Link>
                         <span className="small text-black-50">{comment.post_time as string}</span>
                     </div>
                 </div>
