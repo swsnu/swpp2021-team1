@@ -25,7 +25,12 @@ function Sidebar(props: SidebarProps) {
 
     useEffect(() => {
         dispatch(actionCreators.fetchSession());
-    });
+        const id = setInterval(() => {
+            dispatch(actionCreators.fetchSession());
+        }, 1000);
+
+        return () => clearInterval(id);
+    }, [dispatch]);
 
     if (isLoading) return null;
     if (hasError) {
