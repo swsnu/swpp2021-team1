@@ -5,7 +5,15 @@ from project.models.models import Post, PostComment, PhotoInPost, Repository, Us
 
 from project.enum import Scope
 
+import shutil
+import tempfile
 
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase, override_settings
+
+MEDIA_ROOT = tempfile.mkdtemp()
+
+@override_settings(MEDIA_ROOT=MEDIA_ROOT)
 class PostTestCase(TestCase):
     def setUp(self):
         User.objects.create_user(username='U1_USERNAME', real_name='U1_REALNAME', 
