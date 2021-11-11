@@ -175,11 +175,13 @@ const PostDetail = (props: PostDetailProps) => {
                             <button
                                 className="btn btn-primary btn-sm shadow-none"
                                 type="button"
-                                onClick={({ target }) =>
+                                onClick={({ target }) => {
                                     dispatch(newPostComment({
                                         postId: currentPost?.post_id as number,
                                         content: comment,
-                                    }))}
+                                    }));
+                                    setComment("");
+                                }}
                                 disabled={comment === ""}
                             >
                                 Post comment
