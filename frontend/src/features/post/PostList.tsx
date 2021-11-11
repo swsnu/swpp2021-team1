@@ -23,25 +23,30 @@ const PostList = (props: PostListProps) => {
     const currentRepo = useAppSelector((state) => state.repos.currentRepo);
     const currentUser = useAppSelector((state) => state.auth.currentUser);
     const { user, repo_id } = useParams<{user: string | undefined, repo_id: string | undefined}>();
-    const [mode, setMode] = useState<"user" | "repo" | "disabled">(user ? "user" : "repo");
+    const [mode, setMode] = useState<"user" | "repo">(user ? "user" : "repo");
+    const [writeEnabled, setWriteEnabled] = useState<boolean>(true);
     useEffect(() => {
         if (mode === "user") {
-            if (user !== account?.username) setMode("disabled");
+            if (user !== account?.username) setWriteEnabled(false);
+            else setWriteEnabled(true);
         }
         if (mode === "repo") {
             if (currentRepo?.owner === account?.username ||
-                currentRepo?.collaborators.find((user) => user.username === account?.username)) setMode("repo");
-            else setMode("disabled");
+                currentRepo?.collaborators.find((user) => user.username === account?.username)) setWriteEnabled(true);
+            else setWriteEnabled(false);
         }
-        if (loading === "idle") {
-            if (mode === "user") {
-                dispatch(fetchUserPosts(user as string));
-            }
-            if (mode === "repo") {
-                dispatch(fetchRepoPosts(parseInt(repo_id as string)));
-            }
+    }, [dispatch, account, user, repo_id]);
+
+    useEffect(() => {
+        if (mode === "user") {
+            setMode("user");
+            dispatch(fetchUserPosts(user as string));
         }
-    }, [account, currentUser]);
+        if (mode === "repo") {
+            setMode("repo");
+            dispatch(fetchRepoPosts(parseInt(repo_id as string)));
+        }
+    }, [user, repo_id]);
 
     let content;
     if (loading === "succeeded") {
@@ -50,8 +55,10 @@ const PostList = (props: PostListProps) => {
                 <div className="row">
                     {posts.map((post) => <Post post={post} key={post.post_id} />)}
                 </div>
-                {mode === "repo" ? <PlusButton linkTo={`/repos/${repo_id as string}/posts/create`} /> : ""}
-                {mode === "user" ? <PlusButton linkTo={`/main/${account?.username}/create`} /> : ""}
+                {mode === "repo" && writeEnabled ?
+                    <PlusButton linkTo={`/repos/${repo_id as string}/posts/create`} /> : ""}
+                {mode === "user" && writeEnabled ?
+                    <PlusButton linkTo={`/main/${account?.username}/create`} /> : ""}
             </div>
         );
     }

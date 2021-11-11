@@ -25,14 +25,14 @@ function Sidebar(props: SidebarProps) {
         [state.auth.isLoading, state.auth.hasError, state.auth.account]);
     const history = useHistory();
 
-    useEffect(() => {
-        dispatch(actionCreators.fetchSession());
-        const id = setInterval(() => {
-            dispatch(actionCreators.fetchSession());
-        }, 1000);
+    // useEffect(() => {
+    //     dispatch(actionCreators.fetchSession());
+    //     const id = setInterval(() => {
+    //         dispatch(actionCreators.fetchSession());
+    //     }, 1000);
 
-        return () => clearInterval(id);
-    }, [dispatch]);
+    //     return () => clearInterval(id);
+    // }, [dispatch]);
 
     if (isLoading) return null;
     if (hasError) {
