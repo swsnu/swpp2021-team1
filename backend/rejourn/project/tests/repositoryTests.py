@@ -90,7 +90,7 @@ class RepositoryTestCase(TestCase):
 
 
     def setUp(self):
-        userA = User(
+        User.objects.create_user(
             username=self.stubUserA['username'],
             real_name=self.stubUserA['real_name'],
             email=self.stubUserA['email'],
@@ -98,8 +98,8 @@ class RepositoryTestCase(TestCase):
             visibility=self.stubUserA['visibility'],
             bio=self.stubUserA['bio']
         )
-        userA.save()
-        userB = User(
+        userA = User.objects.get(username='TEST_USER_A')
+        User.objects.create_user(
             username=self.stubUserB['username'],
             real_name=self.stubUserB['real_name'],
             email=self.stubUserB['email'],
@@ -107,8 +107,8 @@ class RepositoryTestCase(TestCase):
             visibility=self.stubUserB['visibility'],
             bio=self.stubUserB['bio']
         )
-        userB.save()
-        userC = User(
+        userB = User.objects.get(username='TEST_USER_B')
+        User.objects.create_user(
             username=self.stubUserC['username'],
             real_name=self.stubUserC['real_name'],
             email=self.stubUserC['email'],
@@ -116,8 +116,8 @@ class RepositoryTestCase(TestCase):
             visibility=self.stubUserC['visibility'],
             bio=self.stubUserC['bio']
         )
-        userC.save()
-        userD = User(
+        userC = User.objects.get(username='TEST_USER_C')
+        User.objects.create_user(
             username=self.stubUserD['username'],
             real_name=self.stubUserD['real_name'],
             email=self.stubUserD['email'],
@@ -125,8 +125,8 @@ class RepositoryTestCase(TestCase):
             visibility=self.stubUserD['visibility'],
             bio=self.stubUserD['bio']
         )
-        userD.save()
-        userE = User(
+        userD = User.objects.get(username='TEST_USER_D')
+        User.objects.create_user(
             username=self.stubUserE['username'],
             real_name=self.stubUserE['real_name'],
             email=self.stubUserE['email'],
@@ -134,7 +134,7 @@ class RepositoryTestCase(TestCase):
             visibility=self.stubUserE['visibility'],
             bio=self.stubUserE['bio']
         )
-        userE.save()
+        userE = User.objects.get(username='TEST_USER_E')
 
         repoA = Repository(
             repo_name=self.stubRepoA['repo_name'],
@@ -170,7 +170,7 @@ class RepositoryTestCase(TestCase):
         repoC.collaborators.add(userC)
         repoC.collaborators.add(userD)
         repoC.save()
-        
+
 
     def tearDown(self):
         User.objects.all().delete()
@@ -184,8 +184,6 @@ class RepositoryTestCase(TestCase):
             json.dumps({'username' : "TEST_USER_A", 'password' : "TEST_PASSWORD_A"}), 
             content_type='application/json'
         )
-        print(User.objects.get(username="TEST_USER_A"))
-        self.assertEqual(response.status_code, 201)
         
         clientB = Client()
         clientB.post(
@@ -207,6 +205,7 @@ class RepositoryTestCase(TestCase):
                 'owner' : 'TEST_USER_A',
                 'travel_start_date' : "2021-12-01",
                 'travel_end_date' : "2021-12-02",
+                'collaborators' : []
             }),
             content_type='application/json'
         )
@@ -218,6 +217,7 @@ class RepositoryTestCase(TestCase):
             'owner' : 'TEST_USER_B',
             'travel_start_date' : "2021-12-01",
             'travel_end_date' : "2021-12-02",
+            'collaborators' : [],
         }),
         content_type='application/json'
         )
@@ -228,7 +228,7 @@ class RepositoryTestCase(TestCase):
             json.dumps({
                 'repo_name' : 'TEST_REPO',
                 'visibility' : Scope.PRIVATE,
-            }))
+            }), content_type='application/json')
         self.assertEqual(response.status_code, 400)
 
         response = clientA.post('/api/repositories/', json.dumps({
@@ -237,6 +237,7 @@ class RepositoryTestCase(TestCase):
             'owner' : 'TEST_USER_B',
             'travel_start_date' : "2021-12-01",
             'travel_end_date' : "2021-12-02",
+            'collaborators' : [],
         }), content_type='application/json')
         self.assertEqual(response.status_code, 403)
 
@@ -256,10 +257,11 @@ class RepositoryTestCase(TestCase):
             'owner' : 'TEST_USER_B',
             'travel_start_date' : "2021-12-01",
             'travel_end_date' : "20211202",
+            'collaborators' : [],
         }), content_type='application/json')
         self.assertEqual(response.status_code, 403)
         
-        response = clientAnonymous.post(
+        response = clientA.post(
             '/api/repositories/',
             json.dumps({
                 'repo_name' : 'TEST_REPO',
@@ -267,6 +269,7 @@ class RepositoryTestCase(TestCase):
                 'owner' : 'TEST_USER_A',
                 'travel_start_date' : "2021-12-01",
                 'travel_end_date' : "2021-12-02",
+                'collaborators' : []
             }),
             content_type='application/json'
         )
@@ -280,4 +283,5 @@ class RepositoryTestCase(TestCase):
 
     def test_repositoryCollaborators(self):
         pass
+
 
