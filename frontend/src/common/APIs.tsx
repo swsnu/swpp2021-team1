@@ -204,9 +204,9 @@ export async function getPostComment(post_id: number, post_comment_id: number) {
     )).data;
 }
 
-export async function putPostComment(postId: number, commentId: number, content: string) {
+export async function putPostComment(postId: number, commentId: number, text: string) {
     return (await axios.put<any, AxiosResponse<IComment[]>>(
-        `/api/posts/${postId}/comments/${commentId}/`, { content },
+        `/api/posts/${postId}/comments/${commentId}/`, { text },
     )).data;
 }
 

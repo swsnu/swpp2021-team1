@@ -52,7 +52,7 @@ const PostDetail = (props: PostDetailProps) => {
             loadPost();
         }
     }, [dispatch]);
-    useEffect(() => {
+    /* useEffect(() => {
         const getAuthorInfo = async (username: string) => {
             try {
                 setAuthorLoading("pending");
@@ -67,7 +67,7 @@ const PostDetail = (props: PostDetailProps) => {
         if (authorLoading === "idle" && currentPost && currentPost.author) {
             getAuthorInfo(currentPost.author);
         }
-    }, [currentPost]);
+    }, [currentPost]); */
 
     return (
         <div className="container mt-5">
@@ -79,12 +79,12 @@ const PostDetail = (props: PostDetailProps) => {
                         style={{ width: "100%" }}
                     >
                         <Link
-                            to={`/main/${author?.username}`}
+                            to={`/main/${currentPost?.author?.username}`}
                             id="author-username"
                             className="text-decoration-none text-dark"
                         >
                             <img
-                                src={author?.profile_picture}
+                                src={currentPost?.author?.profile_picture ? currentPost.author.profile_picture : avatar}
                                 className="rounded-circle shadow-1-strong me-3"
                                 height="40"
                                 alt=""
@@ -93,7 +93,7 @@ const PostDetail = (props: PostDetailProps) => {
 
                             <strong>
                                 @
-                                {author?.username}
+                                {currentPost?.author?.username}
 
                             </strong>
                         </Link>
@@ -145,13 +145,13 @@ const PostDetail = (props: PostDetailProps) => {
                                 isEditable={account !== null &&
                             comment.author !== undefined &&
                             account.username === comment.author.username}
-                                edit={(text) => postCommentEdited({
+                                edit={(text) => dispatch(postCommentEdited({
                                     postId: currentPost.post_id, commentId: comment.comment_id, content: text,
-                                })}
-                                del={() => postCommentDeleted({
+                                }))}
+                                del={() => dispatch(postCommentDeleted({
                                     postId: currentPost.post_id,
                                     commentId: comment.comment_id,
-                                })}
+                                }))}
                             />
                         </React.Fragment>
                     ))}

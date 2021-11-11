@@ -38,6 +38,7 @@ export const newPostComment = createAsyncThunk<{postId: number, comments: IComme
     postId: number, content: string}>(
         "post/newCommentPosted",
         async ({ postId, content }) => {
+            console.log("Hello");
             const comments = await postPostComment(postId, content);
             return { postId, comments };
         },
@@ -191,8 +192,12 @@ export const postsSlice = createSlice({
         //     state.loading = "pending";
         // });
         builder.addCase(newPostComment.fulfilled, (state, action) => {
+            console.log("Hello");
             const { postId, comments } = action.payload;
             postsAdapter.updateOne(state, { id: postId, changes: { comments } });
+            if (state.currentPost) {
+                state.currentPost.comments = action.payload.comments;
+            }
             // state.loading = "succeeded";
         });
         // builder.addCase(newPostComment.rejected, (state, action) => {
@@ -202,6 +207,9 @@ export const postsSlice = createSlice({
         builder.addCase(postCommentEdited.fulfilled, (state, action) => {
             const { postId, comments } = action.payload;
             postsAdapter.updateOne(state, { id: postId, changes: { comments } });
+            if (state.currentPost) {
+                state.currentPost.comments = action.payload.comments;
+            }
         });
         // builder.addCase(postCommentEdited.rejected, (state, action) => {
         // });
@@ -210,6 +218,9 @@ export const postsSlice = createSlice({
         builder.addCase(postCommentDeleted.fulfilled, (state, action) => {
             const { postId, comments } = action.payload;
             postsAdapter.updateOne(state, { id: postId, changes: { comments } });
+            if (state.currentPost) {
+                state.currentPost.comments = action.payload.comments;
+            }
         });
         // builder.addCase(postCommentDeleted.rejected, (state, action) => {
         // });
