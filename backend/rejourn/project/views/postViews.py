@@ -59,7 +59,6 @@ def repoPosts(request, repo_id):
     if request.method == 'POST':
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
-        print(repo_id)
         try:
             repository = Repository.objects.get(repo_id=repo_id)
         except(Repository.DoesNotExist) as e:
