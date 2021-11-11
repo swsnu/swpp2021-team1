@@ -137,6 +137,7 @@ export const postsSlice = createSlice({
         // });
         builder.addCase(newRepoPost.fulfilled, (state, action) => {
             postsAdapter.addOne(state, action.payload);
+            state.currentPost = action.payload;
             // state.loading = "succeeded";
         });
         // builder.addCase(newRepoPost.rejected, (state, action) => {

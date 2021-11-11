@@ -166,7 +166,7 @@ export async function getRepositoryPosts(repo_id: number) {
 
 export async function postPost(repo_id: number, post: {title: string, text: string, photos: IPhoto[]}) {
     return (await axios.post<any, AxiosResponse<IPost>>(
-        `/api/respositories/${repo_id}/posts/`, post,
+        `/api/repositories/${repo_id}/posts/`, post,
     )).data;
 }
 

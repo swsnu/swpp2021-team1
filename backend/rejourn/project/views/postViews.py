@@ -59,7 +59,7 @@ def repoPosts(request, repo_id):
     if request.method == 'POST':
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
-        
+        print(repo_id)
         try:
             repository = Repository.objects.get(repo_id=repo_id)
         except(Repository.DoesNotExist) as e:
@@ -88,7 +88,7 @@ def repoPosts(request, repo_id):
         photo_list = []
         for photo_id in photo_id_list:
             try:
-                photo = Photo.objects.get(photo_id=photo_id)
+                photo = Photo.objects.get(photo_id=photo_id['photo_id'])
             except(Photo.DoesNotExist) as e:
                 return HttpResponseInvalidInput()
             if photo.repository != repository:

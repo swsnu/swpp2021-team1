@@ -4,7 +4,7 @@ import {
 import React, { FormEvent, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Redirect, useParams } from "react-router-dom";
-import { useLocation } from "react-router";
+import { useHistory, useLocation } from "react-router";
 import { AppDispatch, RootState } from "../../app/store";
 import {
     IDiscussion, IPhoto, IPost, IRepository,
@@ -34,10 +34,13 @@ export default function Postcreate(props : PostcreateProps) {
     const [selectedPhotos, setSelectedPhotos] = useState<IPhoto[]>([]);
     const [selectedRepoId, setSelectedRepoId] = useState<number>(-1);
     const [submitEnabled, setSubmitEnabled] = useState<boolean>(false);
+    const post = useSelector<RootState, IPost|null>((state) => state.posts.currentPost);
 
     const params = useParams<{repo_id: string | undefined, post_id: string | undefined}>();
 
     const [currentPost, setCurrentPost] = useState<IPost | null>(null); // Only in "edit"
+
+    const history = useHistory();
 
     const onRepoSelect = (e: FormEvent<HTMLSelectElement>): void =>
         setSelectedRepoId(parseInt(e.currentTarget.value));
@@ -84,12 +87,15 @@ export default function Postcreate(props : PostcreateProps) {
     }, [dispatch]);
 
     function onCreate() {
+        const taggedPhotos = selectedPhotos.map((value) => ({ ...value, local_tag: value.tag }));
         dispatch(newRepoPost({
             repo_id: selectedRepoId as number,
             title,
             text,
-            photos: selectedPhotos,
-        }));
+            photos: taggedPhotos,
+        })).then(() => {
+            history.push(`/posts/${post?.post_id}`);
+        });
     }
 
     let content;
