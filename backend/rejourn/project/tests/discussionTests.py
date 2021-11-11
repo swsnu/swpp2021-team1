@@ -273,3 +273,63 @@ class DiscussionTestCase(TestCase):
             content_type='application/json'
         )
         self.assertEqual(response.status_code, 410)
+
+class DiscussionCommentTestCase(TestCase):
+    def setUp(self):
+        User.objects.create_user(username='TEST_A_USER', real_name='TEST_A_REAL', 
+                                email='TEST_A_EMAIL', password='TEST_A_PW', 
+                                visibility=Scope.PUBLIC, bio='TEST_A_BIO')
+        User.objects.create_user(username='TEST_B_USER', real_name='TEST_B_REAL', 
+                                email='TEST_B_EMAIL', password='TEST_B_PW', 
+                                visibility=Scope.PUBLIC, bio='TEST_B_BIO')
+        User.objects.create_user(username='TEST_C_USER', real_name='TEST_C_REAL', 
+                                email='TEST_C_EMAIL', password='TEST_C_PW', 
+                                visibility=Scope.PUBLIC, bio='TEST_C_BIO')
+        userA = User.objects.get(user_id=1)
+        repoA = Repository(repo_name='REPO_A_NAME', visibility=Scope.PUBLIC, owner=userA)   
+        repoA.save()
+        repoA.collaborators.add(userA)
+        dissA = Discussion(repository=repoA, author=userA, title='DISS_B_TITLE', text='DISS_B_TEXT')
+        dissA.save()
+        comA = DiscussionComment(author=userA, text='COM_A_TEXT', discussion=dissA)
+        comA.save()
+
+    def test_discussionComments_post(self):
+        client = Client()
+        response = client.delete('/api/discussions/1/comments/')
+        self.assertEqual(response.status_code, 405)
+
+        response = client.post('/api/discussions/1/comments/')
+        self.assertEqual(response.status_code, 401)
+
+        response = client.post(
+            '/api/signin/',
+            json.dumps({'username' : "TEST_C_USER", 'password' : "TEST_C_PW"}), 
+            content_type='application/json'
+        )
+
+        response = client.post('/api/discussions/10/comments')
+        self.assertEqual(response.status_code, 404)
+
+        response = client.post('/api/discussions/1/comment')
+        self.assertEqual(response.status_code, 403)
+
+        response = client.get(
+            '/api/signout/',
+        )
+        response = client.post(
+            '/api/signin/',
+            json.dumps({'username' : "TEST_A_USER", 'password' : "TEST_A_PW"}), 
+            content_type='application/json'
+        )
+
+        response = client.post('/api/discussions/1/comment')
+        self.assertEqual(response.status_code, 400)
+
+        response = client.post('/api/discussions/1/comment', json.dumps({'text': "COM_B_TEXT"}), content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        
+
+
+
+
