@@ -50,7 +50,7 @@ const PostList = (props: PostListProps) => {
                 <div className="row">
                     {posts.map((post) => <Post post={post} key={post.post_id} />)}
                 </div>
-                {mode === "repo" ? <PlusButton linkTo={`/repos/${repo_id as string}/posts`} /> : ""}
+                {mode === "repo" ? <PlusButton linkTo={`/repos/${repo_id as string}/posts/create`} /> : ""}
                 {mode === "user" ? <PlusButton linkTo={`/main/${account?.username}/create`} /> : ""}
             </div>
         );

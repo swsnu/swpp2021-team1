@@ -10,8 +10,8 @@ export default function Group(props : GroupProps) {
     return (
         <div>
             <PhotoPreview />
-            <DiscussionPreview />
             <PostPreview />
+            <DiscussionPreview />
         </div>
     );
 }
