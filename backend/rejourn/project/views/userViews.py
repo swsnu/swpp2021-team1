@@ -423,7 +423,7 @@ def userFriendID(request, user_name, friend_name):
                     'profile_picture' : friend.profile_picture.url,
                 })
 
-        return HttpResponseSuccessDelete()
+        return HttpResponseSuccessDelete(friends_list)
 
     else:
         return HttpResponseNotAllowed(['POST', 'DELETE'])

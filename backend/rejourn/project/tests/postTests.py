@@ -299,5 +299,241 @@ class PostTestCase(TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertIn('EDIT_TITLE', response.content.decode())
 
+@override_settings(MEDIA_ROOT=MEDIA_ROOT)
+class PostCommentTestCase(TestCase):
+    def setUp(self):
+        imageA = SimpleUploadedFile('test.jpg', b'imageA')
+        User.objects.create_user(username='TEST_A_USER', real_name='TEST_A_REAL', 
+                                email='TEST_A_EMAIL', password='TEST_A_PW', 
+                                visibility=Scope.PUBLIC, bio='TEST_A_BIO', profile_picture=imageA)
+        User.objects.create_user(username='TEST_B_USER', real_name='TEST_B_REAL', 
+                                email='TEST_B_EMAIL', password='TEST_B_PW', 
+                                visibility=Scope.PUBLIC, bio='TEST_B_BIO')
+        User.objects.create_user(username='TEST_C_USER', real_name='TEST_C_REAL', 
+                                email='TEST_C_EMAIL', password='TEST_C_PW', 
+                                visibility=Scope.PUBLIC, bio='TEST_C_BIO')
+        userA = User.objects.get(user_id=1)
+        userB = User.objects.get(user_id=2)
+        repoA = Repository(repo_name='REPO_A_NAME', visibility=Scope.PRIVATE, owner=userA)   
+        repoA.save()
+        repoA.collaborators.add(userA)
+        postA = Post(repository=repoA, author=userA, title='DISS_A_TITLE', text='DISS_A_TEXT')
+        postA.save()
+        postB = Post(repository=repoA, author=userB, title='DISS_B_TITLE', text='DISS_B_TEXT')
+        postB.save()
+        comA = PostComment(author=userA, text='COM_A_TEXT', post=postA)
+        comA.save()
+        comB = PostComment(author=userA, text='COM_B_TEXT', post=postB)
+        comB.save()
+        comD = PostComment(author=userA, text='COM_D_TEXT', post=postA)
+        comD.save()
+
+    def tearDown(self):
+        User.objects.all().delete()
+        Repository.objects.all().delete()
+        Post.objects.all().delete()
+        PostComment.objects.all().delete()
+        shutil.rmtree(MEDIA_ROOT, ignore_errors=True)
+
+
+    def test_postComments_post(self):
+        client = Client()
+        response = client.delete('/api/posts/1/comments/')
+        self.assertEqual(response.status_code, 405)
+
+        response = client.post('/api/posts/1/comments/')
+        self.assertEqual(response.status_code, 401)
+
+        response = client.post(
+            '/api/signin/',
+            json.dumps({'username' : "TEST_C_USER", 'password' : "TEST_C_PW"}), 
+            content_type='application/json'
+        )
+
+        response = client.post('/api/posts/10/comments/')
+        self.assertEqual(response.status_code, 404)
+
+        response = client.post('/api/posts/1/comments/')
+        self.assertEqual(response.status_code, 403)
+
+        response = client.get(
+            '/api/signout/',
+        )
+        response = client.post(
+            '/api/signin/',
+            json.dumps({'username' : "TEST_A_USER", 'password' : "TEST_A_PW"}), 
+            content_type='application/json'
+        )
+
+        response = client.post('/api/posts/1/comments/')
+        self.assertEqual(response.status_code, 400)
+
+        response = client.post('/api/posts/1/comments/', json.dumps({'text': "COM_C_TEXT"}), content_type='application/json')
+        self.assertEqual(response.status_code, 201)
+        self.assertIn("COM_A_TEXT", response.content.decode())
+        self.assertNotIn("COM_B_TEXT", response.content.decode())
+        self.assertIn("COM_C_TEXT", response.content.decode())
+        userA = User.objects.get(user_id=1)
+        self.assertIn(userA.profile_picture.url, response.content.decode())
+
+    def test_postComments_get(self):
+        client = Client()
+
+        response = client.get('/api/posts/10/comments/')
+        self.assertEqual(response.status_code, 404)
+
+        response = client.post(
+            '/api/signin/',
+            json.dumps({'username' : "TEST_C_USER", 'password' : "TEST_C_PW"}), 
+            content_type='application/json'
+        )
+
+        response = client.get('/api/posts/10/comments/')
+        self.assertEqual(response.status_code, 404)
+
+        response = client.get('/api/posts/1/comments/')
+        self.assertEqual(response.status_code, 403)
+
+        response = client.get(
+            '/api/signout/',
+        )
+        response = client.post(
+            '/api/signin/',
+            json.dumps({'username' : "TEST_A_USER", 'password' : "TEST_A_PW"}), 
+            content_type='application/json'
+        )
+
+        response = client.get('/api/posts/1/comments/')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("COM_A_TEXT", response.content.decode())
+        self.assertNotIn("COM_B_TEXT", response.content.decode())
+        userA = User.objects.get(user_id=1)
+        self.assertIn(userA.profile_picture.url, response.content.decode())
+
+    def test_postCommentsID_get(self):
+        client = Client()
+
+        response = client.post('/api/posts/1/comments/1/')
+        self.assertEqual(response.status_code, 405)
+
+
+        response = client.post(
+            '/api/signin/',
+            json.dumps({'username' : "TEST_C_USER", 'password' : "TEST_C_PW"}), 
+            content_type='application/json'
+        )
+
+        response = client.get('/api/posts/1/comments/10/')
+        self.assertEqual(response.status_code, 404)
+
+        response = client.get('/api/posts/10/comments/1/')
+        self.assertEqual(response.status_code, 404)
+
+        response = client.get('/api/posts/2/comments/1/')
+        self.assertEqual(response.status_code, 410)
+
+        response = client.get('/api/posts/1/comments/1/')
+        self.assertEqual(response.status_code, 403)
+
+        response = client.get(
+            '/api/signout/',
+        )
+        response = client.post(
+            '/api/signin/',
+            json.dumps({'username' : "TEST_A_USER", 'password' : "TEST_A_PW"}), 
+            content_type='application/json'
+        )
+
+        response = client.get('/api/posts/1/comments/1/')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("COM_A_TEXT", response.content.decode())
+        self.assertNotIn("COM_B_TEXT", response.content.decode())
+        userA = User.objects.get(user_id=1)
+        self.assertIn(userA.profile_picture.url, response.content.decode())
+
+    def test_postCommentsID_delete(self):
+        client = Client()
+
+        response = client.delete('/api/posts/1/comments/1/')
+        self.assertEqual(response.status_code, 401)
+
+        response = client.post(
+            '/api/signin/',
+            json.dumps({'username' : "TEST_C_USER", 'password' : "TEST_C_PW"}), 
+            content_type='application/json'
+        )
+
+        response = client.delete('/api/posts/1/comments/10/')
+        self.assertEqual(response.status_code, 404)
+
+        response = client.delete('/api/posts/10/comments/1/')
+        self.assertEqual(response.status_code, 404)
+
+        response = client.delete('/api/posts/2/comments/1/')
+        self.assertEqual(response.status_code, 410)
+
+        response = client.delete('/api/posts/1/comments/1/')
+        self.assertEqual(response.status_code, 403)
+
+        response = client.get(
+            '/api/signout/',
+        )
+        response = client.post(
+            '/api/signin/',
+            json.dumps({'username' : "TEST_A_USER", 'password' : "TEST_A_PW"}), 
+            content_type='application/json'
+        )
+
+        response = client.delete('/api/posts/1/comments/1/')
+        self.assertEqual(response.status_code, 202)
+        self.assertNotIn("COM_A_TEXT", response.content.decode())
+        self.assertIn("COM_D_TEXT", response.content.decode())
+
+    def test_postCommentsID_put(self):
+        client = Client()
+
+        response = client.put('/api/posts/1/comments/1/')
+        self.assertEqual(response.status_code, 401)
+
+        response = client.post(
+            '/api/signin/',
+            json.dumps({'username' : "TEST_C_USER", 'password' : "TEST_C_PW"}), 
+            content_type='application/json'
+        )
+
+        response = client.put('/api/posts/1/comments/10/')
+        self.assertEqual(response.status_code, 404)
+
+        response = client.put('/api/posts/1/comments/1/', json.dumps({'text' : "EDIT_TEXT"}), content_type='application/json')
+        self.assertEqual(response.status_code, 403)
+
+
+        response = client.get(
+            '/api/signout/',
+        )
+        response = client.post(
+            '/api/signin/',
+            json.dumps({'username' : "TEST_A_USER", 'password' : "TEST_A_PW"}), 
+            content_type='application/json'
+        )
+
+        response = client.put('/api/posts/1/comments/1/')
+        self.assertEqual(response.status_code, 400)
+
+        response = client.put('/api/posts/2/comments/1/', json.dumps({'text' : ""}), content_type='application/json')
+        self.assertEqual(response.status_code, 410)
+
+        response = client.put('/api/posts/1/comments/1/', json.dumps({'text' : ""}), content_type='application/json')
+        self.assertEqual(response.status_code, 410)
+
+        response = client.put('/api/posts/1/comments/1/', json.dumps({'text' : "EDIT_TEXT"}), content_type='application/json')
+
+
+        self.assertNotIn("COM_A_TEXT", response.content.decode())
+        self.assertIn("EDIT_TEXT", response.content.decode())
+        self.assertIn("COM_D_TEXT", response.content.decode())
+        userA = User.objects.get(user_id=1)
+        self.assertIn(userA.profile_picture.url, response.content.decode())
+
 
 
