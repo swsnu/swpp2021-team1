@@ -6,17 +6,17 @@ import Factory from "./dataGenerator";
 const fact = new Factory();
 
 export default [
-    // rest.get("/api/session/", (req, res, ctx) => {
-    //     const user = fact.userGen();
-    //     return res(ctx.json({
-    //         username: user.username,
-    //         bio: user.bio,
-    //         profile_picture: user.profile_picture,
-    //         visibility: user.visibility,
-    //         real_name: user.real_name,
-    //         email: user.email,
-    //     }));
-    // }),
+    rest.get("/api/session/", (req, res, ctx) => {
+        const user = fact.userGen();
+        return res(ctx.json({
+            username: user.username,
+            bio: user.bio,
+            profile_picture: user.profile_picture,
+            visibility: user.visibility,
+            real_name: user.real_name,
+            email: user.email,
+        }));
+    }),
     rest.post("/api/signin/", (req, res, ctx) => {
         const user = fact.userGen();
         return res(
@@ -247,12 +247,12 @@ export default [
         }));
     }),
 
-    rest.get("/api/discussions/:discussion_id", (req, res, ctx) => {
-        const discussion = faker.discussionGen();
+    rest.get("/api/discussions/:discussion_id/", (req, res, ctx) => {
+        const discussion = fact.discussionGen();
         return res(ctx.json(discussion));
     }),
-    rest.put("/api/discussions/:discussion_id", (req, res, ctx) => {
-        const discussion = faker.discussionGen();
+    rest.put("/api/discussions/:discussion_id/", (req, res, ctx) => {
+        const discussion = fact.discussionGen();
         return res(ctx.json(discussion));
     }),
     rest.delete("/api/discussions/:discussion_id", (req, res, ctx) => res(ctx.status(200))),
@@ -387,3 +387,47 @@ export default [
         return res(ctx.json(comments));
     }),
 ];
+
+export const handlerException = (
+    path, method,
+) => {
+    let returnValue;
+    switch (method) {
+    case "GET":
+        returnValue = rest.get(path, (req, res, ctx) => res(ctx.status(500)));
+        break;
+    case "POST":
+        returnValue = rest.post(path, (req, res, ctx) => res(ctx.status(500)));
+        break;
+    case "PUT":
+        returnValue = rest.put(path, (req, res, ctx) => res(ctx.status(500)));
+        break;
+    default:
+        returnValue = rest.delete(path, (req, res, ctx) => res(ctx.status(500)));
+        break;
+    }
+    return returnValue;
+};
+
+export const getSessionHE = handlerException("/api/session/", "GET");
+export const postSignInHE = handlerException("/api/signin/", "POST");
+export const getSignOutHE = handlerException("/api/signout/", "GET");
+export const postUserHE = handlerException("/api/users", "POST");
+export const deleteUserHE = handlerException("/api/users/:username/", "DELETE");
+export const getUserHE = handlerException("/api/users/:username", "GET");
+export const getUserFriendsHE = handlerException("/api/users/:username/friends/", "GET");
+export const postUserFriendHE = handlerException("/api/users/:username/friends/:fusername", "POST");
+export const deleteUserFriendHE = handlerException("/api/users/:username/friends/:fusername/", "DELETE");
+export const getUserPostsHE = handlerException("/api/users/:username/posts/", "GET");
+export const getRepoPostsHE = handlerException("/api/repositories/:repo_id/posts/", "GET");
+
+export const postRepoPostHE = handlerException("/api/repositories/:repo_id/posts/", "POST");
+export const getPost = handlerException("/api/posts/:post_id/", "GET");
+export const putPost = handlerException("/api/posts/:post_id/", "PUT");
+export const deletePost = handlerException("/api/posts/:post_id/", "DELETE");
+
+export const getPostComments = handlerException("/api/posts/:post_id/comments/", "GET");
+export const postPostComment = handlerException("/api/posts/:post_id/comments/", "POST");
+export const getPostComment = handlerException("/api/posts/:post_id/comments/:post_comment_id/", "GET");
+export const putPostComment = handlerException("/api/posts/:post_id/comments/:post_comment_id/", "PUT");
+export const deletePostComment = handlerException("/api/posts/:post_id/comments/:post_comment_id/", "DELETE");

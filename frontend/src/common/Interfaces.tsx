@@ -1,9 +1,9 @@
 import React from "react";
 
 enum Visibility {
-    ONLY_MEMBERS,
-    MEMBER_AND_FRIENDS,
     ALL,
+    MEMBER_AND_FRIENDS,
+    ONLY_MEMBERS,
 }
 
 function randomString() {
@@ -62,7 +62,7 @@ export function repositoryFactory() {
 interface IPost {
     post_id : number;
     repo_id? : number;
-    author? : string;
+    author? : IUser;
     title : string;
     text? : string; // Post List에서는 필요 없음
     post_time? : string;
@@ -90,6 +90,7 @@ export function photoFactory() {
         image: randomString(),
         post_time: randomString(),
         tag: randomString(),
+        local_tag: randomString(),
         uploader: randomString(),
     } as IPhoto;
 }
@@ -97,18 +98,38 @@ export function photoFactory() {
 interface IDiscussion {
     discussion_id : number;
     repo_id? : number;
-    author? : string;
+    author? : IUser;
     title : string;
     text? : string; // Discussion list에서는 필요 없음
     post_time? : string;
     comments? : IComment[]; // Discussion list에서는 필요 없음
 }
 
+export function discussionFactory() {
+    return {
+        discussion_id: randomInt(),
+        repo_id: randomInt(),
+        title: randomString(),
+        text: randomString(),
+        post_time: randomString(),
+    } as IDiscussion;
+}
+
 interface IComment {
     comment_id : number;
     parent_id : number; // discussion_id / post_id parent_id로 바꿔서 줘야함
-    author? : string;
+    author? : IUser;
     text : string;
+    post_time? : string;
+}
+
+export function commentFactory() {
+    return {
+        comment_id: randomInt(),
+        parent_id: randomInt(),
+        text: randomString(),
+        post_time: randomString(),
+    };
 }
 
 interface ILabel {

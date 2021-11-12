@@ -4,6 +4,7 @@ import authReducer, { AuthState } from "../features/auth/authSlice";
 import reposReducer, { ReposState } from "../features/repository/reposSlice";
 import postsReducer from "../features/post/postsSlice";
 import photosReducer from "../features/photo/photosSlice";
+import discussionsReducer from "../features/discussion/discussionsSlice";
 
 const store = configureStore({
     reducer: {
@@ -11,6 +12,7 @@ const store = configureStore({
         repos: reposReducer,
         posts: postsReducer,
         photos: photosReducer,
+        discussions: discussionsReducer,
     /*
         repositories : filtersReducer,
         posts :

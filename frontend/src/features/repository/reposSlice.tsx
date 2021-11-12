@@ -43,11 +43,10 @@ export const fetchRepository = createAsyncThunk<IRepository, number>( // added
     async (repoID, thunkAPI) => await getRepository(repoID),
 );
 
-export const addCollaborators = createAsyncThunk<void, {repoID : number, users : string[]}>( // added
+export const addCollaborators = createAsyncThunk<IUser[], {repoID : number, users : {username: string}[]}>( // added
     "repos/collaborators",
-    async ({ repoID, users }, thunkAPI) => {
-        await postCollaborators(repoID, users);
-    },
+    async ({ repoID, users }, thunkAPI) =>
+        await postCollaborators(repoID, users),
 );
 
 export const leaveRepository = createAsyncThunk<void, {username : string, repoID : number}>( // added
@@ -119,9 +118,10 @@ const reposSlice = createSlice<ReposState, SliceCaseReducers<ReposState>>({
             state.hasError = false;
         });
 
-        builder.addCase(addCollaborators.fulfilled, (state : ReposState) => {
+        builder.addCase(addCollaborators.fulfilled, (state : ReposState, action : PayloadAction<IUser[]>) => {
             state.isLoading = false;
             state.hasError = false;
+            if (state.currentRepo) state.currentRepo.collaborators = action.payload;
         });
 
         builder.addCase(addCollaborators.rejected, (state : ReposState) => {

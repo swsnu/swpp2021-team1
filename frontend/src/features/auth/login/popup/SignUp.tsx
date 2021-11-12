@@ -202,6 +202,8 @@ export default function SignUp(props : SignUpProps) {
                     <Form.Group className="mb-3">
                         <Form.Label>Bio</Form.Label>
                         <Form.Control
+                            as="textarea"
+                            style={{ height: "75px" }}
                             type="bio"
                             value={bio}
                             name="bio"

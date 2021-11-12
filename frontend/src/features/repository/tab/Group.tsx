@@ -1,4 +1,6 @@
-import PhotoList from "../../photo/PhotoList";
+import PhotoPreview from "../../photo/PhotoPreview";
+import DiscussionPreview from "../../discussion/DiscussionPreview";
+import PostPreview from "../../post/PostPreview";
 
 interface GroupProps {
 
@@ -7,7 +9,9 @@ interface GroupProps {
 export default function Group(props : GroupProps) {
     return (
         <div>
-            <PhotoList />
+            <PhotoPreview />
+            <PostPreview />
+            <DiscussionPreview />
         </div>
     );
 }

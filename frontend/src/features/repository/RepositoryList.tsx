@@ -31,10 +31,6 @@ export default function RepositoryList(props : RepositoryListProps) {
         }
     }, [dispatch, user]);
 
-    useEffect(() => {
-    // TODO
-    }, [dispatch]);
-
     function onClick() {
         dispatch(actionCreator.toBeLoaded(null));
         history.push("/repos/create");
@@ -62,6 +58,7 @@ export default function RepositoryList(props : RepositoryListProps) {
                                     </Button>
                                 </div>
                             )}
+
                     </>
                 )
             }

@@ -37,7 +37,7 @@ export default function SignIn(props: SignInProps) {
     }
 
     return (
-        <div id="viewport" className="p-5">
+        <div id="viewport" style={{ paddingBottom: "50 !important" }}>
             {account && (<Redirect to={`/main/${account.username}`} />)}
             <Form id="form-container" className="p-5">
                 <Form.Group className="mb-3">
@@ -45,7 +45,7 @@ export default function SignIn(props: SignInProps) {
                         value={username}
                         type="email"
                         onChange={(event) => setUsername(event.target.value)}
-                        placeholder="Email"
+                        placeholder="Username"
                         isInvalid={loginClicked && hasError}
                     />
                     <Form.Control.Feedback type="invalid">

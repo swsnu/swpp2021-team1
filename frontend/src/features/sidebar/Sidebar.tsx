@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./Sidebar.css";
 import { Dropdown } from "react-bootstrap";
+import { useHistory } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faBell, faBook, faCompass, faPencilAlt,
@@ -12,6 +13,8 @@ import * as actionCreators from "../auth/authSlice";
 import { IUser } from "../../common/Interfaces";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 
+import avatar from "../../common/assets/avatar.jpg";
+
 interface SidebarProps {
 
 }
@@ -20,9 +23,15 @@ function Sidebar(props: SidebarProps) {
     const dispatch = useAppDispatch();
     const [isLoading, hasError, account] = useAppSelector((state) =>
         [state.auth.isLoading, state.auth.hasError, state.auth.account]);
+    const history = useHistory();
 
     useEffect(() => {
-        if (!account) dispatch(actionCreators.fetchSession());
+        dispatch(actionCreators.fetchSession());
+        const id = setInterval(() => {
+            dispatch(actionCreators.fetchSession());
+        }, 1000);
+
+        return () => clearInterval(id);
     }, [dispatch]);
 
     if (isLoading) return null;
@@ -32,7 +41,7 @@ function Sidebar(props: SidebarProps) {
     }
 
     const onSignOutClick = () => {
-        dispatch(actionCreators.signOut());
+        dispatch(actionCreators.signOut()).then(() => history.push("/login"));
     };
 
     return (
@@ -82,18 +91,20 @@ function Sidebar(props: SidebarProps) {
                     data-bs-toggle="dropdown"
                 >
                     <img
-                        src={account?.profile_picture}
+                        src={account?.profile_picture ? account?.profile_picture : avatar}
                         alt=""
                         width="32"
                         height="32"
                         className="rounded-circle me-2"
                     />
-                    <strong>{account?.real_name}</strong>
+                    <strong>{account?.username}</strong>
                 </Dropdown.Toggle>
                 <Dropdown.Menu className="text-small shadow">
-                    <Link to="#" className="text-decoration-none">
-                        <Dropdown.Item>Settings</Dropdown.Item>
-                    </Link>
+                    <Dropdown.Item
+                        onClick={() => history.push(`/main/${account?.username}/setting`)}
+                    >
+                        Settings
+                    </Dropdown.Item>
                     <hr className="dropdown-divider" />
                     <Dropdown.Item onClick={onSignOutClick}>Sign out</Dropdown.Item>
                 </Dropdown.Menu>

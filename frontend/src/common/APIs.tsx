@@ -1,25 +1,15 @@
 import axios, { AxiosResponse } from "axios";
-import { afterWrite } from "@popperjs/core";
 import {
-    IPhoto, IRepository, IUser, Visibility,
+    IComment,
+    IDiscussion,
+    IPhoto, IPost, IRepository, IUser,
 } from "./Interfaces";
 
 axios.defaults.xsrfCookieName = "csrftoken";
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export async function postSignIn(username : string, password : string) {
-    // ! 테스트를 위해 json-server로 임시 대체함.
     return (await axios.post<any, AxiosResponse<IUser>>("/api/signin/", { username, password })).data;
-    /* const resolvedUser = {
-        username: "iluvswpp",
-        bio: "Everyday is a new JOURNEY!",
-        profile_picture: "https://images.unsplash.com/photo-1609866975749-2238afebfa27?" +
-            "ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1078&q=80",
-        visibility: 0,
-        real_name: "John Doe",
-        email: "swpp@snu.ac.kr",
-    };
-    return resolvedUser; */
 }
 
 export async function getSession() {
@@ -51,7 +41,7 @@ export async function getFriends(username : string) {
 }
 
 export async function postFriends(from : string, to : string) {
-    await axios.post(`/api/users/${from}/friends/${to}/`);
+    return (await axios.post(`/api/users/${from}/friends/${to}/`)).data;
 }
 
 export async function deleteFriends(from : string, to : string) {
@@ -63,7 +53,7 @@ export async function postRepositories(repo : IRepository) {
 }
 
 export async function getRepositories(username : string) {
-    return (await axios.get<any, AxiosResponse<IRepository[]>>(`/api/repositories/?username=${username}/`)).data;
+    return (await axios.get<any, AxiosResponse<IRepository[]>>(`/api/repositories/?username=${username}`)).data;
 }
 
 export async function getRepository(repo_id : number) {
@@ -82,8 +72,8 @@ export async function getCollaborators(repo_id : number) {
     return (await axios.get<any, AxiosResponse<IUser[]>>(`/api/repositories/${repo_id}/collaborators/`)).data;
 }
 
-export async function postCollaborators(repo_id : number, users : string[]) { // added
-    await axios.post(`/api/repositories/${repo_id}/collaborators/`, users);
+export async function postCollaborators(repo_id : number, users : {username : string}[]) { // added
+    return (await axios.post<any, AxiosResponse<IUser[]>>(`/api/repositories/${repo_id}/collaborators/`, users)).data;
 }
 
 export async function deleteCollaborators(repo_id : number, username : string) { // added
@@ -102,7 +92,123 @@ export async function putPhotos(repo_id : number, photos : IPhoto[]) {
     return (await axios.put<any, AxiosResponse<IPhoto[]>>(`/api/repositories/${repo_id}/photos/`, photos)).data;
 }
 
-export async function deletePhotos(repo_id : number, photos_id : number[]) {
+export async function deletePhotos(repo_id : number, photos_id : {photo_id : number}[]) {
     return (await axios.delete<any, AxiosResponse<IPhoto[]>>(`/api/repositories/${repo_id}/photos/`,
         { data: photos_id })).data;
+}
+
+export async function getDiscussions(repo_id : number) {
+    return (await axios.get<any, AxiosResponse<IDiscussion[]>>(`/api/repositories/${repo_id}/discussions/`)).data;
+}
+
+export async function postDiscussions(repo_id : number, discussion : IDiscussion) {
+    return (await axios.post<any, AxiosResponse<IDiscussion>>(
+        `/api/repositories/${repo_id}/discussions/`, discussion,
+    )).data;
+}
+
+export async function getDiscussion(discussion_id : number) {
+    return (await axios.get<any, AxiosResponse<IDiscussion>>(`/api/discussions/${discussion_id}/`)).data;
+}
+
+export async function putDiscussion(discussion : IDiscussion) {
+    return (await axios.put<any, AxiosResponse<IDiscussion>>(
+        `/api/discussions/${discussion.discussion_id}/`, discussion,
+    )).data;
+}
+
+export async function deleteDiscussion(discussion_id : number) {
+    await axios.delete(`/api/discussions/${discussion_id}/`);
+}
+
+export async function getDiscussionComments(discussion_id : number) {
+    return (await axios.get<any, AxiosResponse<IComment[]>>(`/api/discussions/${discussion_id}/comments/`)).data;
+}
+
+export async function postDiscussionComment(discussion_id : number, text: string) {
+    return (await axios.post<any, AxiosResponse<IComment[]>>(
+        `/api/discussions/${discussion_id}/comments/`, { text },
+    )).data;
+}
+
+export async function getDiscussionComment(discussion_id : number, comment_id : number) {
+    return (await axios.get<any, AxiosResponse<IComment>>(
+        `/api/discussions/${discussion_id}/comments/${comment_id}/`,
+    )).data;
+}
+
+export async function putDiscussionComment(discussionId: number, commentId: number, text: string) {
+    return (await axios.put<any, AxiosResponse<IComment[]>>(
+        `/api/discussions/${discussionId}/comments/${commentId}/`, { text },
+    )).data;
+}
+
+export async function deleteDiscussionComment(discussion_id : number, comment_id : number) {
+    return (await axios.delete<any, AxiosResponse<IComment[]>>(
+        `/api/discussions/${discussion_id}/comments/${comment_id}/`,
+    )).data;
+}
+
+export async function getUserPosts(username: string) {
+    return (await axios.get<any, AxiosResponse<IPost[]>>(
+        `/api/users/${username}/posts/`,
+    )).data;
+}
+
+export async function getRepositoryPosts(repo_id: number) {
+    return (await axios.get<any, AxiosResponse<IPost[]>>(
+        `/api/repositories/${repo_id}/posts/`,
+    )).data;
+}
+
+export async function postPost(repo_id: number, post: {title: string, text: string, photos: IPhoto[]}) {
+    return (await axios.post<any, AxiosResponse<IPost>>(
+        `/api/repositories/${repo_id}/posts/`, post,
+    )).data;
+}
+
+export async function getPost(post_id: number) {
+    return (await axios.get<any, AxiosResponse<IPost>>(
+        `/api/posts/${post_id}/`,
+    )).data;
+}
+
+export async function putPost(post_id: number, title: string, text: string, photos: IPhoto[]) {
+    return (await axios.put<any, AxiosResponse<IPost>>(
+        `/api/posts/${post_id}/`, { title, text, photos },
+    )).data;
+}
+
+export async function deletePost(post_id: number) {
+    await axios.delete(`/api/posts/${post_id}`);
+}
+
+export async function getPostComments(post_id: number) {
+    return (await axios.get<any, AxiosResponse<IComment[]>>(
+        `/api/posts/${post_id}/comments/`,
+    )).data;
+}
+
+export async function postPostComment(post_id: number, text: string) {
+    return (await axios.post<any, AxiosResponse<IComment[]>>(
+        `/api/posts/${post_id}/comments/`, { text },
+    )).data;
+}
+
+export async function getPostComment(post_id: number, post_comment_id: number) {
+    return (await axios.get<any, AxiosResponse<IComment>>(
+        `/api/posts/${post_id}/comments/${post_comment_id}/`,
+    )).data;
+}
+
+export async function putPostComment(postId: number, commentId: number, text: string) {
+    return (await axios.put<any, AxiosResponse<IComment[]>>(
+        `/api/posts/${postId}/comments/${commentId}/`, { text },
+    )).data;
+}
+
+export async function deletePostComment(post_id: number, post_comment_id: number) {
+    return (await axios.delete<any, AxiosResponse<IComment[]>>(
+        `/api/posts/${post_id}/comments/${post_comment_id}/`,
+    )).data;
 }

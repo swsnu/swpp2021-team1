@@ -1,6 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
 import * as APIs from "../../common/APIs";
-import { IRepository, repositoryFactory } from "../../common/Interfaces";
+import {
+    IRepository, IUser, repositoryFactory, userFactory,
+} from "../../common/Interfaces";
 import reposReducer, {
     addCollaborators,
     createRepository, editRepository,
@@ -89,7 +91,8 @@ describe("reposSlice", () => {
 
     it("Should add collaborator correctly", () => {
         const repository : IRepository = repositoryFactory();
-        mockedAPIs.postCollaborators.mockResolvedValue();
+        const user : IUser = userFactory();
+        mockedAPIs.postCollaborators.mockResolvedValue([user]);
         store.dispatch(addCollaborators({ repoID: 1, users: [] })).then(() => {
             expect(store.getState().repos.isLoading).toEqual(false);
         });

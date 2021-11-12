@@ -24,6 +24,7 @@ export default function RepositorySettings(props : RepositorySettingProps) {
     const [valid, setValid] = useState<(boolean)[]>([true, true, true]);
     const [visibility, setVisibility] = useState<Visibility>(repo.visibility);
     const history = useHistory();
+    console.log(repo);
 
     function onChange(event : React.ChangeEvent<HTMLInputElement>) {
         switch (event.target.name) {
@@ -62,7 +63,7 @@ export default function RepositorySettings(props : RepositorySettingProps) {
     function setCollaborators(collaborators : IUser[]) {
         dispatch(actionCreator.addCollaborators({
             repoID: repo.repo_id,
-            users: collaborators.map((value) => value.username),
+            users: collaborators.map((value) => ({ username: value.username })),
         }));
     }
 
@@ -81,14 +82,14 @@ export default function RepositorySettings(props : RepositorySettingProps) {
     function deleteRepo() {
         dispatch(actionCreator.removeRepository(repo.repo_id))
             .then(() => {
-                history.push(`/main/${user.username}`);
+                history.push(`/main/${user.username}/repos`);
             });
     }
 
     function leaveRepo() {
         dispatch(actionCreator.leaveRepository({ username: user.username, repoID: repo.repo_id }))
             .then(() => {
-                history.push(`/main/${user.username}`);
+                history.push(`/main/${user.username}/repos`);
             });
     }
 
@@ -194,20 +195,24 @@ export default function RepositorySettings(props : RepositorySettingProps) {
             </div>
             <h5>
                 {repo.collaborators.map((value) => (
-                    <Badge className="m-2 p-sm-2" pill>
-                        {value.username}
-                        {" "}
-                    </Badge>
+                    <React.Fragment key={value.username}>
+                        <Badge className="m-2 p-sm-2" pill>
+                            {value.username}
+                            {" "}
+                        </Badge>
+                    </React.Fragment>
                 ))}
             </h5>
-            <Button
-                className="mt-2"
-                id="leave-repo-button"
-                onClick={leaveRepo}
-                variant="secondary"
-            >
-                Leave This Repository
-            </Button>
+            { repo.owner !== user.username && (
+                <Button
+                    className="mt-2"
+                    id="leave-repo-button"
+                    onClick={leaveRepo}
+                    variant="secondary"
+                >
+                    Leave This Repository
+                </Button>
+            )}
             <AddCollaborators
                 user={user}
                 show={show}

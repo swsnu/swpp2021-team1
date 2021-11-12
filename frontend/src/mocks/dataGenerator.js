@@ -24,8 +24,8 @@ class Factory {
         repo_id: faker.datatype.number(),
         repo_name: faker.lorem.sentence(2).replace(".", ""),
         owner: faker.internet.userName(),
-        travel_start_date: faker.date.past(),
-        travel_end_date: faker.date.past(),
+        travel_start_date: faker.date.past().toISOString().match(/....-..-../)[0],
+        travel_end_date: faker.date.past().toISOString().match(/....-..-../)[0],
         collaborators: [],
         visibility: faker.datatype.number(({ min: 0, max: 2 })),
     });
@@ -36,8 +36,8 @@ class Factory {
         author: faker.internet.userName(),
         title: faker.lorem.sentence(),
         text: faker.lorem.paragraph(),
-        post_time: faker.date.past(),
-        images: [],
+        post_time: faker.date.past().toISOString().match(/....-..-../)[0],
+        photos: [],
         comments: [],
     });
 
@@ -45,8 +45,9 @@ class Factory {
         photo_id: faker.datatype.number(),
         repo_id: faker.datatype.number(),
         image: faker.image.city(),
-        post_time: faker.date.past(),
+        post_time: faker.date.past().toISOString().match(/....-..-../)[0],
         tag: faker.lorem.sentence(),
+        local_tag: faker.lorem.sentence(),
         label: [],
         place: undefined,
         uploader: faker.internet.userName(),
@@ -58,15 +59,16 @@ class Factory {
         author: faker.internet.userName(),
         title: faker.lorem.sentence(),
         text: faker.lorem.paragraph(),
-        post_time: faker.date.past(),
+        post_time: faker.date.past().toISOString().match(/....-..-../)[0],
         comments: [],
     });
 
     comment = () => ({
         comment_id: faker.datatype.number(),
         parent_id: faker.datatype.number(),
-        author: faker.internet.userName(),
+        author: undefined,
         text: faker.lorem.sentence(),
+        post_time: faker.date.past().toISOString().match(/....-..-../)[0],
     });
 
     label = () => ({
@@ -80,6 +82,7 @@ class Factory {
     userGen = () => {
         const user = this.user();
         user.username = user.real_name.replace(/\s/g, "").toLowerCase();
+        user.email = user.email.replace(/.*@/, `${user.username}@`);
         const n = faker.datatype.number({ min: 3, max: 10 });
         for (let i = 0; i < n; i += 1) {
             user.friends.push(this.user());
@@ -91,7 +94,7 @@ class Factory {
         const repo = this.repository();
         const n = faker.datatype.number({ min: 1, max: 5 });
         for (let index = 0; index < n; index += 1) {
-            repo.collaborators.push(this.userGen());
+            repo.collaborators.push(this.user());
         }
         return repo;
     }
@@ -100,12 +103,13 @@ class Factory {
         const post = this.post();
         const n1 = faker.datatype.number({ min: 3, max: 10 });
         for (let index = 0; index < n1; index += 1) {
-            post.images.push(faker.datatype.number());
+            post.photos.push(this.photo());
         }
-        const n2 = faker.datatype.number({ min: 0, max: 8 });
+        const n2 = faker.datatype.number({ min: 2, max: 8 });
         for (let index = 0; index < n2; index += 1) {
-            post.images.push(this.comment());
+            post.comments.push(this.commentGen());
         }
+        console.log(post);
         return post;
     }
 
@@ -123,13 +127,15 @@ class Factory {
         const discussion = this.discussion();
         const n = faker.datatype.number({ min: 0, max: 8 });
         for (let i = 0; i < n; i += 1) {
-            discussion.comments.push(this.comment());
+            discussion.comments.push(this.commentGen());
         }
         return discussion;
     }
 
     commentGen = () => {
         const comment = this.comment();
+        comment.author = this.user();
+        console.log(comment);
         return comment;
     }
 

@@ -8,7 +8,7 @@ import store from "./app/store";
 import "./custom.scss";
 import worker from "./mocks/browser";
 
-if (process.argv.find((val, index) => val === "--mock")) {
+if (process.env.REACT_APP_USE_MSW_MOCK_API === "yes") {
     worker.start();
 }
 ReactDOM.render(
