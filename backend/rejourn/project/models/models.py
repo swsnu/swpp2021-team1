@@ -53,7 +53,7 @@ class Photo(models.Model):
     post_time = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
-        return self.photo_id
+        return str(self.photo_id)
 
 
 class PhotoTag(models.Model):
