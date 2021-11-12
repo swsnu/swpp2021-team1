@@ -107,7 +107,24 @@ class DiscussionTestCase(TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertIn("DISS_A_TITLE", response.content.decode())
         userA = User.objects.get(user_id=1)
+        userAProfilePicture = userA.profile_picture.url
         self.assertIn(userA.profile_picture.url, response.content.decode())
+
+
+        userB = User.objects.get(user_id=2)
+
+        userA.profile_picture = []
+        userA.save()
+        response = client.post(
+            '/api/repositories/1/discussions/',
+            json.dumps({'title' : "DISS_C_TITLE", 'text': "DISS_C_TEXT"}), 
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertIn("DISS_C_TITLE", response.content.decode())
+        self.assertNotIn(userAProfilePicture, response.content.decode())
+
+
 
         response = client.post(
             '/api/repositories/1/discussions/',

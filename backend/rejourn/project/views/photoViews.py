@@ -91,7 +91,7 @@ def photos(request, repo_id):
             return HttpResponseNoPermission()
         
         try:
-            image_list = request.FILES.getlist('image')
+            image_list = request.FILES.getlist('image')\
         except(KeyError) as e:
             return HttpResponseBadRequest()
 
