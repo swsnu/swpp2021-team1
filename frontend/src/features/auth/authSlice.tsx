@@ -28,13 +28,14 @@ export const signOut = createAsyncThunk<void, void>(
         await getSignOut(),
 );
 
-export const addFriend = createAsyncThunk<IUser, string, {state: {auth: AuthState}}>(
+export const addFriend = createAsyncThunk<{user: IUser, friend: IUser}, {username: string, fusername: string}>(
     "auth/addfriend",
-    async (friendUsername, thunkAPI) => {
-        const { auth: { account } } = thunkAPI.getState();
-        await postFriends(account?.username as string, friendUsername);
-        const friendObject = await getUser(friendUsername);
-        return friendObject;
+    async ({ username, fusername }, thunkAPI) => {
+        await postFriends(username, fusername);
+        const user = await getUser(username);
+        const friend = await getUser(fusername);
+        if (!(user.friends) || !(friend.friends)) thunkAPI.rejectWithValue("");
+        return { user, friend };
     },
 );
 
@@ -61,11 +62,10 @@ interface IProfileForm {
     password: string
 }
 
-export const updateProfile = createAsyncThunk<IProfileForm, IProfileForm, {state: {auth: AuthState}}>(
+export const updateProfile = createAsyncThunk<
+IProfileForm, {account: IUser, form: IProfileForm}>(
     "auth/updateProfile",
-    async (form, thunkAPI) => {
-        const { auth }: {auth: AuthState} = thunkAPI.getState();
-        const { account } = auth;
+    async ({ account, form }, thunkAPI) => {
         if (account) {
             await putUser({
                 ...account,
@@ -171,9 +171,10 @@ const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
             state.isLoading = false;
             state.hasError = true;
         });
-        builder.addCase(addFriend.fulfilled, (state: AuthState, action: PayloadAction<IUser>) => {
-            const friendObject = action.payload;
-            if (state.account?.friends) state.account?.friends.push(friendObject);
+        builder.addCase(addFriend.fulfilled, (state: AuthState, action) => {
+            const { user, friend } = action.payload;
+            if (!user.friends) return;
+            if (user.friends) user.friends.push(friendObject);
             if (state.currentUser?.username === friendObject.username) {
                 if (state.currentUser?.friends && state.account) state.currentUser?.friends.push(state.account);
             }

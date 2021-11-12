@@ -423,12 +423,12 @@ export const getUserPostsHE = handlerException("/api/users/:username/posts/", "G
 export const getRepoPostsHE = handlerException("/api/repositories/:repo_id/posts/", "GET");
 
 export const postRepoPostHE = handlerException("/api/repositories/:repo_id/posts/", "POST");
-export const getPost = handlerException("/api/posts/:post_id/", "GET");
-export const putPost = handlerException("/api/posts/:post_id/", "PUT");
-export const deletePost = handlerException("/api/posts/:post_id/", "DELETE");
+export const getPostHE = handlerException("/api/posts/:post_id/", "GET");
+export const putPostHE = handlerException("/api/posts/:post_id/", "PUT");
+export const deletePostHE = handlerException("/api/posts/:post_id/", "DELETE");
 
-export const getPostComments = handlerException("/api/posts/:post_id/comments/", "GET");
-export const postPostComment = handlerException("/api/posts/:post_id/comments/", "POST");
-export const getPostComment = handlerException("/api/posts/:post_id/comments/:post_comment_id/", "GET");
-export const putPostComment = handlerException("/api/posts/:post_id/comments/:post_comment_id/", "PUT");
-export const deletePostComment = handlerException("/api/posts/:post_id/comments/:post_comment_id/", "DELETE");
+export const getPostCommentsHE = handlerException("/api/posts/:post_id/comments/", "GET");
+export const postPostCommentHE = handlerException("/api/posts/:post_id/comments/", "POST");
+export const getPostCommentHE = handlerException("/api/posts/:post_id/comments/:post_comment_id/", "GET");
+export const putPostCommentHE = handlerException("/api/posts/:post_id/comments/:post_comment_id/", "PUT");
+export const deletePostCommentHE = handlerException("/api/posts/:post_id/comments/:post_comment_id/", "DELETE");

@@ -83,16 +83,15 @@ describe("authSlice", () => {
         const status = response.meta.requestStatus;
         expect(status).toBe("fulfilled");
     });
-    // it("should add friend correctly (currentUser is friend)", async () => {
-    //     await store.dispatch(switchCurrentUser("abc"));
-    //     await store.dispatch(fetchSession());
-    //     const { currentUser } = store.getState().auth;
-    //     const len = currentUser?.friends ? currentUser?.friends.length : 0;
-    //     const response = await store.dispatch(addFriend(currentUser?.username ? currentUser?.username : "abc"));
-    //     const status = response.meta.requestStatus;
-    //     expect(status).toBe("fulfilled");
-    //     expect(currentUser?.friends).toHaveLength(len + 1);
-    // });
+    it("should add friend correctly when currentUser is the new friend", async () => {
+        await store.dispatch(switchCurrentUser("abc"));
+        const currentUsername = store.getState().auth.currentUser?.username as string;
+        const response = await store.dispatch(
+            addFriend(currentUsername),
+        );
+        const status = response.meta.requestStatus;
+        expect(status).toBe("fulfilled");
+    });
     it("should handle add friend error", async () => {
         server.use(postUserFriendHE);
         const response = await store.dispatch(addFriend("abc"));
@@ -112,37 +111,26 @@ describe("authSlice", () => {
         expect(status).toBe("rejected");
     });
 
-    it("should handle update profile w/o session", async () => {
+    it("should handle update profile", async () => {
         const response = await store.dispatch(updateProfile({
-            email: "a", real_name: "a", bio: "a", password: "a",
+            account: fact.userGen(),
+            form: {
+                email: "a", real_name: "a", bio: "a", password: "a",
+            },
         }));
         const status = response.meta.requestStatus;
         expect(status).toBe("fulfilled");
     });
-    it("should handle update profile w/ session", async () => {
-        await store.dispatch(fetchSession());
-        const response = await store.dispatch(updateProfile({
-            email: "a", real_name: "a", bio: "a", password: "a",
-        }));
-        const status = response.meta.requestStatus;
-        expect(status).toBe("fulfilled");
-    });
-    it("should handle update profile error w/o session", async () => {
+    it("should handle update profile error", async () => {
         server.use(putUserHE);
         const response = await store.dispatch(updateProfile({
-            email: "a", real_name: "a", bio: "a", password: "a",
+            account: fact.userGen(),
+            form: {
+                email: "a", real_name: "a", bio: "a", password: "a",
+            },
         }));
         const status = response.meta.requestStatus;
-        expect(status).toBe("fulfilled");
-    });
-    it("should handle update profile error w/ session", async () => {
-        await store.dispatch(fetchSession());
-        server.use(putUserHE);
-        const response = await store.dispatch(updateProfile({
-            email: "a", real_name: "a", bio: "a", password: "a",
-        }));
-        const status = response.meta.requestStatus;
-        expect(status).toBe("fulfilled");
+        expect(status).toBe("rejected");
     });
 
     it("should handle toBeLoaded", () => {
