@@ -475,6 +475,81 @@ class RepositoryTestCase(TestCase):
             json.dumps({'username' : "TEST_USER_B", 'password' : "TEST_PASSWORD_B"}), 
             content_type='application/json'
         )
+        clientD = Client()
+        clientD.post(
+            '/api/signin/',
+            json.dumps({'username' : "TEST_USER_D", 'password' : "TEST_PASSWORD_D"}), 
+            content_type='application/json'
+        )
+        clientAnonymous = Client()
+
+        response = clientA.delete('/api/repositories/1/collaborators/')
+        self.assertEqual(response.status_code, 405)
+
+        response = clientA.get('/api/repositories/100/collaborators/')
+        self.assertEqual(response.status_code, 404)
+        response = clientAnonymous.get('/api/repositories/3/collaborators/')
+        self.assertEqual(response.status_code, 403)
+        response = clientA.get('/api/repositories/3/collaborators/')
+        self.assertEqual(response.status_code, 403)
+        
+        response = clientD.get('/api/repositories/2/collaborators/')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('"TEST_USER_B"', response.content.decode())
+        self.assertIn('"TEST_USER_C"', response.content.decode())
+
+        response = clientAnonymous.post('/api/repositories/1/collaborators/',
+        json.dumps([
+            {'username' : 'TEST_USER_B'}
+        ]),
+        content_type='application/json')
+        self.assertEqual(response.status_code, 401)
+        response = clientA.post('/api/repositories/100/collaborators/',
+        json.dumps([
+            {'username' : 'TEST_USER_B'}
+        ]),
+        content_type='application/json')
+        self.assertEqual(response.status_code, 404)
+        response = clientB.post('/api/repositories/1/collaborators/',
+        json.dumps([
+            {'username' : 'TEST_USER_B'}
+        ]),
+        content_type='application/json')
+        self.assertEqual(response.status_code, 403)
+        response = clientA.post('/api/repositories/1/collaborators/',
+        json.dumps([
+            {}
+        ]),
+        content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+        response = clientA.post('/api/repositories/1/collaborators/',
+        json.dumps([
+            {'username' : 'unknown'}
+        ]),
+        content_type='application/json')
+        self.assertEqual(response.status_code, 410)
+        response = clientA.post('/api/repositories/1/collaborators/',
+        json.dumps([
+            {'username' : 'TEST_USER_B'}
+        ]),
+        content_type='application/json')
+        self.assertEqual(response.status_code, 201)
+        self.assertIn('"TEST_USER_B"', response.content.decode())
+        
+
+    def test_respositoryCollaboratorID(self):
+        clientA = Client()
+        clientA.post(
+            '/api/signin/',
+            json.dumps({'username' : "TEST_USER_A", 'password' : "TEST_PASSWORD_A"}), 
+            content_type='application/json'
+        )
+        clientB = Client()
+        clientB.post(
+            '/api/signin/',
+            json.dumps({'username' : "TEST_USER_B", 'password' : "TEST_PASSWORD_B"}), 
+            content_type='application/json'
+        )
         clientC = Client()
         clientC.post(
             '/api/signin/',
@@ -489,9 +564,21 @@ class RepositoryTestCase(TestCase):
         )
         clientAnonymous = Client()
 
-        clientA.delete('/api/repositories/1/collaborators/')
-        
+        response = clientA.post('/api/repositories/2/collaborators/TEST_USER_C/')
+        self.assertEqual(response.status_code, 405)
 
+        response = clientAnonymous.delete('/api/repositories/2/collaborators/TEST_USER_C/')
+        self.assertEqual(response.status_code, 401)
+        response = clientC.delete('/api/repositories/100/collaborators/TEST_USER_C/')
+        self.assertEqual(response.status_code, 404)
+        response = clientC.delete('/api/repositories/2/collaborators/unknown/')
+        self.assertEqual(response.status_code, 404)
+        response = clientC.delete('/api/repositories/2/collaborators/TEST_USER_B/')
+        self.assertEqual(response.status_code, 403)
+        response = clientB.delete('/api/repositories/2/collaborators/TEST_USER_B/')
+        self.assertEqual(response.status_code, 410)
 
-    def test_respositoryCollaboratorID(self):
-        pass
+        response = clientC.delete('/api/repositories/2/collaborators/TEST_USER_C/')
+        self.assertEqual(response.status_code, 202)
+        self.assertIn('"TEST_USER_B"', response.content.decode())
+        self.assertNotIn('"TEST_USER_C"', response.content.decode())

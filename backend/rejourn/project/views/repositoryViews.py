@@ -324,27 +324,26 @@ def repositoryCollaborators(request, repo_id):
         if ( not request.user.is_authenticated ) and ( repository.visibility != Scope.PUBLIC ):
             return HttpResponseNoPermission()
 
-        if ( ( repository.visibility == Scope.PUBLIC ) or ( request.user in repository.collaborators.all() ) 
+        if not ( ( repository.visibility == Scope.PUBLIC ) or ( request.user in repository.collaborators.all() ) 
                 or ( repository.visibility == Scope.FRIENDS_ONLY and 
                 have_common_user(request.user.friends.all(), repository.collaborators.all()) ) ):
-            
-            collaborator_list = []
-            for user in repository.collaborators.all():
-                if not bool(user.profile_picture):
-                    collaborator_list.append({
-                        'username' : user.username,
-                        'bio' : user.bio,
-                    })
-                else:
-                    collaborator_list.append({
-                        'username' : user.username,
-                        'profile_picture' : user.profile_picture.url,
-                        'bio' : user.bio,
-                    })
-            return HttpResponseSuccessGet(collaborator_list)
-        
-        else:
             return HttpResponseNoPermission()
+
+        collaborator_list = []
+        for user in repository.collaborators.all():
+            if not bool(user.profile_picture):
+                collaborator_list.append({
+                    'username' : user.username,
+                    'bio' : user.bio,
+                })
+            else:
+                collaborator_list.append({
+                    'username' : user.username,
+                    'profile_picture' : user.profile_picture.url,
+                    'bio' : user.bio,
+                })
+        return HttpResponseSuccessGet(collaborator_list)
+        
 
     elif request.method == 'POST':
         if not request.user.is_authenticated:
@@ -408,7 +407,10 @@ def repositoryCollaboratorID(request, repo_id, collaborator_name):
         if deleted != request.user:
             return HttpResponseNoPermission()
         
-        repository.collaborator.remove(deleted)
+        if deleted == repository.owner:
+            return HttpResponseInvalidInput()
+
+        repository.collaborators.remove(deleted)
 
         collaborator_list = []
         for user in repository.collaborators.all():
