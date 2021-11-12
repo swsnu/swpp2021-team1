@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Form } from "react-bootstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { IComment, IUser } from "../../common/Interfaces";
 import "./Comments.css";
 import avatar from "../../common/assets/avatar.jpg";
@@ -31,7 +32,7 @@ const Comment = (props: CommentProps) => {
 
     return (
         <>
-            <div className="bg-white p-2">
+            <div className="bg-white p-2" style={{ border: "1px solid lightgrey" }}>
 
                 <div className="d-flex flex-row user-info">
                     <img
@@ -68,46 +69,46 @@ const Comment = (props: CommentProps) => {
                         <p className="comment-text">{comment.text}</p>
                     </div>
                 )}
-            </div>
-            <div className="bg-white">
-                <div className="d-flex flex-row">
-                    {isEditable && (
-                        <>
-                            {mode ? (
+
+                <div className="bg-white">
+                    <div className="d-flex flex-row">
+                        {isEditable && (
+                            <>
+                                {mode ? (
+                                    <div
+                                        className="like p-2 cursor"
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={onEdit}
+                                        onKeyDown={onEdit}
+                                    >
+                                        <span className="ml-1">Commit</span>
+                                    </div>
+                                ) : (
+                                    <div
+                                        className="like p-2 cursor"
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={changeMode}
+                                        onKeyDown={changeMode}
+                                    >
+                                        <FontAwesomeIcon icon="edit" />
+                                        <span className="ml-1">Edit</span>
+                                    </div>
+                                )}
                                 <div
                                     className="like p-2 cursor"
                                     role="button"
                                     tabIndex={0}
-                                    onClick={onEdit}
-                                    onKeyDown={onEdit}
+                                    onClick={del}
+                                    onKeyDown={del}
                                 >
-                                    <i className="fa fa-edit-o" />
-                                    <span className="ml-1">Commit</span>
+                                    <FontAwesomeIcon icon="trash" />
+                                    <span className="ml-1">Delete</span>
                                 </div>
-                            ) : (
-                                <div
-                                    className="like p-2 cursor"
-                                    role="button"
-                                    tabIndex={0}
-                                    onClick={changeMode}
-                                    onKeyDown={changeMode}
-                                >
-                                    <i className="fa fa-edit-o" />
-                                    <span className="ml-1">Edit</span>
-                                </div>
-                            )}
-                            <div
-                                className="like p-2 cursor"
-                                role="button"
-                                tabIndex={0}
-                                onClick={del}
-                                onKeyDown={del}
-                            >
-                                <i className="fa fa-trash" />
-                                <span className="ml-1">Delete</span>
-                            </div>
-                        </>
-                    )}
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
         </>

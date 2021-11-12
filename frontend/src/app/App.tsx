@@ -18,6 +18,7 @@ import RepositoryHeader from "../features/repository/RepositoryHeader";
 import PostList from "../features/post/PostList";
 import "./App.css";
 import PostDetail from "../features/post/PostDetail";
+import PostCreate from "../features/post/PostCreate";
 
 export default function App() {
     return (
@@ -69,6 +70,22 @@ export default function App() {
                                             exact
                                             component={DiscussionDetail}
                                         />
+                                        <Route
+                                            exact
+                                            path="/repos/:repo_id/posts/create"
+                                            render={() => <PostCreate mode="create/repo" />}
+                                        />
+                                        <Route
+                                            exact
+                                            path="/repos/:repo_id/posts"
+                                            component={PostList}
+                                        />
+                                        <Route
+                                            path="/main/:user/create"
+                                            exact
+                                            render={() => <PostCreate mode="create/user" />}
+                                        />
+                                        {/* <Route path="/posts/:post_id/edit" */}
                                         <Route path="/posts/:post_id" exact component={PostDetail} />
                                         <Redirect from="/" to="/login" />
                                     </Switch>

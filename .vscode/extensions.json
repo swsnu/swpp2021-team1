@@ -1,18 +1,16 @@
 {
-   "recommendations": [
+"recommendations": [
       "batisteo.vscode-django",
       "dsznajder.es7-react-js-snippets",
-      "mikestead.dotenv",
       "dbaeumer.vscode-eslint",
       "eamodio.gitlens",
       "ecmel.vscode-html-css",
       "kisstkondoros.vscode-gutter-preview",
       "orta.vscode-jest",
       "zainchen.json",
-      "quicktype.quicktype",
       "christian-kohler.path-intellisense",
-      "ms-python.vscode-pylance",
-      "gamunu.vscode-yarn",
-      "ms-python.python"
-   ]
+      "chakrounanas.turbo-console-log",
+      "ms-python.python",
+      "justinmahar.react-bootstrap-snippets"
+]
 }

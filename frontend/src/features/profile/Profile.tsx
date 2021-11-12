@@ -2,17 +2,18 @@ import React, { useEffect, useState } from "react";
 import { useHistory, Link } from "react-router-dom";
 import { RouteComponentProps, useParams } from "react-router";
 import {
-    ButtonGroup, Button, Image, AccordionButton,
+    ButtonGroup, Button, Image,
 } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
-import { IUser } from "../../common/Interfaces";
+import { ALL } from "dns";
+import { IUser, Visibility } from "../../common/Interfaces";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { getFriends } from "../../common/APIs";
 import FriendList from "./popup/FriendList";
 import "./Profile.css";
-import { addFriend, switchCurrentUser, toBeLoaded } from "../auth/authSlice";
+import { addFriend, switchCurrentUser } from "../auth/authSlice";
 import avatar from "../../common/assets/avatar.jpg";
 
 interface ProfileProps {}
@@ -78,11 +79,22 @@ export default function Profile(props: ProfileProps) {
     if (hasError) {
         return <div>error!</div>;
     }
+    let friendListVisible = false;
+    if (currentUser?.username === account?.username) friendListVisible = true;
+    else if (currentUser?.visibility === Visibility.ALL) {
+        friendListVisible = true;
+    }
+    else if (currentUser?.visibility === Visibility.MEMBER_AND_FRIENDS) {
+        if (account?.friends && account?.friends
+            .find((friend) => friend.username === currentUser.username)) {
+            friendListVisible = true;
+        }
+    }
 
     return (
         <div id="profile-card" className="d-flex mx-auto">
             <div className="flex-shrink-0">
-                <Image id="profile-image" src={profile_picture} roundedCircle alt="profile" />
+                <Image width="100" height="100" id="profile-image" src={profile_picture} roundedCircle alt="profile" />
             </div>
             <div className="flex-grow-1 mx-4">
                 <div className="d-flex align-items-center mb-2">
@@ -93,7 +105,7 @@ export default function Profile(props: ProfileProps) {
                         {currentUser ? currentUser.username : "error"}
                     </h4>
                     <p id="username" className="small text-muted mb-0">
-                        @
+
                         {currentUser && currentUser.real_name ? currentUser.real_name : ""}
                     </p>
                 </div>
@@ -106,13 +118,15 @@ export default function Profile(props: ProfileProps) {
                         onClick={onFriendsClick}
                         className="ms-0 ps-0 text-decoration-none"
                         variant="link"
+                        hidden={!friendListVisible}
+
                     >
                         <strong>{friendList.length}</strong>
                                     &nbsp;friend
                         {friendList.length === 1 ? "" : "s"}
                     </Button>
                     <FriendList
-                        currentUser={currentUser && currentUser.real_name ? currentUser.real_name : ""}
+                        currentUser={currentUser ? currentUser.username : ""}
                         modalShow={friendModalShow}
                         friendList={friendList}
                         handleClose={onClose}

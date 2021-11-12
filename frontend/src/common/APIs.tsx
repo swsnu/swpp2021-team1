@@ -1,9 +1,8 @@
-import axios, { Axios, AxiosResponse } from "axios";
-import { afterWrite } from "@popperjs/core";
+import axios, { AxiosResponse } from "axios";
 import {
     IComment,
     IDiscussion,
-    IPhoto, IPost, IRepository, IUser, Visibility,
+    IPhoto, IPost, IRepository, IUser,
 } from "./Interfaces";
 
 axios.defaults.xsrfCookieName = "csrftoken";
@@ -162,15 +161,9 @@ export async function getRepositoryPosts(repo_id: number) {
     )).data;
 }
 
-interface ILocalPhoto {
-    photo_id: number,
-    local_tag: string,
-    image: string
-}
-
-export async function postPost(repo_id: number, post: {title: string, text: string, photos: ILocalPhoto[]}) {
+export async function postPost(repo_id: number, post: {title: string, text: string, photos: IPhoto[]}) {
     return (await axios.post<any, AxiosResponse<IPost>>(
-        `/api/respositories/${repo_id}/posts/`, post,
+        `/api/repositories/${repo_id}/posts/`, post,
     )).data;
 }
 
@@ -180,7 +173,7 @@ export async function getPost(post_id: number) {
     )).data;
 }
 
-export async function putPost(post_id: number, title: string, text: string, photos: ILocalPhoto[]) {
+export async function putPost(post_id: number, title: string, text: string, photos: IPhoto[]) {
     return (await axios.put<any, AxiosResponse<IPost>>(
         `/api/posts/${post_id}/`, { title, text, photos },
     )).data;
@@ -208,9 +201,9 @@ export async function getPostComment(post_id: number, post_comment_id: number) {
     )).data;
 }
 
-export async function putPostComment(postId: number, commentId: number, content: string) {
+export async function putPostComment(postId: number, commentId: number, text: string) {
     return (await axios.put<any, AxiosResponse<IComment[]>>(
-        `/api/posts/${postId}/comments/${commentId}/`, { content },
+        `/api/posts/${postId}/comments/${commentId}/`, { text },
     )).data;
 }
 

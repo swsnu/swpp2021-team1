@@ -13,6 +13,8 @@ import * as actionCreators from "../auth/authSlice";
 import { IUser } from "../../common/Interfaces";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 
+import avatar from "../../common/assets/avatar.jpg";
+
 interface SidebarProps {
 
 }
@@ -89,13 +91,13 @@ function Sidebar(props: SidebarProps) {
                     data-bs-toggle="dropdown"
                 >
                     <img
-                        src={account?.profile_picture}
+                        src={account?.profile_picture ? account?.profile_picture : avatar}
                         alt=""
                         width="32"
                         height="32"
                         className="rounded-circle me-2"
                     />
-                    <strong>{account?.real_name}</strong>
+                    <strong>{account?.username}</strong>
                 </Dropdown.Toggle>
                 <Dropdown.Menu className="text-small shadow">
                     <Dropdown.Item
