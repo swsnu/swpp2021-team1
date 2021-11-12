@@ -8,7 +8,6 @@ import { IUser } from "../../common/Interfaces";
 import {
     getSession, getSignOut, getUser, postFriends, postSignIn, postUsers, putUser,
 } from "../../common/APIs";
-import store, { RootState } from "../../app/store";
 
 export const signIn = createAsyncThunk<IUser, {username : string, password : string}>(
     "auth/signin", // action type
@@ -29,7 +28,7 @@ export const signOut = createAsyncThunk<void, void>(
         await getSignOut(),
 );
 
-export const addFriend = createAsyncThunk<IUser, string, {state: RootState}>(
+export const addFriend = createAsyncThunk<IUser, string, {state: {auth: AuthState}}>(
     "auth/addfriend",
     async (friendUsername, thunkAPI) => {
         const { auth: { account } } = thunkAPI.getState();
@@ -40,7 +39,7 @@ export const addFriend = createAsyncThunk<IUser, string, {state: RootState}>(
 );
 
 export const switchCurrentUser = createAsyncThunk<IUser,
-string, {state: RootState}>(
+string, {state: {auth: AuthState}}>(
     "auth/switchCurrentUser",
     async (username, thunkAPI) => {
         const { auth: { account } } = thunkAPI.getState();
@@ -62,7 +61,7 @@ interface IProfileForm {
     password: string
 }
 
-export const updateProfile = createAsyncThunk<IProfileForm, IProfileForm, {state: RootState}>(
+export const updateProfile = createAsyncThunk<IProfileForm, IProfileForm, {state: {auth: AuthState}}>(
     "auth/updateProfile",
     async (form, thunkAPI) => {
         const { auth }: {auth: AuthState} = thunkAPI.getState();

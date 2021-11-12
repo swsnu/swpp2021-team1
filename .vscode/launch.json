@@ -20,6 +20,6 @@
             "protocol": "inspector",
             "internalConsoleOptions": "neverOpen",
             "disableOptimisticBPs": true
-        }
+        },
     ]
 }

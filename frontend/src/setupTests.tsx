@@ -10,7 +10,3 @@ Enzyme.configure({
     adapter: new (EnzymeAdapter as any)(),
     disableLifecycleMethods: true,
 });
-
-// beforeAll(() => server.listen());
-// afterEach(() => server.resetHandlers);
-// afterAll(() => server.close());
