@@ -6,13 +6,13 @@ from .postTests import PostTestCase, PostCommentTestCase
 from .repositoryTests import RepositoryTestCase
 
 __all__ = [
-   'ModelsTestCase',
-   'UserTestCase',
-   'UserFriendTestCase',
-   'DiscussionTestCase',
-   'DiscussionCommentTestCase',
-   'RepositoryTestCase',
-   'PhotoTestCase',
-   'PostTestCase',
-   'PostCommentTestCase',
+    "ModelsTestCase",
+    "UserTestCase",
+    "UserFriendTestCase",
+    "DiscussionTestCase",
+    "DiscussionCommentTestCase",
+    "RepositoryTestCase",
+    "PhotoTestCase",
+    "PostTestCase",
+    "PostCommentTestCase",
 ]

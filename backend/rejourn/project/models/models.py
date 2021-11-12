@@ -1,13 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models.fields import CharField, DateTimeField
-from project.enum import Scope
 from django.utils import timezone
+
 from project.utils import profile_upload_to_func, photo_upload_to_func
+from project.enum import Scope
 
 
 class User(AbstractUser):
-    
     # email
     # password
     user_id = models.BigAutoField(primary_key=True)
@@ -43,15 +43,15 @@ class Repository(models.Model):
 class Photo(models.Model):
     photo_id = models.BigAutoField(primary_key=True)
     repository = models.ForeignKey(
-        Repository, 
+        Repository,
         on_delete=models.CASCADE)
-    image_file = models.ImageField(upload_to = photo_upload_to_func)
+    image_file = models.ImageField(upload_to=photo_upload_to_func)
     uploader = models.ForeignKey(
         User,
         on_delete=models.CASCADE)
     # place = models.ForeignKey(Place, on_delete=models.SET_NULL)
     post_time = models.DateTimeField(auto_now_add=True)
-    
+
     def __str__(self):
         return str(self.photo_id)
 
