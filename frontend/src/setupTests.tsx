@@ -11,6 +11,6 @@ Enzyme.configure({
     disableLifecycleMethods: true,
 });
 
-beforeAll(() => server.listen());
-afterEach(() => server.resetHandlers);
-afterAll(() => server.close());
+// beforeAll(() => server.listen());
+// afterEach(() => server.resetHandlers);
+// afterAll(() => server.close());
