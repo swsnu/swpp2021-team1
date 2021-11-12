@@ -1,24 +1,17 @@
 {
    "recommendations": [
       "batisteo.vscode-django",
-      "pranaygp.vscode-css-peek",
       "dsznajder.es7-react-js-snippets",
       "mikestead.dotenv",
       "dbaeumer.vscode-eslint",
       "eamodio.gitlens",
       "ecmel.vscode-html-css",
-      "bradgashler.htmltagwrap",
       "kisstkondoros.vscode-gutter-preview",
       "orta.vscode-jest",
       "zainchen.json",
       "quicktype.quicktype",
       "christian-kohler.path-intellisense",
-      "paulshen.paul-typescript-toolkit",
       "ms-python.vscode-pylance",
-      "zenclabs.reactpreview",
-      "chakrounanas.turbo-console-log",
-      "rbbit.typescript-hero",
-      "infeng.vscode-react-typescript",
       "gamunu.vscode-yarn",
       "ms-python.python"
    ]
