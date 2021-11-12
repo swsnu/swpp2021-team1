@@ -51,7 +51,7 @@ def discussions(request, repo_id):
         }
         return HttpResponseSuccessUpdate(response_dict)
 
-    elif request.method == "GET":
+    if request.method == "GET":
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
 
@@ -83,8 +83,8 @@ def discussions(request, repo_id):
                 },
             )
         return HttpResponseSuccessGet(discussion_list)
-    else:
-        return HttpResponseNotAllowed(["POST", "GET"])
+
+    return HttpResponseNotAllowed(["POST", "GET"])
 
 
 def discussionID(request, discussion_id):
@@ -137,7 +137,7 @@ def discussionID(request, discussion_id):
         }
         return HttpResponseSuccessGet(response_dict)
 
-    elif request.method == "DELETE":
+    if request.method == "DELETE":
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
         try:
@@ -152,7 +152,7 @@ def discussionID(request, discussion_id):
 
         return HttpResponseSuccessDelete()
 
-    elif request.method == "PUT":
+    if request.method == "PUT":
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
 
@@ -213,8 +213,8 @@ def discussionID(request, discussion_id):
         }
         return HttpResponseSuccessUpdate(response_dict)
 
-    else:
-        return HttpResponseNotAllowed(["PUT", "DELETE", "GET"])
+
+    return HttpResponseNotAllowed(["PUT", "DELETE", "GET"])
 
 
 def discussionComments(request, discussion_id):
@@ -263,7 +263,7 @@ def discussionComments(request, discussion_id):
 
         return HttpResponseSuccessUpdate(comment_list)
 
-    elif request.method == "GET":
+    if request.method == "GET":
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
         try:
@@ -295,8 +295,7 @@ def discussionComments(request, discussion_id):
 
         return HttpResponseSuccessGet(comment_list)
 
-    else:
-        return HttpResponseNotAllowed(["POST", "GET"])
+    return HttpResponseNotAllowed(["POST", "GET"])
 
 
 def discussionCommentID(request, discussion_id, discussion_comment_id):
@@ -339,7 +338,7 @@ def discussionCommentID(request, discussion_id, discussion_comment_id):
         }
         return HttpResponseSuccessGet(response_dict)
 
-    elif request.method == "DELETE":
+    if request.method == "DELETE":
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
 
@@ -383,7 +382,7 @@ def discussionCommentID(request, discussion_id, discussion_comment_id):
 
         return HttpResponseSuccessDelete(comment_list)
 
-    elif request.method == "PUT":
+    if request.method == "PUT":
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
 
@@ -436,5 +435,5 @@ def discussionCommentID(request, discussion_id, discussion_comment_id):
 
         return HttpResponseSuccessUpdate(comment_list)
 
-    else:
-        return HttpResponseNotAllowed(["PUT", "DELETE", "GET"])
+
+    return HttpResponseNotAllowed(["PUT", "DELETE", "GET"])

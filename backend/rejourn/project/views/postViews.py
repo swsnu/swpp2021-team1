@@ -2,7 +2,6 @@ import json
 from json.decoder import JSONDecodeError
 
 from django.http.response import HttpResponseBadRequest, HttpResponseNotAllowed
-from django.views.decorators.csrf import ensure_csrf_cookie
 
 from project.models.models import (
     Post,
@@ -21,22 +20,22 @@ def userPosts(request, user_name):
     if request.method == "GET":
         try:
             user = User.objects.get(username=user_name)
-        except (User.DoesNotExist):
+        except User.DoesNotExist:
             return HttpResponseNotExist()
 
         post_list = []
         for post in Post.objects.filter(author=user):
             repository = post.repository
             if (
-                (repository.visibility == Scope.PUBLIC)
-                or (request.user in repository.collaborators.all())
-                or (
-                    repository.visibility == Scope.FRIENDS_ONLY
-                    and have_common_user(
-                        request.user.friends.all(), repository.collaborators.all()
+                    (repository.visibility == Scope.PUBLIC)
+                    or (request.user in repository.collaborators.all())
+                    or (
+                        repository.visibility == Scope.FRIENDS_ONLY
+                        and have_common_user(
+                            request.user.friends.all(), repository.collaborators.all()
+                        )
                     )
-                )
-            ):
+                ):
 
                 photo_list = []
                 for photo_order in PhotoInPost.objects.filter(post=post):
@@ -69,8 +68,7 @@ def userPosts(request, user_name):
 
         return HttpResponseSuccessGet(post_list)
 
-    else:
-        return HttpResponseNotAllowed(["GET"])
+    return HttpResponseNotAllowed(["GET"])
 
 
 def repoPosts(request, repo_id):
@@ -79,7 +77,7 @@ def repoPosts(request, repo_id):
             return HttpResponseNotLoggedIn()
         try:
             repository = Repository.objects.get(repo_id=repo_id)
-        except (Repository.DoesNotExist):
+        except Repository.DoesNotExist:
             return HttpResponseNotExist()
 
         if request.user not in repository.collaborators.all():
@@ -108,7 +106,7 @@ def repoPosts(request, repo_id):
         for photo_id in photo_id_list:
             try:
                 photo = Photo.objects.get(photo_id=photo_id["photo_id"])
-            except (Photo.DoesNotExist):
+            except Photo.DoesNotExist:
                 return HttpResponseInvalidInput()
             if photo.repository != repository:
                 return HttpResponseInvalidInput()
@@ -162,22 +160,22 @@ def repoPosts(request, repo_id):
         }
         return HttpResponseSuccessUpdate(response_dict)
 
-    elif request.method == "GET":
+    if request.method == "GET":
         try:
             repository = Repository.objects.get(repo_id=repo_id)
-        except (Repository.DoesNotExist):
+        except Repository.DoesNotExist:
             return HttpResponseNotExist()
 
         if not (
-            (repository.visibility == Scope.PUBLIC)
-            or (request.user in repository.collaborators.all())
-            or (
-                repository.visibility == Scope.FRIENDS_ONLY
-                and have_common_user(
-                    request.user.friends.all(), repository.collaborators.all()
+                (repository.visibility == Scope.PUBLIC)
+                or (request.user in repository.collaborators.all())
+                or (
+                    repository.visibility == Scope.FRIENDS_ONLY
+                    and have_common_user(
+                        request.user.friends.all(), repository.collaborators.all()
+                    )
                 )
-            )
-        ):
+            ):
             return HttpResponseNoPermission()
 
         post_list = []
@@ -214,29 +212,28 @@ def repoPosts(request, repo_id):
             )
         return HttpResponseSuccessGet(post_list)
 
-    else:
-        return HttpResponseNotAllowed(["POST", "GET"])
+    return HttpResponseNotAllowed(["POST", "GET"])
 
 
 def postID(request, post_id):
     if request.method == "GET":
         try:
             post = Post.objects.get(post_id=post_id)
-        except (Post.DoesNotExist):
+        except Post.DoesNotExist:
             return HttpResponseNotExist()
 
         repository = post.repository
 
         if not (
-            (repository.visibility == Scope.PUBLIC)
-            or (request.user in repository.collaborators.all())
-            or (
-                repository.visibility == Scope.FRIENDS_ONLY
-                and have_common_user(
-                    request.user.friends.all(), repository.collaborators.all()
+                (repository.visibility == Scope.PUBLIC)
+                or (request.user in repository.collaborators.all())
+                or (
+                    repository.visibility == Scope.FRIENDS_ONLY
+                    and have_common_user(
+                        request.user.friends.all(), repository.collaborators.all()
+                    )
                 )
-            )
-        ):
+            ):
             return HttpResponseNoPermission()
 
         photo_list = []
@@ -286,13 +283,13 @@ def postID(request, post_id):
         }
         return HttpResponseSuccessGet(response_dict)
 
-    elif request.method == "DELETE":
+    if request.method == "DELETE":
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
 
         try:
             post = Post.objects.get(post_id=post_id)
-        except (Post.DoesNotExist):
+        except Post.DoesNotExist:
             return HttpResponseNotExist()
 
         if not request.user == post.author:
@@ -302,13 +299,13 @@ def postID(request, post_id):
 
         return HttpResponseSuccessDelete()
 
-    elif request.method == "PUT":
+    if request.method == "PUT":
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
 
         try:
             post = Post.objects.get(post_id=post_id)
-        except (Post.DoesNotExist):
+        except Post.DoesNotExist:
             return HttpResponseNotExist()
 
         if not request.user == post.author:
@@ -339,7 +336,7 @@ def postID(request, post_id):
         for photo_id in photo_id_list:
             try:
                 photo = Photo.objects.get(photo_id=photo_id)
-            except (Photo.DoesNotExist):
+            except Photo.DoesNotExist:
                 return HttpResponseInvalidInput()
             if photo.repository != repository:
                 return HttpResponseInvalidInput()
@@ -415,8 +412,7 @@ def postID(request, post_id):
         }
         return HttpResponseSuccessUpdate(response_dict)
 
-    else:
-        return HttpResponseNotAllowed(["PUT", "DELETE", "GET"])
+    return HttpResponseNotAllowed(["PUT", "DELETE", "GET"])
 
 
 def postComments(request, post_id):
@@ -426,21 +422,21 @@ def postComments(request, post_id):
 
         try:
             post = Post.objects.get(post_id=post_id)
-        except (Post.DoesNotExist):
+        except Post.DoesNotExist:
             return HttpResponseNotExist()
 
         repository = post.repository
 
         if not (
-            (repository.visibility == Scope.PUBLIC)
-            or (request.user in repository.collaborators.all())
-            or (
-                repository.visibility == Scope.FRIENDS_ONLY
-                and have_common_user(
-                    request.user.friends.all(), repository.collaborators.all()
+                (repository.visibility == Scope.PUBLIC)
+                or (request.user in repository.collaborators.all())
+                or (
+                    repository.visibility == Scope.FRIENDS_ONLY
+                    and have_common_user(
+                        request.user.friends.all(), repository.collaborators.all()
+                    )
                 )
-            )
-        ):
+            ):
             return HttpResponseNoPermission()
 
         try:
@@ -471,24 +467,24 @@ def postComments(request, post_id):
             )
         return HttpResponseSuccessUpdate(comment_list)
 
-    elif request.method == "GET":
+    if request.method == "GET":
         try:
             post = Post.objects.get(post_id=post_id)
-        except (Post.DoesNotExist):
+        except Post.DoesNotExist:
             return HttpResponseNotExist()
 
         repository = post.repository
 
         if not (
-            (repository.visibility == Scope.PUBLIC)
-            or (request.user in repository.collaborators.all())
-            or (
-                repository.visibility == Scope.FRIENDS_ONLY
-                and have_common_user(
-                    request.user.friends.all(), repository.collaborators.all()
+                (repository.visibility == Scope.PUBLIC)
+                or (request.user in repository.collaborators.all())
+                or (
+                    repository.visibility == Scope.FRIENDS_ONLY
+                    and have_common_user(
+                        request.user.friends.all(), repository.collaborators.all()
+                    )
                 )
-            )
-        ):
+            ):
             return HttpResponseNoPermission()
 
         comment_list = []
@@ -510,20 +506,19 @@ def postComments(request, post_id):
             )
         return HttpResponseSuccessGet(comment_list)
 
-    else:
-        return HttpResponseNotAllowed(["POST", "GET"])
+    return HttpResponseNotAllowed(["POST", "GET"])
 
 
 def postCommentID(request, post_id, post_comment_id):
     if request.method == "GET":
         try:
             comment = PostComment.objects.get(post_comment_id=post_comment_id)
-        except (PostComment.DoesNotExist):
+        except PostComment.DoesNotExist:
             return HttpResponseNotExist()
 
         try:
             post = Post.objects.get(post_id=post_id)
-        except (Post.DoesNotExist):
+        except Post.DoesNotExist:
             return HttpResponseNotExist()
 
         if comment.post != post:
@@ -532,15 +527,15 @@ def postCommentID(request, post_id, post_comment_id):
         repository = post.repository
 
         if not (
-            (repository.visibility == Scope.PUBLIC)
-            or (request.user in repository.collaborators.all())
-            or (
-                repository.visibility == Scope.FRIENDS_ONLY
-                and have_common_user(
-                    request.user.friends.all(), repository.collaborators.all()
+                (repository.visibility == Scope.PUBLIC)
+                or (request.user in repository.collaborators.all())
+                or (
+                    repository.visibility == Scope.FRIENDS_ONLY
+                    and have_common_user(
+                        request.user.friends.all(), repository.collaborators.all()
+                    )
                 )
-            )
-        ):
+            ):
             return HttpResponseNoPermission()
 
         author_info = {
@@ -558,18 +553,18 @@ def postCommentID(request, post_id, post_comment_id):
         }
         return HttpResponseSuccessGet(response_dict)
 
-    elif request.method == "DELETE":
+    if request.method == "DELETE":
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
 
         try:
             comment = PostComment.objects.get(post_comment_id=post_comment_id)
-        except (PostComment.DoesNotExist):
+        except PostComment.DoesNotExist:
             return HttpResponseNotExist()
 
         try:
             post = Post.objects.get(post_id=post_id)
-        except (Post.DoesNotExist):
+        except Post.DoesNotExist:
             return HttpResponseNotExist()
 
         if post != comment.post:
@@ -599,18 +594,18 @@ def postCommentID(request, post_id, post_comment_id):
             )
         return HttpResponseSuccessDelete(comment_list)
 
-    elif request.method == "PUT":
+    if request.method == "PUT":
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
 
         try:
             comment = PostComment.objects.get(post_comment_id=post_comment_id)
-        except (PostComment.DoesNotExist):
+        except PostComment.DoesNotExist:
             return HttpResponseNotExist()
 
         try:
             post = Post.objects.get(post_id=comment.post_id)
-        except (Post.DoesNotExist):
+        except Post.DoesNotExist:
             return HttpResponseNotExist()
 
         try:
@@ -649,5 +644,4 @@ def postCommentID(request, post_id, post_comment_id):
             )
         return HttpResponseSuccessUpdate(comment_list)
 
-    else:
-        return HttpResponseNotAllowed(["PUT", "DELETE", "GET"])
+    return HttpResponseNotAllowed(["PUT", "DELETE", "GET"])

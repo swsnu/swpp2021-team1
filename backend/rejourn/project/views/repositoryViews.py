@@ -44,7 +44,7 @@ def repositories(request):
                 collaborators.append(user)
             if owner not in collaborators:
                 collaborators.append(owner)
-        except (User.DoesNotExist):
+        except User.DoesNotExist:
             return HttpResponseInvalidInput()
 
         try:
@@ -52,7 +52,7 @@ def repositories(request):
             travel_start_date = timezone.make_aware(travel_start_date)
             travel_end_date = datetime.strptime(raw_travel_end_date, "%Y-%m-%d")
             travel_end_date = timezone.make_aware(travel_end_date)
-        except (ValueError):
+        except ValueError:
             return HttpResponseInvalidInput()
 
         new_repo = Repository(
@@ -96,33 +96,33 @@ def repositories(request):
         }
         return HttpResponseSuccessUpdate(response_dict)
 
-    elif request.method == "GET":
+    if request.method == "GET":
         collaborator_name = request.GET.get("username", None)
         owner_name = request.GET.get("owner", None)
         current_user = request.user
 
-        if collaborator_name == None and owner_name == None:
+        if collaborator_name is None and owner_name is None:
             return HttpResponseBadRequest()
 
-        elif collaborator_name != None and owner_name == None:
+        if collaborator_name is not None and owner_name is None:
             try:
                 collaborator = User.objects.get(username=collaborator_name)
-            except (User.DoesNotExist):
+            except User.DoesNotExist:
                 return HttpResponseInvalidInput()
 
             repository_list = []
 
             for repository in collaborator.repositories.all():
                 if (
-                    (current_user in repository.collaborators.all())
-                    or (repository.visibility == Scope.PUBLIC)
-                    or (
-                        repository.visibility == Scope.FRIENDS_ONLY
-                        and have_common_user(
-                            current_user.friends.all(), repository.collaborators.all()
+                        (current_user in repository.collaborators.all())
+                        or (repository.visibility == Scope.PUBLIC)
+                        or (
+                            repository.visibility == Scope.FRIENDS_ONLY
+                            and have_common_user(
+                                current_user.friends.all(), repository.collaborators.all()
+                            )
                         )
-                    )
-                ):
+                    ):
                     collaborator_list = []
                     for user in repository.collaborators.all():
                         if not bool(user.profile_picture):
@@ -159,10 +159,10 @@ def repositories(request):
 
             return HttpResponseSuccessGet(repository_list)
 
-        elif collaborator_name == None and owner_name != None:
+        if collaborator_name is None and owner_name is not None:
             try:
                 owner = User.objects.get(username=owner_name)
-            except (User.DoesNotExist):
+            except User.DoesNotExist:
                 return HttpResponseInvalidInput()
 
             repository_list = []
@@ -171,15 +171,15 @@ def repositories(request):
                 if repository.owner != owner:
                     continue
                 if (
-                    (current_user in repository.collaborators.all())
-                    or (repository.visibility == Scope.PUBLIC)
-                    or (
-                        repository.visibility == Scope.FRIENDS_ONLY
-                        and have_common_user(
-                            current_user.friends.all(), repository.collaborators.all()
+                        (current_user in repository.collaborators.all())
+                        or (repository.visibility == Scope.PUBLIC)
+                        or (
+                            repository.visibility == Scope.FRIENDS_ONLY
+                            and have_common_user(
+                                current_user.friends.all(), repository.collaborators.all()
+                            )
                         )
-                    )
-                ):
+                    ):
                     collaborator_list = []
                     for user in repository.collaborators.all():
                         if not bool(user.profile_picture):
@@ -216,11 +216,10 @@ def repositories(request):
 
             return HttpResponseSuccessGet(repository_list)
 
-        else:  # collaborator_name != None and owner_name != None
-            return HttpResponseBadRequest()
+        # collaborator_name is not None and owner_name is not None
+        return HttpResponseBadRequest()
 
-    else:
-        return HttpResponseNotAllowed(["POST", "GET"])
+    return HttpResponseNotAllowed(["POST", "GET"])
 
 
 @ensure_csrf_cookie
@@ -228,24 +227,24 @@ def repositoryID(request, repo_id):
     if request.method == "GET":
         try:
             repository = Repository.objects.get(repo_id=repo_id)
-        except (Repository.DoesNotExist):
+        except Repository.DoesNotExist:
             return HttpResponseNotExist()
 
         if (not request.user.is_authenticated) and (
-            repository.visibility != Scope.PUBLIC
+                repository.visibility != Scope.PUBLIC
         ):
             return HttpResponseNoPermission()
 
         if not (
-            (repository.visibility == Scope.PUBLIC)
-            or (request.user in repository.collaborators.all())
-            or (
-                repository.visibility == Scope.FRIENDS_ONLY
-                and have_common_user(
-                    request.user.friends.all(), repository.collaborators.all()
+                (repository.visibility == Scope.PUBLIC)
+                or (request.user in repository.collaborators.all())
+                or (
+                    repository.visibility == Scope.FRIENDS_ONLY
+                    and have_common_user(
+                        request.user.friends.all(), repository.collaborators.all()
+                    )
                 )
-            )
-        ):
+            ):
             return HttpResponseNoPermission()
 
         collaborator_list = []
@@ -277,13 +276,13 @@ def repositoryID(request, repo_id):
         }
         return HttpResponseSuccessGet(response_dict)
 
-    elif request.method == "DELETE":
+    if request.method == "DELETE":
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
 
         try:
             repository = Repository.objects.get(repo_id=repo_id)
-        except (Repository.DoesNotExist):
+        except Repository.DoesNotExist:
             return HttpResponseNotExist()
 
         if repository.owner != request.user:
@@ -292,7 +291,7 @@ def repositoryID(request, repo_id):
         repository.delete()
         return HttpResponseSuccessDelete()
 
-    elif request.method == "PUT":
+    if request.method == "PUT":
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
 
@@ -303,7 +302,7 @@ def repositoryID(request, repo_id):
 
             try:
                 new_owner = User.objects.get(username=owner_name)
-            except (User.DoesNotExist):
+            except User.DoesNotExist:
                 return HttpResponseInvalidInput()
 
             raw_travel_start_date = req_data["travel_start_date"]
@@ -320,12 +319,12 @@ def repositoryID(request, repo_id):
             travel_start_date = timezone.make_aware(travel_start_date)
             travel_end_date = datetime.strptime(raw_travel_end_date, "%Y-%m-%d")
             travel_end_date = timezone.make_aware(travel_end_date)
-        except (ValueError):
+        except ValueError:
             return HttpResponseInvalidInput()
 
         try:
             repository = Repository.objects.get(repo_id=repo_id)
-        except (Repository.DoesNotExist):
+        except Repository.DoesNotExist:
             return HttpResponseNotExist()
 
         if repository.owner != request.user:
@@ -368,8 +367,7 @@ def repositoryID(request, repo_id):
         }
         return HttpResponseSuccessUpdate(response_dict)
 
-    else:
-        return HttpResponseNotAllowed(["GET", "DELETE", "PUT"])
+    return HttpResponseNotAllowed(["GET", "DELETE", "PUT"])
 
 
 @ensure_csrf_cookie
@@ -378,24 +376,24 @@ def repositoryCollaborators(request, repo_id):
 
         try:
             repository = Repository.objects.get(repo_id=repo_id)
-        except (Repository.DoesNotExist):
+        except Repository.DoesNotExist:
             return HttpResponseNotExist()
 
         if (not request.user.is_authenticated) and (
-            repository.visibility != Scope.PUBLIC
+                repository.visibility != Scope.PUBLIC
         ):
             return HttpResponseNoPermission()
 
         if not (
-            (repository.visibility == Scope.PUBLIC)
-            or (request.user in repository.collaborators.all())
-            or (
-                repository.visibility == Scope.FRIENDS_ONLY
-                and have_common_user(
-                    request.user.friends.all(), repository.collaborators.all()
+                (repository.visibility == Scope.PUBLIC)
+                or (request.user in repository.collaborators.all())
+                or (
+                    repository.visibility == Scope.FRIENDS_ONLY
+                    and have_common_user(
+                        request.user.friends.all(), repository.collaborators.all()
+                    )
                 )
-            )
-        ):
+            ):
             return HttpResponseNoPermission()
 
         collaborator_list = []
@@ -417,13 +415,13 @@ def repositoryCollaborators(request, repo_id):
                 )
         return HttpResponseSuccessGet(collaborator_list)
 
-    elif request.method == "POST":
+    if request.method == "POST":
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
 
         try:
             repository = Repository.objects.get(repo_id=repo_id)
-        except (Repository.DoesNotExist):
+        except Repository.DoesNotExist:
             return HttpResponseNotExist()
 
         if request.user not in repository.collaborators.all():
@@ -438,7 +436,7 @@ def repositoryCollaborators(request, repo_id):
                 new_collaborators.append(user)
         except (KeyError, JSONDecodeError):
             return HttpResponseBadRequest()
-        except (User.DoesNotExist):
+        except User.DoesNotExist:
             return HttpResponseInvalidInput()
 
         for user in new_collaborators:
@@ -465,8 +463,7 @@ def repositoryCollaborators(request, repo_id):
 
         return HttpResponseSuccessUpdate(collaborator_list)
 
-    else:
-        return HttpResponseNotAllowed(["GET", "POST"])
+    return HttpResponseNotAllowed(["GET", "POST"])
 
 
 @ensure_csrf_cookie
@@ -509,5 +506,4 @@ def repositoryCollaboratorID(request, repo_id, collaborator_name):
 
         return HttpResponseSuccessDelete(collaborator_list)
 
-    else:
-        return HttpResponseNotAllowed(["DELETE"])
+    return HttpResponseNotAllowed(["DELETE"])

@@ -14,8 +14,8 @@ from project.enum import Scope
 def token(request):
     if request.method == "GET":
         return HttpResponse(status=204)
-    else:
-        return HttpResponseNotAllowed(["GET"])
+
+    return HttpResponseNotAllowed(["GET"])
 
 
 @ensure_csrf_cookie
@@ -58,8 +58,7 @@ def session(request):
 
         return HttpResponseSuccessGet(response_dict)
 
-    else:
-        return HttpResponseNotAllowed(["GET"])
+    return HttpResponseNotAllowed(["GET"])
 
 
 @ensure_csrf_cookie
@@ -109,8 +108,7 @@ def signin(request):
 
         return HttpResponseSuccessUpdate(response_dict)
 
-    else:
-        return HttpResponseNotAllowed(["POST"])
+    return HttpResponseNotAllowed(["POST"])
 
 
 @ensure_csrf_cookie
@@ -121,8 +119,7 @@ def signout(request):
         logout(request)
         return HttpResponseSuccessGet()
 
-    else:
-        return HttpResponseNotAllowed(["GET"])
+    return HttpResponseNotAllowed(["GET"])
 
 
 @csrf_exempt
@@ -154,7 +151,7 @@ def users(request):
 
         try:
             new_user = User.objects.get(username=username)
-        except (User.DoesNotExist):
+        except User.DoesNotExist:
             return HttpResponseNotExist()
 
         response_dict = {
@@ -167,8 +164,7 @@ def users(request):
 
         return HttpResponseSuccessUpdate(response_dict)
 
-    else:
-        return HttpResponseNotAllowed(["POST"])
+    return HttpResponseNotAllowed(["POST"])
 
 
 def profilePicture(request, user_name):
@@ -178,7 +174,7 @@ def profilePicture(request, user_name):
 
         try:
             user = User.objects.get(username=user_name)
-        except (User.DoesNotExist):
+        except User.DoesNotExist:
             return HttpResponseNotExist()
 
         if request.user != user:
@@ -186,7 +182,7 @@ def profilePicture(request, user_name):
 
         try:
             image = request.FILES.get["image"]
-        except (KeyError):
+        except KeyError:
             return HttpResponseBadRequest()
 
         user.profile_picture = image
@@ -194,13 +190,13 @@ def profilePicture(request, user_name):
 
         return HttpResponseSuccessUpdate()
 
-    elif request.method == "DELETE":
+    if request.method == "DELETE":
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
 
         try:
             user = User.objects.get(username=user_name)
-        except (User.DoesNotExist):
+        except User.DoesNotExist:
             return HttpResponseNotExist()
 
         if request.user != user:
@@ -211,8 +207,7 @@ def profilePicture(request, user_name):
 
         return HttpResponseSuccessDelete()
 
-    else:
-        return HttpResponseNotAllowed(["POST", "DELETE"])
+    return HttpResponseNotAllowed(["POST", "DELETE"])
 
 
 @ensure_csrf_cookie
@@ -226,14 +221,14 @@ def userID(request, user_name):
 
         try:
             user = User.objects.get(username=user_name)
-        except (User.DoesNotExist):
+        except User.DoesNotExist:
             return HttpResponseNotExist()
 
         logout(request)
         user.delete()
         return HttpResponseSuccessDelete()
 
-    elif request.method == "PUT":
+    if request.method == "PUT":
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
 
@@ -242,7 +237,7 @@ def userID(request, user_name):
 
         try:
             user = User.objects.get(username=user_name)
-        except (User.DoesNotExist):
+        except User.DoesNotExist:
             return HttpResponseNotExist()
 
         try:
@@ -278,10 +273,10 @@ def userID(request, user_name):
             response_dict["profile_picture"] = user.profile_picture.url
         return HttpResponseSuccessUpdate(response_dict)
 
-    elif request.method == "GET":
+    if request.method == "GET":
         try:
             user = User.objects.get(username=user_name)
-        except (User.DoesNotExist):
+        except User.DoesNotExist:
             return HttpResponseNotExist()
 
         friends_list = []
@@ -325,16 +320,14 @@ def userID(request, user_name):
             return HttpResponseSuccessGet(response_dict_original)
         if user.visibility == Scope.PUBLIC:
             return HttpResponseSuccessGet(response_dict_original)
-        elif user.visibility == Scope.FRIENDS_ONLY:
+        if user.visibility == Scope.FRIENDS_ONLY:
             if request.user in user.friends.all():
                 return HttpResponseSuccessGet(response_dict_original)
-            else:
-                return HttpResponseSuccessGet(response_dict_censored)
-        else:  # user.visibility == Scope.PRIVATE
             return HttpResponseSuccessGet(response_dict_censored)
+        # user.visibility == Scope.PRIVATE
+        return HttpResponseSuccessGet(response_dict_censored)
 
-    else:
-        return HttpResponseNotAllowed(["DELETE", "PUT", "GET"])
+    return HttpResponseNotAllowed(["DELETE", "PUT", "GET"])
 
 
 @ensure_csrf_cookie
@@ -342,7 +335,7 @@ def userFriends(request, user_name):
     if request.method == "GET":
         try:
             user = User.objects.get(username=user_name)
-        except (User.DoesNotExist):
+        except User.DoesNotExist:
             return HttpResponseNotExist()
 
         friends_list = []
@@ -367,16 +360,14 @@ def userFriends(request, user_name):
             return HttpResponseSuccessGet(friends_list)
         if user.visibility == Scope.PUBLIC:
             return HttpResponseSuccessGet(friends_list)
-        elif user.visibility == Scope.FRIENDS_ONLY:
+        if user.visibility == Scope.FRIENDS_ONLY:
             if request.user in user.friends.all():
                 return HttpResponseSuccessGet(friends_list)
-            else:
-                return HttpResponseNoPermission()
-        else:  # user.visibility == Scope.PRIVATE
             return HttpResponseNoPermission()
+        # user.visibility == Scope.PRIVATE
+        return HttpResponseNoPermission()
 
-    else:
-        return HttpResponseNotAllowed(["GET"])
+    return HttpResponseNotAllowed(["GET"])
 
 
 @ensure_csrf_cookie
@@ -391,7 +382,7 @@ def userFriendID(request, user_name, friend_name):
         try:
             from_user = User.objects.get(username=user_name)
             to_user = User.objects.get(username=friend_name)
-        except (User.DoesNotExist):
+        except User.DoesNotExist:
             return HttpResponseNotExist()
 
         from_user.friends.add(to_user)
@@ -417,7 +408,7 @@ def userFriendID(request, user_name, friend_name):
 
         return HttpResponseSuccessUpdate(friends_list)
 
-    elif request.method == "DELETE":
+    if request.method == "DELETE":
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
 
@@ -427,7 +418,7 @@ def userFriendID(request, user_name, friend_name):
         try:
             from_user = User.objects.get(username=user_name)
             to_user = User.objects.get(username=friend_name)
-        except (User.DoesNotExist):
+        except User.DoesNotExist:
             return HttpResponseNotExist()
 
         from_user.friends.remove(to_user)
@@ -453,5 +444,4 @@ def userFriendID(request, user_name, friend_name):
 
         return HttpResponseSuccessDelete(friends_list)
 
-    else:
-        return HttpResponseNotAllowed(["POST", "DELETE"])
+    return HttpResponseNotAllowed(["POST", "DELETE"])

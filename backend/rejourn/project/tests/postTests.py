@@ -5,7 +5,7 @@ import tempfile
 from django.test import TestCase, Client, override_settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-from project.models.models import Post, PostComment, PhotoInPost, Repository, User
+from project.models.models import Post, PostComment, Repository, User
 from project.enum import Scope
 
 
@@ -317,7 +317,7 @@ class PostTestCase(TestCase):
 @override_settings(MEDIA_ROOT=MEDIA_ROOT)
 class PostCommentTestCase(TestCase):
     def setUp(self):
-        imageA = SimpleUploadedFile("test.jpg", b"imageA")
+        image_a = SimpleUploadedFile("test.jpg", b"imageA")
         User.objects.create_user(
             username="TEST_A_USER",
             real_name="TEST_A_REAL",
@@ -325,7 +325,7 @@ class PostCommentTestCase(TestCase):
             password="TEST_A_PW",
             visibility=Scope.PUBLIC,
             bio="TEST_A_BIO",
-            profile_picture=imageA,
+            profile_picture=image_a,
         )
         User.objects.create_user(
             username="TEST_B_USER",
