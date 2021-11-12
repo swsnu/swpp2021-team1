@@ -191,37 +191,35 @@ def repositoryID(request, repo_id):
         if ( not request.user.is_authenticated ) and ( repository.visibility != Scope.PUBLIC ):
             return HttpResponseNoPermission()
 
-        if ( ( repository.visibility == Scope.PUBLIC ) or ( request.user in repository.collaborators.all() ) 
+        if not ( ( repository.visibility == Scope.PUBLIC ) or ( request.user in repository.collaborators.all() ) 
                 or ( repository.visibility == Scope.FRIENDS_ONLY 
                 and have_common_user(request.user.friends.all(), repository.collaborators.all()) ) ):
-            
-            collaborator_list = []
-            for user in repository.collaborators.all():
-                if not bool(user.profile_picture):
-                    collaborator_list.append({
-                        'username' : user.username,
-                        'bio' : user.bio,
-                    })
-                else:
-                    collaborator_list.append({
-                        'username' : user.username,
-                        'profile_picture' : user.profile_picture.url,
-                        'bio' : user.bio,
-                    })
-            
-            response_dict = {
-                'repo_id' : repository.repo_id,
-                'repo_name' : repository.repo_name,
-                'owner' : repository.owner.username,
-                'travel_start_date' : repository.travel_start_date.strftime('%Y-%m-%d'),
-                'travel_end_date' : repository.travel_end_date.strftime('%Y-%m-%d'),
-                'visibility' : repository.visibility,
-                'collaborators' : collaborator_list,
-            }
-            return HttpResponseSuccessGet(response_dict)
-        
-        else:
             return HttpResponseNoPermission()
+
+        collaborator_list = []
+        for user in repository.collaborators.all():
+            if not bool(user.profile_picture):
+                collaborator_list.append({
+                    'username' : user.username,
+                    'bio' : user.bio,
+                })
+            else:
+                collaborator_list.append({
+                    'username' : user.username,
+                    'profile_picture' : user.profile_picture.url,
+                    'bio' : user.bio,
+                })
+            
+        response_dict = {
+            'repo_id' : repository.repo_id,
+            'repo_name' : repository.repo_name,
+            'owner' : repository.owner.username,
+            'travel_start_date' : repository.travel_start_date.strftime('%Y-%m-%d'),
+            'travel_end_date' : repository.travel_end_date.strftime('%Y-%m-%d'),
+            'visibility' : repository.visibility,
+            'collaborators' : collaborator_list,
+        }
+        return HttpResponseSuccessGet(response_dict)
     
     elif request.method == 'DELETE':
         if not request.user.is_authenticated:
@@ -279,6 +277,8 @@ def repositoryID(request, repo_id):
         
         repository.repo_name = repo_name
         repository.owner = new_owner
+        if new_owner not in repository.collaborators.all():
+            repository.collaborators.add(new_owner)
         repository.travel_start_date = travel_start_date
         repository.travel_end_date = travel_end_date
         repository.visibility = visibility
