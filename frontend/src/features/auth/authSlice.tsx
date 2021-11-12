@@ -28,15 +28,12 @@ export const signOut = createAsyncThunk<void, void>(
         await getSignOut(),
 );
 
-export const addFriend = createAsyncThunk<{user: IUser, friend: IUser}, {username: string, fusername: string}>(
+export const addFriend = createAsyncThunk<{fusername: string, myFriendList: IUser[]}, {username: string, fusername: string}>(
     "auth/addfriend",
-    async ({ username, fusername }, thunkAPI) => {
-        await postFriends(username, fusername);
-        const user = await getUser(username);
-        const friend = await getUser(fusername);
-        if (!(user.friends) || !(friend.friends)) thunkAPI.rejectWithValue("");
-        return { user, friend };
-    },
+    async ({ username, fusername }, thunkAPI) => ({
+        fusername,
+        myFriendList: await postFriends(username, fusername),
+    }),
 );
 
 export const switchCurrentUser = createAsyncThunk<IUser,
@@ -172,11 +169,16 @@ const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
             state.hasError = true;
         });
         builder.addCase(addFriend.fulfilled, (state: AuthState, action) => {
-            const { user, friend } = action.payload;
-            if (!user.friends) return;
-            if (user.friends) user.friends.push(friendObject);
-            if (state.currentUser?.username === friendObject.username) {
-                if (state.currentUser?.friends && state.account) state.currentUser?.friends.push(state.account);
+            if (state.account) {
+                const { fusername, myFriendList } = action.payload;
+                if (state.currentUser) {
+                    if (state.currentUser.username === state.account.username) {
+                        state.currentUser.friends = myFriendList;
+                    }
+                    else if (state.currentUser.username === fusername) {
+                        if (state.currentUser.friends) state.currentUser.friends.push(state.account);
+                    }
+                }
             }
         });
         builder.addCase(updateProfile.fulfilled, (state: AuthState, action: PayloadAction<IProfileForm>) => {

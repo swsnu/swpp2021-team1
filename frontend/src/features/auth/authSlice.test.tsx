@@ -1,7 +1,5 @@
-import { AsyncThunkAction, configureStore } from "@reduxjs/toolkit";
+import { configureStore } from "@reduxjs/toolkit";
 
-import { setAutoFreeze } from "immer";
-import * as APIs from "../../common/APIs";
 import Factory from "../../mocks/dataGenerator";
 
 import authReducer, {
@@ -10,10 +8,8 @@ import authReducer, {
 import server from "../../mocks/server";
 
 import {
-    getSessionHE, getSignOutHE, getUserHE, handlerException, postSignInHE, postUserFriendHE, postUserHE, putUserHE,
+    getSessionHE, getSignOutHE, getUserHE, postSignInHE, postUserFriendHE, postUserHE, putUserHE,
 } from "../../mocks/handlers";
-import SignUp from "./login/popup/SignUp";
-import { IUser } from "../../common/Interfaces";
 
 const fact = new Factory();
 
@@ -83,6 +79,8 @@ describe("authSlice", () => {
         const status = response.meta.requestStatus;
         expect(status).toBe("fulfilled");
     });
+
+    // TODO (178-179)
     it("should add friend correctly when currentUser is the new friend", async () => {
         await store.dispatch(switchCurrentUser("abc"));
         const currentUsername = store.getState().auth.currentUser?.username as string;
@@ -111,6 +109,7 @@ describe("authSlice", () => {
         expect(status).toBe("rejected");
     });
 
+    // TODO (187-192)
     it("should handle update profile", async () => {
         const response = await store.dispatch(updateProfile({
             account: fact.userGen(),

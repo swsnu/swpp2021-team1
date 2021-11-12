@@ -1,7 +1,4 @@
 import { AsyncThunkAction, configureStore } from "@reduxjs/toolkit";
-
-import { setAutoFreeze } from "immer";
-import * as APIs from "../../common/APIs";
 import Factory from "../../mocks/dataGenerator";
 import postsReducer, {
     fetchPostComments, fetchRepoPosts,
