@@ -22,79 +22,77 @@ import PostCreate from "../features/post/PostCreate";
 
 export default function App() {
     return (
-        <BrowserRouter>
-            <div className="App">
-                <Switch>
-                    <Route path="/login" exact component={SignIn} />
-                    <>
-                        <Topbar />
-                        <Container fluid="md">
-                            <Row>
-                                <Col xs="3">
-                                    <Sidebar />
-                                </Col>
-                                <Col xs="9" className="main-section">
-                                    <Switch>
-                                        <Route path="/repos/create" />
-                                        <Route path="/repos/:id" component={RepositoryHeader} />
-                                    </Switch>
-                                    <Switch>
-                                        <Route
-                                            exact
-                                            path={["/main/:user", "/main/:user/repos"]}
-                                            render={() => (
-                                                <>
-                                                    <Profile />
-                                                    <Switch>
-                                                        <Route
-                                                            path="/main/:user"
-                                                            exact
-                                                            component={PostList}
-                                                        />
-                                                        <Route
-                                                            path="/main/:user/repos"
-                                                            exact
-                                                            component={RepositoryList}
-                                                        />
-                                                    </Switch>
-                                                </>
-                                            )}
-                                        />
-                                        <Route path="/main/:user/setting" exact component={ProfileSetting} />
-                                        <Route path="/repos/create" exact component={RepositoryCreate} />
-                                        <Route path="/repos/:id" exact component={RepositoryDetail} />
-                                        <Route path="/repos/:id/discussion" exact component={DiscussionList} />
-                                        <Route path="/repos/:id/discussion/create" exact component={DiscussionCreate} />
-                                        <Route
-                                            path="/repos/:id/discussion/:id2"
-                                            exact
-                                            component={DiscussionDetail}
-                                        />
-                                        <Route
-                                            exact
-                                            path="/repos/:repo_id/posts/create"
-                                            render={() => <PostCreate mode="create/repo" />}
-                                        />
-                                        <Route
-                                            exact
-                                            path="/repos/:repo_id/posts"
-                                            component={PostList}
-                                        />
-                                        <Route
-                                            path="/main/:user/create"
-                                            exact
-                                            render={() => <PostCreate mode="create/user" />}
-                                        />
-                                        {/* <Route path="/posts/:post_id/edit" */}
-                                        <Route path="/posts/:post_id" exact component={PostDetail} />
-                                        <Redirect from="/" to="/login" />
-                                    </Switch>
-                                </Col>
-                            </Row>
-                        </Container>
-                    </>
-                </Switch>
-            </div>
-        </BrowserRouter>
+        <div className="App">
+            <Switch>
+                <Route path="/login" exact component={SignIn} />
+                <>
+                    <Topbar />
+                    <Container fluid="md">
+                        <Row>
+                            <Col xs="3">
+                                <Sidebar />
+                            </Col>
+                            <Col xs="9" className="main-section">
+                                <Switch>
+                                    <Route path="/repos/create" />
+                                    <Route path="/repos/:id" component={RepositoryHeader} />
+                                </Switch>
+                                <Switch>
+                                    <Route
+                                        exact
+                                        path={["/main/:user", "/main/:user/repos"]}
+                                        render={() => (
+                                            <>
+                                                <Profile />
+                                                <Switch>
+                                                    <Route
+                                                        path="/main/:user"
+                                                        exact
+                                                        component={PostList}
+                                                    />
+                                                    <Route
+                                                        path="/main/:user/repos"
+                                                        exact
+                                                        component={RepositoryList}
+                                                    />
+                                                </Switch>
+                                            </>
+                                        )}
+                                    />
+                                    <Route path="/main/:user/setting" exact component={ProfileSetting} />
+                                    <Route path="/repos/create" exact component={RepositoryCreate} />
+                                    <Route path="/repos/:id" exact component={RepositoryDetail} />
+                                    <Route path="/repos/:id/discussion" exact component={DiscussionList} />
+                                    <Route path="/repos/:id/discussion/create" exact component={DiscussionCreate} />
+                                    <Route
+                                        path="/repos/:id/discussion/:id2"
+                                        exact
+                                        component={DiscussionDetail}
+                                    />
+                                    <Route
+                                        exact
+                                        path="/repos/:repo_id/posts/create"
+                                        render={() => <PostCreate mode="create/repo" />}
+                                    />
+                                    <Route
+                                        exact
+                                        path="/repos/:repo_id/posts"
+                                        component={PostList}
+                                    />
+                                    <Route
+                                        path="/main/:user/create"
+                                        exact
+                                        render={() => <PostCreate mode="create/user" />}
+                                    />
+                                    {/* <Route path="/posts/:post_id/edit" */}
+                                    <Route path="/posts/:post_id" exact component={PostDetail} />
+                                    <Redirect from="/" to="/login" />
+                                </Switch>
+                            </Col>
+                        </Row>
+                    </Container>
+                </>
+            </Switch>
+        </div>
     );
 }

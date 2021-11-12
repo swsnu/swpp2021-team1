@@ -82,7 +82,10 @@
     "collectCoverageFrom": [
       "src/**/*.{ts,tsx}",
       "!src/common/Interfaces.tsx",
-      "!src/common/APIs.tsx"
+      "!src/common/APIs.tsx",
+      "!src/app/hooks.tsx",
+      "!src/app/store.tsx",
+      "!src/react-app-env.d.ts"
     ]
   },
   "msw": {
