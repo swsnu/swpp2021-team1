@@ -109,7 +109,6 @@ class Factory {
         for (let index = 0; index < n2; index += 1) {
             post.comments.push(this.commentGen());
         }
-        console.log(post);
         return post;
     }
 
@@ -135,7 +134,6 @@ class Factory {
     commentGen = () => {
         const comment = this.comment();
         comment.author = this.user();
-        console.log(comment);
         return comment;
     }
 

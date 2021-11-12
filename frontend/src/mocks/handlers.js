@@ -6,17 +6,17 @@ import Factory from "./dataGenerator";
 const fact = new Factory();
 
 export default [
-    // rest.get("/api/session/", (req, res, ctx) => {
-    //     const user = fact.userGen();
-    //     return res(ctx.json({
-    //         username: user.username,
-    //         bio: user.bio,
-    //         profile_picture: user.profile_picture,
-    //         visibility: user.visibility,
-    //         real_name: user.real_name,
-    //         email: user.email,
-    //     }));
-    // }),
+    rest.get("/api/session/", (req, res, ctx) => {
+        const user = fact.userGen();
+        return res(ctx.json({
+            username: user.username,
+            bio: user.bio,
+            profile_picture: user.profile_picture,
+            visibility: user.visibility,
+            real_name: user.real_name,
+            email: user.email,
+        }));
+    }),
     rest.post("/api/signin/", (req, res, ctx) => {
         const user = fact.userGen();
         return res(
@@ -63,10 +63,10 @@ export default [
             }),
         );
     }),
-    rest.get("/api/users/:username", (req, res, ctx) => {
+    rest.get("/api/users/:username/", (req, res, ctx) => {
         const fakeUser = fact.userGen();
         const friends = [];
-        const n = faker.datatype.number({ min: 1, max: 10 });
+        const n = 8;
         for (let i = 0; i < n; i += 1) {
             friends.push(fact.userGen());
         }
@@ -97,7 +97,7 @@ export default [
 
     rest.post("/api/users/:username/friends/:fusername/", (req, res, ctx) => {
         const friends = [];
-        const n = faker.datatype.number({ min: 1, max: 10 });
+        const n = 8;
         for (let i = 0; i < n; i += 1) {
             const { username, profile_picture, bio } = fact.userGen();
             friends.push({
@@ -108,7 +108,7 @@ export default [
     }),
     rest.delete("/api/users/:username/friends/:fusername/", (req, res, ctx) => {
         const friends = [];
-        const n = faker.datatype.number({ min: 1, max: 10 });
+        const n = 8;
         for (let i = 0; i < n; i += 1) {
             const { username, profile_picture, bio } = fact.userGen();
             friends.push({
@@ -127,7 +127,7 @@ export default [
         }));
     }),
     rest.get("/api/repositories/", (req, res, ctx) => {
-        const n = faker.datatype.number({ min: 1, max: 3 });
+        const n = 3;
         const repos = [];
         for (let i = 0; i < n; i += 1) {
             const {
@@ -160,7 +160,7 @@ export default [
 
     rest.get("/api/repositories/:repo_id/collaborators/", (req, res, ctx) => {
         const collaborators = [];
-        const n = faker.datatype.number({ min: 1, max: 5 });
+        const n = 3;
         for (let i = 0; i < n; i += 1) {
             const { username, profile_picture, bio } = fact.userGen();
             collaborators.push({ username, profile_picture, bio });
@@ -169,7 +169,7 @@ export default [
     }),
     rest.post("/api/repositories/:repo_id/collaborators/", (req, res, ctx) => {
         const collaborators = [];
-        const n = faker.datatype.number({ min: 1, max: 5 });
+        const n = 3;
         for (let i = 0; i < n; i += 1) {
             const { username, profile_picture, bio } = fact.userGen();
             collaborators.push({ username, profile_picture, bio });
@@ -179,7 +179,7 @@ export default [
 
     rest.delete("/api/repositories/:repo_id/collaborators/:username", (req, res, ctx) => {
         const friends = [];
-        const n = faker.datatype.number({ min: 1, max: 10 });
+        const n = 3;
         for (let i = 0; i < n; i += 1) {
             const { username, profile_picture, bio } = fact.userGen();
             friends.push({
@@ -191,7 +191,7 @@ export default [
 
     rest.get("/api/repositories/:repo_id/photos/", (req, res, ctx) => {
         const photos = [];
-        const n = faker.datatype.number({ min: 10, max: 30 });
+        const n = 10;
         for (let i = 0; i < n; i++) {
             const photo = fact.photoGen();
             photos.push(photo);
@@ -200,7 +200,7 @@ export default [
     }),
     rest.post("/api/repositories/:repo_id/photos/", (req, res, ctx) => {
         const photos = [];
-        const n = faker.datatype.number({ min: 10, max: 30 });
+        const n = 10;
         for (let i = 0; i < n; i++) {
             const photo = fact.photoGen();
             photos.push(photo);
@@ -209,7 +209,7 @@ export default [
     }),
     rest.put("/api/repositories/:repo_id/photos/", (req, res, ctx) => {
         const photos = [];
-        const n = faker.datatype.number({ min: 10, max: 30 });
+        const n = 10;
         for (let i = 0; i < n; i++) {
             const photo = fact.photoGen();
             photos.push(photo);
@@ -218,7 +218,7 @@ export default [
     }),
     rest.delete("/api/repositories/:repo_id/photos/", (req, res, ctx) => {
         const photos = [];
-        const n = faker.datatype.number({ min: 10, max: 30 });
+        const n = 10;
         for (let i = 0; i < n; i++) {
             const photo = fact.photoGen();
             photos.push(photo);
@@ -228,7 +228,7 @@ export default [
 
     rest.get("/api/repositories/:repo_id/discussions/", (req, res, ctx) => {
         const discussions = [];
-        const n = faker.datatype.number({ min: 4, max: 10 });
+        const n = 5;
         for (let i = 0; i < n; i++) {
             const discussion = fact.discussionGen();
             discussions.push(discussion);
@@ -248,7 +248,6 @@ export default [
     }),
 
     rest.get("/api/discussions/:discussion_id/", (req, res, ctx) => {
-        console.log("dfd");
         const discussion = fact.discussionGen();
         return res(ctx.json(discussion));
     }),
@@ -259,7 +258,7 @@ export default [
     rest.delete("/api/discussions/:discussion_id", (req, res, ctx) => res(ctx.status(200))),
     rest.get("/api/discussions/:discussion_id/comments/", (req, res, ctx) => {
         const comments = [];
-        const n = faker.datatype.number({ min: 0, max: 10 });
+        const n = 4;
         for (let i = 0; i < n; i++) {
             const comment = fact.commentGen();
             comments.push(comment);
@@ -268,7 +267,7 @@ export default [
     }),
     rest.post("/api/discussions/:discussion_id/comments", (req, res, ctx) => {
         const comments = [];
-        const n = faker.datatype.number({ min: 0, max: 10 });
+        const n = 4;
         for (let i = 0; i < n; i++) {
             const comment = fact.commentGen();
             comments.push(comment);
@@ -280,7 +279,7 @@ export default [
         (req, res, ctx) => res(ctx.json(fact.commentGen()))),
     rest.put("/api/discussions/:discussion_id/comments/:discussion_comment_id/", (req, res, ctx) => {
         const comments = [];
-        const n = faker.datatype.number({ min: 0, max: 10 });
+        const n = 4;
         for (let i = 0; i < n; i++) {
             const comment = fact.commentGen();
             comments.push(comment);
@@ -289,7 +288,7 @@ export default [
     }),
     rest.delete("/api/discussions/:discussion_id/comments/:discussion_comment_id/", (req, res, ctx) => {
         const comments = [];
-        const n = faker.datatype.number({ min: 0, max: 10 });
+        const n = 4;
         for (let i = 0; i < n; i++) {
             const comment = fact.commentGen();
             comments.push(comment);
@@ -299,7 +298,7 @@ export default [
 
     rest.get("/api/users/:username/posts/", (req, res, ctx) => {
         const posts = [];
-        const n = faker.datatype.number({ min: 8, max: 15 });
+        const n = 8;
         for (let i = 0; i < n; i++) {
             const post = fact.postGen();
             posts.push(post);
@@ -309,7 +308,7 @@ export default [
 
     rest.get("/api/repositories/:repo_id/posts/", (req, res, ctx) => {
         const posts = [];
-        const n = faker.datatype.number({ min: 8, max: 15 });
+        const n = 8;
         for (let i = 0; i < n; i++) {
             const post = fact.postGen();
             posts.push({
@@ -348,7 +347,7 @@ export default [
 
     rest.get("/api/posts/:post_id/comments/", (req, res, ctx) => {
         const comments = [];
-        const n = faker.datatype.number({ min: 0, max: 8 });
+        const n = 4;
         for (let i = 0; i < n; i++) {
             const comment = fact.commentGen();
             comments.push(comment);
@@ -357,7 +356,7 @@ export default [
     }),
     rest.post("/api/posts/:post_id/comments/", (req, res, ctx) => {
         const comments = [];
-        const n = faker.datatype.number({ min: 0, max: 8 });
+        const n = 4;
         for (let i = 0; i < n; i++) {
             const comment = fact.commentGen();
             comments.push(comment);
@@ -371,7 +370,7 @@ export default [
     }),
     rest.put("/api/posts/:post_id/comments/:post_comment_id/", (req, res, ctx) => {
         const comments = [];
-        const n = faker.datatype.number({ min: 0, max: 8 });
+        const n = 4;
         for (let i = 0; i < n; i++) {
             const comment = fact.commentGen();
             comments.push(comment);
@@ -380,7 +379,7 @@ export default [
     }),
     rest.delete("/api/posts/:post_id/comments/:post_comment_id/", (req, res, ctx) => {
         const comments = [];
-        const n = faker.datatype.number({ min: 0, max: 8 });
+        const n = 4;
         for (let i = 0; i < n; i++) {
             const comment = fact.commentGen();
             comments.push(comment);
@@ -388,3 +387,48 @@ export default [
         return res(ctx.json(comments));
     }),
 ];
+
+export const handlerException = (
+    path, method,
+) => {
+    let returnValue;
+    switch (method) {
+    case "GET":
+        returnValue = rest.get(path, (req, res, ctx) => res(ctx.status(500)));
+        break;
+    case "POST":
+        returnValue = rest.post(path, (req, res, ctx) => res(ctx.status(500)));
+        break;
+    case "PUT":
+        returnValue = rest.put(path, (req, res, ctx) => res(ctx.status(500)));
+        break;
+    default:
+        returnValue = rest.delete(path, (req, res, ctx) => res(ctx.status(500)));
+        break;
+    }
+    return returnValue;
+};
+
+export const getSessionHE = handlerException("/api/session/", "GET");
+export const postSignInHE = handlerException("/api/signin/", "POST");
+export const getSignOutHE = handlerException("/api/signout/", "GET");
+export const postUserHE = handlerException("/api/users", "POST");
+export const putUserHE = handlerException("/api/users/:username", "PUT");
+export const deleteUserHE = handlerException("/api/users/:username/", "DELETE");
+export const getUserHE = handlerException("/api/users/:username", "GET");
+export const getUserFriendsHE = handlerException("/api/users/:username/friends/", "GET");
+export const postUserFriendHE = handlerException("/api/users/:username/friends/:fusername", "POST");
+export const deleteUserFriendHE = handlerException("/api/users/:username/friends/:fusername/", "DELETE");
+export const getUserPostsHE = handlerException("/api/users/:username/posts/", "GET");
+export const getRepoPostsHE = handlerException("/api/repositories/:repo_id/posts/", "GET");
+
+export const postRepoPostHE = handlerException("/api/repositories/:repo_id/posts/", "POST");
+export const getPostHE = handlerException("/api/posts/:post_id/", "GET");
+export const putPostHE = handlerException("/api/posts/:post_id/", "PUT");
+export const deletePostHE = handlerException("/api/posts/:post_id/", "DELETE");
+
+export const getPostCommentsHE = handlerException("/api/posts/:post_id/comments/", "GET");
+export const postPostCommentHE = handlerException("/api/posts/:post_id/comments/", "POST");
+export const getPostCommentHE = handlerException("/api/posts/:post_id/comments/:post_comment_id/", "GET");
+export const putPostCommentHE = handlerException("/api/posts/:post_id/comments/:post_comment_id/", "PUT");
+export const deletePostCommentHE = handlerException("/api/posts/:post_id/comments/:post_comment_id/", "DELETE");

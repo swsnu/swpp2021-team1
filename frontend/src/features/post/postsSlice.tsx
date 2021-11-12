@@ -1,8 +1,6 @@
 import {
     createAsyncThunk, createEntityAdapter, createSlice, EntityState,
 } from "@reduxjs/toolkit";
-import { ReactReduxContext } from "react-redux";
-import { useContext } from "react";
 import { RootState } from "../../app/store";
 import { IComment, IPhoto, IPost } from "../../common/Interfaces";
 import {
@@ -15,10 +13,6 @@ const postsAdapter = createEntityAdapter<IPost>({
     //  sortComparer: (a, b) => a
 });
 
-// const commentsAdapter = createEntityAdapter<IComment>({
-//     selectId: (comment: IComment) => comment.comment_id,
-// });
-
 export const fetchPostComments = createAsyncThunk<{postId: number, comments: IComment[]}, {
     postId: number}>(
         "post/fetchPostComments",
@@ -28,17 +22,10 @@ export const fetchPostComments = createAsyncThunk<{postId: number, comments: ICo
         },
     );
 
-// export const fetchPostComment = createAsyncThunk<IComment, {
-//     postId: number, commentId: number}>(
-//         "post/fetchSingleComment",
-//         async ({ postId, commentId }) => (await getPostComment(postId, commentId)),
-//     );
-
 export const newPostComment = createAsyncThunk<{postId: number, comments: IComment[]}, {
     postId: number, content: string}>(
         "post/newCommentPosted",
         async ({ postId, content }) => {
-            console.log("Hello");
             const comments = await postPostComment(postId, content);
             return { postId, comments };
         },
@@ -133,77 +120,27 @@ export const postsSlice = createSlice({
         builder.addCase(fetchRepoPosts.rejected, (state, action) => {
             state.loading = "failed";
         });
-        // builder.addCase(newRepoPost.pending, (state, action) => {
-        //     state.loading = "pending";
-        // });
         builder.addCase(newRepoPost.fulfilled, (state, action) => {
             postsAdapter.addOne(state, action.payload);
             state.currentPost = action.payload;
-            // state.loading = "succeeded";
         });
-        // builder.addCase(newRepoPost.rejected, (state, action) => {
-        //     state.loading = "failed";
-        // });
-        // builder.addCase(postEdited.pending, (state, action) => {
-        //     state.loading = "pending";
-        // });
         builder.addCase(postEdited.fulfilled, (state, action) => {
             postsAdapter.setOne(state, action.payload);
-            // state.loading = "succeeded";
         });
-        // builder.addCase(postEdited.rejected, (state, action) => {
-        //     state.loading = "failed";
-        // });
-        // builder.addCase(postDeleted.pending, (state, action) => {
-        //     state.loading = "pending";
-        // });
         builder.addCase(postDeleted.fulfilled, (state, action) => {
-            // state.loading = "succeeded";
             postsAdapter.removeOne(state, action.payload);
         });
-        // builder.addCase(postDeleted.rejected, (state, action) => {
-        //     state.loading = "failed";
-        // });
-
-        // builder.addCase(fetchPostComments.pending, (state, action) => {
-        //     state.loading = "pending";
-        // });
         builder.addCase(fetchPostComments.fulfilled, (state, action) => {
             const { postId, comments } = action.payload;
             postsAdapter.updateOne(state, { id: postId, changes: { comments } });
-            // state.loading = "succeeded";
         });
-        // builder.addCase(fetchPostComments.rejected, (state, action) => {
-        //     state.loading = "failed";
-        // });
-
-        // builder.addCase(fetchPostComment.pending, (state, action) => {
-        //     state.loading = "pending";
-        // });
-        // builder.addCase(fetchPostComment.fulfilled, (state, action) => {
-        //     commentsAdapter.setAll(state, action.payload);
-        //     state.loading = "succeeded";
-        // });
-        // builder.addCase(fetchPostComment.rejected, (state, action) => {
-        //     state.loading = "failed";
-        // });
-
-        // builder.addCase(newPostComment.pending, (state, action) => {
-        //     state.loading = "pending";
-        // });
         builder.addCase(newPostComment.fulfilled, (state, action) => {
-            console.log("Hello");
             const { postId, comments } = action.payload;
             postsAdapter.updateOne(state, { id: postId, changes: { comments } });
             if (state.currentPost) {
                 state.currentPost.comments = action.payload.comments;
             }
-            // state.loading = "succeeded";
         });
-        // builder.addCase(newPostComment.rejected, (state, action) => {
-        // });
-        // builder.addCase(postCommentEdited.pending, (state, action) => {
-        // });
         builder.addCase(postCommentEdited.fulfilled, (state, action) => {
             const { postId, comments } = action.payload;
             postsAdapter.updateOne(state, { id: postId, changes: { comments } });
@@ -211,10 +148,6 @@ export const postsSlice = createSlice({
                 state.currentPost.comments = action.payload.comments;
             }
         });
-        // builder.addCase(postCommentEdited.rejected, (state, action) => {
-        // });
-        // builder.addCase(postCommentDeleted.pending, (state, action) => {
-        // });
         builder.addCase(postCommentDeleted.fulfilled, (state, action) => {
             const { postId, comments } = action.payload;
             postsAdapter.updateOne(state, { id: postId, changes: { comments } });
@@ -222,15 +155,9 @@ export const postsSlice = createSlice({
                 state.currentPost.comments = action.payload.comments;
             }
         });
-        // builder.addCase(postCommentDeleted.rejected, (state, action) => {
-        // });
-        // builder.addCase(fetchSinglePost.pending, (state, action) => {
-        // });
         builder.addCase(fetchSinglePost.fulfilled, (state, action) => {
             state.currentPost = action.payload;
         });
-        // builder.addCase(fetchSinglePost.rejected, (state, action) => {
-        // });
     },
 });
 

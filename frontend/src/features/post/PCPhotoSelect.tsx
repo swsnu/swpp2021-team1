@@ -16,7 +16,6 @@ interface PCPhotoSelectProps {
 
 export default function PCPhotoSelect(props : PCPhotoSelectProps) {
     const { photos, setSelectedPhotos } = props;
-    const [index, setIndex] = useState<number>(0);
     const dispatch = useAppDispatch();
     const [photoShow, setPhotoShow] = useState<boolean>(false);
     const [currentPhoto, setCurrentPhoto] = useState<IPhoto | null>(null);
@@ -65,16 +64,6 @@ export default function PCPhotoSelect(props : PCPhotoSelectProps) {
                     </React.Fragment>
                 ))}
             </div>
-            {currentPhoto && (
-                <FocusedPhoto
-                    photo={currentPhoto}
-                    onEdit={(aa: string) => {
-                        console.log("");
-                    }}
-                    show={photoShow}
-                    setShow={setPhotoShow}
-                />
-            )}
         </div>
     );
 }

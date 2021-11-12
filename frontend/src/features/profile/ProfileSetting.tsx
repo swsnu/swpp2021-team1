@@ -34,7 +34,10 @@ export default function ProfileSetting(props : ProfileSettingProps) {
     const onSubmit = () => {
         const submit = async () => {
             await dispatch(updateProfile({
-                email, real_name, bio, password: password || account?.password as string,
+                account,
+                form: {
+                    email, real_name, bio, password: password || account?.password as string,
+                },
             }));
             alert("Changes saved");
         };

@@ -8,7 +8,6 @@ import { IUser } from "../../common/Interfaces";
 import {
     getSession, getSignOut, getUser, postFriends, postSignIn, postUsers, putUser,
 } from "../../common/APIs";
-import store, { RootState } from "../../app/store";
 
 export const signIn = createAsyncThunk<IUser, {username : string, password : string}>(
     "auth/signin", // action type
@@ -29,18 +28,16 @@ export const signOut = createAsyncThunk<void, void>(
         await getSignOut(),
 );
 
-export const addFriend = createAsyncThunk<IUser, string, {state: RootState}>(
+export const addFriend = createAsyncThunk<{fusername: string, myFriendList: IUser[]}, {username: string, fusername: string}>(
     "auth/addfriend",
-    async (friendUsername, thunkAPI) => {
-        const { auth: { account } } = thunkAPI.getState();
-        await postFriends(account?.username as string, friendUsername);
-        const friendObject = await getUser(friendUsername);
-        return friendObject;
-    },
+    async ({ username, fusername }, thunkAPI) => ({
+        fusername,
+        myFriendList: await postFriends(username, fusername),
+    }),
 );
 
 export const switchCurrentUser = createAsyncThunk<IUser,
-string, {state: RootState}>(
+string, {state: {auth: AuthState}}>(
     "auth/switchCurrentUser",
     async (username, thunkAPI) => {
         const { auth: { account } } = thunkAPI.getState();
@@ -62,11 +59,10 @@ interface IProfileForm {
     password: string
 }
 
-export const updateProfile = createAsyncThunk<IProfileForm, IProfileForm, {state: RootState}>(
+export const updateProfile = createAsyncThunk<
+IProfileForm, {account: IUser, form: IProfileForm}>(
     "auth/updateProfile",
-    async (form, thunkAPI) => {
-        const { auth }: {auth: AuthState} = thunkAPI.getState();
-        const { account } = auth;
+    async ({ account, form }, thunkAPI) => {
         if (account) {
             await putUser({
                 ...account,
@@ -145,11 +141,9 @@ const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
             state.hasError = false;
         });
 
-        builder.addCase(signUp.fulfilled, (state: AuthState, action : PayloadAction<IUser>) => {
+        builder.addCase(signUp.fulfilled, (state: AuthState) => {
             state.isLoading = false;
             state.hasError = false;
-            // state.account = action.payload;
-            // state.currentUser = action.payload;
         });
 
         builder.addCase(signUp.rejected, (state: AuthState) => {
@@ -174,11 +168,17 @@ const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
             state.isLoading = false;
             state.hasError = true;
         });
-        builder.addCase(addFriend.fulfilled, (state: AuthState, action: PayloadAction<IUser>) => {
-            const friendObject = action.payload;
-            if (state.account?.friends) state.account?.friends.push(friendObject);
-            if (state.currentUser?.username === friendObject.username) {
-                if (state.currentUser?.friends && state.account) state.currentUser?.friends.push(state.account);
+        builder.addCase(addFriend.fulfilled, (state: AuthState, action) => {
+            if (state.account) {
+                const { fusername, myFriendList } = action.payload;
+                if (state.currentUser) {
+                    if (state.currentUser.username === state.account.username) {
+                        state.currentUser.friends = myFriendList;
+                    }
+                    else if (state.currentUser.username === fusername) {
+                        if (state.currentUser.friends) state.currentUser.friends.push(state.account);
+                    }
+                }
             }
         });
         builder.addCase(updateProfile.fulfilled, (state: AuthState, action: PayloadAction<IProfileForm>) => {

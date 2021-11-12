@@ -1,9 +1,8 @@
-import axios, { Axios, AxiosResponse } from "axios";
-import { afterWrite } from "@popperjs/core";
+import axios, { AxiosResponse } from "axios";
 import {
     IComment,
     IDiscussion,
-    IPhoto, IPost, IRepository, IUser, Visibility,
+    IPhoto, IPost, IRepository, IUser,
 } from "./Interfaces";
 
 axios.defaults.xsrfCookieName = "csrftoken";
@@ -26,9 +25,7 @@ export async function postUsers(user : IUser) {
 }
 
 export async function getUser(username : string) {
-    const { data } = await axios.get<any, AxiosResponse<IUser>>(`/api/users/${username}/`);
-    console.log(data);
-    return data;
+    return (await axios.get<any, AxiosResponse<IUser>>(`/api/users/${username}/`)).data;
 }
 
 export async function putUser(user : IUser) {
