@@ -1,6 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
 import * as APIs from "../../common/APIs";
-import {IRepository, IUser, repositoryFactory, userFactory} from "../../common/Interfaces";
+import {
+    IRepository, IUser, repositoryFactory, userFactory,
+} from "../../common/Interfaces";
 import reposReducer, {
     addCollaborators,
     createRepository, editRepository,
