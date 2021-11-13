@@ -397,7 +397,7 @@ class UserFriendTestCase(TestCase):
         self.assertIn(u_2.profile_picture.url, response.content.decode())
         self.assertIn("TEST_C_USER", response.content.decode())
 
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "TEST_C_USER", "password": "TEST_C_PW"}),
             content_type="application/json",
@@ -409,8 +409,8 @@ class UserFriendTestCase(TestCase):
         response = client.get("/api/users/TEST_B_USER/friends/")
         self.assertEqual(response.status_code, 403)
 
-        response = client.get("/api/signout")
-        response = client.post(
+        client.get("/api/signout")
+        client.post(
             "/api/signin/",
             json.dumps({"username": "TEST_A_USER", "password": "TEST_A_PW"}),
             content_type="application/json",
@@ -430,7 +430,7 @@ class UserFriendTestCase(TestCase):
         response = client.post("/api/users/TEST_A_USER/friends/TEST_B_USER/")
         self.assertEqual(response.status_code, 401)
 
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "TEST_C_USER", "password": "TEST_C_PW"}),
             content_type="application/json",
@@ -447,8 +447,8 @@ class UserFriendTestCase(TestCase):
         u_2 = User.objects.get(user_id=2)
         self.assertIn(u_2.profile_picture.url, response.content.decode())
 
-        response = client.get("/api/signout")
-        response = client.post(
+        client.get("/api/signout")
+        client.post(
             "/api/signin/",
             json.dumps({"username": "TEST_B_USER", "password": "TEST_B_PW"}),
             content_type="application/json",
@@ -462,7 +462,7 @@ class UserFriendTestCase(TestCase):
         response = client.delete("/api/users/TEST_A_USER/friends/TEST_B_USER/")
         self.assertEqual(response.status_code, 401)
 
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "TEST_A_USER", "password": "TEST_A_PW"}),
             content_type="application/json",

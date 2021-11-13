@@ -13,6 +13,10 @@ from project.utils import have_common_user
 from project.enum import Scope
 
 
+DATE_FORMAT = "%Y-%m-%d"
+UPLOADED_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+
 # /api/repositories/<int:repo_id>/photos/
 @require_http_methods(['POST', 'GET', 'PUT', 'DELETE'])
 @ensure_csrf_cookie
@@ -38,7 +42,7 @@ def photos(request, repo_id):
         criteria = request.GET.get("criteria", None)
         raw_post_time = request.GET.get("post_time", None)
         if raw_post_time is not None:
-            post_time = datetime.strptime(raw_post_time, "%Y-%m-%d")
+            post_time = datetime.strptime(raw_post_time, DATE_FORMAT)
             post_time = timezone.make_aware(post_time)
         label = request.GET.get("label", None)
         place = request.GET.get("place", None)
@@ -60,7 +64,7 @@ def photos(request, repo_id):
                     "photo_id": photo.photo_id,
                     "repo_id": photo.repository.repo_id,
                     "image": photo.image_file.url,
-                    "post_time": photo.post_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "post_time": photo.post_time.strftime(UPLOADED_TIME_FORMAT),
                     "tag": photo_tag_text,
                     "uploader": photo.uploader.username,
                 },
@@ -71,10 +75,10 @@ def photos(request, repo_id):
         elif criteria is not None:
             response_list = []
             one_day = []
-            current_day = photo_list[0].post_time.strftime("%Y-%m-%d")
+            current_day = photo_list[0].post_time.strftime(DATE_FORMAT)
             photo_count = 0
             while photo_count < len(photo_list):
-                next_day = photo_list[photo_count].post_time.strftime("%Y-%m-%d")
+                next_day = photo_list[photo_count].post_time.strftime(DATE_FORMAT)
                 if current_day != next_day:
                     response_list.append(one_day)
                     one_day = [photo_list[photo_count]]
@@ -132,7 +136,7 @@ def photos(request, repo_id):
                     "photo_id": photo.photo_id,
                     "repo_id": photo.repository.repo_id,
                     "image": photo.image_file.url,
-                    "post_time": photo.post_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "post_time": photo.post_time.strftime(UPLOADED_TIME_FORMAT),
                     "tag": photo_tag_text,
                     "uploader": photo.uploader.username,
                 }
@@ -202,7 +206,7 @@ def photos(request, repo_id):
                     "photo_id": photo.photo_id,
                     "repo_id": photo.repository.repo_id,
                     "image": photo.image_file.url,
-                    "post_time": photo.post_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "post_time": photo.post_time.strftime(UPLOADED_TIME_FORMAT),
                     "tag": photo_tag_text,
                     "uploader": photo.uploader.username,
                 }
@@ -255,7 +259,7 @@ def photos(request, repo_id):
                 "photo_id": photo.photo_id,
                 "repo_id": photo.repository.repo_id,
                 "image": photo.image_file.url,
-                "post_time": photo.post_time.strftime("%Y-%m-%d %H:%M:%S"),
+                "post_time": photo.post_time.strftime(UPLOADED_TIME_FORMAT),
                 "tag": photo_tag_text,
                 "uploader": photo.uploader.username,
             }

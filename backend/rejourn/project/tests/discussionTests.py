@@ -85,7 +85,7 @@ class DiscussionTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 404)
 
-        response = client.get("/api/signout/")
+        client.get("/api/signout/")
 
         response = client.post(
             "/api/signin/",
@@ -100,7 +100,7 @@ class DiscussionTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 403)
 
-        response = client.get("/api/signout/")
+        client.get("/api/signout/")
 
         response = client.post(
             "/api/signin/",
@@ -360,7 +360,7 @@ class DiscussionCommentTestCase(TestCase):
         response = client.post("/api/discussions/1/comments/")
         self.assertEqual(response.status_code, 401)
 
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "TEST_C_USER", "password": "TEST_C_PW"}),
             content_type="application/json",
@@ -375,7 +375,7 @@ class DiscussionCommentTestCase(TestCase):
         response = client.get(
             "/api/signout/",
         )
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "TEST_A_USER", "password": "TEST_A_PW"}),
             content_type="application/json",
@@ -402,7 +402,7 @@ class DiscussionCommentTestCase(TestCase):
         response = client.get("/api/discussions/1/comments/")
         self.assertEqual(response.status_code, 401)
 
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "TEST_C_USER", "password": "TEST_C_PW"}),
             content_type="application/json",
@@ -417,7 +417,7 @@ class DiscussionCommentTestCase(TestCase):
         response = client.get(
             "/api/signout/",
         )
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "TEST_A_USER", "password": "TEST_A_PW"}),
             content_type="application/json",
@@ -439,7 +439,7 @@ class DiscussionCommentTestCase(TestCase):
         response = client.get("/api/discussions/1/comments/1/")
         self.assertEqual(response.status_code, 401)
 
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "TEST_C_USER", "password": "TEST_C_PW"}),
             content_type="application/json",
@@ -457,10 +457,10 @@ class DiscussionCommentTestCase(TestCase):
         response = client.get("/api/discussions/1/comments/1/")
         self.assertEqual(response.status_code, 403)
 
-        response = client.get(
+        client.get(
             "/api/signout/",
         )
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "TEST_A_USER", "password": "TEST_A_PW"}),
             content_type="application/json",
@@ -479,7 +479,7 @@ class DiscussionCommentTestCase(TestCase):
         response = client.delete("/api/discussions/1/comments/1/")
         self.assertEqual(response.status_code, 401)
 
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "TEST_C_USER", "password": "TEST_C_PW"}),
             content_type="application/json",
@@ -497,10 +497,10 @@ class DiscussionCommentTestCase(TestCase):
         response = client.delete("/api/discussions/1/comments/1/")
         self.assertEqual(response.status_code, 403)
 
-        response = client.get(
+        client.get(
             "/api/signout/",
         )
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "TEST_A_USER", "password": "TEST_A_PW"}),
             content_type="application/json",
@@ -517,7 +517,7 @@ class DiscussionCommentTestCase(TestCase):
         response = client.put("/api/discussions/1/comments/1/")
         self.assertEqual(response.status_code, 401)
 
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "TEST_C_USER", "password": "TEST_C_PW"}),
             content_type="application/json",
@@ -535,10 +535,10 @@ class DiscussionCommentTestCase(TestCase):
         response = client.put("/api/discussions/1/comments/1/")
         self.assertEqual(response.status_code, 403)
 
-        response = client.get(
+        client.get(
             "/api/signout/",
         )
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "TEST_A_USER", "password": "TEST_A_PW"}),
             content_type="application/json",

@@ -448,6 +448,7 @@ class RepositoryTestCase(TestCase):
             ),
             content_type="application/json",
         )
+        self.assertEqual(response.status_code, 410)
         response = client_a.put(
             "/api/repositories/100/",
             json.dumps(

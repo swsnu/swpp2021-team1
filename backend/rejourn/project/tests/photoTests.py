@@ -97,7 +97,7 @@ class PhotoTestCase(TestCase):
         response = client.post("/api/repositories/1/photos/")
         self.assertEqual(response.status_code, 401)
 
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "u_3_USERNAME", "password": "u_3_PASSWORD"}),
             content_type="application/json",
@@ -108,8 +108,8 @@ class PhotoTestCase(TestCase):
         response = client.post("/api/repositories/1/photos/")
         self.assertEqual(response.status_code, 403)
 
-        response = client.get("/api/signout/")
-        response = client.post(
+        client.get("/api/signout/")
+        client.post(
             "/api/signin/",
             json.dumps({"username": "u_1_USERNAME", "password": "u_1_PASSWORD"}),
             content_type="application/json",
@@ -135,7 +135,7 @@ class PhotoTestCase(TestCase):
         response = client.put("/api/repositories/1/photos/")
         self.assertEqual(response.status_code, 401)
 
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "u_3_USERNAME", "password": "u_3_PASSWORD"}),
             content_type="application/json",
@@ -146,8 +146,8 @@ class PhotoTestCase(TestCase):
         response = client.put("/api/repositories/1/photos/")
         self.assertEqual(response.status_code, 403)
 
-        response = client.get("/api/signout/")
-        response = client.post(
+        client.get("/api/signout/")
+        client.post(
             "/api/signin/",
             json.dumps({"username": "u_1_USERNAME", "password": "u_1_PASSWORD"}),
             content_type="application/json",
@@ -172,7 +172,7 @@ class PhotoTestCase(TestCase):
         )
         self.assertIn("edit_text", response.content.decode())
 
-        response = client.put(
+        client.put(
             "/api/repositories/1/photos/",
             json.dumps([{"photo_id": 1, "tag": ""}]),
             content_type="application/json",
@@ -191,7 +191,7 @@ class PhotoTestCase(TestCase):
         response = client.delete("/api/repositories/1/photos/")
         self.assertEqual(response.status_code, 401)
 
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "u_3_USERNAME", "password": "u_3_PASSWORD"}),
             content_type="application/json",
@@ -202,8 +202,8 @@ class PhotoTestCase(TestCase):
         response = client.delete("/api/repositories/1/photos/")
         self.assertEqual(response.status_code, 403)
 
-        response = client.get("/api/signout/")
-        response = client.post(
+        client.get("/api/signout/")
+        client.post(
             "/api/signin/",
             json.dumps({"username": "u_1_USERNAME", "password": "u_1_PASSWORD"}),
             content_type="application/json",

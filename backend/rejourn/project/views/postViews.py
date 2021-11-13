@@ -18,6 +18,9 @@ from project.enum import Scope
 from project.utils import have_common_user
 
 
+UPLOADED_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+
 # /api/users/<str:user_name>/posts/
 @require_http_methods(["GET"])
 @ensure_csrf_cookie
@@ -66,7 +69,7 @@ def userPosts(request, user_name):
                     "repo_id": post.repository.repo_id,
                     "author": author_info,
                     "title": post.title,
-                    "post_time": post.post_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "post_time": post.post_time.strftime(UPLOADED_TIME_FORMAT),
                     "photos": photo_list,
                 },
             )
@@ -160,7 +163,7 @@ def repoPosts(request, repo_id):
             "author": author_info,
             "title": new_post.title,
             "text": new_post.text,
-            "post_time": new_post.post_time.strftime("%Y-%m-%d %H:%M:%S"),
+            "post_time": new_post.post_time.strftime(UPLOADED_TIME_FORMAT),
             "photos": photos,
             "comments": [],
         }
@@ -212,7 +215,7 @@ def repoPosts(request, repo_id):
                 "repo_id": post.repository.repo_id,
                 "author": author_info,
                 "title": post.title,
-                "post_time": post.post_time.strftime("%Y-%m-%d %H:%M:%S"),
+                "post_time": post.post_time.strftime(UPLOADED_TIME_FORMAT),
                 "photos": photo_list,
             },
         )
@@ -274,7 +277,7 @@ def postID(request, post_id):
                     "author": author_info,
                     "text": comment.text,
                     "parent_id": comment.post.post_id,
-                    "post_time": comment.post_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "post_time": comment.post_time.strftime(UPLOADED_TIME_FORMAT),
                 }
             )
 
@@ -284,7 +287,7 @@ def postID(request, post_id):
             "author": author_info,
             "title": post.title,
             "text": post.text,
-            "post_time": post.post_time.strftime("%Y-%m-%d %H:%M:%S"),
+            "post_time": post.post_time.strftime(UPLOADED_TIME_FORMAT),
             "photos": photo_list,
             "comments": comment_list,
         }
@@ -403,7 +406,7 @@ def postID(request, post_id):
                 "author": author_info,
                 "text": comment.text,
                 "parent_id": comment.post.post_id,
-                "post_time": comment.post_time.strftime("%Y-%m-%d %H:%M:%S"),
+                "post_time": comment.post_time.strftime(UPLOADED_TIME_FORMAT),
             }
         )
 
@@ -413,7 +416,7 @@ def postID(request, post_id):
         "author": author_info,
         "title": post.title,
         "text": post.text,
-        "post_time": post.post_time.strftime("%Y-%m-%d %H:%M:%S"),
+        "post_time": post.post_time.strftime(UPLOADED_TIME_FORMAT),
         "photos": photo_list,
         "comments": comment_list,
     }
@@ -470,7 +473,7 @@ def postComments(request, post_id):
                     "author": author_info,
                     "text": comment.text,
                     "parent_id": comment.post.post_id,
-                    "post_time": comment.post_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "post_time": comment.post_time.strftime(UPLOADED_TIME_FORMAT),
                 }
             )
         return HttpResponseSuccessUpdate(comment_list)
@@ -509,7 +512,7 @@ def postComments(request, post_id):
                 "author": author_info,
                 "text": comment.text,
                 "parent_id": comment.post.post_id,
-                "post_time": comment.post_time.strftime("%Y-%m-%d %H:%M:%S"),
+                "post_time": comment.post_time.strftime(UPLOADED_TIME_FORMAT),
             }
         )
     return HttpResponseSuccessGet(comment_list)
@@ -558,7 +561,7 @@ def postCommentID(request, post_id, post_comment_id):
             "author": author_info,
             "text": comment.text,
             "parent_id": comment.post.post_id,
-            "post_time": comment.post_time.strftime("%Y-%m-%d %H:%M:%S"),
+            "post_time": comment.post_time.strftime(UPLOADED_TIME_FORMAT),
         }
         return HttpResponseSuccessGet(response_dict)
 
@@ -598,7 +601,7 @@ def postCommentID(request, post_id, post_comment_id):
                     "author": author_info,
                     "text": comment.text,
                     "parent_id": comment.post.post_id,
-                    "post_time": comment.post_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "post_time": comment.post_time.strftime(UPLOADED_TIME_FORMAT),
                 }
             )
         return HttpResponseSuccessDelete(comment_list)
@@ -648,7 +651,7 @@ def postCommentID(request, post_id, post_comment_id):
                 "author": author_info,
                 "text": comment.text,
                 "parent_id": comment.post.post_id,
-                "post_time": comment.post_time.strftime("%Y-%m-%d %H:%M:%S"),
+                "post_time": comment.post_time.strftime(UPLOADED_TIME_FORMAT),
             }
         )
     return HttpResponseSuccessUpdate(comment_list)

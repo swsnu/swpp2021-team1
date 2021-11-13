@@ -13,6 +13,9 @@ from project.utils import have_common_user
 from project.enum import Scope
 
 
+DATE_FORMAT = "%Y-%m-%d"
+
+
 # /api/repositories/
 @require_http_methods(["POST", "GET"])
 @ensure_csrf_cookie
@@ -51,9 +54,9 @@ def repositories(request):
             return HttpResponseInvalidInput()
 
         try:
-            travel_start_date = datetime.strptime(raw_travel_start_date, "%Y-%m-%d")
+            travel_start_date = datetime.strptime(raw_travel_start_date, DATE_FORMAT)
             travel_start_date = timezone.make_aware(travel_start_date)
-            travel_end_date = datetime.strptime(raw_travel_end_date, "%Y-%m-%d")
+            travel_end_date = datetime.strptime(raw_travel_end_date, DATE_FORMAT)
             travel_end_date = timezone.make_aware(travel_end_date)
         except ValueError:
             return HttpResponseInvalidInput()
@@ -92,8 +95,8 @@ def repositories(request):
             "repo_id": new_repo.repo_id,
             "repo_name": new_repo.repo_name,
             "owner": new_repo.owner.username,
-            "travel_start_date": new_repo.travel_start_date.strftime("%Y-%m-%d"),
-            "travel_end_date": new_repo.travel_end_date.strftime("%Y-%m-%d"),
+            "travel_start_date": new_repo.travel_start_date.strftime(DATE_FORMAT),
+            "travel_end_date": new_repo.travel_end_date.strftime(DATE_FORMAT),
             "visibility": new_repo.visibility,
             "collaborators": collaborators_censored,
         }
@@ -150,10 +153,10 @@ def repositories(request):
                         "repo_name": repository.repo_name,
                         "owner": repository.owner.username,
                         "travel_start_date": repository.travel_start_date.strftime(
-                            "%Y-%m-%d"
+                            DATE_FORMAT
                         ),
                         "travel_end_date": repository.travel_end_date.strftime(
-                            "%Y-%m-%d"
+                            DATE_FORMAT
                         ),
                         "visibility": repository.visibility,
                         "collaborators": collaborator_list,
@@ -207,10 +210,10 @@ def repositories(request):
                         "repo_name": repository.repo_name,
                         "owner": repository.owner.username,
                         "travel_start_date": repository.travel_start_date.strftime(
-                            "%Y-%m-%d"
+                            DATE_FORMAT
                         ),
                         "travel_end_date": repository.travel_end_date.strftime(
-                            "%Y-%m-%d"
+                            DATE_FORMAT
                         ),
                         "visibility": repository.visibility,
                         "collaborators": collaborator_list,
@@ -272,8 +275,8 @@ def repositoryID(request, repo_id):
             "repo_id": repository.repo_id,
             "repo_name": repository.repo_name,
             "owner": repository.owner.username,
-            "travel_start_date": repository.travel_start_date.strftime("%Y-%m-%d"),
-            "travel_end_date": repository.travel_end_date.strftime("%Y-%m-%d"),
+            "travel_start_date": repository.travel_start_date.strftime(DATE_FORMAT),
+            "travel_end_date": repository.travel_end_date.strftime(DATE_FORMAT),
             "visibility": repository.visibility,
             "collaborators": collaborator_list,
         }
@@ -318,9 +321,9 @@ def repositoryID(request, repo_id):
         return HttpResponseInvalidInput()
 
     try:
-        travel_start_date = datetime.strptime(raw_travel_start_date, "%Y-%m-%d")
+        travel_start_date = datetime.strptime(raw_travel_start_date, DATE_FORMAT)
         travel_start_date = timezone.make_aware(travel_start_date)
-        travel_end_date = datetime.strptime(raw_travel_end_date, "%Y-%m-%d")
+        travel_end_date = datetime.strptime(raw_travel_end_date, DATE_FORMAT)
         travel_end_date = timezone.make_aware(travel_end_date)
     except ValueError:
         return HttpResponseInvalidInput()
@@ -363,8 +366,8 @@ def repositoryID(request, repo_id):
         "repo_id": repository.repo_id,
         "repo_name": repository.repo_name,
         "owner": repository.owner.username,
-        "travel_start_date": repository.travel_start_date.strftime("%Y-%m-%d"),
-        "travel_end_date": repository.travel_end_date.strftime("%Y-%m-%d"),
+        "travel_start_date": repository.travel_start_date.strftime(DATE_FORMAT),
+        "travel_end_date": repository.travel_end_date.strftime(DATE_FORMAT),
         "visibility": repository.visibility,
         "collaborators": collaborators,
     }

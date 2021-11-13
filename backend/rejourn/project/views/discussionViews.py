@@ -8,6 +8,7 @@ from django.views.decorators.http import require_http_methods
 from project.models.models import Discussion, DiscussionComment, Repository
 from project.httpResponse import *
 
+UPLOADED_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 # /api/repositories/<int:repo_id>/discussions/
 @require_http_methods(["POST", "GET"])
@@ -49,7 +50,7 @@ def discussions(request, repo_id):
             "author": author_info,
             "title": new_discussion.title,
             "text": new_discussion.text,
-            "post_time": new_discussion.post_time.strftime("%Y-%m-%d %H:%M:%S"),
+            "post_time": new_discussion.post_time.strftime(UPLOADED_TIME_FORMAT),
             "comments": [],
         }
         return HttpResponseSuccessUpdate(response_dict)
@@ -82,7 +83,7 @@ def discussions(request, repo_id):
                 "repo_id": discussion.repository.repo_id,
                 "author": author_info,
                 "title": discussion.title,
-                "post_time": discussion.post_time.strftime("%Y-%m-%d %H:%M:%S"),
+                "post_time": discussion.post_time.strftime(UPLOADED_TIME_FORMAT),
             },
         )
     return HttpResponseSuccessGet(discussion_list)
@@ -120,7 +121,7 @@ def discussionID(request, discussion_id):
                     "author": author_info,
                     "text": comment.text,
                     "parent_id": comment.discussion.discussion_id,
-                    "post_time": comment.post_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "post_time": comment.post_time.strftime(UPLOADED_TIME_FORMAT),
                 }
             )
 
@@ -136,7 +137,7 @@ def discussionID(request, discussion_id):
             "author": author_info,
             "title": discussion.title,
             "text": discussion.text,
-            "post_time": discussion.post_time.strftime("%Y-%m-%d %H:%M:%S"),
+            "post_time": discussion.post_time.strftime(UPLOADED_TIME_FORMAT),
             "comments": comment_list,
         }
         return HttpResponseSuccessGet(response_dict)
@@ -196,7 +197,7 @@ def discussionID(request, discussion_id):
                 "author": author_info,
                 "text": comment.text,
                 "parent_id": comment.discussion.discussion_id,
-                "post_time": comment.post_time.strftime("%Y-%m-%d %H:%M:%S"),
+                "post_time": comment.post_time.strftime(UPLOADED_TIME_FORMAT),
             }
         )
 
@@ -212,7 +213,7 @@ def discussionID(request, discussion_id):
         "author": author_info,
         "title": discussion.title,
         "text": discussion.text,
-        "post_time": discussion.post_time.strftime("%Y-%m-%d %H:%M:%S"),
+        "post_time": discussion.post_time.strftime(UPLOADED_TIME_FORMAT),
         "comments": comment_list,
     }
     return HttpResponseSuccessUpdate(response_dict)
@@ -261,7 +262,7 @@ def discussionComments(request, discussion_id):
                     "author": author_info,
                     "text": comment.text,
                     "parent_id": comment.discussion.discussion_id,
-                    "post_time": comment.post_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "post_time": comment.post_time.strftime(UPLOADED_TIME_FORMAT),
                 }
             )
 
@@ -293,7 +294,7 @@ def discussionComments(request, discussion_id):
                 "author": author_info,
                 "text": comment.text,
                 "parent_id": comment.discussion.discussion_id,
-                "post_time": comment.post_time.strftime("%Y-%m-%d %H:%M:%S"),
+                "post_time": comment.post_time.strftime(UPLOADED_TIME_FORMAT),
             }
         )
 
@@ -339,7 +340,7 @@ def discussionCommentID(request, discussion_id, discussion_comment_id):
             "author": author_info,
             "text": comment.text,
             "parent_id": comment.discussion.discussion_id,
-            "post_time": comment.post_time.strftime("%Y-%m-%d %H:%M:%S"),
+            "post_time": comment.post_time.strftime(UPLOADED_TIME_FORMAT),
         }
         return HttpResponseSuccessGet(response_dict)
 
@@ -381,7 +382,7 @@ def discussionCommentID(request, discussion_id, discussion_comment_id):
                     "author": author_info,
                     "text": comment.text,
                     "parent_id": comment.discussion.discussion_id,
-                    "post_time": comment.post_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "post_time": comment.post_time.strftime(UPLOADED_TIME_FORMAT),
                 }
             )
 
@@ -434,7 +435,7 @@ def discussionCommentID(request, discussion_id, discussion_comment_id):
                 "author": author_info,
                 "text": comment.text,
                 "parent_id": comment.discussion.discussion_id,
-                "post_time": comment.post_time.strftime("%Y-%m-%d %H:%M:%S"),
+                "post_time": comment.post_time.strftime(UPLOADED_TIME_FORMAT),
             }
         )
 
