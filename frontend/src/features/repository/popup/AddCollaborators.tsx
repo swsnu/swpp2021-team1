@@ -8,7 +8,7 @@ import {
     InputGroup,
     Modal,
 } from "react-bootstrap";
-import { IUser, SetStateAction } from "../../../common/Interfaces";
+import { IUser, SetStateAction, userFactory } from "../../../common/Interfaces";
 import "./AddCollaborators.css";
 
 interface AddCollaboratorsProps {
@@ -42,7 +42,6 @@ export default function AddCollaborators(props : AddCollaboratorsProps) {
     }
 
     function onAdd(user : IUser) {
-        console.log("added");
         setCollaborators([...collaborators, user]);
     }
 
@@ -67,6 +66,7 @@ export default function AddCollaborators(props : AddCollaboratorsProps) {
                     {filteredFriend.length > 0 ?
                         filteredFriend.map((value) => (
                             <Dropdown.Item
+                                key={value.username}
                                 onClick={() => onAdd(value)}
                                 disabled={collaborators.filter((value1) =>
                                     value1.username === value.username).length !== 0}
@@ -78,11 +78,14 @@ export default function AddCollaborators(props : AddCollaboratorsProps) {
                 </Dropdown.Menu>
                 <div className="d-flex ms-2 me-2">
                     {collaborators.map((value) => (
-                        <Collaborator
-                            canDelete={value.username !== props.user.username}
-                            user={value}
-                            remove={remove}
-                        />
+                        <React.Fragment key={value.username}>
+                            <Collaborator
+                                canDelete={props.collaborators.filter((value1) =>
+                                    value1.username === value.username).length === 0}
+                                user={value}
+                                remove={remove}
+                            />
+                        </React.Fragment>
                     ))}
                 </div>
             </Dropdown>
@@ -101,13 +104,16 @@ interface CollaboratorProps {
 
 function Collaborator(props : CollaboratorProps) {
     return (
-        <React.Fragment key={props.user.username}>
-            <h5>
-                <Badge className="m-2 p-sm-2" pill>
-                    {props.user.username}
-                    {props.canDelete && <CloseButton onClick={() => props.remove(props.user.username)} />}
-                </Badge>
-            </h5>
-        </React.Fragment>
+        <h5>
+            <Badge className="m-2 p-sm-2" pill>
+                {props.user.username}
+                {props.canDelete && (
+                    <CloseButton
+                        className="small-close-button"
+                        onClick={() => props.remove(props.user.username)}
+                    />
+                )}
+            </Badge>
+        </h5>
     );
 }

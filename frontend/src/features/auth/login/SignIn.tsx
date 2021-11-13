@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Redirect } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Redirect, useHistory } from "react-router-dom";
 import { Form, Button } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
@@ -20,8 +20,15 @@ export default function SignIn(props: SignInProps) {
     const dispatch = useDispatch<AppDispatch>();
     const [account, hasError] = useSelector<RootState, [IUser|null, boolean]>((state) =>
         [state.auth.account, state.auth.hasError]);
+    const [loginClicked, setLoginClicked] = useState<boolean>(false);
+    const history = useHistory();
+
+    useEffect(() => {
+        dispatch(actionCreator.fetchSession());
+    }, [dispatch]);
 
     function onLogIn() {
+        setLoginClicked(true);
         dispatch(actionCreator.signIn({ username, password }));
     }
 
@@ -30,16 +37,16 @@ export default function SignIn(props: SignInProps) {
     }
 
     return (
-        <div id="viewport" className="p-5">
-            {account && <Redirect to={`/main/${account.username}`} />}
+        <div id="viewport" style={{ paddingBottom: "50 !important" }}>
+            {account && (<Redirect to={`/main/${account.username}`} />)}
             <Form id="form-container" className="p-5">
                 <Form.Group className="mb-3">
                     <Form.Control
                         value={username}
                         type="email"
                         onChange={(event) => setUsername(event.target.value)}
-                        placeholder="Email"
-                        isInvalid={hasError}
+                        placeholder="Username"
+                        isInvalid={loginClicked && hasError}
                     />
                     <Form.Control.Feedback type="invalid">
                         Log in failed.
@@ -51,7 +58,7 @@ export default function SignIn(props: SignInProps) {
                         type="password"
                         onChange={(event) => setPassword(event.target.value)}
                         placeholder="Password"
-                        isInvalid={hasError}
+                        isInvalid={loginClicked && hasError}
                     />
                     <Form.Control.Feedback type="invalid">
                         Log in failed.

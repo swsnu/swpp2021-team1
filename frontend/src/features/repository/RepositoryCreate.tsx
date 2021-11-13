@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Redirect } from "react-router-dom";
+import { Redirect, useHistory } from "react-router-dom";
 import {
     Badge, Button, Form, FormControl, InputGroup,
 } from "react-bootstrap";
@@ -27,13 +27,21 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
     const [repoName, setRepoName] = useState<string>("");
     const [travelStartDate, setTravelStartDate] = useState<string>("");
     const [travelEndDate, setTravelEndDate] = useState<string>("");
-    const [collaborators, setCollaborators] = useState<IUser[]>([]); // TODO
+    const [collaborators, setCollaborators] = useState<IUser[]>(user ? [user] : []);
     const [show, setShow] = useState<boolean>(false);
     const [valid, setValid] = useState<(boolean|null)[]>([null, null, null]);
     const [visibility, setVisibility] = useState<Visibility>(Visibility.ALL);
+    const [flag, setFlag] = useState<boolean>(!!user);
+    const history = useHistory();
 
-    /* useEffect(() => {
-    }, [dispatch]); */
+    useEffect(() => {
+        if (!flag && user) {
+            if (collaborators.filter((value) => value.username === user.username).length === 0) {
+                setCollaborators([user, ...collaborators]);
+            }
+            setFlag(true);
+        }
+    }, [dispatch, user]);
 
     function addCollaborators() {
         setShow(true);
@@ -81,15 +89,11 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
         }
     }
 
-    // TODO : Error 처리
     if (userIsLoading) return null;
-    if (userHasError) return (<Redirect to="/login" />); // TODO
-    if (hasError) return (<div>Fatal Error!!!</div>);
+    // if (hasError) return (<div>Fatal Error!!!</div>);
     return (
         <div>
-            {!isLoading && repo && <Redirect to={`/repos/${repo.repo_id}`} />}
-            {" "}
-            {/* TODO */}
+            {!isLoading && !hasError && <Redirect to={`/repos/${(repo as IRepository).repo_id}`} />}
             <h2 className="mt-4">Create Repository</h2>
             <InputGroup className="mt-4" hasValidation>
                 <InputGroup.Text>Repository Name</InputGroup.Text>
@@ -171,10 +175,12 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
             </div>
             <h5>
                 {collaborators.map((value) => (
-                    <Badge className="m-2 p-sm-2" pill>
-                        {value.username}
-                        {" "}
-                    </Badge>
+                    <React.Fragment key={value.username}>
+                        <Badge className="m-2 p-sm-2" pill>
+                            {value.username}
+                            {" "}
+                        </Badge>
+                    </React.Fragment>
                 ))}
             </h5>
             <div className="d-flex flex-row-reverse">

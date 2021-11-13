@@ -5,3 +5,9 @@
 .dropdown-menu {
     width: 100%;
 }
+
+.small-close-button {
+    margin-top: -0.5rem;
+    margin-bottom: -0.5rem;
+    margin-left: 0.25rem;
+}

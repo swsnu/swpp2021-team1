@@ -1,15 +1,22 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
+import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import App from "./app/App";
 import reportWebVitals from "./reportWebVitals";
 import store from "./app/store";
 import "./custom.scss";
+import worker from "./mocks/browser";
 
+if (process.env.REACT_APP_USE_MSW_MOCK_API === "yes") {
+    worker.start();
+}
 ReactDOM.render(
     <Provider store={store}>
-        <App />
+        <BrowserRouter>
+            <App />
+        </BrowserRouter>
     </Provider>,
     document.getElementById("root"),
 );

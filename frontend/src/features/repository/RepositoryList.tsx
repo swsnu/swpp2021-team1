@@ -7,7 +7,7 @@ import { IRepository, IUser, Visibility } from "../../common/Interfaces";
 import * as actionCreator from "./reposSlice";
 import Repository from "./Repository";
 import Profile from "../profile/Profile";
-import { signIn } from "../auth/authSlice";
+import { fetchSession, signIn } from "../auth/authSlice";
 
 interface RepositoryListProps {
 
@@ -31,19 +31,12 @@ export default function RepositoryList(props : RepositoryListProps) {
         }
     }, [dispatch, user]);
 
-    useEffect(() => {
-    // TODO
-    }, [dispatch]);
-
     function onClick() {
         dispatch(actionCreator.toBeLoaded(null));
         history.push("/repos/create");
     }
 
-    console.log(account?.username);
-    console.log(user?.username);
-
-    // TODO : Error 처리
+    // if (hasError) return (<div>Fatal Error!!!</div>);
     return (
         <div>
             {
@@ -65,6 +58,7 @@ export default function RepositoryList(props : RepositoryListProps) {
                                     </Button>
                                 </div>
                             )}
+
                     </>
                 )
             }

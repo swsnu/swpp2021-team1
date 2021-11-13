@@ -6,6 +6,14 @@ enum Visibility {
     ONLY_MEMBERS,
 }
 
+function randomString() {
+    return Math.random().toString(36).substr(2, 11);
+}
+
+function randomInt() {
+    return Math.floor(Math.random() * 10);
+}
+
 interface IUser {
     username : string;
     bio : string;
@@ -15,6 +23,18 @@ interface IUser {
     email? : string;
     password? : string;
     friends? : IUser[];
+}
+
+export function userFactory() {
+    return {
+        username: randomString(),
+        bio: randomString(),
+        profile_picture: randomString(),
+        visibility: Visibility.ALL,
+        real_name: randomString(),
+        email: randomString(),
+        password: randomString(),
+    } as IUser;
 }
 
 interface IRepository {
@@ -27,23 +47,92 @@ interface IRepository {
     visibility : Visibility;
 }
 
-interface IPost {
+export function repositoryFactory() {
+    return {
+        repo_id: randomInt(),
+        repo_name: randomString(),
+        owner: randomString(),
+        travel_start_date: randomString(),
+        travel_end_date: randomString(),
+        collaborators: [],
+        visibility: Visibility.ALL,
+    } as IRepository;
+}
 
+interface IPost {
+    post_id : number;
+    repo_id? : number;
+    author? : IUser;
+    title : string;
+    text? : string; // Post List에서는 필요 없음
+    post_time? : string;
+    photos : IPhoto[];
+    comments? : IComment[]; // Post List에서는 필요 없음
+    // 좋아요는 일단 나중에 생각...
 }
 
 interface IPhoto {
+    photo_id : number;
+    repo_id? : number;
+    image : string; // db에는 image_file이라고 되어있는데 바꿔야하나?
+    post_time? : string;
+    tag? : string;
+    local_tag? : string;
+    label? : ILabel[];
+    place? : IPlace;
+    uploader? : string; // sure?
+}
 
+export function photoFactory() {
+    return {
+        photo_id: randomInt(),
+        repo_id: randomInt(),
+        image: randomString(),
+        post_time: randomString(),
+        tag: randomString(),
+        local_tag: randomString(),
+        uploader: randomString(),
+    } as IPhoto;
 }
 
 interface IDiscussion {
+    discussion_id : number;
+    repo_id? : number;
+    author? : IUser;
+    title : string;
+    text? : string; // Discussion list에서는 필요 없음
+    post_time? : string;
+    comments? : IComment[]; // Discussion list에서는 필요 없음
+}
 
+export function discussionFactory() {
+    return {
+        discussion_id: randomInt(),
+        repo_id: randomInt(),
+        title: randomString(),
+        text: randomString(),
+        post_time: randomString(),
+    } as IDiscussion;
 }
 
 interface IComment {
-
+    comment_id : number;
+    parent_id : number; // discussion_id / post_id parent_id로 바꿔서 줘야함
+    author? : IUser;
+    text : string;
+    post_time? : string;
 }
 
-interface ITag {
+export function commentFactory() {
+    return {
+        comment_id: randomInt(),
+        parent_id: randomInt(),
+        text: randomString(),
+        post_time: randomString(),
+    };
+}
+
+interface ILabel {
 
 }
 
@@ -51,10 +140,12 @@ interface IPlace {
 
 }
 
+// TODO: IRoute must be added
+
 export type SetStateAction<T> = React.Dispatch<React.SetStateAction<T>>
 
 export type {
-    IUser, IRepository, IPost, IPhoto, IDiscussion, IComment, ITag, IPlace,
+    IUser, IRepository, IPost, IPhoto, IDiscussion, IComment, ILabel, IPlace,
 };
 
 export { Visibility };

@@ -1,86 +1,169 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Redirect, useParams, useHistory } from "react-router-dom";
-import { ButtonGroup, Button } from "react-bootstrap";
-import { AppDispatch, RootState } from "../../app/store";
-import * as actionCreator from "../auth/authSlice";
-import { IUser } from "../../common/Interfaces";
-import Friend from "./Friend";
+import { useHistory, Link } from "react-router-dom";
+import { RouteComponentProps, useParams } from "react-router";
+import {
+    ButtonGroup, Button, Image,
+} from "react-bootstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUserPlus } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
+import { ALL } from "dns";
+import { IUser, Visibility } from "../../common/Interfaces";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { getFriends } from "../../common/APIs";
+import FriendList from "./popup/FriendList";
 import "./Profile.css";
+import { addFriend, switchCurrentUser } from "../auth/authSlice";
+import avatar from "../../common/assets/avatar.jpg";
 
-const exampleImgSrc = "https://images.unsplash.com/photo-1609866975749-2238a" +
-    "febfa27?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1078&q=80";
+interface ProfileProps {}
 
-interface ProfileProps {
-
-}
-
-export default function Profile(props : ProfileProps) {
-    const dispatch = useDispatch<AppDispatch>();
-    const [account, currentUser, isLoading, hasError] =
-        useSelector<RootState, [IUser|null, IUser|null, boolean, boolean]>((state) =>
-            [state.auth.account, state.auth.currentUser, state.auth.isLoading, state.auth.hasError]);
-    const params = useParams<{user : string}>();
-    const history = useHistory();
-    const [currentTab, setCurrentTab] = useState<"Post"|"Repo"|"Explore">("Explore");
+export default function Profile(props: ProfileProps) {
+    const dispatch = useAppDispatch();
+    const currentUser = useAppSelector((state) => state.auth.currentUser);
+    const account = useAppSelector((state) => state.auth.account);
+    const isLoading = useAppSelector((state) => state.auth.isLoading);
+    const hasError = useAppSelector((state) => state.auth.hasError);
+    const [friendList, setFriendList] = useState<IUser[]>([]);
+    const [friendModalShow, setFriendModalShow] = useState<boolean>(false);
+    const { user } = useParams<{user?: string}>();
 
     useEffect(() => {
-        dispatch(actionCreator.fetchUser(params.user));
-    }, [dispatch]);
+        const switchToUser = () => {
+            dispatch(switchCurrentUser(user as string));
+        };
+        if (user !== currentUser?.username ||
+            (user === currentUser?.username && currentUser?.username !== account?.username)) {
+            switchToUser();
+        }
+    }, [user]);
+
+    useEffect(() => {
+        const fetchAndSetFriendList = async (username: string) => {
+            const response = await getFriends(username);
+            setFriendList(response);
+        };
+        fetchAndSetFriendList(currentUser?.username as string);
+    }, [currentUser]);
+
+    const onAddFriendClick = () => {
+        dispatch(addFriend({ username: account?.username as string, fusername: currentUser?.username as string }));
+    };
+    const onFriendsClick = () => setFriendModalShow(true);
+    const onClose = () => setFriendModalShow(false);
+
+    const avatar_src = avatar;
+    const profile_picture = currentUser && currentUser.profile_picture ? currentUser.profile_picture : avatar_src;
+
+    const isBeFriendable = (currentUser?.username !== account?.username) &&
+    (!(account?.friends?.find((friend) => friend.username === currentUser?.username)));
+
+    if (isLoading) {
+        return (
+            <div id="profile-card" className="d-flex mx-auto">
+                <div className="flex-shrink-0">
+                    <Image id="profile-image" src="..." roundedCircle alt="profile" width="200px" height="200px" />
+                </div>
+                <div className="flex-grow-1 mx-4">
+                    <div className="d-flex align-items-center mb-2">
+                        <span className="placeholder col-8" />
+                    </div>
+                    <p className="card-text mb-0">
+                        <span className="placeholder col-12" />
+                        <span className="placeholder col-4" />
+                    </p>
+                </div>
+            </div>
+        );
+    }
+    if (hasError) {
+        return <div>error!</div>;
+    }
+    let friendListVisible = false;
+    if (currentUser?.username === account?.username) friendListVisible = true;
+    else if (currentUser?.visibility === Visibility.ALL) {
+        friendListVisible = true;
+    }
+    else if (currentUser?.visibility === Visibility.MEMBER_AND_FRIENDS) {
+        if (account?.friends && account?.friends
+            .find((friend) => friend.username === currentUser.username)) {
+            friendListVisible = true;
+        }
+    }
 
     return (
-        <div>
-            <div id="profile-card" className="card mb-3 pt-3 pb-4">
-                <div className="row g-0">
-                    <div className="col-md-4 d-flex align-center">
-                        <div id="profile-img">
-                            <img src={exampleImgSrc} className="img-fluid" alt="profile" />
-                        </div>
+        <div id="profile-card" className="d-flex mx-auto">
+            <div className="flex-shrink-0">
+                <Image width="100" height="100" id="profile-image" src={profile_picture} roundedCircle alt="profile" />
+            </div>
+            <div className="flex-grow-1 mx-4">
+                <div className="d-flex align-items-center mb-2">
+                    <h4
+                        id="real-name"
+                        className="me-2 mb-0"
+                    >
+                        {currentUser ? currentUser.username : "error"}
+                    </h4>
+                    <p id="username" className="small text-muted mb-0">
 
-                    </div>
-                    <div className="col-md-8">
-                        <div className="card-body">
-                            <div className="d-flex align-items-center mb-2">
-                                <h4 className="card-title me-2 mb-0">John Doe</h4>
-                                <p className="small text-muted mb-0">@johndoe</p>
-                            </div>
-                            <p className="card-text mb-0">
-                                Dolor anim exercitation sunt amet aute dolor quis fugiat veniam dolore ipsum quis.
-                            </p>
-                            <ButtonGroup>
-                                <Button variant="link" className="ms-0 ps-0">10 friends</Button>
-                                <Button variant="link" className="ms-0 ps-0">3 repositories</Button>
-                            </ButtonGroup>
-                        </div>
-                    </div>
+                        {currentUser && currentUser.real_name ? currentUser.real_name : ""}
+                    </p>
+                </div>
+                <p className="card-text mb-0">
+                    {currentUser ? currentUser.bio : ""}
+                </p>
+                <ButtonGroup>
+                    <Button
+                        id="num-of-friends"
+                        onClick={onFriendsClick}
+                        className="ms-0 ps-0 text-decoration-none"
+                        variant="link"
+                        hidden={!friendListVisible}
+
+                    >
+                        <strong>{friendList.length}</strong>
+                                    &nbsp;friend
+                        {friendList.length === 1 ? "" : "s"}
+                    </Button>
+                    <FriendList
+                        currentUser={currentUser ? currentUser.username : ""}
+                        modalShow={friendModalShow}
+                        friendList={friendList}
+                        handleClose={onClose}
+                    />
+                    {
+                        (isBeFriendable) ? (
+                            <Button
+                                id="add-friend-button"
+                                onClick={onAddFriendClick}
+                                variant="link"
+                                className="ms-0 ps-0"
+                            >
+                                <FontAwesomeIcon className="me-1" icon={faUserPlus} color="#f69d72" />
+                                Add friend
+                            </Button>
+                        ) :
+                            ""
+                    }
+                </ButtonGroup>
+                <div className="fit-content ms-auto d-flex">
+                    <Link
+                        id="view-posts-button"
+                        to={`/main/${currentUser?.username}`}
+                        className="me-3 text-decoration-none text-muted small"
+                    >
+                        Show posts
+
+                    </Link>
+                    <Link
+                        id="view-repos-button"
+                        to={`/main/${currentUser?.username}/repos`}
+                        className="text-decoration-none small text-muted"
+                    >
+                        Show repos
+                    </Link>
                 </div>
             </div>
         </div>
     );
-
-    // ! UI 먼저 짜려고 아래 로직은 일단 주석처리함
-    // error에 대한 처리 필요
-    // if (isLoading && !hasError) return null;
-    // return (
-    //     <div>
-    //         {!isLoading && hasError && (!account ? <Redirect to='login'/> :
-    //         <Redirect to={`/main/${account.realName}`}/>)}
-    //         {/*Make Component with currentUser*/}
-    //         <div>Profile Image : {currentUser?.profilePicture}</div>
-    //         <div>RealName : {currentUser?.realName}</div>
-    //         <div>Username : {currentUser?.username}</div>
-    //         {account?.realName === currentUser?.username && <button
-    //             onClick={() => history.push(`/main/${currentUser?.username}/setting`)}>
-    //             Setting
-    //         </button>}
-    //         <div>Friends</div>
-    //         {friends.map(value => <React.Fragment key={value.realName}><Friend user={value}/></React.Fragment>)}
-    //         <button onClick={() => setCurrentTab("Post")}
-    //                 disabled={currentTab === 'Post'}>Post</button>
-    //         <button onClick={() => setCurrentTab("Repo")}
-    //                 disabled={currentTab === 'Repo'}>Repository</button>
-    //         <button onClick={() => setCurrentTab("Explore")}
-    //                 disabled={currentTab === 'Explore'}>Explore</button>
-    //     </div>
-    // )
 }

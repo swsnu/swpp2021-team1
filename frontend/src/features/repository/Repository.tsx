@@ -15,7 +15,6 @@ export default function Repository(props : RepositoryProps) {
         collabString += (`${value.username}, `);
     });
     collabString = collabString.slice(0, collabString.length - 2);
-    collabString = "johndoe, ddony_0530"; // 테스팅용 임시
 
     return (
         <ListGroup.Item
@@ -26,10 +25,12 @@ export default function Repository(props : RepositoryProps) {
         >
             <div className="ms-2 me-auto">
                 <h5 className="fw-bold">{props.repository.repo_name}</h5>
-                {collabString}
+                <div className="ms-1">
+                    {collabString}
+                </div>
             </div>
             <Badge pill>
-                {`${props.repository.travel_start_date}~${props.repository.travel_end_date}`}
+                {`${props.repository.travel_start_date} ~ ${props.repository.travel_end_date}`}
             </Badge>
         </ListGroup.Item>
     );

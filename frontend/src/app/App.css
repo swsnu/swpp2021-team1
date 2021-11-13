@@ -1,8 +1,8 @@
-.App {
+/* .App {
   text-align: center;
-}
+} */
 
-.App-logo {
+/* .App-logo {
   height: 40vmin;
   pointer-events: none;
 }
@@ -34,5 +34,19 @@
   }
   to {
     transform: rotate(360deg);
-  }
+  } */
+/* } */
+
+.main-section {
+  padding-top: 55px;
+  height: 100vh;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+
+.main-section::-webkit-scrollbar {
+  display: none;
 }

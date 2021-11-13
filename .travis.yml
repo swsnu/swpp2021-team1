@@ -1,28 +1,35 @@
 jobs:
   include:
     - language: node_js
-      node_js: '16'
+      node_js: 16
+      python: "3.9.2"
       addons:
         sonarcloud:
           organization: "swsnu"
           token:
             secure: "d2o4WCYebaPPjVE9yVhZ3kzSwj4vysjbe0I3LxO6U4K0Uf4ItpoYwCcczlJ0ILELcZGP8jwj46eI44M73S4xDyQ5jTs2+1waapLxXDzyaHUqg4iYCaWkDK8hJD/P7McizyZvy4pE0kCl92wERaqRiPQT/seKy9zxGu/baE7BD+bufo/s7td23rb3nAO3vxTE462gq4qpd29G1RsKeMltOP/Gam0NxrnOvb+X8pBEDjwU5usny2frWO96qvN0TZrZXPVbbBsvV/ZhCmL66vWb7wnKJK/GkLgxlPqIsJITF84XR0Qe7/uReVHEaLxH8zCPcMOZwP+pYnBIkdCjhHu65yzsPE5fTGcXgdgOyapKnbLLl+PWe/Q6yxQXsP32sxGw4r7anKpHvYSnbir7lL+fHWpaiLnXVDA6pX31B0RoU38GK+CReWgdSnJ1BH+RAZCC49LBJefYNnQGXo61v2iRRSlcWp/+C8b9GEeDy1TuoZK1dXaHiezq7ve5esw/8LxjUjwmk2T0OzHe/j3lr8HITZMjilU6FpxFFKJ8ZAeAbTd7e90kPETXIJynRfm4DKWIb4GDLA80ilEuFZdg6+3fPkINSbsmNUQ4SAxYVGOH5Q6o4WtDcTrJyFB/tF4c93BnMSPez1EO43edbDFYPaYzIITLVhhMPtt5/WF3WzcJ9X8="
       install:
+        - source ~/virtualenv/python3.7/bin/activate
+        - gem install coveralls-lcov
         - cd frontend
         - yarn install
-      script:
-        - ./node_modules/.bin/eslint src/
-        - yarn test --coverage --watchAll=false --passWithNoTests
-        - cd .. 
-        - sonar-scanner
-    - language: python
-      python:
-        - "3.7.9"
-      install:
-        - cd backend
-        - cd rejourn
+        - yarn global add coveralls
+        - cd ../backend/rejourn
         - pip install -r requirements.txt
+        - python -m pip install Pillow 
+        - pip install coveralls
       script:
-        - pylint **/*.py --load-plugins pylint_django
+        - cd ../../frontend
+        - ./node_modules/.bin/eslint src/
+        - yarn test --coverage --watchAll=false
+        - coveralls-lcov -v -n coverage/lcov.info > coverage.json
+        - cd ../backend/rejourn
+        - python3 manage.py makemigrations project
+        - python3 manage.py migrate
+        - pylint project --load-plugins pylint_django
         - coverage run --source='.' manage.py test
         - coverage xml
+        - coveralls --merge=../../frontend/coverage.json
+        - cd ..
+        - cd ..
+        - sonar-scanner
