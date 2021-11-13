@@ -47,7 +47,7 @@ export default function PCPhotoSelect(props : PCPhotoSelectProps) {
     }, [checked]);
 
     return (
-        <div>
+        <div id="post-create-photo-select">
             <div
                 className="d-flex flex-row photo-list overflow-auto mt-2 justify-content-start"
                 style={{ height: "20vh" }}

@@ -28,7 +28,9 @@ export const signOut = createAsyncThunk<void, void>(
         await getSignOut(),
 );
 
-export const addFriend = createAsyncThunk<{fusername: string, myFriendList: IUser[]}, {username: string, fusername: string}>(
+export const addFriend = createAsyncThunk<
+{fusername: string, myFriendList: IUser[]},
+{username: string, fusername: string}>(
     "auth/addfriend",
     async ({ username, fusername }, thunkAPI) => ({
         fusername,
@@ -63,6 +65,7 @@ export const updateProfile = createAsyncThunk<
 IProfileForm, {account: IUser, form: IProfileForm}>(
     "auth/updateProfile",
     async ({ account, form }, thunkAPI) => {
+        if (!account) thunkAPI.rejectWithValue("");
         if (account) {
             await putUser({
                 ...account,
@@ -169,7 +172,9 @@ const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
             state.hasError = true;
         });
         builder.addCase(addFriend.fulfilled, (state: AuthState, action) => {
+            // console.log("def");
             if (state.account) {
+                // console.log("abc");
                 const { fusername, myFriendList } = action.payload;
                 if (state.currentUser) {
                     if (state.currentUser.username === state.account.username) {

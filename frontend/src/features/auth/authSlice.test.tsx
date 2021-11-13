@@ -74,7 +74,7 @@ describe("authSlice", () => {
     });
     it("should add friend correctly", async () => {
         const response = await store.dispatch(
-            addFriend("abc"),
+            addFriend({ username: "username", fusername: "fusername" }),
         );
         const status = response.meta.requestStatus;
         expect(status).toBe("fulfilled");
@@ -82,17 +82,19 @@ describe("authSlice", () => {
 
     // TODO (178-179)
     it("should add friend correctly when currentUser is the new friend", async () => {
-        await store.dispatch(switchCurrentUser("abc"));
+        await store.dispatch(switchCurrentUser("username"));
         const currentUsername = store.getState().auth.currentUser?.username as string;
         const response = await store.dispatch(
-            addFriend(currentUsername),
+            addFriend({ username: currentUsername, fusername: "fusername" }),
         );
         const status = response.meta.requestStatus;
         expect(status).toBe("fulfilled");
     });
     it("should handle add friend error", async () => {
         server.use(postUserFriendHE);
-        const response = await store.dispatch(addFriend("abc"));
+        const response = await store.dispatch(
+            addFriend({ username: "username", fusername: "fusername" }),
+        );
         const status = response.meta.requestStatus;
         expect(status).toBe("rejected");
     });
@@ -111,6 +113,7 @@ describe("authSlice", () => {
 
     // TODO (187-192)
     it("should handle update profile", async () => {
+        await store.dispatch(fetchSession());
         const response = await store.dispatch(updateProfile({
             account: fact.userGen(),
             form: {
@@ -122,6 +125,7 @@ describe("authSlice", () => {
     });
     it("should handle update profile error", async () => {
         server.use(putUserHE);
+        await store.dispatch(fetchSession());
         const response = await store.dispatch(updateProfile({
             account: fact.userGen(),
             form: {

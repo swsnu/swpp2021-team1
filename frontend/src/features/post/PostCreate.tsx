@@ -58,6 +58,7 @@ export default function Postcreate(props : PostcreateProps) {
     useEffect(() => {
         const setUp = async () => {
             const data = await getRepositories(account?.username as string);
+            console.log(data);
             setRepoOptions(data);
             const results: Promise<IPhoto[]>[] = [];
             data.forEach((repo) => results.push(getPhotos(repo.repo_id)));
