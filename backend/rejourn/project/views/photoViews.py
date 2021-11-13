@@ -4,6 +4,8 @@ from datetime import datetime
 
 from django.http.response import HttpResponseBadRequest
 from django.utils import timezone
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.http import require_http_methods
 
 from project.models.models import Repository, Photo, PhotoTag
 from project.httpResponse import *
@@ -11,6 +13,9 @@ from project.utils import have_common_user
 from project.enum import Scope
 
 
+# /api/repositories/<int:repo_id>/photos/
+@require_http_methods(['POST', 'GET', 'PUT', 'DELETE'])
+@ensure_csrf_cookie
 def photos(request, repo_id):
     if request.method == "GET":
         try:
