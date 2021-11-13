@@ -44,7 +44,11 @@ const PostPreview = (props: PostPreviewProps) => {
         return (
             <>
                 {" "}
-                <div className="d-flex mt-4 align-items-center w-100" style={{ justifyContent: "space-between" }}>
+                <div
+                    data-testid="post-preview"
+                    className="d-flex mt-4 align-items-center w-100"
+                    style={{ justifyContent: "space-between" }}
+                >
                     <h4>Posts</h4>
                     <div>
                         <Button
@@ -73,8 +77,8 @@ const PostPreview = (props: PostPreviewProps) => {
             </>
         );
     }
-    if (loading === "failed") return <>Failed to load posts</>;
-    return <></>;
+    if (loading === "failed") return <div data-testid="error">Failed to load posts</div>;
+    return <div data-testid="loading" />;
 };
 
 export default PostPreview;

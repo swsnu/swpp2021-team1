@@ -29,8 +29,6 @@ export default function DiscussionCreate(props : DiscussionCreateProps) {
         }));
     }
 
-    console.log(isLoading);
-
     return (
         <div>
             {!isLoading && currentDiscussion && (

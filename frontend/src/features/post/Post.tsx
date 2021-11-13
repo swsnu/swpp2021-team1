@@ -12,12 +12,12 @@ interface PostProps {
 export default function Post(props : PostProps) {
     const { post } = props;
     return (
-        <div className="col-lg-4 col-xs-12 mb-4">
+        <div className=" post col-lg-4 col-xs-12 mb-4">
             <Link to={`/posts/${post.post_id}`} className="text-decoration-none text-dark">
                 <div className="card" style={{ height: "100%" }}>
                     <div className="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
                         <img
-                            src={post.photos ? post.photos[0].image : ""}
+                            src={post.photos.length > 0 ? post.photos[0].image : ""}
                             className="img-fluid"
                             alt="thumbnail"
                         />

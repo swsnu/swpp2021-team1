@@ -47,7 +47,7 @@ export default function Profile(props: ProfileProps) {
     }, [currentUser]);
 
     const onAddFriendClick = () => {
-        dispatch(addFriend(currentUser?.username as string));
+        dispatch(addFriend({ username: account?.username as string, fusername: currentUser?.username as string }));
     };
     const onFriendsClick = () => setFriendModalShow(true);
     const onClose = () => setFriendModalShow(false);

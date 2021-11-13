@@ -26,6 +26,7 @@
     "enzyme-adapter-react-17-updated": "^1.0.2",
     "enzyme-to-json": "^3.6.2",
     "faker": "^5.5.3",
+    "jest": "26.6.0",
     "react": "^17.0.2",
     "react-bootstrap": "^2.0.0",
     "react-dom": "^17.0.2",
@@ -76,14 +77,16 @@
     "eslint-plugin-promise": "^5.1.1",
     "eslint-plugin-react": "^7.21.5",
     "eslint-plugin-react-hooks": "^1.7.0",
-    "msw": "^0.35.0",
-    "ts-jest": "^27.0.5"
+    "msw": "^0.35.0"
   },
   "jest": {
     "collectCoverageFrom": [
       "src/**/*.{ts,tsx}",
       "!src/common/Interfaces.tsx",
-      "!src/common/APIs.tsx"
+      "!src/common/APIs.tsx",
+      "!src/app/hooks.tsx",
+      "!src/app/store.tsx",
+      "!src/react-app-env.d.ts"
     ]
   },
   "msw": {
