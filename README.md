@@ -8,8 +8,7 @@
 - `yarn start`
 
 ## Start BackEnd
-- `cd backend`
-- `cd rejourn`
+- `cd backend && cd rejourn`
 - `python3 manage.py makemigrations project`
 - `python3 manage.py migrate`
 - `python3 manage.py runserver`
