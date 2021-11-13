@@ -16,6 +16,7 @@ jobs:
         - yarn global add coveralls
         - cd ../backend/rejourn
         - pip install -r requirements.txt
+        - python -m pip install Pillow 
         - pip install coveralls
       script:
         - cd ../../frontend
@@ -25,7 +26,7 @@ jobs:
         - cd ../backend/rejourn
         - python3 manage.py makemigrations project
         - python3 manage.py migrate
-        - pylint **/*.py --load-plugins pylint_django
+        - pylint project --load-plugins pylint_django
         - coverage run --source='.' manage.py test
         - coverage xml
         - coveralls --merge=../../frontend/coverage.json

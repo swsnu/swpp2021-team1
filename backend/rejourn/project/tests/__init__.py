@@ -1,15 +1,18 @@
-from .discussionTests import DiscussionTestCase
+from .discussionTests import DiscussionTestCase, DiscussionCommentTestCase
 from .modelsTests import ModelsTestCase
 from .photoTests import PhotoTestCase
-from .userTests import UserTestCase
-from .postTests import PostTestCase
+from .userTests import UserTestCase, UserFriendTestCase
+from .postTests import PostTestCase, PostCommentTestCase
 from .repositoryTests import RepositoryTestCase
 
 __all__ = [
-   'ModelsTestCase',
-   'UserTestCase',
-   'DiscussionTestCase',
-   'RepositoryTestCase',
-   'PhotoTestCase',
-   'PostTestCase',
+    "ModelsTestCase",
+    "UserTestCase",
+    "UserFriendTestCase",
+    "DiscussionTestCase",
+    "DiscussionCommentTestCase",
+    "RepositoryTestCase",
+    "PhotoTestCase",
+    "PostTestCase",
+    "PostCommentTestCase",
 ]

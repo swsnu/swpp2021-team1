@@ -140,4 +140,3 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 USE_TZ = True
 TIME_ZONE = 'Asia/Seoul'
-

@@ -1,6 +1,7 @@
 from django.contrib import admin
-
-from project.models.models import *
+from project.models.models import (User, Repository, Photo,
+                                   PhotoTag, Discussion, DiscussionComment,
+                                   Post, PhotoInPost, PostComment)
 
 admin.site.register(User)
 admin.site.register(Repository)
