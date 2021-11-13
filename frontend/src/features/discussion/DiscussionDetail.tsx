@@ -132,7 +132,6 @@ export default function DiscussionDetail(props : DiscussionDetailProps) {
             </div>
             <div className="p-3">
                 <div className="mt-4">
-                    {console.log(currentDiscussion?.comments)}
                     {currentDiscussion?.comments && currentDiscussion.comments.map((value) => (
                         <React.Fragment key={value.comment_id}>
                             <Comment
