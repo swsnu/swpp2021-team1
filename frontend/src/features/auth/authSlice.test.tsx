@@ -44,7 +44,7 @@ describe("authSlice", () => {
     it("should log in correctly", async () => {
         await store.dispatch(signIn({ username: "", password: "" }));
         const { auth } = store.getState();
-        expect(auth.account && auth.currentUser && auth.account.username === auth.currentUser.username);
+        expect(auth.account && auth.currentUser && auth.account.username === auth.currentUser.username).toBeTruthy();
     });
     it("should handle login error", async () => {
         server.use(postSignInHE);
