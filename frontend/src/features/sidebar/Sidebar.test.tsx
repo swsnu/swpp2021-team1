@@ -32,7 +32,7 @@ function makeStoredComponent() {
     );
 }
 
-describe("RepositoryList", () => {
+describe("Sidebar", () => {
     let fetchMock : any;
     let outMock : any;
     let handleMock : any;
@@ -52,21 +52,21 @@ describe("RepositoryList", () => {
         jest.clearAllMocks();
     });
 
-    it("Should render correctly", () => {
+    it("Should render correctly", async () => {
         const component = mount(makeStoredComponent());
         component.find("DropdownToggle").simulate("click");
         component.find("DropdownItem").at(0).simulate("click");
         expect(mockPush).toHaveBeenCalledTimes(1);
     });
 
-    it("Should redirect if failed to fetch session", () => {
+    it("Should redirect if failed to fetch session", async () => {
         const mockSelector = jest.spyOn(redux, "useAppSelector").mockImplementation(() =>
             [false, true, userFactory()]);
         const component = mount(makeStoredComponent());
         expect(component.find("Redirect").length).toBe(1);
     });
 
-    it("Should be able to log out", () => {
+    it("Should be able to log out", async () => {
         const mockEffect = jest.spyOn(react, "useEffect").mockImplementation(jest.fn());
         const spy = jest.spyOn(redux, "useAppDispatch").mockImplementation((() =>
             (e : any) => ({

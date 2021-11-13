@@ -26,7 +26,7 @@ describe("PostDetail", () => {
     afterAll(() => server.close());
     afterEach(() => jest.clearAllMocks());
 
-    it("should render properly", () => {
+    it("should render properly", async () => {
         const store = configureStore({ reducer: { posts: postsReducer, auth: authReducer } });
         const wrapper = mount(
             <Provider store={store}>
@@ -38,7 +38,7 @@ describe("PostDetail", () => {
         const component = wrapper.find(PostDetail);
         expect(component.length).toBe(1);
     });
-    it("should handle carousel select", () => {
+    it("should handle carousel select", async () => {
         const store = configureStore({ reducer: { posts: postsReducer, auth: authReducer } });
         const wrapper = mount(
             <Provider store={store}>

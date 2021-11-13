@@ -23,7 +23,7 @@ describe("Post", () => {
     afterAll(() => server.close());
     afterEach(() => jest.clearAllMocks());
 
-    it("should render properly", () => {
+    it("should render properly", async () => {
         const store = configureStore({ reducer: { posts: postsReducer } });
         const wrapper = mount(
             <Provider store={store}>
