@@ -8,6 +8,7 @@ import { IUser } from "../../common/Interfaces";
 import {
     getSession, getSignOut, getUser, postFriends, postSignIn, postUsers, putUser,
 } from "../../common/APIs";
+import { RootState } from "../../app/store";
 
 export const signIn = createAsyncThunk<IUser, {username : string, password : string}>(
     "auth/signin", // action type
@@ -61,14 +62,15 @@ interface IProfileForm {
     password: string
 }
 
-export const updateProfile = createAsyncThunk<
-IProfileForm, {account: IUser, form: IProfileForm}>(
+export const updateProfile = createAsyncThunk<IProfileForm, IProfileForm, {state: RootState}>(
     "auth/updateProfile",
-    async ({ account, form }, thunkAPI) => {
-        if (!account) thunkAPI.rejectWithValue("");
+    async (form, thunkAPI) => {
+        const { auth }: {auth: AuthState} = thunkAPI.getState();
+        const { account } = auth;
         if (account) {
             await putUser({
-                ...account,
+                username: account.username,
+                visibility: account.visibility,
                 email: form.email,
                 real_name: form.real_name,
                 bio: form.bio,
