@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db.models.deletion import CASCADE
 from django.db.models.fields import CharField, DateTimeField
 from django.utils import timezone
 
@@ -22,13 +23,39 @@ class User(AbstractUser):
         return self.username
 
 
-class Repository(models.Model):
+class Route(models.Model):
+    route_id = models.BigAutoField(primary_key=True)
+    area_name = models.CharField(max_length=120)
+    
+    def __str__(self):
+        return self.area_name
 
+
+class Place(models.Model):
+    place_id = models.BigAutoField(primary_key=True)
+    place_name = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.place_name
+
+
+class PlaceInRoute(models.Model):
+    route = models.ForeignKey(Route, on_delete=models.CASCADE)
+    place = models.ForeignKey(Place, on_delete=models.PROTECT)
+    order = models.IntegerField()
+    time = models.DateTimeField('time', blank=True, null=True)
+    plan_or_not = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.route.route_id}, {self.order}"
+
+
+class Repository(models.Model):
     repo_id = models.BigAutoField(primary_key=True)
     repo_name = models.CharField(max_length=120)
     visibility = models.IntegerField(choices=Scope.choices, default=0)
     owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    #route_id = models.ForeignKey(Route, on_delete=models.SET_DEFAULT)
+    route = models.ForeignKey(Route, on_delete=models.SET_NULL, null=True)
     travel_start_date = models.DateField('travel_start_date', default=timezone.localtime, null=True)
     travel_end_date = models.DateField('travel_end_date', default=timezone.localtime, null=True)
     collaborators = models.ManyToManyField(
@@ -49,7 +76,10 @@ class Photo(models.Model):
     uploader = models.ForeignKey(
         User,
         on_delete=models.CASCADE)
-    # place = models.ForeignKey(Place, on_delete=models.SET_NULL)
+    place = models.ForeignKey(
+        Place,
+        on_delete=models.SET_NULL,
+        null=True)
     post_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -126,3 +156,20 @@ class PostComment(models.Model):
 
     def __str__(self):
         return self.text
+
+
+class Label(models.Model):
+    label_id = models.BigAutoField(primary_key=True)
+    label_name = models.CharField(max_length=120)
+
+    def __str__(self):
+        return self.label_name
+
+
+class PhotoWithLabel(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    photo = models.ForeignKey(Photo, on_delete=models.CASCADE)
+    label = models.ForeignKey(Label, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return f"{self.user.username}, {self.photo.post_id}, {self.label.label_name}"

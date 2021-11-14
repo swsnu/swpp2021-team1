@@ -28,6 +28,7 @@ urlpatterns = [
         userViews.userFriendID,
         name="userFriendID",
     ),
+
     ## repositoryAPI
     path("repositories/", repositoryViews.repositories, name="repositories"),
     path(
@@ -43,6 +44,7 @@ urlpatterns = [
         repositoryViews.repositoryCollaboratorID,
         name="repositoryCollaboratorID",
     ),
+
     ## discussionAPI
     path(
         "repositories/<int:repo_id>/discussions/",
@@ -64,6 +66,7 @@ urlpatterns = [
         discussionViews.discussionCommentID,
         name="discussionCommentID",
     ),
+
     ## postAPI
     path("users/<str:user_name>/posts/", postViews.userPosts, name="userPosts"),
     path("repositories/<int:repo_id>/posts/", postViews.repoPosts, name="repoPosts"),
@@ -74,6 +77,14 @@ urlpatterns = [
         postViews.postCommentID,
         name="postCommentID",
     ),
+
     ## photoAPI
     path("repositories/<int:repo_id>/photos/", photoViews.photos, name="photos"),
+
+    ## labelAPI
+
+
+    ## routeAPI
+
+
 ]
