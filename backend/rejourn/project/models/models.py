@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models.deletion import CASCADE
-from django.db.models.fields import CharField, DateTimeField
+from django.db.models.fields import CharField, DateTimeField, DecimalField, related
 from django.utils import timezone
 
 from project.utils import profile_upload_to_func, photo_upload_to_func
@@ -18,36 +18,11 @@ class User(AbstractUser):
     visibility = models.IntegerField(choices=Scope.choices, default=0)
     real_name = models.CharField(max_length=150, default="")
     friends = models.ManyToManyField("self", symmetrical=True)
+    # repositories : many to many field (Repository)
+
 
     def __str__(self):
         return self.username
-
-
-class Route(models.Model):
-    route_id = models.BigAutoField(primary_key=True)
-    area_name = models.CharField(max_length=120)
-    
-    def __str__(self):
-        return self.area_name
-
-
-class Place(models.Model):
-    place_id = models.BigAutoField(primary_key=True)
-    place_name = models.CharField(max_length=200)
-
-    def __str__(self):
-        return self.place_name
-
-
-class PlaceInRoute(models.Model):
-    route = models.ForeignKey(Route, on_delete=models.CASCADE)
-    place = models.ForeignKey(Place, on_delete=models.PROTECT)
-    order = models.IntegerField()
-    time = models.DateTimeField('time', blank=True, null=True)
-    plan_or_not = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f"{self.route.route_id}, {self.order}"
 
 
 class Repository(models.Model):
@@ -55,16 +30,53 @@ class Repository(models.Model):
     repo_name = models.CharField(max_length=120)
     visibility = models.IntegerField(choices=Scope.choices, default=0)
     owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    route = models.ForeignKey(Route, on_delete=models.SET_NULL, null=True)
     travel_start_date = models.DateField('travel_start_date', default=timezone.localtime, null=True)
     travel_end_date = models.DateField('travel_end_date', default=timezone.localtime, null=True)
     collaborators = models.ManyToManyField(
         User,
         related_name='repositories',
     )
+    # route : one to one field(Route)
 
     def __str__(self):
         return self.repo_name
+
+
+class Route(models.Model):
+    route_id = models.BigAutoField(primary_key=True)
+    region_name = models.CharField(max_length=200)
+    place_id = models.CharField(max_length=100)
+    latitude = models.DecimalField(max_digits=18, decimal_places=15)
+    longitude = models.DecimalField(max_digits=18, decimal_places=15)
+    east = models.DecimalField(max_digits=18, decimal_places=15)
+    west = models.DecimalField(max_digits=18, decimal_places=15)
+    south = models.DecimalField(max_digits=18, decimal_places=15)
+    north = models.DecimalField(max_digits=18, decimal_places=15)
+    repository = models.OneToOneField(
+        Repository,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='route'
+    )
+
+    def __str__(self):
+        return self.area_name
+
+
+class PlaceInRoute(models.Model):
+    place_in_route_id = models.BigAutoField(primary_key=True)
+    route = models.ForeignKey(Route, on_delete=models.CASCADE)
+    order = models.IntegerField()
+    time = models.DateTimeField(blank=True, null=True)
+    text = models.CharField(max_length=500)
+    place_id = models.CharField(max_length=100)
+    place_name = models.CharField(max_length=200, blank=True, null=True)
+    latitude = models.DecimalField(max_digits=18, decimal_places=15)
+    longitude = models.DecimalField(max_digits=18, decimal_places=15)
+    # thumbnail : one to one field(Photo)
+
+    def __str__(self):
+        return f"{self.route.route_id}, {self.order}, {self.place_name}"
 
 
 class Photo(models.Model):
@@ -77,10 +89,19 @@ class Photo(models.Model):
         User,
         on_delete=models.CASCADE)
     place = models.ForeignKey(
-        Place,
+        PlaceInRoute,
         on_delete=models.SET_NULL,
         null=True)
     post_time = models.DateTimeField(auto_now_add=True)
+    thumbnail_of = models.OneToOneField(
+        PlaceInRoute,
+        on_delete=models.SET_NULL,
+        related_name='thumbnail',
+        default=None,
+        blank=True,
+        null=True
+    )
+    # labels : many to many field (Label)
 
     def __str__(self):
         return str(self.photo_id)
@@ -160,16 +181,19 @@ class PostComment(models.Model):
 
 class Label(models.Model):
     label_id = models.BigAutoField(primary_key=True)
-    label_name = models.CharField(max_length=120)
+    label_name = models.CharField(max_length=200)
+    repository = models.ForeignKey(
+        Repository,
+        on_delete=models.CASCADE
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+    photos = models.ManyToManyField(
+        Photo,
+        related_name='labels'
+    )
 
     def __str__(self):
         return self.label_name
-
-
-class PhotoWithLabel(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    photo = models.ForeignKey(Photo, on_delete=models.CASCADE)
-    label = models.ForeignKey(Label, on_delete=models.PROTECT)
-
-    def __str__(self):
-        return f"{self.user.username}, {self.photo.post_id}, {self.label.label_name}"
