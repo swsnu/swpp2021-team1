@@ -6,6 +6,7 @@ from project.views import (
     discussionViews,
     postViews,
     photoViews,
+    routeViews,
 )
 
 
@@ -85,11 +86,10 @@ urlpatterns = [
 
 
     ## routeAPI
-    path("/route-search/", routeViews.routeSearch, name="routeSearch"),
-    path("repositories/<int:repo_id>/route/", routeViews.route, name="route"),
-    path("repositories/<int:repo_id>/route/<str:place_id>/", routeViews.routeID, name="routeID"),
+    path("route-search/", routeViews.routeSearch, name="routeSearch"),
+    path("repositories/<int:repo_id>/route/", routeViews.routeID, name="routeID"),
 
-    path("/places-search/", routeViews.placeSearch, name="placeSearch"),
+    path("places-search/", routeViews.placeSearch, name="placeSearch"),
     path("repositories/<int:repo_id>/route/places/", routeViews.places, name="places"),
     path("repositories/<int:repo_id>/route/places/<str:place_id>/", routeViews.placeID, name="placeID"),
 
