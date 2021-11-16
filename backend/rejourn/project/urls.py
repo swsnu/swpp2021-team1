@@ -86,10 +86,10 @@ urlpatterns = [
 
 
     ## routeAPI
-    path("route-search/", routeViews.routeSearch, name="routeSearch"),
+    path("region-search/", routeViews.regionSearch, name="regionSearch"),
     path("repositories/<int:repo_id>/route/", routeViews.routeID, name="routeID"),
 
-    path("places-search/", routeViews.placeSearch, name="placeSearch"),
+    path("repositories/<int:repo_id>/route/places-search/", routeViews.placeSearch, name="placeSearch"),
     path("repositories/<int:repo_id>/route/places/", routeViews.places, name="places"),
     path("repositories/<int:repo_id>/route/places/<str:place_id>/", routeViews.placeID, name="placeID"),
 
