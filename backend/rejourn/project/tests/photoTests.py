@@ -1,5 +1,6 @@
 import json
 import tempfile
+import shutil
 from PIL import Image
 
 from django.test import TestCase, Client, override_settings
@@ -8,7 +9,6 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from project.enum import Scope
 from project.models.models import User, Repository, Photo, PhotoTag
 
-# import shutil
 # from io import BytesIO
 
 
@@ -83,6 +83,7 @@ class PhotoTestCase(TestCase):
         Repository.objects.all().delete()
         Photo.objects.all().delete()
         PhotoTag.objects.all().delete()
+        shutil.rmtree(MEDIA_ROOT, ignore_errors=True)  # delete the temp dir
 
     def test_photos_get(self):
         client = Client()

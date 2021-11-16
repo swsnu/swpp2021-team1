@@ -60,7 +60,7 @@ class Route(models.Model):
     )
 
     def __str__(self):
-        return self.area_name
+        return self.region_name
 
 
 class PlaceInRoute(models.Model):
@@ -68,7 +68,7 @@ class PlaceInRoute(models.Model):
     route = models.ForeignKey(Route, on_delete=models.CASCADE)
     order = models.IntegerField()
     time = models.DateTimeField(blank=True, null=True)
-    text = models.CharField(max_length=500)
+    text = models.CharField(max_length=500, blank=True, null=True)
     place_id = models.CharField(max_length=100)
     place_name = models.CharField(max_length=200, blank=True, null=True)
     latitude = models.DecimalField(max_digits=18, decimal_places=15)
@@ -130,7 +130,6 @@ class Discussion(models.Model):
     title = models.CharField(max_length=120)
     text = models.CharField(max_length=1000)
     post_time = models.DateTimeField(auto_now_add=True)
-
     def __str__(self):
         return self.title
 
