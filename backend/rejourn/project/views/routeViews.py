@@ -24,12 +24,12 @@ UPLOADED_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 @ensure_csrf_cookie
 def regionSearch(request):
     # if request.method == "GET":
-    #if not request.user.is_authenticated:
-    #    return HttpResponseNotLoggedIn()
+    if not request.user.is_authenticated:
+        return HttpResponseNotLoggedIn()
 
     query_string = str(request.GET.get("query", None))
     if query_string is None:
-        return HttpResponseInvalidInput()
+        return HttpResponseBadReqeust()
     endpoint = 'https://maps.googleapis.com/maps/api/geocode/json'
     query_string_formatted = query_string.replace(" ", "-")
     params = {"address": query_string_formatted, "key": api_key}
@@ -397,7 +397,7 @@ def places(request, repo_id):
             "uploader": photo.uploader.username,
         }
         not_assigned_photos.append(response_photo)
-        
+
     response_dict = {
         "not_assigned": not_assigned_photos,
         "places": places,
