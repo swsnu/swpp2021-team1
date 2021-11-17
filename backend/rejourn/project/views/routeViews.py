@@ -343,6 +343,7 @@ def places(request, repo_id):
             photo_in_place.save()
         i += 1
 
+    repository_photos = Photo.objects.filter(repository=repository)
     places_to_return = PlaceInRoute.objects.filter(route=route).order_by("order")
     places = []
     for place in places_to_return:
@@ -363,6 +364,7 @@ def places(request, repo_id):
                 "uploader": photo.uploader.username,
             }
             photos.append(response_photo)
+        repository_photos.filter(place=place).delete()
 
         response_place = {
             "place_id": place.place_id,
@@ -379,9 +381,30 @@ def places(request, repo_id):
         if bool(place.thumbnail):
             response_place["thumbnail"] = Photo.objects.get(thumbnail_of=place).image_file.url
         places.append(response_place)
+    not_assigned_photos = []
+    for photo in repository_photos:
+        try:
+            photo_tag = PhotoTag.objects.get(photo=photo, user=request.user)
+            photo_tag_text = photo_tag.text
+        except PhotoTag.DoesNotExist:
+            photo_tag_text = ""
+        response_photo = {
+            "photo_id": photo.photo_id,
+            "repo_id": photo.repository.repo_id,
+            "image": photo.image_file.url,
+            "post_time": photo.post_time.strftime(UPLOADED_TIME_FORMAT),
+            "tag": photo_tag_text,
+            "uploader": photo.uploader.username,
+        }
+        not_assigned_photos.append(response_photo)
+        
+    response_dict = {
+        "not_assigned": not_assigned_photos,
+        "places": places,
+    }
 
 
-    return HttpResponseSuccessUpdate(places)
+    return HttpResponseSuccessUpdate(response_dict)
 
 @require_http_methods(["POST"])
 @ensure_csrf_cookie
