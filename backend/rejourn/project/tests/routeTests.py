@@ -64,6 +64,13 @@ class RouteTestCase(TestCase):
         repo_b.save()
         repo_b.collaborators.add(user_a)
         repo_b.collaborators.add(user_d)
+        repo_c = Repository(
+            repo_name="REPO_C_NAME",
+            visibility=Scope.FRIENDS_ONLY,
+            owner=user_a,
+        )
+        repo_c.save()
+        repo_c.collaborators.add(user_a)
 
         route_a = Route(
             region_address="대한민국 제주특별자치도 제주시 애월읍",
@@ -189,13 +196,159 @@ class RouteTestCase(TestCase):
         self.assertIn(photo_1.image_file.url, response.content.decode())
 
     def test_routeID_post(self):
-        pass
+        client = Client()
+        response = client.post("/api/repositories/1/route/")
+        self.assertEqual(response.status_code, 401)
+        client.post(
+            "/api/signin/",
+            json.dumps({"username": "TEST_C_USER", "password": "TEST_C_PW"}),
+            content_type="application/json",
+        )
+        response = client.post("/api/repositories/5/route/")
+        self.assertEqual(response.status_code, 404)
+        response = client.post("/api/repositories/1/route/")
+        self.assertEqual(response.status_code, 403)
+        client.get("/api/signout")
+        client.post(
+            "/api/signin/",
+            json.dumps({"username": "TEST_A_USER", "password": "TEST_A_PW"}),
+            content_type="application/json",
+        )
+        response = client.post("/api/repositories/2/route/")
+        self.assertEqual(response.status_code, 400)
+
+        response = client.post(
+            "/api/repositories/2/route/",
+            json.dumps({"place_id": "ChIJXSModoWLGGARILWiCfeu2M0", "repo_id": 1}),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 400)
+
+        response = client.post(
+            "/api/repositories/2/route/",
+            json.dumps({"place_id": ""}),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 400)
+
+        response = client.post(
+            "/api/repositories/2/route/",
+            json.dumps({"place_id": "ChIJXSModoWLGGARILWiCfeu2M0"}),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 201)
+
+        response = client.post(
+            "/api/repositories/2/route/",
+            json.dumps({"place_id": "ChIJXSModoWLGGARILWiCfeu2M0"}),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 201)
+
+        response = client.post(
+            "/api/repositories/2/route/",
+            json.dumps({"repo_id": 5}),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 404)
+        response = client.post(
+            "/api/repositories/2/route/",
+            json.dumps({"repo_id": 3}),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 404)
+        response = client.post(
+            "/api/repositories/2/route/",
+            json.dumps({"repo_id": 1}),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 201)
+
+        response = client.post(
+            "/api/repositories/3/route/",
+            json.dumps({"repo_id": 1}),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 201)
+        response = client.post(
+            "/api/repositories/3/route/",
+            json.dumps({"place_id": "ChIJXSModoWLGGARILWiCfeu2M0"}),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 201)
+        response = client.post(
+            "/api/repositories/3/route/",
+            json.dumps({"repo_id": 1}),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 201)
 
     def test_placeSearch_get(self):
-        pass
-    
+        client = Client()
+        response = client.delete("/api/repositories/1/route/places-search/")
+        self.assertEqual(response.status_code, 405)
+
+        response = client.get("/api/repositories/1/route/places-search/")
+        self.assertEqual(response.status_code, 401)
+
+        client.post(
+            "/api/signin/",
+            json.dumps({"username": "TEST_C_USER", "password": "TEST_C_PW"}),
+            content_type="application/json",
+        )
+
+        response = client.get("/api/repositories/5/route/places-search/")
+        self.assertEqual(response.status_code, 404)
+
+        response = client.get("/api/repositories/1/route/places-search/")
+        self.assertEqual(response.status_code, 403)
+
+        client.get("/api/signout/")
+        client.post(
+            "/api/signin/",
+            json.dumps({"username": "TEST_A_USER", "password": "TEST_A_PW"}),
+            content_type="application/json",
+        )
+
+        response = client.get("/api/repositories/2/route/places-search/")
+        self.assertEqual(response.status_code, 404)
+
+        response = client.get("/api/repositories/1/route/places-search/")
+        self.assertEqual(response.status_code, 400)
+
+        response = client.get("/api/repositories/1/route/places-search/?query=맛집")
+        self.assertEqual(response.status_code, 200)
+
+        response = client.get("/api/repositories/1/route/places-search/?query=애월읍 애월리 1716-4")
+        self.assertEqual(response.status_code, 200)
+
     def test_places_put(self):
         pass
     
     def test_placeID_post(self):
-        pass
+        client = Client()
+        response = client.delete("/api/repositories/1/route/places/ChIJ66OlkbP1DDURa0xq5SHaKHg/")
+        self.assertEqual(response.status_code, 405)
+
+        response = client.post("/api/repositories/1/route/places/ChIJ66OlkbP1DDURa0xq5SHaKHg/")
+        self.assertEqual(response.status_code, 401)
+
+        client.post(
+            "/api/signin/",
+            json.dumps({"username": "TEST_C_USER", "password": "TEST_C_PW"}),
+            content_type="application/json",
+        )
+        response = client.post("/api/repositories/5/route/places/ChIJ66OlkbP1DDURa0xq5SHaKHg/")
+        self.assertEqual(response.status_code, 404)
+        response = client.post("/api/repositories/1/route/places/ChIJ66OlkbP1DDURa0xq5SHaKHg/")
+        self.assertEqual(response.status_code, 403)
+        client.get("/api/signout/")
+        client.post(
+            "/api/signin/",
+            json.dumps({"username": "TEST_A_USER", "password": "TEST_A_PW"}),
+            content_type="application/json",
+        )
+        response = client.post("/api/repositories/2/route/places/ChIJ66OlkbP1DDURa0xq5SHaKHg/")
+        self.assertEqual(response.status_code, 404)
+        response = client.post("/api/repositories/1/route/places/ChIJ66OlkbP1DDURa0xq5SHaKHg/")
+        self.assertEqual(response.status_code, 201)

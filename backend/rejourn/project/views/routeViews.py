@@ -140,7 +140,6 @@ def routeID(request, repo_id):
             "places": places,
             "region": response_region,
         }
-        print(response_dict)
 
         return HttpResponseSuccessGet(response_dict)
     # if request.method == "POST":
@@ -159,20 +158,24 @@ def routeID(request, repo_id):
     try:
         req_data = json.loads(request.body.decode())
         place_id = req_data["place_id"]
-    except (KeyError, JSONDecodeError):
         try:
             fork_repo_id = req_data["repo_id"]
-        except:
             return HttpResponseBadRequest()
-        request_type = 1
-    try:
-        fork_repo_id = req_data["repo_id"]
-        return HttpResponseBadRequest()
-    except (KeyError):
-        request_type = 0
+        except (KeyError, JSONDecodeError):
+            request_type = 0
+    except (KeyError, JSONDecodeError):
+        try:
+            req_data = json.loads(request.body.decode())
+            fork_repo_id = req_data["repo_id"]
+            request_type = 1
+        except (KeyError, JSONDecodeError):
+            return HttpResponseBadRequest()
 
     if request_type == 0:
-        url = urlencode('https://maps.googleapis.com/maps/api/geocode/json?place_id=' + place_id + '&key=' + api_key)
+        endpoint = 'https://maps.googleapis.com/maps/api/geocode/json'
+        params = {"place_id": place_id, "key": api_key}
+        params_encoded = urlencode(params)
+        url = f"{endpoint}?{params_encoded}"
         google_maps_response = requests.get(url)
         if google_maps_response.status_code not in range(200, 299):
             return HttpResponseBadRequest()
@@ -185,43 +188,55 @@ def routeID(request, repo_id):
         south = google_maps_response.json()['results'][0]['geometry']['bounds']['southwest']['lat']
         north = google_maps_response.json()['results'][0]['geometry']['bounds']['northeast']['lat']
 
+        try:
+            ori_route = Route.objects.get(repository=repository)
+            ori_route.delete()
+        except Route.DoesNotExist:
+            pass
         new_route = Route(region_address=region_address, place_id=place_id, latitude=latitude, longitude=longitude, east=east, west=west, south=south, north=north, repository=repository)
         new_route.save()
         return HttpResponseSuccessUpdate()
     
-    # if request_type == 1:
-    try:
-        fork_repository = Repository.objects.get(repo_id=fork_repo_id)
-    except Repository.DoesNotExist:
-        return HttpResponseNotExist()
-    try:
-        fork_route = Route.objects.get(repository=fork_repository)
-    except Route.DoesNotExist:
-        return HttpResponseNotExist()
-    region_address = fork_route.region_address
-    place_id = fork_route.place_id
-    latitude = fork_route.latitude
-    longitude = fork_route.longitude
-    east = fork_route.east
-    west = fork_route.west
-    south = fork_route.south
-    north = fork_route.north
+    # request_type == 1
+    else:
+        try:
+            fork_repository = Repository.objects.get(repo_id=fork_repo_id)
+        except Repository.DoesNotExist:
+            return HttpResponseNotExist()
+        try:
+            fork_route = Route.objects.get(repository=fork_repository)
+        except Route.DoesNotExist:
+            return HttpResponseNotExist()
+        region_address = fork_route.region_address
+        place_id = fork_route.place_id
+        latitude = fork_route.latitude
+        longitude = fork_route.longitude
+        east = fork_route.east
+        west = fork_route.west
+        south = fork_route.south
+        north = fork_route.north
 
-    new_route = Route(region_address=region_address, place_id=place_id, latitude=latitude, longitude=longitude, east=east, west=west, south=south, north=north, repository=repository)
-    new_route.save()
+        try:
+            ori_route = Route.objects.get(repository=repository)
+            ori_route.delete()
+        except Route.DoesNotExist:
+            pass
 
-    places = PlaceInRoute.objects.filter(route=fork_route)
-    for place in places:
-        route = new_route
-        order = place.order
-        place_id = place.place_id
-        place_name = place.place_name
-        place_address = place.place_address
-        latitude = place.latitude
-        longitude = place.longitude
-        new_place = PlaceInRoute(route=route, order=order, place_id=place_id, place_name=place_name, place_address=place_address, latitude=latitude, longitude=longitude)
-        new_place.save()
-    return HttpResponseSuccessUpdate()
+        new_route = Route(region_address=region_address, place_id=place_id, latitude=latitude, longitude=longitude, east=east, west=west, south=south, north=north, repository=repository)
+        new_route.save()
+
+        places = PlaceInRoute.objects.filter(route=fork_route)
+        for place in places:
+            route = new_route
+            order = place.order
+            place_id = place.place_id
+            place_name = place.place_name
+            place_address = place.place_address
+            latitude = place.latitude
+            longitude = place.longitude
+            new_place = PlaceInRoute(route=route, order=order, place_id=place_id, place_name=place_name, place_address=place_address, latitude=latitude, longitude=longitude)
+            new_place.save()
+        return HttpResponseSuccessUpdate()
 
 @require_http_methods(["GET"])
 @ensure_csrf_cookie
@@ -233,23 +248,26 @@ def placeSearch(request, repo_id):
     try:
         repository = Repository.objects.get(repo_id=repo_id)
     except Repository.DoesNotExist:
-        return HttpResponseNotExist
+        return HttpResponseNotExist()
+
+    if not request.user in repository.collaborators.all():
+        return HttpResponseNoPermission()
 
     try:
         route = Route.objects.get(repository=repository)
     except Route.DoesNotExist:
-        return HttpResponseNotExist
+        return HttpResponseNotExist()
 
-    query_string = str(request.GET.get("query", None))
+    query_string = request.GET.get("query", None)
     if query_string is None:
-        return HttpResponseInvalidInput()
-    
-    latitude = str(route.latitude)
-    longitude = str(route.longitude)
+        return HttpResponseBadRequest()
 
     response = []
-    url_for_geocoding = urlencode('https://maps.googleapis.com/maps/api/geocode/json?address=' + query_string_formatted + '&key=' + api_key)
-    geocoding_response = requests.get(url)
+
+    query_string_formatted = query_string.replace(" ", "%2C")
+    url_for_geocoding = "https://maps.googleapis.com/maps/api/geocode/json?address="+query_string_formatted+"&key="+api_key
+    geocoding_response = requests.get(url_for_geocoding)
+
     if geocoding_response.status_code in range(200, 299):
         place_id = geocoding_response.json()['results'][0]['place_id']
         formatted_address = geocoding_response.json()['results'][0]['formatted_address']
@@ -257,21 +275,17 @@ def placeSearch(request, repo_id):
             "place_id": place_id,
             "formatted_address": formatted_address,
         }
-        response.append(response_dict)
+        if (-0.5<(geocoding_response.json()['results'][0]['geometry']['location']['lat']-float(route.latitude)) < 0.5) and (-0.5<(geocoding_response.json()['results'][0]['geometry']['location']['lng']-float(route.longitude)) < 0.5):
+            response.append(response_dict)
 
-    endpoint = 'https://maps.googleapis.com/maps/api/place/textsearch/json'
-    query_string_formatted = query_string.replace(" ", "-")
-    params = {"query": query_string_formatted, "location": {"lat": latitude, "lng": longitude}, "key": api_key}
-    params_encoded = urlencode(params)
-    url = f"{endpoint}?{params_encoded}"
+    url = 'https://maps.googleapis.com/maps/api/place/textsearch/json?location='+str(route.latitude)+"%2C"+str(route.longitude)+"&query="+query_string_formatted+"&key="+api_key
     google_maps_response = requests.get(url)
 
-    for i in range(10):
+    for place in google_maps_response.json()['results']:
         if google_maps_response.status_code in range(200, 299):
-            place_id = google_maps_response.json()['results'][i]['place_id']
-            formatted_address = google_maps_response.json()['results'][i]['formatted_address']
-            name = google_maps_response.json()['results'][i]['name']
-            i += 1
+            place_id = place['place_id']
+            formatted_address = place['formatted_address']
+            name = place['name']
             response_dict = {
                 "place_id": place_id,
                 "formatted_address": formatted_address,
@@ -281,6 +295,7 @@ def placeSearch(request, repo_id):
 
     return HttpResponseSuccessGet(response)
 
+"""
 @require_http_methods(["PUT"])
 @ensure_csrf_cookie
 def places(request, repo_id):
@@ -313,13 +328,13 @@ def places(request, repo_id):
         try:
             edit_text = place["text"]
         except (KeyError):
-            edit_text = null
+            edit_text = None
         place_to_edit.latitude = place["latitude"]
         place_to_edit.longitude = place["longitude"]
         try:
             edit_time = place["time"]
         except (KeyError):
-            edit_time = null
+            edit_time = None
         try:
             edit_thumbnail = place["thumbnail"]
             try:
@@ -382,8 +397,10 @@ def places(request, repo_id):
             response_place["text"] = place.text
         if place.time != None:
             response_place["time"] = place.time.strftime(UPLOADED_TIME_FORMAT)
-        if bool(place.thumbnail):
+        try:
             response_place["thumbnail"] = Photo.objects.get(thumbnail_of=place).image_file.url
+        except:
+            pass
         places.append(response_place)
     not_assigned_photos = []
     for photo in repository_photos:
@@ -407,8 +424,8 @@ def places(request, repo_id):
         "places": places,
     }
 
-
     return HttpResponseSuccessUpdate(response_dict)
+"""
 
 @require_http_methods(["POST"])
 @ensure_csrf_cookie
@@ -421,22 +438,28 @@ def placeID(request, repo_id, place_id):
     except Repository.DoesNotExist:
         return HttpResponseNotExist()
 
-    if not ((request.user in repository.collaborators.all()) or (repository.visibility == PUBLIC) or (repository.visibility == Scope.FRIENDS_ONLY and have_common_user(request.user.friends.a(), repository.collaborators.all()))):
+    if not ((request.user in repository.collaborators.all()) or (repository.visibility == Scope.PUBLIC) or (repository.visibility == Scope.FRIENDS_ONLY and have_common_user(request.user.friends.a(), repository.collaborators.all()))):
         return HttpResponseNoPermission()
         
-    route = Route.objects.get(repository=repository)
+    try:
+        route = Route.objects.get(repository=repository)
+    except Route.DoesNotExist:
+        return HttpResponseNotExist()
     
-    url = urlencode('https://maps.googleapis.com/maps/api/place/textsearch/json?place_id=' + place_id + '&key=' + api_key)
+    url = 'https://maps.googleapis.com/maps/api/place/details/json?place_id=' + place_id + '&key=' + api_key
     google_maps_response = requests.get(url)
     if google_maps_response.status_code not in range(200, 299):
         return HttpResponseBadRequest()
 
     existing_max = PlaceInRoute.objects.filter(route=route).count()
     order = existing_max+1
-    place_name = google_maps_response.json()['results'][0]['name']
-    place_address =google_maps.response.json()['results'][0]['formatted_address']
-    latitude = google_maps_response.json()['results'][0]['geometry']['location']['lat']
-    longitude = google_maps_response.json()['results'][0]['geometry']['location']['lng']
+    try:
+        place_name = google_maps_response.json()['result']['name']
+        place_address = google_maps_response.json()['result']['formatted_address']
+        latitude = google_maps_response.json()['result']['geometry']['location']['lat']
+        longitude = google_maps_response.json()['result']['geometry']['location']['lng']
+    except:
+        return HttpResponseNotExist()
     
     new_place = PlaceInRoute(route=route, order=order, place_id=place_id, place_name=place_name, place_address=place_address, latitude=latitude, longitude=longitude)
     new_place.save()
@@ -474,8 +497,10 @@ def placeID(request, repo_id, place_id):
             response_place["text"] = place.text
         if place.time != None:
             response_place["time"] = place.time.strftime(UPLOADED_TIME_FORMAT)
-        if bool(place.thumbnail):
+        try:
             response_place["thumbnail"] = Photo.objects.get(thumbnail_of=place).image_file.url
+        except:
+            pass
         places.append(response_place)
 
     return HttpResponseSuccessUpdate(places)

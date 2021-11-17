@@ -59,7 +59,7 @@ class Route(models.Model):
     )
 
     def __str__(self):
-        return self.area_name
+        return self.region_address
 
 
 class PlaceInRoute(models.Model):
