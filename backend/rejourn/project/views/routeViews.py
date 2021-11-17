@@ -7,7 +7,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 from django.utils import timezone
 
-from project.models.models import User, Repository, Route
+from project.models.models import User, Repository, Route, PlaceInRoute, Photo, PhotoTag
 from project.httpResponse import *
 from project.utils import have_common_user
 from project.enum import Scope
@@ -27,9 +27,10 @@ def regionSearch(request):
     if not request.user.is_authenticated:
         return HttpResponseNotLoggedIn()
 
-    query_string = str(request.GET.get("query", None))
+    query_string = request.GET.get("query", None)
+    
     if query_string is None:
-        return HttpResponseBadReqeust()
+        return HttpResponseBadRequest()
     endpoint = 'https://maps.googleapis.com/maps/api/geocode/json'
     query_string_formatted = query_string.replace(" ", "-")
     params = {"address": query_string_formatted, "key": api_key}
@@ -37,7 +38,7 @@ def regionSearch(request):
     url = f"{endpoint}?{params_encoded}"
     google_maps_response = requests.get(url)
 
-    if google_maps_response.status_code not in range(200, 299):
+    if google_maps_response.status_code != 200:
         return HttpResponseInvalidInput()
     place_id = google_maps_response.json()['results'][0]['place_id']
     formatted_address = google_maps_response.json()['results'][0]['formatted_address']
@@ -45,7 +46,7 @@ def regionSearch(request):
         "place_id": place_id,
         "formatted_address": formatted_address,
     }
-    print(response_dict)
+
     return HttpResponseSuccessGet([response_dict])
 
 @require_http_methods(["GET", "POST"])
@@ -59,7 +60,7 @@ def routeID(request, repo_id):
         except Repository.DoesNotExist:
             return HttpResponseNotExist()
 
-        if not ((request.user in repository.collaborators.all()) or (repository.visibility == PUBLIC) or (repository.visibility == Scope.FRIENDS_ONLY and have_common_user(request.user.friends.a(), repository.collaborators.all()))):
+        if not ((request.user in repository.collaborators.all()) or (repository.visibility == Scope.PUBLIC) or (repository.visibility == Scope.FRIENDS_ONLY and have_common_user(request.user.friends.all(), repository.collaborators.all()))):
             return HttpResponseNoPermission()
         
         route = Route.objects.get(repository=repository)
@@ -99,8 +100,10 @@ def routeID(request, repo_id):
                 response_place["text"] = place.text
             if place.time != None:
                 response_place["time"] = place.time.strftime(UPLOADED_TIME_FORMAT)
-            if bool(place.thumbnail):
+            try:
                 response_place["thumbnail"] = Photo.objects.get(thumbnail_of=place).image_file.url
+            except:
+                pass
             places.append(response_place)
 
         not_assigned_photos = []
@@ -137,6 +140,7 @@ def routeID(request, repo_id):
             "places": places,
             "region": response_region,
         }
+        print(response_dict)
 
         return HttpResponseSuccessGet(response_dict)
     # if request.method == "POST":
@@ -150,7 +154,7 @@ def routeID(request, repo_id):
         return HttpResponseNoPermission()
     
     request_type = 0 # 0: request by place_id / 1: request by repo_id
-    # both containing request is returned with HttpResponseBadReqeust()
+    # both containing request is returned with HttpResponseBadRequest()
 
     try:
         req_data = json.loads(request.body.decode())

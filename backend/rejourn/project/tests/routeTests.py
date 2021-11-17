@@ -5,8 +5,12 @@ import tempfile
 from django.test import TestCase, Client, override_settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-from project.models.models import User, Repository, Route, PlaceInRoute, Photo
+from project.models.models import User, Repository, Route, PlaceInRoute, Photo, PhotoTag
 from project.enum import Scope
+
+import datetime
+from django.utils import timezone
+
 
 
 MEDIA_ROOT = tempfile.mkdtemp()
@@ -77,6 +81,8 @@ class RouteTestCase(TestCase):
         place_a_1 = PlaceInRoute(
             route=route_a,
             order=1,
+            time=datetime.datetime.now(tz=timezone.utc),
+            text="바다에서 단체사진찍기",
             place_id="ChIJwxapcG71DDURGdhIIeiFBcI",
             place_name="곽지해수욕장",
             place_address="대한민국 제주특별자치도 제주시 애월읍 곽지리 곽지해수욕장",
@@ -121,6 +127,12 @@ class RouteTestCase(TestCase):
         )
         photo_c.save()
         photo_image_1 = SimpleUploadedFile("photo_image_1.jpg", b"photo_image_1")
+        photo_1 = Photo(
+            repository=repo_a,
+            image_file=photo_image_1,
+            uploader=user_a,
+        )
+        photo_1.save()
         photo_image_2 = SimpleUploadedFile("photo_image_2.jpg", b"photo_image_2")
         photo_image_3 = SimpleUploadedFile("photo_image_3.jpg", b"photo_image_3")
 
@@ -146,10 +158,35 @@ class RouteTestCase(TestCase):
         )
         response = client.get("/api/region-search/")
         self.assertEqual(response.status_code, 400)
-
-
+        response = client.get("/api/region-search/?query=jeju 애월")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Aewol-eup, Jeju-si, Jeju-do, South Korea', response.content.decode())
+        
     def test_routeID_get(self):
-        pass
+        client = Client()
+        response = client.delete("/api/repositories/1/route/")
+        self.assertEqual(response.status_code, 405)
+        response = client.get("/api/repositories/1/route/")
+        self.assertEqual(response.status_code, 401)
+        client.post(
+            "/api/signin/",
+            json.dumps({"username": "TEST_C_USER", "password": "TEST_C_PW"}),
+            content_type="application/json",
+        )
+        response = client.get("/api/repositories/5/route/")
+        self.assertEqual(response.status_code, 404)
+        response = client.get("/api/repositories/1/route/")
+        self.assertEqual(response.status_code, 403)
+        client.get("/api/signout")
+        client.post(
+            "/api/signin/",
+            json.dumps({"username": "TEST_A_USER", "password": "TEST_A_PW"}),
+            content_type="application/json",
+        )
+        response = client.get("/api/repositories/1/route/")
+        self.assertEqual(response.status_code, 200)
+        photo_1 = Photo.objects.get(photo_id=4)
+        self.assertIn(photo_1.image_file.url, response.content.decode())
 
     def test_routeID_post(self):
         pass
