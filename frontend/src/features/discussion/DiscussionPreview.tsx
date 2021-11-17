@@ -6,7 +6,7 @@ import Photo from "../photo/Photo";
 import AddPhoto from "../photo/popup/AddPhoto";
 import FocusedPhoto from "../photo/popup/FocusedPhoto";
 import { AppDispatch, RootState } from "../../app/store";
-import { IDiscussion } from "../../common/Interfaces";
+import { IDiscussion, IRepository, IUser } from "../../common/Interfaces";
 import * as actionCreators from "./discussionsSlice";
 import Discussion from "./Disucssion";
 
@@ -21,11 +21,16 @@ export default function DiscussionPreview(props : DiscussionPreviewProps) {
     const history = useHistory();
     const dispatch = useDispatch<AppDispatch>();
 
+    const [user, repo] = useSelector<RootState, [IUser|null, IRepository|null]>((state) =>
+        [state.auth.account, state.repos.currentRepo]);
+    const auth = user && repo && repo.collaborators.filter((value) => value.username === user.username).length > 0;
+
     useEffect(() => {
         dispatch(actionCreators.fetchDiscussions(parseInt(params.id)));
     }, [dispatch]);
 
     if (isLoading) return null;
+    if (!auth) return null;
     return (
         <div>
             <div className="d-flex mt-4 justify-content-between align-items-start">

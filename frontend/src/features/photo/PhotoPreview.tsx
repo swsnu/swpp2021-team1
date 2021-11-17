@@ -3,7 +3,7 @@ import { Button, ListGroup } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { AppDispatch, RootState } from "../../app/store";
-import { IPhoto } from "../../common/Interfaces";
+import { IPhoto, IRepository, IUser } from "../../common/Interfaces";
 import * as actionCreator from "./photosSlice";
 import Photo from "./Photo";
 import AddPhoto from "./popup/AddPhoto";
@@ -25,6 +25,12 @@ export default function PhotoPreview(props : PhotoPreviewProps) {
     const [addShow, setAddShow] = useState<boolean>(false);
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     const [checked, setChecked] = useState<{[id : number] : boolean}>({});
+
+    const [user, repo] = useSelector<RootState, [IUser|null, IRepository|null]>((state) =>
+        [state.auth.account, state.repos.currentRepo]);
+    const auth = user !== null &&
+        repo !== null &&
+        repo.collaborators.filter((value) => value.username === user.username).length > 0;
 
     useEffect(() => {
         dispatch(actionCreator.fetchPhotos(parseInt(params.id))).then(() => {
@@ -93,25 +99,27 @@ export default function PhotoPreview(props : PhotoPreviewProps) {
         <div>
             <div className="d-flex mt-4 justify-content-between align-items-start">
                 <h4 className="m-2">Photos</h4>
-                <div>
-                    {deleteMode && (
+                {auth && (
+                    <div>
+                        {deleteMode && (
+                            <Button
+                                className="m-2"
+                                id="cancel-photo-button"
+                                onClick={cancelDelete}
+                            >
+                                Cancel
+                            </Button>
+                        )}
                         <Button
                             className="m-2"
-                            id="cancel-photo-button"
-                            onClick={cancelDelete}
+                            id="delete-photo-button"
+                            onClick={deleteMode ? commitDelete : () => setDeleteMode(true)}
                         >
-                            Cancel
+                            {deleteMode ? "Commit" : "Delete"}
                         </Button>
-                    )}
-                    <Button
-                        className="m-2"
-                        id="delete-photo-button"
-                        onClick={deleteMode ? commitDelete : () => setDeleteMode(true)}
-                    >
-                        {deleteMode ? "Commit" : "Delete"}
-                    </Button>
-                    <Button className="m-2" id="add-photo-button" onClick={addPhotos}>+</Button>
-                </div>
+                        <Button className="m-2" id="add-photo-button" onClick={addPhotos}>+</Button>
+                    </div>
+                )}
             </div>
             <div className="d-flex flex-row photo-list overflow-auto mt-2">
                 {photoList.map((value) => (
@@ -133,6 +141,7 @@ export default function PhotoPreview(props : PhotoPreviewProps) {
                     onEdit={onEdit}
                     show={photoShow}
                     setShow={setPhotoShow}
+                    canEdit={auth}
                 />
             )}
         </div>

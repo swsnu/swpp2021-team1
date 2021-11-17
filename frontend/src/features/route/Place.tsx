@@ -11,6 +11,7 @@ interface PlaceProps {
     onPhotoClick : (photo_id : number) => void,
     onAdd : (place_id : number) => void,
     onDelete : (place_id : number, photos : number[]) => void,
+    onPlaceDelete : (place_id : number) => void,
 }
 
 export default function Place(props : PlaceProps) {
@@ -59,6 +60,9 @@ export default function Place(props : PlaceProps) {
                                 </Button>
                                 <Button onClick={onDelete}>
                                     ↑
+                                </Button>
+                                <Button onClick={() => props.onPlaceDelete(props.place.place_id)}>
+                                    Delete
                                 </Button>
                             </div>
                         )}

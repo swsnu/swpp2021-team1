@@ -30,7 +30,7 @@ function makeStoredComponent() {
         </Provider>
     );
 }
-
+// TODO : test 변경 필요
 describe("DiscussionPreview", () => {
     beforeEach(() => {
         const mockfetch = jest.spyOn(actionCreators, "fetchDiscussions").mockImplementation((id : number) =>

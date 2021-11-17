@@ -32,7 +32,7 @@ function makeStoredComponent() {
         </Provider>
     );
 }
-
+// TODO : test 변경 필요
 describe("PhotoPreview", () => {
     let fetchMock : any;
     let focusMock : any;

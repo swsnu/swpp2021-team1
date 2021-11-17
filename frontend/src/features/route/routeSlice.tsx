@@ -2,14 +2,16 @@ import {
     createAsyncThunk, createSlice, PayloadAction, SliceCaseReducers,
 } from "@reduxjs/toolkit";
 import {
+    IPhoto,
     IPlace, IRoute,
 } from "../../common/Interfaces";
 import {
     getPlacesQuery, getRegionQuery,
     getRoute,
-    postPlaces, postRoute,
+    postPlaces, postRoute, putPhotos,
     putPlaces,
 } from "../../common/APIs";
+import { PhotosState } from "../photo/photosSlice";
 
 export const fetchRoute = createAsyncThunk<IRoute, number>( // added
     "route/fetch",
@@ -60,6 +62,13 @@ export const forkRoute = createAsyncThunk<void, {repo_id : number, forked_repo_i
 
 );
 
+export const editPhoto = createAsyncThunk<IPhoto[], {repo_id : number, photo : IPhoto}>( // added
+    "route/photo/edit",
+    async ({ repo_id, photo }, thunkAPI) => // payload creator
+        await putPhotos(repo_id, [photo]), // TODO
+
+);
+
 export const routeInitialState: RouteState = {
     isLoading: true,
     isQueryLoading: false,
@@ -67,6 +76,7 @@ export const routeInitialState: RouteState = {
     hasConcurrentError: false,
     currentRoute: null,
     queryResult: [],
+    focusedPhoto: null,
 };
 
 interface PlaceQueryResult {
@@ -82,12 +92,21 @@ interface RouteState {
     hasConcurrentError : boolean;
     currentRoute : IRoute|null;
     queryResult : PlaceQueryResult[];
+    focusedPhoto : IPhoto|null;
 }
 
 const routeSlice = createSlice<RouteState, SliceCaseReducers<RouteState>>({
     name: "route",
     initialState: routeInitialState,
     reducers: {
+        focusPhoto: (state : RouteState, action: PayloadAction<number>) => {
+            let photo: IPhoto | null = null;
+            state.currentRoute?.places.forEach((value) =>
+                value.photos.forEach((value1) => {
+                    if (value1.photo_id === action.payload) photo = value1;
+                }));
+            state.focusedPhoto = photo;
+        },
     },
     extraReducers: (builder) => {
         builder.addCase(fetchRoute.pending, (state: RouteState) => {
@@ -178,11 +197,28 @@ const routeSlice = createSlice<RouteState, SliceCaseReducers<RouteState>>({
             state.hasError = false;
         });
         builder.addCase(forkRoute.fulfilled, (state: RouteState) => {
-            state.isLoading = true;
+            state.isLoading = false;
             state.hasError = false;
         });
         builder.addCase(forkRoute.rejected, (state: RouteState) => {
             state.isLoading = false;
+            state.hasError = true;
+        });
+
+        builder.addCase(editPhoto.pending, (state: RouteState) => {
+            state.hasError = false;
+        });
+        /* TODO */
+        builder.addCase(editPhoto.fulfilled, (state: RouteState, action: PayloadAction<IPhoto[]>) => {
+            let index = -1;
+            const place = state.currentRoute?.places.findIndex((value) =>
+                (index = value.photos.findIndex((value1) => action.payload[0].photo_id === value1.photo_id)) !== -1);
+            if (state.currentRoute && place && place !== -1) {
+                state.currentRoute.places[place].photos[index] = { ...action.payload[0] };
+            }
+            state.hasError = false;
+        });
+        builder.addCase(editPhoto.rejected, (state: RouteState) => {
             state.hasError = true;
         });
     },

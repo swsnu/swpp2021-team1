@@ -9,13 +9,14 @@ interface FocusedPhotoProps {
     onEdit : (str : string) => void;
     show : boolean;
     setShow : SetStateAction<boolean>;
+    canEdit : boolean;
 }
 
 export default function FocusedPhoto(props : FocusedPhotoProps) {
     const [tag, setTag] = useState<string>(props.photo.tag as string);
 
     function onClose() {
-        props.onEdit(tag);
+        if (props.canEdit) props.onEdit(tag);
         props.setShow(false);
     }
 
@@ -24,14 +25,16 @@ export default function FocusedPhoto(props : FocusedPhotoProps) {
             <Modal.Header closeButton />
             <Image src={props.photo.image} alt={props.photo.image} rounded />
             <Modal.Footer>
-                <InputGroup className="mb-3">
-                    <Form.Control
-                        type="text"
-                        value={tag}
-                        placeholder="Explain your photo"
-                        onChange={(event) => setTag(event.target.value)}
-                    />
-                </InputGroup>
+                { props.canEdit && (
+                    <InputGroup className="mb-3">
+                        <Form.Control
+                            type="text"
+                            value={tag}
+                            placeholder="Explain your photo"
+                            onChange={(event) => setTag(event.target.value)}
+                        />
+                    </InputGroup>
+                )}
             </Modal.Footer>
         </Modal>
     );
