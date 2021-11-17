@@ -5,7 +5,6 @@ import {
     IDiscussion,
     IPhoto, IPlace, IPost, IRepository, IRoute, IUser,
 } from "./Interfaces";
-import any = jasmine.any;
 
 axios.defaults.xsrfCookieName = "csrftoken";
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -270,9 +269,9 @@ export async function getRegionQuery(queryString : string) {
     )).data;
 }
 
-export async function getPlacesQuery(queryString : string) {
+export async function getPlacesQuery(repo_id : number, queryString : string) {
     return (await axios.get<any, AxiosResponse<PlaceQueryResult[]>>(
-        `/api/places-search/?keyword=${queryString}/`,
+        `/api/repositories/${repo_id}/route/places-search/?query=${queryString}/`,
     )).data;
 }
 

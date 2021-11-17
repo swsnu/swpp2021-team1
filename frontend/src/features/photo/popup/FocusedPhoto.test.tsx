@@ -27,5 +27,13 @@ describe("FocusedPhoto", () => {
         expect(mockFunction).toHaveBeenCalledWith("hello");
     });
 
-    // TODO
+    it("Cannot find input if canEdit flag is false", async () => {
+        const photo = photoFactory();
+        const component = mount(
+            <FocusedPhoto show setShow={mockShow} onEdit={mockFunction} photo={photo} canEdit={false} />,
+        );
+        expect(component.find("InputGroup FormControl input").length).toBe(0);
+        component.find("ModalHeader CloseButton button").simulate("click");
+        expect(mockFunction).toHaveBeenCalledTimes(0);
+    });
 });

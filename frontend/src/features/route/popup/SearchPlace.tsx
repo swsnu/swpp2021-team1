@@ -8,7 +8,7 @@ import { SetStateAction } from "../../../common/Interfaces";
 interface SearchPlaceProps {
     queryResult : PlaceQueryResult[],
     isLoading : boolean,
-    onConfirm : (place_id : number) => void,
+    onConfirm : (place : PlaceQueryResult) => void,
     onSearch : (query : string) => void,
     show : boolean,
     setShow : SetStateAction<boolean>,
@@ -23,7 +23,7 @@ export default function SearchPlace(props : SearchPlaceProps) {
     }
 
     function onConfirm() {
-        props.onConfirm((clicked as PlaceQueryResult).place_id);
+        props.onConfirm((clicked as PlaceQueryResult));
         props.setShow(false);
     }
 
@@ -54,18 +54,22 @@ export default function SearchPlace(props : SearchPlaceProps) {
                                 key={value.place_id}
                                 onClick={() => onClickPlace(value)}
                             >
-                                <h4>{value.name ? value.name : value.formatted_address}</h4>
-                                <h6>{value.name && value.formatted_address}</h6>
+                                <h6>
+                                    {`${value.name ? value.name : value.formatted_address}`}
+                                    {value.name ? (` (${value.formatted_address})`) : ""}
+                                </h6>
                             </Dropdown.Item>
                         )) :
                         <Dropdown.Item disabled>No Result</Dropdown.Item>}
                 </Dropdown.Menu>
-                <div className="d-flex ms-2 me-2 mt-4">
-                    <h3>Selected Place</h3>
-                    {clicked && (
+                <div className="ms-2 me-2 mt-4">
+                    <h5>
+                        {`Selected Place : ${(clicked && clicked.name) ? clicked.name :
+                            (clicked ? clicked.formatted_address : "")}`}
+                    </h5>
+                    {clicked && clicked.name && (
                         <div>
-                            <h4>{clicked.name ? clicked.name : clicked.formatted_address}</h4>
-                            <h6>{clicked.name && clicked.formatted_address}</h6>
+                            <h6>{clicked.formatted_address}</h6>
                         </div>
                     )}
                 </div>

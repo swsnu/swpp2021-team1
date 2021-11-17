@@ -6,18 +6,21 @@ import { Button, Image } from "react-bootstrap";
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useParams } from "react-router";
+import * as env from "dotenv";
 import { IRoute } from "../../common/Interfaces";
 import { AppDispatch, RootState } from "../../app/store";
 import * as actionCreators from "./routeSlice";
+
+env.config();
 
 interface RoutePreviewProps {
 
 }
 
 export default function RoutePreview(props : RoutePreviewProps) {
-    const isMapLoading = useJsApiLoader({
+    const isMapLoaded = useJsApiLoader({
         id: "google-map-script",
-        googleMapsApiKey: "YOUR_API_KEY",
+        googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY as string,
     }).isLoaded;
 
     const [isLoading, hasError, route] = useSelector<RootState, [boolean, boolean, IRoute|null]>((state) =>
@@ -33,7 +36,7 @@ export default function RoutePreview(props : RoutePreviewProps) {
         }
     }, [dispatch]);
 
-    if (isLoading || isMapLoading || hasError) return null;
+    if (isLoading || !isMapLoaded || hasError) return null;
     if (!route) return <div>Fatal Error!</div>;
     return (
         <div>
@@ -43,15 +46,15 @@ export default function RoutePreview(props : RoutePreviewProps) {
                     <Button
                         className="m-2"
                         id="delete-photo-button"
-                        onClick={() => history.push("")}
+                        onClick={() => history.push(`/repos/${params.id}/place`)}
                     >
                         View Detail
                     </Button>
                 </div>
             </div>
-            <div className="mt-2">
+            <div className="m-2">
                 <GoogleMap
-                    mapContainerStyle={{ width: "400px", height: "400px" }}
+                    mapContainerStyle={{ width: "100%", height: "300px" }}
                     onLoad={(map) => {
                         const sw = new window.google.maps.LatLng(route.region.south, route.region.west);
                         const ne = new window.google.maps.LatLng(route.region.north, route.region.east);

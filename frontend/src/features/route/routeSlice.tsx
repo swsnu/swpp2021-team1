@@ -41,24 +41,10 @@ export const searchRegion = createAsyncThunk<PlaceQueryResult[], string>( // add
 
 );
 
-export const searchPlace = createAsyncThunk<PlaceQueryResult[], string>( // added
+export const searchPlace = createAsyncThunk<PlaceQueryResult[], {repo_id : number, queryString : string}>( // added
     "route/search/place",
-    async (queryString, thunkAPI) => // payload creator
-        await getPlacesQuery(queryString),
-
-);
-
-export const editRegion = createAsyncThunk<void, {repo_id : number, place_id : number}>( // added
-    "route/edit/region",
-    async ({ repo_id, place_id }, thunkAPI) => // payload creator
-        await postRoute(repo_id, place_id, "region"),
-
-);
-
-export const forkRoute = createAsyncThunk<void, {repo_id : number, forked_repo_id : number}>( // added
-    "route/fork",
-    async ({ repo_id, forked_repo_id }, thunkAPI) => // payload creator
-        await postRoute(repo_id, forked_repo_id, "fork"),
+    async ({ repo_id, queryString }, thunkAPI) => // payload creator
+        await getPlacesQuery(repo_id, queryString),
 
 );
 
@@ -176,32 +162,6 @@ const routeSlice = createSlice<RouteState, SliceCaseReducers<RouteState>>({
         });
         builder.addCase(searchPlace.rejected, (state: RouteState) => {
             state.isQueryLoading = false;
-            state.hasError = true;
-        });
-
-        builder.addCase(editRegion.pending, (state: RouteState) => {
-            state.isLoading = true;
-            state.hasError = false;
-        });
-        builder.addCase(editRegion.fulfilled, (state: RouteState) => {
-            state.isLoading = false;
-            state.hasError = false;
-        });
-        builder.addCase(editRegion.rejected, (state: RouteState) => {
-            state.isLoading = false;
-            state.hasError = true;
-        });
-
-        builder.addCase(forkRoute.pending, (state: RouteState) => {
-            state.isLoading = true;
-            state.hasError = false;
-        });
-        builder.addCase(forkRoute.fulfilled, (state: RouteState) => {
-            state.isLoading = false;
-            state.hasError = false;
-        });
-        builder.addCase(forkRoute.rejected, (state: RouteState) => {
-            state.isLoading = false;
             state.hasError = true;
         });
 

@@ -3,8 +3,6 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { useParams } from "react-router";
-import { DndProvider, useDrop } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 import { AppDispatch, RootState } from "../../app/store";
 import {
@@ -13,10 +11,10 @@ import {
 import { PlaceQueryResult } from "./routeSlice";
 import * as actionCreators from "./routeSlice";
 import Place from "./Place";
-import { editPhotos, focusPhoto } from "../photo/photosSlice";
 import FocusedPhoto from "../photo/popup/FocusedPhoto";
 import Photo from "../photo/Photo";
 import SearchPlace from "./popup/SearchPlace";
+import "./PlaceDetail.css";
 
 interface PlaceDetailProps {
 
@@ -154,6 +152,7 @@ export default function PlaceDetail(props : PlaceDetailProps) {
                     <div>
                         {!mode && (
                             <Button
+                                className="m-2"
                                 id="edit-place-button"
                                 onClick={changeMode}
                             >
@@ -161,6 +160,7 @@ export default function PlaceDetail(props : PlaceDetailProps) {
                             </Button>
                         )}
                         <Button
+                            className="m-2"
                             id="add-place-button"
                             onClick={() => setShow(true)}
                         >
@@ -207,15 +207,17 @@ export default function PlaceDetail(props : PlaceDetailProps) {
             <Offcanvas show={mode} placement="top" backdrop={false} scroll>
                 <Offcanvas.Header>
                     <Offcanvas.Title>Edit Places</Offcanvas.Title>
-                    <Button onClick={onEdit}>
-                        Confirm
-                    </Button>
-                    <Button onClick={cancel}>
-                        Cancel
-                    </Button>
+                    <div>
+                        <Button className="m-2" onClick={onEdit}>
+                            Confirm
+                        </Button>
+                        <Button className="m-2" onClick={cancel}>
+                            Cancel
+                        </Button>
+                    </div>
                 </Offcanvas.Header>
                 <Offcanvas.Body>
-                    <div className="d-flex flex-row photo-list overflow-auto mt-2">
+                    <div className="d-flex flex-row not-assigned-list overflow-auto mt-2">
                         {notAssigned.map((value) => (
                             <React.Fragment key={value.photo_id.toString()}>
                                 <Photo
@@ -245,8 +247,10 @@ export default function PlaceDetail(props : PlaceDetailProps) {
             <SearchPlace
                 queryResult={queryResult}
                 isLoading={isQueryLoading}
-                onConfirm={(place_id) => dispatch(actionCreators.addPlace({ repo_id: parseInt(params.id), place_id }))}
-                onSearch={(query) => dispatch(actionCreators.searchPlace(query))}
+                onConfirm={(result) =>
+                    dispatch(actionCreators.addPlace({ repo_id: parseInt(params.id), place_id: result.place_id }))}
+                onSearch={(query) =>
+                    dispatch(actionCreators.searchPlace({ repo_id: parseInt(params.id), queryString: query }))}
                 show={show}
                 setShow={setShow}
             />

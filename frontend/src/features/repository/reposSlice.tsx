@@ -10,7 +10,7 @@ import {
     deleteCollaborators,
     deleteRepository,
     getRepositories, getRepository, postCollaborators,
-    postRepositories,
+    postRepositories, postRoute,
     putRepository,
 } from "../../common/APIs";
 
@@ -53,6 +53,20 @@ export const leaveRepository = createAsyncThunk<void, {username : string, repoID
     "repos/leave",
     async ({ username, repoID }, thunkAPI) =>
         await deleteCollaborators(repoID, username),
+);
+
+export const editRegion = createAsyncThunk<void, {repo_id : number, place_id : number}>( // added
+    "repos/region",
+    async ({ repo_id, place_id }, thunkAPI) => // payload creator
+        await postRoute(repo_id, place_id, "region"),
+
+);
+
+export const forkRoute = createAsyncThunk<void, {repo_id : number, forked_repo_id : number}>( // added
+    "repos/fork",
+    async ({ repo_id, forked_repo_id }, thunkAPI) => // payload creator
+        await postRoute(repo_id, forked_repo_id, "fork"),
+
 );
 
 interface ReposState {
@@ -103,7 +117,7 @@ const reposSlice = createSlice<ReposState, SliceCaseReducers<ReposState>>({
         });
 
         builder.addCase(createRepository.fulfilled, (state: ReposState, action : PayloadAction<IRepository>) => {
-            state.isLoading = false;
+            state.isLoading = true;
             state.hasError = false;
             state.currentRepo = action.payload;
         });
@@ -187,6 +201,32 @@ const reposSlice = createSlice<ReposState, SliceCaseReducers<ReposState>>({
         });
 
         builder.addCase(leaveRepository.rejected, (state : ReposState) => {
+            state.isLoading = false;
+            state.hasError = true;
+        });
+
+        builder.addCase(editRegion.pending, (state: ReposState) => {
+            state.isLoading = true;
+            state.hasError = false;
+        });
+        builder.addCase(editRegion.fulfilled, (state: ReposState) => {
+            state.isLoading = false;
+            state.hasError = false;
+        });
+        builder.addCase(editRegion.rejected, (state: ReposState) => {
+            state.isLoading = false;
+            state.hasError = true;
+        });
+
+        builder.addCase(forkRoute.pending, (state: ReposState) => {
+            state.isLoading = true;
+            state.hasError = false;
+        });
+        builder.addCase(forkRoute.fulfilled, (state: ReposState) => {
+            state.isLoading = false;
+            state.hasError = false;
+        });
+        builder.addCase(forkRoute.rejected, (state: ReposState) => {
             state.isLoading = false;
             state.hasError = true;
         });

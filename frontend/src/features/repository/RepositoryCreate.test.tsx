@@ -9,8 +9,10 @@ import authReducer from "../auth/authSlice";
 import reposReducer from "./reposSlice";
 import postsReducer from "../post/postsSlice";
 import * as actionCreator from "./reposSlice";
+import * as actionCreator2 from "../route/routeSlice";
 import { repositoryFactory, userFactory } from "../../common/Interfaces";
 import RepositoryCreate from "./RepositoryCreate";
+import * as SearchPlace from "../route/popup/SearchPlace";
 
 const history = createBrowserHistory();
 const historyMock = { ...history, push: jest.fn(), listen: jest.fn() };
@@ -35,6 +37,8 @@ function makeStoredComponent() {
 
 describe("RepositoryCreate", () => {
     let createMock : any;
+    let regionMock : any;
+    let searchMock : any;
     let mockSelector : any;
     beforeEach(() => {
         const spy = jest.spyOn(redux, "useDispatch").mockImplementation((() =>
@@ -43,6 +47,8 @@ describe("RepositoryCreate", () => {
             })) as typeof jest.fn);
 
         createMock = jest.spyOn(actionCreator, "createRepository").mockImplementation(jest.fn);
+        regionMock = jest.spyOn(actionCreator, "editRegion").mockImplementation(jest.fn);
+        searchMock = jest.spyOn(actionCreator2, "searchRegion").mockImplementation(jest.fn);
         mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
             auth: {
                 account: { ...userFactory(), friends: [] },
@@ -54,7 +60,21 @@ describe("RepositoryCreate", () => {
                 hasError: false,
                 isLoading: true,
             },
+            route: {
+                isQueryLoading: false,
+                queryResult: [],
+            },
         }));
+        jest.spyOn(SearchPlace, "default").mockImplementation((props) => (
+            <div>
+                <button id="c" type="button" onClick={() => props.onConfirm({ place_id: -1, formatted_address: "" })}>
+                    mock
+                </button>
+                <button id="d" type="button" onClick={() => props.onSearch("")}>
+                    mock
+                </button>
+            </div>
+        ));
     });
 
     afterEach(() => {
@@ -73,6 +93,10 @@ describe("RepositoryCreate", () => {
                 hasError: false,
                 isLoading: true,
             },
+            route: {
+                isQueryLoading: false,
+                queryResult: [],
+            },
         }));
         const component = mount(makeStoredComponent());
         expect(component.find("h2").length).toBe(0);
@@ -90,6 +114,10 @@ describe("RepositoryCreate", () => {
                 hasError: false,
                 isLoading: false,
             },
+            route: {
+                isQueryLoading: false,
+                queryResult: [],
+            },
         }));
         const component = mount(makeStoredComponent());
         expect(component.find("Redirect").length).toBe(1);
@@ -99,8 +127,8 @@ describe("RepositoryCreate", () => {
         const component = mount(makeStoredComponent());
         component.find("FormControl").at(0).simulate("change", { target: { name: "invalid", value: "" } });
         component.find("FormControl").at(0).simulate("change", { target: { name: "repo-name", value: "" } });
-        component.find("FormControl").at(1).simulate("change", { target: { name: "start-date", value: "2000-55-22" } });
-        component.find("FormControl").at(2).simulate("change", { target: { name: "end-date", value: "2021-99-30" } });
+        component.find("FormControl").at(2).simulate("change", { target: { name: "start-date", value: "2000-55-22" } });
+        component.find("FormControl").at(3).simulate("change", { target: { name: "end-date", value: "2021-99-30" } });
         component.find("#create-repo-button").at(0).simulate("click");
         expect(createMock).toHaveBeenCalledTimes(0);
     });
@@ -108,9 +136,11 @@ describe("RepositoryCreate", () => {
     it("Should be able to create repo", () => {
         const component = mount(makeStoredComponent());
         component.find("FormControl").at(0).simulate("change", { target: { name: "repo-name", value: "NewRepo" } });
-        component.find("FormControl").at(1).simulate("change", { target: { name: "start-date", value: "2000-08-30" } });
-        component.find("FormControl").at(2).simulate("change", { target: { name: "end-date", value: "2021-08-30" } });
+        component.find("FormControl").at(2).simulate("change", { target: { name: "start-date", value: "2000-08-30" } });
+        component.find("FormControl").at(3).simulate("change", { target: { name: "end-date", value: "2021-08-30" } });
+        component.find("mockConstructor").find("button").at(0).simulate("click");
         const wrapper = component.find("FormCheck");
+        // TODO : check place
         wrapper.at(0).find("input").simulate("change", { target: { checked: false } });
         wrapper.at(1).find("input").simulate("change", { target: { checked: false } });
         wrapper.at(2).find("input").simulate("change", { target: { checked: false } });

@@ -8,7 +8,9 @@ import { AppDispatch, RootState } from "../../app/store";
 import { IRepository, IUser, Visibility } from "../../common/Interfaces";
 import * as actionCreator from "./reposSlice";
 import AddCollaborators from "./popup/AddCollaborators";
-import { signIn } from "../auth/authSlice"; // 테스트용 임시 처리
+import { signIn } from "../auth/authSlice";
+import { PlaceQueryResult, searchRegion } from "../route/routeSlice";
+import SearchPlace from "../route/popup/SearchPlace"; // 테스트용 임시 처리
 
 interface RepositoryCreateProps {
 
@@ -24,14 +26,18 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
         [state.repos.isLoading, state.repos.hasError]);
     const [user, repo] = useSelector<RootState, [IUser|null, IRepository|null]>((state) =>
         [state.auth.account, state.repos.currentRepo]);
+    const [isQueryLoading, queryResult] = useSelector<RootState, [boolean, PlaceQueryResult[]]>((state) =>
+        [state.route.isQueryLoading, state.route.queryResult]);
     const [repoName, setRepoName] = useState<string>("");
     const [travelStartDate, setTravelStartDate] = useState<string>("");
     const [travelEndDate, setTravelEndDate] = useState<string>("");
     const [collaborators, setCollaborators] = useState<IUser[]>(user ? [user] : []);
     const [show, setShow] = useState<boolean>(false);
+    const [searchShow, setSearchShow] = useState<boolean>(false);
     const [valid, setValid] = useState<(boolean|null)[]>([null, null, null]);
     const [visibility, setVisibility] = useState<Visibility>(Visibility.ALL);
     const [flag, setFlag] = useState<boolean>(!!user);
+    const [region, setRegion] = useState<PlaceQueryResult|null>(null);
     const history = useHistory();
 
     useEffect(() => {
@@ -42,6 +48,15 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
             setFlag(true);
         }
     }, [dispatch, user]);
+
+    useEffect(() => {
+        if (repo && region) {
+            dispatch(actionCreator.editRegion({
+                repo_id: (repo as IRepository).repo_id,
+                place_id: (region as PlaceQueryResult).place_id,
+            }));
+        }
+    }, [dispatch, repo]);
 
     function addCollaborators() {
         setShow(true);
@@ -110,6 +125,19 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
                 <Form.Control.Feedback type="invalid">
                     Please choose your repository name.
                 </Form.Control.Feedback>
+            </InputGroup>
+            <InputGroup className="mt-4">
+                <InputGroup.Text>You are traveling to...</InputGroup.Text>
+                <Form.Control
+                    id="repo-region-input"
+                    name="repo-region"
+                    type="text"
+                    value={region ? region.formatted_address : ""}
+                    readOnly
+                />
+                <Button onClick={() => setSearchShow(true)}>
+                    Search
+                </Button>
             </InputGroup>
             <InputGroup className="mt-4" hasValidation>
                 <InputGroup.Text>Start Date of Your Travel</InputGroup.Text>
@@ -188,7 +216,7 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
                     className="m-2"
                     id="create-repo-button"
                     onClick={createRepos}
-                    disabled={!(valid[0] && valid[1] && valid[2])}
+                    disabled={!(valid[0] && valid[1] && valid[2]) || !region}
                 >
                     Create Repository
                 </Button>
@@ -204,6 +232,15 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
                        setCollaborators={setCollaborators}
                    />
                )}
+
+            <SearchPlace
+                queryResult={queryResult}
+                isLoading={isQueryLoading}
+                onConfirm={(result) => setRegion(result)}
+                onSearch={(query) => dispatch(searchRegion(query))}
+                show={searchShow}
+                setShow={setSearchShow}
+            />
         </div>
     );
 }

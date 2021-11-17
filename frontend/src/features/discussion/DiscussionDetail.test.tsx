@@ -68,7 +68,7 @@ describe("DiscussionDetail", () => {
                 isLoading: true,
             },
             discussions: {
-                currentRepo: null,
+                currentDiscussion: null,
                 hasError: false,
                 isLoading: true,
             },

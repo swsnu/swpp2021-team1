@@ -50,18 +50,18 @@ export default function Place(props : PlaceProps) {
                     {...provided.draggableProps}
                 >
                     <div className="d-flex mt-2 justify-content-between align-items-start">
-                        <div>
+                        <h4>
                             {props.place.place_name}
-                        </div>
+                        </h4>
                         {props.draggable && (
                             <div>
-                                <Button onClick={() => props.onAdd(props.place.place_id)}>
+                                <Button className="ms-2" onClick={() => props.onAdd(props.place.place_id)}>
                                     ↓
                                 </Button>
-                                <Button onClick={onDelete}>
+                                <Button className="ms-2" onClick={onDelete}>
                                     ↑
                                 </Button>
-                                <Button onClick={() => props.onPlaceDelete(props.place.place_id)}>
+                                <Button className="ms-2" onClick={() => props.onPlaceDelete(props.place.place_id)}>
                                     Delete
                                 </Button>
                             </div>

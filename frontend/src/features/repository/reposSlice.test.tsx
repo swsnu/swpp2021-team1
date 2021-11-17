@@ -119,4 +119,6 @@ describe("reposSlice", () => {
         store.dispatch(toBeLoaded(null));
         expect(store.getState().repos.isLoading).toEqual(true);
     });
+
+    // TODO : test new actions
 });

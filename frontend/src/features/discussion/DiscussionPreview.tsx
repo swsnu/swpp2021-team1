@@ -34,7 +34,7 @@ export default function DiscussionPreview(props : DiscussionPreviewProps) {
     return (
         <div>
             <div className="d-flex mt-4 justify-content-between align-items-start">
-                <h4 className="m-2">Discussions</h4>
+                <h4>Discussions</h4>
                 <div>
                     <Button
                         className="m-2"
