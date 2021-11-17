@@ -1,12 +1,18 @@
 import axios, { AxiosResponse } from "axios";
+import { PlaceQueryResult } from "../features/route/routeSlice";
 import {
     IComment,
     IDiscussion,
-    IPhoto, IPost, IRepository, IUser,
+    IPhoto, IPlace, IPost, IRepository, IRoute, IUser,
 } from "./Interfaces";
+import any = jasmine.any;
 
 axios.defaults.xsrfCookieName = "csrftoken";
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
+
+/**
+ * for authSlice
+ */
 
 export async function postSignIn(username : string, password : string) {
     return (await axios.post<any, AxiosResponse<IUser>>("/api/signin/", { username, password })).data;
@@ -48,6 +54,10 @@ export async function deleteFriends(from : string, to : string) {
     await axios.delete(`/api/users/${from}/friends/${to}/`);
 }
 
+/**
+ * for reposSlice
+ */
+
 export async function postRepositories(repo : IRepository) {
     return (await axios.post<any, AxiosResponse<IRepository>>("/api/repositories/", repo)).data;
 }
@@ -80,6 +90,10 @@ export async function deleteCollaborators(repo_id : number, username : string) {
     await axios.delete(`/api/repositories/${repo_id}/collaborators/${username}/`);
 }
 
+/**
+ * for photosSlice
+ */
+
 export async function getPhotos(repo_id : number) {
     return (await axios.get<any, AxiosResponse<IPhoto[]>>(`/api/repositories/${repo_id}/photos/`)).data;
 }
@@ -96,6 +110,10 @@ export async function deletePhotos(repo_id : number, photos_id : {photo_id : num
     return (await axios.delete<any, AxiosResponse<IPhoto[]>>(`/api/repositories/${repo_id}/photos/`,
         { data: photos_id })).data;
 }
+
+/**
+ * for discussionsSlice
+ */
 
 export async function getDiscussions(repo_id : number) {
     return (await axios.get<any, AxiosResponse<IDiscussion[]>>(`/api/repositories/${repo_id}/discussions/`)).data;
@@ -148,6 +166,10 @@ export async function deleteDiscussionComment(discussion_id : number, comment_id
         `/api/discussions/${discussion_id}/comments/${comment_id}/`,
     )).data;
 }
+
+/**
+ * for postsSlice
+ */
 
 export async function getUserPosts(username: string) {
     return (await axios.get<any, AxiosResponse<IPost[]>>(
@@ -212,3 +234,50 @@ export async function deletePostComment(post_id: number, post_comment_id: number
         `/api/posts/${post_id}/comments/${post_comment_id}/`,
     )).data;
 }
+
+/**
+ * for routeSlice
+ */
+
+export async function getRoute(repo_id: number) {
+    return (await axios.get<any, AxiosResponse<IRoute>>(
+        `/api/repositories/${repo_id}/route/`,
+    )).data;
+}
+
+export async function postRoute(repo_id: number, id : number, mode : "region"|"fork") {
+    if (mode === "region") {
+        await axios.post(`/api/repositories/${repo_id}/route/`, { place_id: id });
+    }
+    else {
+        await axios.post(`/api/repositories/${repo_id}/route/`, { repo_id: id });
+    }
+}
+
+export async function postPlaces(repo_id: number, place_id: number) {
+    return (await axios.post(`/api/repositories/${repo_id}/route/places/${place_id}/`)).data;
+}
+
+export async function putPlaces(repo_id: number, places : IPlace[]) {
+    return (await axios.put<any, AxiosResponse<IPlace[]>>(
+        `/api/repositories/${repo_id}/route/places/`, places,
+    )).data;
+}
+
+export async function getRegionQuery(queryString : string) {
+    return (await axios.get<any, AxiosResponse<PlaceQueryResult[]>>(
+        `/api/region-search/?query=${queryString}/`,
+    )).data;
+}
+
+export async function getPlacesQuery(queryString : string) {
+    return (await axios.get<any, AxiosResponse<PlaceQueryResult[]>>(
+        `/api/places-search/?keyword=${queryString}/`,
+    )).data;
+}
+
+/**
+ * for labelSlice
+ */
+
+// TODO

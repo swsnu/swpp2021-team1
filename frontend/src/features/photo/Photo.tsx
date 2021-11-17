@@ -15,7 +15,7 @@ interface PhotoProps {
 export default function Photo(props : PhotoProps) {
     return (
         <button
-            className="photo-wrapper-button mb-1"
+            className="photo-wrapper-button m-1"
             disabled={props.mode}
             onClick={() => props.onClick(props.photo.photo_id)}
             type="button"

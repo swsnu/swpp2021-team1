@@ -78,8 +78,8 @@ interface IPhoto {
     post_time? : string;
     tag? : string;
     local_tag? : string;
-    label? : ILabel[];
-    place? : IPlace;
+    /* label? : ILabel[];
+    place? : IPlace; */
     uploader? : string; // sure?
 }
 
@@ -133,19 +133,45 @@ export function commentFactory() {
 }
 
 interface ILabel {
-
+    label_id : number,
+    label_name : string,
 }
 
 interface IPlace {
-
+    place_id : number,
+    place_name : string,
+    place_address : string,
+    text? : string, // optional implementation
+    latitude : number,
+    longitude : number,
+    time? : string, // optional implementation
+    thumbnail? : string, // thumbnail image 원하면 string 대신 photo_id로 줘도 됨.
+    photos : IPhoto[],
 }
 
-// TODO: IRoute must be added
+interface IRoute {
+    route_id : number,
+    repo_id : number,
+    not_assigned : IPhoto[],
+    places : IPlace[], // sorted list
+    region : IRegion,
+}
+
+interface IRegion {
+    region_address : string,
+    place_id : number,
+    latitude : number,
+    longitude : number,
+    north : number,
+    south : number,
+    west : number,
+    east : number,
+}
 
 export type SetStateAction<T> = React.Dispatch<React.SetStateAction<T>>
 
 export type {
-    IUser, IRepository, IPost, IPhoto, IDiscussion, IComment, ILabel, IPlace,
+    IUser, IRepository, IPost, IPhoto, IDiscussion, IComment, ILabel, IPlace, IRoute, IRegion,
 };
 
 export { Visibility };
