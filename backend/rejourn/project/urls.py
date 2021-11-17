@@ -6,6 +6,8 @@ from project.views import (
     discussionViews,
     postViews,
     photoViews,
+    routeViews,
+    labelViews
 )
 
 
@@ -82,7 +84,17 @@ urlpatterns = [
     path("repositories/<int:repo_id>/photos/", photoViews.photos, name="photos"),
 
     ## labelAPI
-
+    path("repositories/<int:repo_id>/labels/", labelViews.labels, name="labels"),
+    path(
+        "/api/repositories/<int:repo_id>/labels/<int:label_id>/",
+        labelViews.labelID,
+        name="labelID"
+    ),
+    path(
+        "/api/repositories/<int:repo_id>/labels/<int:label_id>/photos/",
+        labelViews.labelPhotos,
+        name="labelPhotos"
+    ),
 
     ## routeAPI
 
