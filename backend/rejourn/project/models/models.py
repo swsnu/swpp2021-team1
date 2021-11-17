@@ -59,7 +59,7 @@ class Route(models.Model):
     )
 
     def __str__(self):
-        return self.area_name
+        return self.region_address
 
 
 class PlaceInRoute(models.Model):
@@ -67,7 +67,7 @@ class PlaceInRoute(models.Model):
     route = models.ForeignKey(Route, on_delete=models.CASCADE)
     order = models.IntegerField()
     time = models.DateTimeField(blank=True, null=True)
-    text = models.CharField(max_length=500)
+    text = models.CharField(max_length=500, blank=True, null=True)
     place_id = models.CharField(max_length=100)
     place_name = models.CharField(max_length=200, blank=True, null=True)
     place_address = models.CharField(max_length=200)
