@@ -20,7 +20,6 @@ class User(AbstractUser):
     friends = models.ManyToManyField("self", symmetrical=True)
     # repositories : many to many field (Repository)
 
-
     def __str__(self):
         return self.username
 
@@ -44,7 +43,7 @@ class Repository(models.Model):
 
 class Route(models.Model):
     route_id = models.BigAutoField(primary_key=True)
-    region_name = models.CharField(max_length=200)
+    region_address = models.CharField(max_length=200)
     place_id = models.CharField(max_length=100)
     latitude = models.DecimalField(max_digits=18, decimal_places=15)
     longitude = models.DecimalField(max_digits=18, decimal_places=15)
@@ -71,6 +70,7 @@ class PlaceInRoute(models.Model):
     text = models.CharField(max_length=500, blank=True, null=True)
     place_id = models.CharField(max_length=100)
     place_name = models.CharField(max_length=200, blank=True, null=True)
+    place_address = models.CharField(max_length=200)
     latitude = models.DecimalField(max_digits=18, decimal_places=15)
     longitude = models.DecimalField(max_digits=18, decimal_places=15)
     # thumbnail : one to one field(Photo)
