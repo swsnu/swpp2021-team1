@@ -81,7 +81,7 @@ def routeID(request, repo_id):
                     "photo_id": photo.photo_id,
                     "repo_id": photo.repository.repo_id,
                     "image": photo.image_file.url,
-                    "post_time": photo.post_time.strftime(UPLOADED_TIME_FORMAT),
+                    "post_time": photo.post_time.strftime(DATE_FORMAT),
                     "tag": photo_tag_text,
                     "uploader": photo.uploader.username,
                 }
@@ -99,7 +99,7 @@ def routeID(request, repo_id):
             if place.text != None:
                 response_place["text"] = place.text
             if place.time != None:
-                response_place["time"] = place.time.strftime(UPLOADED_TIME_FORMAT)
+                response_place["time"] = place.time.strftime(DATE_FORMAT)
             try:
                 response_place["thumbnail"] = Photo.objects.get(thumbnail_of=place).image_file.url
             except:
@@ -117,7 +117,7 @@ def routeID(request, repo_id):
                 "photo_id": photo.photo_id,
                 "repo_id": photo.repository.repo_id,
                 "image": photo.image_file.url,
-                "post_time": photo.post_time.strftime(UPLOADED_TIME_FORMAT),
+                "post_time": photo.post_time.strftime(DATE_FORMAT),
                 "tag": photo_tag_text,
                 "uploader": photo.uploader.username,
             }
@@ -295,7 +295,6 @@ def placeSearch(request, repo_id):
 
     return HttpResponseSuccessGet(response)
 
-"""
 @require_http_methods(["PUT"])
 @ensure_csrf_cookie
 def places(request, repo_id):
@@ -306,61 +305,100 @@ def places(request, repo_id):
         repository = Repository.objects.get(repo_id=repo_id)
     except Repository.DoesNotExist:
         return HttpResponseNotExist()
-    if not ((request.user in repository.collaborators.all()) or (repository.visibility == PUBLIC) or (repository.visibility == Scope.FRIENDS_ONLY and have_common_user(request.user.friends.a(), repository.collaborators.all()))):
+    if not (request.user in repository.collaborators.all()):
         return HttpResponseNoPermission()
 
-    route = Route.objects.get(repository=repository)
+    try:
+        route = Route.objects.get(repository=repository)
+    except Route.DoesNotExist:
+        return HttpResponseNotExist()
 
     try:
         req_data = json.loads(request.body.decode())
+
     except (JSONDecodeError):
-        return HttpResponseBadReqeust()
+        return HttpResponseBadRequest()
     
+    still_existing_place_id = []
     for place in req_data:
-        i = 0
+        i = 1
         try:
-            place_to_edit = PlaceInRoute.objects.get(place_id=place["place_id"])
-        except PlaceInRoute.DoesNotExist:
+            place_id = place["place_id"]
+        except (KeyError, JSONDecodeError):
+            return HttpResponseBadRequest()
+        still_existing_place_id.append(place_id)
+        try:
+            place_to_edit = PlaceInRoute.objects.get(place_id=place_id)
+
+        except (PlaceInRoute.DoesNotExist):
             return HttpResponseNotExist()
-        place_to_edit.order = i
-        place_to_edit.place_name = place["place_name"]
-        place_to_edit.place_address = place["place_address"]
+        place_to_edit_order = i
+
         try:
             edit_text = place["text"]
-        except (KeyError):
+        except (KeyError, JSONDecodeError):
             edit_text = None
-        place_to_edit.latitude = place["latitude"]
-        place_to_edit.longitude = place["longitude"]
+
         try:
             edit_time = place["time"]
-        except (KeyError):
+        except (KeyError, JSONDecodeError):
             edit_time = None
+
+        edited_place = PlaceInRoute(route=route, order=place_to_edit_order, text=edit_text, time=edit_time, place_id=place_id, place_name=place_to_edit.place_name, place_address=place_to_edit.place_address, latitude=place_to_edit.latitude, longitude=place_to_edit.longitude)
+        edited_place.save()
+
         try:
             edit_thumbnail = place["thumbnail"]
             try:
                 photo_to_remove_thumbnail_of = Photo.objects.get(thumbnail_of=place_to_edit)
-                photo_to_remove_thumbnail_of.thumbnail_of = null
+                photo_to_remove_thumbnail_of.thumbnail_of = None
                 photo_to_remove_thumbnail_of.save()
             except Photo.DoesNotExist:
                 pass
-            try:
-                photo_to_add_thumbnail_of = Photo.objects.get(image_file=edit_thumbnail)
-                photo_to_add_thumbnail_of.thumbnail_of = place_to_edit
-                photo_to_add_thumbnail_of.save()
-            except Photo.DoesNotExist:
+            
+            flag = 0
+            for photo in Photo.objects.all():
+                if photo.image_file.url == edit_thumbnail:
+                    photo.thumbnail_of = place_to_edit
+                    photo.save()
+                    flag = 1
+                    break
+            if flag == 0:
                 return HttpResponseNotExist()
-        except (KeyError):
-            pass
-        
+
+        except (KeyError, JSONDecodeError):
+            try:
+                photo_to_remove_thumbnail_of = Photo.objects.get(thumbnail_of_id=place_to_edit.place_in_route_id)
+                photo_to_remove_thumbnail_of.thumbnail_of = None
+                photo_to_remove_thumbnail_of.save()
+            except Photo.DoesNotExist:
+                pass
+
+        try:
+            edit_photos_in_place = place["photos"]
+        except (KeyError, JSONDecodeError):
+            return HttpResponseBadRequest()
+
         ori_photos_in_place = Photo.objects.filter(place=place_to_edit)
         for photo in ori_photos_in_place:
-            photo.place = null
+            photo.place = None
             photo.save()
-        for photo in place["photos"]:
-            photo_in_place = Photo.objects.get(photo_id=photo["photo_id"])
-            photo_in_place.place = place_to_edit
+        for photo in edit_photos_in_place:
+            try:
+                try:
+                    photo_in_place = Photo.objects.get(photo_id=photo["photo_id"])
+                except (KeyError, JSONDecodeError):
+                    return HttpResponseBadRequest()
+            except Photo.DoesNotExist:
+                return HttpResponseNotExist()
+            photo_in_place.place = edited_place
             photo_in_place.save()
+        place_to_edit.delete()
         i += 1
+
+    for remove_place in PlaceInRoute.objects.filter(route=route):
+        if not (remove_place.place_id in still_existing_place_id):
+            remove_place.delete()
 
     repository_photos = Photo.objects.filter(repository=repository)
     places_to_return = PlaceInRoute.objects.filter(route=route).order_by("order")
@@ -378,7 +416,7 @@ def places(request, repo_id):
                 "photo_id": photo.photo_id,
                 "repo_id": photo.repository.repo_id,
                 "image": photo.image_file.url,
-                "post_time": photo.post_time.strftime(UPLOADED_TIME_FORMAT),
+                "post_time": photo.post_time.strftime(DATE_FORMAT),
                 "tag": photo_tag_text,
                 "uploader": photo.uploader.username,
             }
@@ -396,7 +434,7 @@ def places(request, repo_id):
         if place.text != None:
             response_place["text"] = place.text
         if place.time != None:
-            response_place["time"] = place.time.strftime(UPLOADED_TIME_FORMAT)
+            response_place["time"] = place.time.strftime(DATE_FORMAT)
         try:
             response_place["thumbnail"] = Photo.objects.get(thumbnail_of=place).image_file.url
         except:
@@ -413,7 +451,7 @@ def places(request, repo_id):
             "photo_id": photo.photo_id,
             "repo_id": photo.repository.repo_id,
             "image": photo.image_file.url,
-            "post_time": photo.post_time.strftime(UPLOADED_TIME_FORMAT),
+            "post_time": photo.post_time.strftime(DATE_FORMAT),
             "tag": photo_tag_text,
             "uploader": photo.uploader.username,
         }
@@ -425,7 +463,6 @@ def places(request, repo_id):
     }
 
     return HttpResponseSuccessUpdate(response_dict)
-"""
 
 @require_http_methods(["POST"])
 @ensure_csrf_cookie
@@ -479,7 +516,7 @@ def placeID(request, repo_id, place_id):
                 "photo_id": photo.photo_id,
                 "repo_id": photo.repository.repo_id,
                 "image": photo.image_file.url,
-                "post_time": photo.post_time.strftime(UPLOADED_TIME_FORMAT),
+                "post_time": photo.post_time.strftime(DATE_FORMAT),
                 "tag": photo_tag_text,
                 "uploader": photo.uploader.username,
             }
@@ -496,7 +533,7 @@ def placeID(request, repo_id, place_id):
         if place.text != None:
             response_place["text"] = place.text
         if place.time != None:
-            response_place["time"] = place.time.strftime(UPLOADED_TIME_FORMAT)
+            response_place["time"] = place.time.strftime(DATE_FORMAT)
         try:
             response_place["thumbnail"] = Photo.objects.get(thumbnail_of=place).image_file.url
         except:
