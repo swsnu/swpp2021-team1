@@ -263,6 +263,7 @@ def placeSearch(request, repo_id):
         return HttpResponseBadRequest()
 
     response = []
+    place_id_0 = ""
 
     query_string_formatted = query_string.replace(" ", "%2C")
     url_for_geocoding = "https://maps.googleapis.com/maps/api/geocode/json?address="+query_string_formatted+"&key="+api_key
@@ -276,6 +277,7 @@ def placeSearch(request, repo_id):
             "formatted_address": formatted_address,
         }
         if (-0.5<(geocoding_response.json()['results'][0]['geometry']['location']['lat']-float(route.latitude)) < 0.5) and (-0.5<(geocoding_response.json()['results'][0]['geometry']['location']['lng']-float(route.longitude)) < 0.5):
+            place_id_0 = place_id
             response.append(response_dict)
 
     url = 'https://maps.googleapis.com/maps/api/place/textsearch/json?location='+str(route.latitude)+"%2C"+str(route.longitude)+"&query="+query_string_formatted+"&key="+api_key
@@ -291,7 +293,8 @@ def placeSearch(request, repo_id):
                 "formatted_address": formatted_address,
                 "name": name,
             }
-            response.append(response_dict)
+            if place_id != place_id_0:
+                response.append(response_dict)
 
     return HttpResponseSuccessGet(response)
 
