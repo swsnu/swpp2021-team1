@@ -102,7 +102,7 @@ def routeID(request, repo_id):
                 response_place["time"] = place.time.strftime(DATE_FORMAT)
             try:
                 response_place["thumbnail"] = Photo.objects.get(thumbnail_of=place).image_file.url
-            except:
+            except Photo.DoesNotExist:
                 pass
             places.append(response_place)
 
@@ -437,7 +437,7 @@ def places(request, repo_id):
             response_place["time"] = place.time.strftime(DATE_FORMAT)
         try:
             response_place["thumbnail"] = Photo.objects.get(thumbnail_of=place).image_file.url
-        except:
+        except Photo.DoesNotExist:
             pass
         places.append(response_place)
     not_assigned_photos = []
@@ -495,7 +495,7 @@ def placeID(request, repo_id, place_id):
         place_address = google_maps_response.json()['result']['formatted_address']
         latitude = google_maps_response.json()['result']['geometry']['location']['lat']
         longitude = google_maps_response.json()['result']['geometry']['location']['lng']
-    except:
+    except (KeyError, JSONDecodeError):
         return HttpResponseNotExist()
     
     new_place = PlaceInRoute(route=route, order=order, place_id=place_id, place_name=place_name, place_address=place_address, latitude=latitude, longitude=longitude)
@@ -536,7 +536,7 @@ def placeID(request, repo_id, place_id):
             response_place["time"] = place.time.strftime(DATE_FORMAT)
         try:
             response_place["thumbnail"] = Photo.objects.get(thumbnail_of=place).image_file.url
-        except:
+        except Photo.DoesNotExist:
             pass
         places.append(response_place)
 
