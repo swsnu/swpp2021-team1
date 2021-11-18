@@ -107,6 +107,16 @@ class RouteTestCase(TestCase):
             longitude=126.3375372,
         )
         place_a_2.save()
+        place_a_3 = PlaceInRoute(
+            route=route_a,
+            order=3,
+            place_id="ChIJYeRTsDD0DDURrIR1mJ_N5r8",
+            place_name="카페인디고",
+            place_address="대한민국 제주특별자치도 제주시 애월읍 고내리 1218-1",
+            latitude=33.4663593,
+            longitude=126.3340838,
+        )
+        place_a_3.save()
 
         photo_image_a = SimpleUploadedFile("photo_image_a.jpg", b"photo_image_a")
         photo_a = Photo(
@@ -116,6 +126,8 @@ class RouteTestCase(TestCase):
             place=place_a_1,
             thumbnail_of=place_a_1,
         )
+        photo_a.save()
+        photo_a.thumbnail_of = place_a_1
         photo_a.save()
         photo_image_b = SimpleUploadedFile("photo_image_b.jpg", b"photo_image_b")
         photo_b = Photo(
@@ -323,7 +335,66 @@ class RouteTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_places_put(self):
-        pass
+        client = Client()
+        response = client.delete("/api/repositories/1/route/places/")
+        self.assertEqual(response.status_code, 405)
+        response = client.put("/api/repositories/1/route/places/")
+        self.assertEqual(response.status_code, 401)
+
+        client.post(
+            "/api/signin/",
+            json.dumps({"username": "TEST_C_USER", "password": "TEST_C_PW"}),
+            content_type="application/json",
+        )
+        response = client.put("/api/repositories/5/route/places/")
+        self.assertEqual(response.status_code, 404)
+        response = client.put("/api/repositories/1/route/places/")
+        self.assertEqual(response.status_code, 403)
+
+        client.get("/api/signout/")
+        client.post(
+            "/api/signin/",
+            json.dumps({"username": "TEST_A_USER", "password": "TEST_A_PW"}),
+            content_type="application/json",
+        )
+        response = client.put("/api/repositories/2/route/places/")
+        self.assertEqual(response.status_code, 404)
+        response = client.put("/api/repositories/1/route/places/")
+        self.assertEqual(response.status_code, 400)
+        response = client.put(
+            "/api/repositories/1/route/places/",
+            json.dumps([{
+                "text": "EDIT_1_TEXT",
+                "photos":[]
+            }]),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 400)
+        response = client.put(
+            "/api/repositories/1/route/places/",
+            json.dumps([{
+                "place_id": "wrong-id",
+            }]),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 404)
+        response = client.put(
+            "/api/repositories/1/route/places/",
+            json.dumps([{
+                "place_id": "ChIJwxapcG71DDURGdhIIeiFBcI",
+                "text": "EDIT_1_TEXT",
+                "time": "2021-11-18",
+                "photos": [{"photo_id": 2}],
+            },
+            {
+                "place_id": "ChIJYeRTsDD0DDURrIR1mJ_N5r8",
+                "text": "EDIT_2_TEXT",
+                "time": "2021-11-19",
+                "photos": [{"photo_id": 4}],
+            }]),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 201)
     
     def test_placeID_post(self):
         client = Client()
