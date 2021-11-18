@@ -4,7 +4,7 @@ import {
 import { IPhoto, IPost, IRepository } from "../../common/Interfaces";
 import { fetchRepositories, reposInitialState, ReposState } from "../repository/reposSlice";
 import {
-    deletePhotos, getPhotos, getRepositories, postPhotos, putPhotos,
+    deletePhotos, getPhotos, getRepositories, postPhotos, putPhoto,
 } from "../../common/APIs";
 
 export const fetchPhotos = createAsyncThunk<IPhoto[], number>( // added
@@ -21,10 +21,10 @@ export const addPhotos = createAsyncThunk<IPhoto[], {repo_id : number, images : 
 
 );
 
-export const editPhotos = createAsyncThunk<IPhoto[], {repo_id : number, photos : IPhoto[]}>( // added
+export const editPhoto = createAsyncThunk<IPhoto, {repo_id : number, photo : IPhoto}>( // added
     "photos/edit",
-    async ({ repo_id, photos }, thunkAPI) => // payload creator
-        await putPhotos(repo_id, photos),
+    async ({ repo_id, photo }, thunkAPI) => // payload creator
+        await putPhoto(repo_id, photo),
 
 );
 
@@ -93,17 +93,20 @@ const photosSlice = createSlice<PhotosState, SliceCaseReducers<PhotosState>>({
             state.hasError = true;
         });
 
-        builder.addCase(editPhotos.pending, (state: PhotosState) => {
+        builder.addCase(editPhoto.pending, (state: PhotosState) => {
             // state.isLoading = true;
             state.hasError = false;
         });
-        builder.addCase(editPhotos.fulfilled, (state : PhotosState, action: PayloadAction<IPhoto[]>) => {
+        builder.addCase(editPhoto.fulfilled, (state : PhotosState, action: PayloadAction<IPhoto>) => {
             // state.isLoading = false;
             state.hasError = false;
-            state.photoList = action.payload;
+            state.photoList = state.photoList.map((value) => {
+                if (value.photo_id === action.payload.photo_id) return action.payload;
+                return value;
+            });
             state.currentPhoto = null;
         });
-        builder.addCase(editPhotos.rejected, (state: PhotosState) => {
+        builder.addCase(editPhoto.rejected, (state: PhotosState) => {
             // state.isLoading = false;
             state.hasError = true;
         });

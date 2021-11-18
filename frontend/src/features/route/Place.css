@@ -1,0 +1,26 @@
+.place-photos {
+    height: 20vh;
+    justify-content: flex-start;
+    width: 100%;
+}
+
+.grip-img {
+    border-left: 3px solid var(--primary);
+    width: 42px;
+}
+
+.card-wrapper {
+    border: 3px solid var(--primary) !important;
+    border-radius: 0 0 5px 5px !important;
+}
+
+.place-buttons {
+    /* border-radius: 5px 5px 0 0 !important; */
+    background: white !important;
+}
+
+.place-name {
+    background: var(--primary);
+    border: 1px solid var(--primary);
+    border-radius: 12px 12px 0 0;
+}

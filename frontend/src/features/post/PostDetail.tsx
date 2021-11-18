@@ -15,7 +15,7 @@ import Comment from "../comments/Comment";
 import Photo from "../photo/Photo";
 import avatar from "../../common/assets/avatar.jpg";
 import FocusedPhoto from "../photo/popup/FocusedPhoto";
-import { editPhotos } from "../photo/photosSlice";
+import { editPhoto } from "../photo/photosSlice";
 
 interface PostDetailProps {
 }

@@ -4,13 +4,14 @@ import { Redirect, useHistory } from "react-router-dom";
 import {
     Badge, Button, Form, FormControl, InputGroup,
 } from "react-bootstrap";
+import { useLocation } from "react-router"; // 테스트용 임시 처리
 import { AppDispatch, RootState } from "../../app/store";
 import { IRepository, IUser, Visibility } from "../../common/Interfaces";
 import * as actionCreator from "./reposSlice";
 import AddCollaborators from "./popup/AddCollaborators";
 import { signIn } from "../auth/authSlice";
 import { PlaceQueryResult, searchRegion } from "../route/routeSlice";
-import SearchPlace from "../route/popup/SearchPlace"; // 테스트용 임시 처리
+import SearchPlace from "../route/popup/SearchPlace";
 
 interface RepositoryCreateProps {
 
@@ -39,7 +40,7 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
     const [flag, setFlag] = useState<boolean>(!!user);
     const [region, setRegion] = useState<PlaceQueryResult|null>(null);
     const history = useHistory();
-
+    const location = useLocation<{repo_id : number, region_name : string}|undefined>();
     useEffect(() => {
         if (!flag && user) {
             if (collaborators.filter((value) => value.username === user.username).length === 0) {
@@ -51,10 +52,18 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
 
     useEffect(() => {
         if (repo && region) {
-            dispatch(actionCreator.editRegion({
-                repo_id: (repo as IRepository).repo_id,
-                place_id: (region as PlaceQueryResult).place_id,
-            }));
+            if (location.state) {
+                dispatch(actionCreator.forkRoute({
+                    repo_id: repo.repo_id,
+                    forked_repo_id: location.state.repo_id,
+                }));
+            }
+            else {
+                dispatch(actionCreator.editRegion({
+                    repo_id: repo.repo_id,
+                    place_id: region.place_id,
+                }));
+            }
         }
     }, [dispatch, repo]);
 
@@ -132,11 +141,13 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
                     id="repo-region-input"
                     name="repo-region"
                     type="text"
-                    value={region ? region.formatted_address : ""}
+                    value={location.state ?
+                        location.state.region_name : region ?
+                            region.formatted_address : ""}
                     readOnly
                 />
-                <Button onClick={() => setSearchShow(true)}>
-                    Search
+                <Button onClick={() => setSearchShow(true)} disabled={!!location.state}>
+                    {location.state ? "Forked" : "Search"}
                 </Button>
             </InputGroup>
             <InputGroup className="mt-4" hasValidation>
@@ -216,7 +227,7 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
                     className="m-2"
                     id="create-repo-button"
                     onClick={createRepos}
-                    disabled={!(valid[0] && valid[1] && valid[2]) || !region}
+                    disabled={!(valid[0] && valid[1] && valid[2]) || (!region && !location.state)}
                 >
                     Create Repository
                 </Button>

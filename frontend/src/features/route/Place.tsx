@@ -3,6 +3,11 @@ import { Draggable } from "react-beautiful-dnd";
 import { Button } from "react-bootstrap";
 import { IPhoto, IPlace } from "../../common/Interfaces";
 import Photo from "../photo/Photo";
+import "./Place.css";
+import grip from "../../common/assets/grip.svg";
+import up from "../../common/assets/arrow-up.svg";
+import down from "../../common/assets/arrow-down.svg";
+import trash from "../../common/assets/trash.svg";
 
 interface PlaceProps {
     place : IPlace,
@@ -42,33 +47,46 @@ export default function Place(props : PlaceProps) {
             key={props.place.place_id.toString()}
             draggableId={props.place.place_id.toString()}
             index={props.index}
-            isDragDisabled={!props.draggable}
         >
             {(provided) => (
                 <div
+                    className="mt-2"
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                 >
-                    <div className="d-flex mt-2 justify-content-between align-items-start">
-                        <h4>
-                            {props.place.place_name}
-                        </h4>
+                    <div className="d-flex justify-content-between align-items-start place-name pt-2">
+                        <div className="ps-2 pe-2 pt-2">
+                            <h5>
+                                {props.place.place_name}
+                            </h5>
+                        </div>
                         {props.draggable && (
                             <div>
-                                <Button className="ms-2" onClick={() => props.onAdd(props.place.place_id)}>
-                                    ↓
+                                <Button
+                                    className="me-1 place-buttons"
+                                    onClick={() => props.onAdd(props.place.place_id)}
+                                >
+                                    <img src={down} alt={down} />
                                 </Button>
-                                <Button className="ms-2" onClick={onDelete}>
-                                    ↑
+                                <Button
+                                    className="me-1 place-buttons"
+                                    onClick={onDelete}
+                                >
+                                    <img src={up} alt={up} />
                                 </Button>
-                                <Button className="ms-2" onClick={() => props.onPlaceDelete(props.place.place_id)}>
-                                    Delete
+                                <Button
+                                    className="me-1 place-buttons"
+                                    onClick={() => props.onPlaceDelete(props.place.place_id)}
+                                >
+                                    <img src={trash} alt={trash} />
                                 </Button>
                             </div>
                         )}
                     </div>
-                    <div className="d-flex justify-content-between align-items-start">
-                        <div className="d-flex flex-row overflow-auto">
+                    <div className="d-flex flex-row-reverse card card-wrapper">
+                        {props.draggable &&
+                            <img className="grip-img ps-1" src={grip} alt={grip} {...provided.dragHandleProps} />}
+                        <div className="d-flex flex-row overflow-auto place-photos">
                             {props.place.photos.map((value, index) => (
                                 <React.Fragment key={value.photo_id.toString()}>
                                     <Photo
@@ -81,7 +99,6 @@ export default function Place(props : PlaceProps) {
                                 </React.Fragment>
                             ))}
                         </div>
-                        <img src="" alt="" {...provided.dragHandleProps} />
                     </div>
                 </div>
             )}

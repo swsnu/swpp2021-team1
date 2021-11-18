@@ -101,8 +101,10 @@ export async function postPhotos(repo_id : number, images : FormData) {
     return (await axios.post<any, AxiosResponse<IPhoto[]>>(`/api/repositories/${repo_id}/photos/`, images)).data;
 }
 
-export async function putPhotos(repo_id : number, photos : IPhoto[]) {
-    return (await axios.put<any, AxiosResponse<IPhoto[]>>(`/api/repositories/${repo_id}/photos/`, photos)).data;
+export async function putPhoto(repo_id : number, photo : IPhoto) {
+    return (await axios.put<any, AxiosResponse<IPhoto>>(
+        `/api/repositories/${repo_id}/photos/${photo.photo_id}/`, { tag: photo.tag },
+    )).data;
 }
 
 export async function deletePhotos(repo_id : number, photos_id : {photo_id : number}[]) {

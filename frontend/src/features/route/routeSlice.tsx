@@ -8,7 +8,7 @@ import {
 import {
     getPlacesQuery, getRegionQuery,
     getRoute,
-    postPlaces, postRoute, putPhotos,
+    postPlaces, postRoute, putPhoto,
     putPlaces,
 } from "../../common/APIs";
 import { PhotosState } from "../photo/photosSlice";
@@ -48,10 +48,10 @@ export const searchPlace = createAsyncThunk<PlaceQueryResult[], {repo_id : numbe
 
 );
 
-export const editPhoto = createAsyncThunk<IPhoto[], {repo_id : number, photo : IPhoto}>( // added
+export const editPhoto = createAsyncThunk<IPhoto, {repo_id : number, photo : IPhoto}>( // added
     "route/photo/edit",
     async ({ repo_id, photo }, thunkAPI) => // payload creator
-        await putPhotos(repo_id, [photo]), // TODO
+        await putPhoto(repo_id, photo), // TODO
 
 );
 
@@ -169,12 +169,12 @@ const routeSlice = createSlice<RouteState, SliceCaseReducers<RouteState>>({
             state.hasError = false;
         });
         /* TODO */
-        builder.addCase(editPhoto.fulfilled, (state: RouteState, action: PayloadAction<IPhoto[]>) => {
+        builder.addCase(editPhoto.fulfilled, (state: RouteState, action: PayloadAction<IPhoto>) => {
             let index = -1;
             const place = state.currentRoute?.places.findIndex((value) =>
-                (index = value.photos.findIndex((value1) => action.payload[0].photo_id === value1.photo_id)) !== -1);
+                (index = value.photos.findIndex((value1) => action.payload.photo_id === value1.photo_id)) !== -1);
             if (state.currentRoute && place && place !== -1) {
-                state.currentRoute.places[place].photos[index] = { ...action.payload[0] };
+                state.currentRoute.places[place].photos[index] = { ...action.payload };
             }
             state.hasError = false;
         });
@@ -185,5 +185,5 @@ const routeSlice = createSlice<RouteState, SliceCaseReducers<RouteState>>({
 });
 
 export type { RouteState, PlaceQueryResult };
-export const { toBeLoaded, handleError, focusPhoto } = routeSlice.actions;
+export const { focusPhoto } = routeSlice.actions;
 export default routeSlice.reducer;

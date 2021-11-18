@@ -51,7 +51,7 @@ describe("PhotoPreview", () => {
         focusMock = jest.spyOn(actionCreator, "focusPhoto").mockImplementation(() =>
             ({} as {type : string, payload : undefined}));
         addMock = jest.spyOn(actionCreator, "addPhotos").mockImplementation(jest.fn);
-        editMock = jest.spyOn(actionCreator, "editPhotos").mockImplementation(jest.fn);
+        editMock = jest.spyOn(actionCreator, "editPhoto").mockImplementation(jest.fn);
         removeMock = jest.spyOn(actionCreator, "removePhotos").mockImplementation(jest.fn);
         jest.spyOn(AddPhoto, "default").mockImplementation((props) =>
             <button id="a" type="button" onClick={() => props.commitPhotos(new FormData())}>mock</button>);

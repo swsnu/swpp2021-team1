@@ -1,7 +1,8 @@
-import { createBrowserHistory } from "history";
+import { createMemoryHistory } from "history";
 import { configureStore } from "@reduxjs/toolkit";
 import { Provider } from "react-redux";
 import { Route, Router } from "react-router-dom";
+import * as ReactRouter from "react-router-dom";
 import React from "react";
 import * as redux from "react-redux";
 import { mount } from "enzyme";
@@ -14,7 +15,7 @@ import { repositoryFactory, userFactory } from "../../common/Interfaces";
 import RepositoryCreate from "./RepositoryCreate";
 import * as SearchPlace from "../route/popup/SearchPlace";
 
-const history = createBrowserHistory();
+const history = createMemoryHistory();
 const historyMock = { ...history, push: jest.fn(), listen: jest.fn() };
 
 function makeStoredComponent() {
@@ -28,7 +29,7 @@ function makeStoredComponent() {
 
     return (
         <Provider store={store}>
-            <Router history={historyMock}>
+            <Router history={history}>
                 <Route path="/" render={() => <RepositoryCreate />} />
             </Router>
         </Provider>
@@ -45,7 +46,6 @@ describe("RepositoryCreate", () => {
             (e : any) => ({
                 then: (e : () => any) => e(),
             })) as typeof jest.fn);
-
         createMock = jest.spyOn(actionCreator, "createRepository").mockImplementation(jest.fn);
         regionMock = jest.spyOn(actionCreator, "editRegion").mockImplementation(jest.fn);
         searchMock = jest.spyOn(actionCreator2, "searchRegion").mockImplementation(jest.fn);

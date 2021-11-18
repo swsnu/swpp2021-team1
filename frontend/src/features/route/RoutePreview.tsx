@@ -10,6 +10,7 @@ import * as env from "dotenv";
 import { IRoute } from "../../common/Interfaces";
 import { AppDispatch, RootState } from "../../app/store";
 import * as actionCreators from "./routeSlice";
+import { toBeLoaded } from "../repository/reposSlice";
 
 env.config();
 
@@ -36,6 +37,14 @@ export default function RoutePreview(props : RoutePreviewProps) {
         }
     }, [dispatch]);
 
+    function fork() {
+        dispatch(toBeLoaded(null));
+        history.push(
+            "/repos/create",
+            { repo_id: (route as IRoute).repo_id, region: (route as IRoute).region.region_address },
+        );
+    }
+
     if (isLoading || !isMapLoaded || hasError) return null;
     if (!route) return <div>Fatal Error!</div>;
     return (
@@ -45,7 +54,14 @@ export default function RoutePreview(props : RoutePreviewProps) {
                 <div>
                     <Button
                         className="m-2"
-                        id="delete-photo-button"
+                        id="fork-route-button"
+                        onClick={fork}
+                    >
+                        Fork
+                    </Button>
+                    <Button
+                        className="m-2"
+                        id="place-detail-button"
                         onClick={() => history.push(`/repos/${params.id}/place`)}
                     >
                         View Detail

@@ -1,4 +1,9 @@
 .not-assigned-list {
-    height: 11vh;
+    height: 16vh;
     justify-content: flex-start;
+}
+
+.not-assigned-wrapper {
+    margin-top: -2rem;
+    margin-bottom: -2rem;
 }

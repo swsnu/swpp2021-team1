@@ -48,9 +48,7 @@ export default function PlaceDetail(props : PlaceDetailProps) {
         repo.collaborators.filter((value) => value.username === user.username).length > 0;
 
     useEffect(() => {
-        if (!route || route.repo_id !== parseInt(params.id)) {
-            dispatch(actionCreators.fetchRoute(parseInt(params.id)));
-        }
+        dispatch(actionCreators.fetchRoute(parseInt(params.id)));
     }, [dispatch]);
 
     function changeMode() {
@@ -172,7 +170,11 @@ export default function PlaceDetail(props : PlaceDetailProps) {
             <DragDropContext onDragEnd={onDragEnd}>
                 <Droppable droppableId="places">
                     {(provided) => (
-                        <div className="mt-4">
+                        <div
+                            className="mt-4"
+                            {...provided.droppableProps}
+                            ref={provided.innerRef}
+                        >
                             {!mode ?
                                 (route as IRoute).places.map((value, index) => (
                                     <React.Fragment key={value.place_id.toString()}>
@@ -200,6 +202,7 @@ export default function PlaceDetail(props : PlaceDetailProps) {
                                         />
                                     </React.Fragment>
                                 ))}
+                            {provided.placeholder}
                         </div>
                     )}
                 </Droppable>
@@ -216,7 +219,7 @@ export default function PlaceDetail(props : PlaceDetailProps) {
                         </Button>
                     </div>
                 </Offcanvas.Header>
-                <Offcanvas.Body>
+                <Offcanvas.Body className="not-assigned-wrapper">
                     <div className="d-flex flex-row not-assigned-list overflow-auto mt-2">
                         {notAssigned.map((value) => (
                             <React.Fragment key={value.photo_id.toString()}>
@@ -230,7 +233,7 @@ export default function PlaceDetail(props : PlaceDetailProps) {
                             </React.Fragment>
                         ))}
                     </div>
-                    <h6 className="text-muted">
+                    <h6 className="text-muted mt-2">
                         Not Assigned Photo
                     </h6>
                 </Offcanvas.Body>

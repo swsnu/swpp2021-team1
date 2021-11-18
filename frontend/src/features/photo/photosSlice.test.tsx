@@ -4,7 +4,7 @@ import {
     IPhoto, IRepository, photoFactory, repositoryFactory,
 } from "../../common/Interfaces";
 import photosReducer, {
-    addPhotos, editPhotos, fetchPhotos,
+    addPhotos, editPhoto, fetchPhotos,
     focusPhoto, handleError, removePhotos, toBeLoaded,
 } from "./photosSlice";
 
@@ -40,12 +40,12 @@ describe("photosSlice", () => {
 
     it("Should edit photos correctly", () => {
         const photo : IPhoto = photoFactory();
-        mockedAPIs.putPhotos.mockResolvedValue([photo]);
-        store.dispatch(editPhotos({ repo_id: 1, photos: [photo] })).then(() => {
-            expect(store.getState().photos.photoList.length).toBe(1);
+        mockedAPIs.putPhoto.mockResolvedValue(photo);
+        store.dispatch(editPhoto({ repo_id: 1, photo })).then(() => {
+            expect(store.getState().photos.photoList.length).toBe(0);
         });
-        mockedAPIs.putPhotos.mockRejectedValue(undefined);
-        store.dispatch(editPhotos({ repo_id: 1, photos: [photo] })).then(() => {
+        mockedAPIs.putPhoto.mockRejectedValue(undefined);
+        store.dispatch(editPhoto({ repo_id: 1, photo })).then(() => {
             expect(store.getState().photos.hasError).toEqual(true);
         });
     });

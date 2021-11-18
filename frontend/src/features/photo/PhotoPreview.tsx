@@ -56,9 +56,9 @@ export default function PhotoPreview(props : PhotoPreviewProps) {
     }
 
     function onEdit(tag : string) {
-        dispatch(actionCreator.editPhotos({
+        dispatch(actionCreator.editPhoto({
             repo_id: parseInt(params.id),
-            photos: [{ ...currentPhoto as IPhoto, tag }],
+            photo: { ...currentPhoto as IPhoto, tag },
         }));
     }
 
