@@ -82,6 +82,7 @@ urlpatterns = [
 
     ## photoAPI
     path("repositories/<int:repo_id>/photos/", photoViews.photos, name="photos"),
+    path("repositories/<int:repo_id>/photos/<int:photo_id>/", photoViews.photoID, name="photoID"),
 
     ## labelAPI
     path("repositories/<int:repo_id>/labels/", labelViews.labels, name="labels"),
