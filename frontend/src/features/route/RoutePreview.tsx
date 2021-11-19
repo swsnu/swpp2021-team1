@@ -7,7 +7,7 @@ import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useParams } from "react-router";
 import * as env from "dotenv";
-import { IRoute } from "../../common/Interfaces";
+import { IRepository, IRoute } from "../../common/Interfaces";
 import { AppDispatch, RootState } from "../../app/store";
 import * as actionCreators from "./routeSlice";
 import { toBeLoaded } from "../repository/reposSlice";
@@ -26,6 +26,7 @@ export default function RoutePreview(props : RoutePreviewProps) {
 
     const [isLoading, hasError, route] = useSelector<RootState, [boolean, boolean, IRoute|null]>((state) =>
         [state.route.isLoading, state.route.hasError, state.route.currentRoute]);
+    const repo = useSelector<RootState, IRepository>((state) => state.repos.currentRepo as IRepository);
     const [overPlace, setOverPlace] = useState<number|null>(null);
     const history = useHistory();
     const dispatch = useDispatch<AppDispatch>();
@@ -41,7 +42,10 @@ export default function RoutePreview(props : RoutePreviewProps) {
         dispatch(toBeLoaded(null));
         history.push(
             "/repos/create",
-            { repo_id: (route as IRoute).repo_id, region: (route as IRoute).region.region_address },
+            {
+                repo_id: (route as IRoute).repo_id,
+                region_name: (`${repo.repo_name} (${(route as IRoute).region.region_address})`),
+            },
         );
     }
 

@@ -20,19 +20,25 @@ export const fetchRoute = createAsyncThunk<IRoute, number>( // added
 
 );
 
-export const addPlace = createAsyncThunk<IPlace[], {repo_id : number, place_id : number}>( // added
-    "route/add",
-    async ({ repo_id, place_id }, thunkAPI) => // payload creator
-        await postPlaces(repo_id, place_id),
+export const addPlace = createAsyncThunk<
+        {not_assigned: IPhoto[], places: IPlace[]},
+        {repo_id : number, place_id : number}
+    >( // added
+        "route/add",
+        async ({ repo_id, place_id }, thunkAPI) => // payload creator
+            await postPlaces(repo_id, place_id),
 
-);
+    );
 
-export const editPlaces = createAsyncThunk<IPlace[], {repo_id : number, places : IPlace[]}>( // added
-    "route/edit/place",
-    async ({ repo_id, places }, thunkAPI) => // payload creator
-        await putPlaces(repo_id, places),
+export const editPlaces = createAsyncThunk<
+        {not_assigned: IPhoto[], places: IPlace[]},
+        {repo_id : number, places : IPlace[]}
+    >( // added
+        "route/edit/place",
+        async ({ repo_id, places }, thunkAPI) => // payload creator
+            await putPlaces(repo_id, places),
 
-);
+    );
 
 export const searchRegion = createAsyncThunk<PlaceQueryResult[], string>( // added
     "route/search/region",
@@ -113,11 +119,15 @@ const routeSlice = createSlice<RouteState, SliceCaseReducers<RouteState>>({
             state.isLoading = true;
             state.hasError = false;
         });
-        builder.addCase(addPlace.fulfilled, (state: RouteState, action: PayloadAction<IPlace[]>) => {
-            state.isLoading = false;
-            state.hasError = false;
-            if (state.currentRoute) state.currentRoute.places = action.payload;
-        });
+        builder.addCase(addPlace.fulfilled,
+            (state: RouteState, action: PayloadAction<{not_assigned: IPhoto[], places: IPlace[]}>) => {
+                state.isLoading = false;
+                state.hasError = false;
+                if (state.currentRoute) {
+                    state.currentRoute.not_assigned = action.payload.not_assigned;
+                    state.currentRoute.places = action.payload.places;
+                }
+            });
         builder.addCase(addPlace.rejected, (state: RouteState) => {
             state.isLoading = false;
             state.hasError = true;
@@ -127,11 +137,15 @@ const routeSlice = createSlice<RouteState, SliceCaseReducers<RouteState>>({
             state.isLoading = true;
             state.hasError = false;
         });
-        builder.addCase(editPlaces.fulfilled, (state: RouteState, action: PayloadAction<IPlace[]>) => {
-            state.isLoading = false;
-            state.hasError = false;
-            if (state.currentRoute) state.currentRoute.places = action.payload;
-        });
+        builder.addCase(editPlaces.fulfilled,
+            (state: RouteState, action: PayloadAction<{not_assigned: IPhoto[], places: IPlace[]}>) => {
+                state.isLoading = false;
+                state.hasError = false;
+                if (state.currentRoute) {
+                    state.currentRoute.not_assigned = action.payload.not_assigned;
+                    state.currentRoute.places = action.payload.places;
+                }
+            });
         builder.addCase(editPlaces.rejected, (state: RouteState) => {
             state.isLoading = false;
             state.hasError = true;
@@ -168,7 +182,6 @@ const routeSlice = createSlice<RouteState, SliceCaseReducers<RouteState>>({
         builder.addCase(editPhoto.pending, (state: RouteState) => {
             state.hasError = false;
         });
-        /* TODO */
         builder.addCase(editPhoto.fulfilled, (state: RouteState, action: PayloadAction<IPhoto>) => {
             let index = -1;
             const place = state.currentRoute?.places.findIndex((value) =>

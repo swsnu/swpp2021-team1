@@ -256,11 +256,13 @@ export async function postRoute(repo_id: number, id : number, mode : "region"|"f
 }
 
 export async function postPlaces(repo_id: number, place_id: number) {
-    return (await axios.post(`/api/repositories/${repo_id}/route/places/${place_id}/`)).data;
+    return (await axios.post<any, AxiosResponse<{not_assigned: IPhoto[], places: IPlace[]}>>(
+        `/api/repositories/${repo_id}/route/places/${place_id}/`,
+    )).data;
 }
 
 export async function putPlaces(repo_id: number, places : IPlace[]) {
-    return (await axios.put<any, AxiosResponse<IPlace[]>>(
+    return (await axios.put<any, AxiosResponse<{not_assigned: IPhoto[], places: IPlace[]}>>(
         `/api/repositories/${repo_id}/route/places/`, places,
     )).data;
 }

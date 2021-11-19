@@ -50,11 +50,11 @@ export default function Place(props : PlaceProps) {
         >
             {(provided) => (
                 <div
-                    className="mt-2"
+                    className="mt-2 place-entry"
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                 >
-                    <div className="d-flex justify-content-between align-items-start place-name pt-2">
+                    <div className="d-flex justify-content-between align-items-start place-name pt-1">
                         <div className="ps-2 pe-2 pt-2">
                             <h5>
                                 {props.place.place_name}

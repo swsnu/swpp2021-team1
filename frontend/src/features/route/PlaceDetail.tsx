@@ -1,4 +1,6 @@
-import { Button, ListGroup, Offcanvas } from "react-bootstrap";
+import {
+    Button, Container, ListGroup, Offcanvas,
+} from "react-bootstrap";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
@@ -207,36 +209,33 @@ export default function PlaceDetail(props : PlaceDetailProps) {
                     )}
                 </Droppable>
             </DragDropContext>
-            <Offcanvas show={mode} placement="top" backdrop={false} scroll>
-                <Offcanvas.Header>
-                    <Offcanvas.Title>Edit Places</Offcanvas.Title>
-                    <div>
-                        <Button className="m-2" onClick={onEdit}>
+            <Offcanvas className="place-off-canvas" show={mode} placement="top" backdrop={false} onHide={cancel} scroll>
+                <Container style={{ position: "relative" }}>
+                    <Offcanvas.Header closeButton>
+                        <Offcanvas.Title>Edit Places</Offcanvas.Title>
+                    </Offcanvas.Header>
+                    <Offcanvas.Body className="not-assigned-wrapper">
+                        <div className="d-flex flex-row not-assigned-list overflow-auto mt-2">
+                            {notAssigned.map((value) => (
+                                <React.Fragment key={value.photo_id.toString()}>
+                                    <Photo
+                                        photo={value}
+                                        onClick={onPhotoClick}
+                                        checked={checked[value.photo_id]}
+                                        mode={mode}
+                                        onCheck={onCheck}
+                                    />
+                                </React.Fragment>
+                            ))}
+                        </div>
+                        <h6 className="text-muted mt-2">
+                            Not Assigned Photo
+                        </h6>
+                        <Button className="m-2 place-edit-confirm" onClick={onEdit}>
                             Confirm
                         </Button>
-                        <Button className="m-2" onClick={cancel}>
-                            Cancel
-                        </Button>
-                    </div>
-                </Offcanvas.Header>
-                <Offcanvas.Body className="not-assigned-wrapper">
-                    <div className="d-flex flex-row not-assigned-list overflow-auto mt-2">
-                        {notAssigned.map((value) => (
-                            <React.Fragment key={value.photo_id.toString()}>
-                                <Photo
-                                    photo={value}
-                                    onClick={onPhotoClick}
-                                    checked={checked[value.photo_id]}
-                                    mode={mode}
-                                    onCheck={onCheck}
-                                />
-                            </React.Fragment>
-                        ))}
-                    </div>
-                    <h6 className="text-muted mt-2">
-                        Not Assigned Photo
-                    </h6>
-                </Offcanvas.Body>
+                    </Offcanvas.Body>
+                </Container>
             </Offcanvas>
             {focusedPhoto && (
                 <FocusedPhoto
