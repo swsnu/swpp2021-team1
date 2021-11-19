@@ -94,4 +94,7 @@ urlpatterns = [
     path("repositories/<int:repo_id>/route/places/<str:place_id>/", routeViews.placeID, name="placeID"),
 
 
+    ## exploreAPI
+    path("explore/users/", exploreViews.exploreUsers, name="exploreUSers"),
+    path("explore/repositories/", exploreViews.exploreRepositories, name="exploreRespositories"),
 ]
