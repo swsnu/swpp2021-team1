@@ -12,6 +12,7 @@ from project.httpResponse import *
 from project.utils import have_common_user
 from project.enum import Scope
 from django.conf import settings
+from django.db.models import Max, Min
 
 import requests
 from urllib.parse import urlencode
