@@ -90,8 +90,8 @@ def routeID(request, repo_id):
                 "place_id": place.place_id,
                 "place_name": place.place_name,
                 "place_address": place.place_address,
-                "latitude": place.latitude,
-                "longitude": place.longitude,
+                "latitude": float(place.latitude),
+                "longitude": float(place.longitude),
                 "photos": photos
             }
             if place.text != None:
@@ -126,12 +126,12 @@ def routeID(request, repo_id):
         response_region = {
             "region_address": route.region_address,
             "place_id": route.place_id,
-            "latitude": route.latitude,
-            "longitude": route.longitude,
-            "north": route.north,
-            "south": route.south,
-            "west": route.west,
-            "east": route.east,
+            "latitude": float(route.latitude),
+            "longitude": float(route.longitude),
+            "north": float(route.north),
+            "south": float(route.south),
+            "west": float(route.west),
+            "east": float(route.east),
         }
         response_dict = {
             "repo_id": repository.repo_id,
@@ -429,8 +429,8 @@ def places(request, repo_id):
             "place_id": place.place_id,
             "place_name": place.place_name,
             "place_address": place.place_address,
-            "latitude": place.latitude,
-            "longitude": place.longitude,
+            "latitude": float(place.latitude),
+            "longitude": float(place.longitude),
             "photos": photos
         }
         if place.text != None:
@@ -531,8 +531,8 @@ def placeID(request, repo_id, place_id):
             "place_id": place.place_id,
             "place_name": place.place_name,
             "place_address": place.place_address,
-            "latitude": place.latitude,
-            "longitude": place.longitude,
+            "latitude": float(place.latitude),
+            "longitude": float(place.longitude),
             "photos": photos
         }
         if place.text != None:
