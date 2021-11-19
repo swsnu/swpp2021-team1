@@ -5,13 +5,8 @@
 }
 
 .grip-img {
-    border-left: 3px solid var(--primary);
-    margin: 0 !important;
-}
-
-.card-wrapper {
-    border: 3px solid var(--primary) !important;
-    border-radius: 0 0 3px 3px !important;
+    border-left: 2px solid lightgray;
+    width: 42px;
 }
 
 .place-buttons {
@@ -19,8 +14,21 @@
     background: white !important;
 }
 
+
+.place-card{
+    border-radius: 15px !important;
+    border: 2px solid lightgray !important;
+}
+.place-card-header {
+    background: var(--primary) !important;
+}
+/*
 .place-name {
-    background: var(--primary);
+    background: var(--primary) !important;
     border: 1px solid var(--primary);
     border-radius: 12px 12px 0 0;
+} */
+
+.place {
+
 }

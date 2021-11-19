@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
-import { Button } from "react-bootstrap";
+import { Button, Card } from "react-bootstrap";
 import { IPhoto, IPlace } from "../../common/Interfaces";
 import Photo from "../photo/Photo";
 import "./Place.css";
@@ -54,53 +54,58 @@ export default function Place(props : PlaceProps) {
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                 >
-                    <div className="d-flex justify-content-between align-items-start place-name pt-1">
-                        <div className="ps-2 pe-2 pt-2">
-                            <h5>
-                                {props.place.place_name}
-                            </h5>
-                        </div>
-                        {props.draggable && (
-                            <div>
-                                <Button
-                                    className="me-1 place-buttons"
-                                    onClick={() => props.onAdd(props.place.place_id)}
-                                >
-                                    <img src={down} alt={down} />
-                                </Button>
-                                <Button
-                                    className="me-1 place-buttons"
-                                    onClick={onDelete}
-                                >
-                                    <img src={up} alt={up} />
-                                </Button>
-                                <Button
-                                    className="me-1 place-buttons"
-                                    onClick={() => props.onPlaceDelete(props.place.place_id)}
-                                >
-                                    <img src={trash} alt={trash} />
-                                </Button>
+                    <Card className="place-card overflow-hidden">
+                        <Card.Header className="d-flex
+                        justify-content-between align-items-start place-name pt-2 place-card-header"
+                        >
+                            <div className="ps-3 pe-2 pt-2">
+                                <h5>
+                                    {props.place.place_name}
+                                </h5>
                             </div>
-                        )}
-                    </div>
-                    <div className="d-flex flex-row-reverse card card-wrapper">
-                        {props.draggable &&
+                            {props.draggable && (
+                                <div>
+                                    <Button
+                                        className="me-1 place-buttons"
+                                        onClick={() => props.onAdd(props.place.place_id)}
+                                    >
+                                        <img src={down} alt={down} />
+                                    </Button>
+                                    <Button
+                                        className="me-1 place-buttons"
+                                        onClick={onDelete}
+                                    >
+                                        <img src={up} alt={up} />
+                                    </Button>
+                                    <Button
+                                        className="me-1 place-buttons"
+                                        onClick={() => props.onPlaceDelete(props.place.place_id)}
+                                    >
+                                        <img src={trash} alt={trash} />
+                                    </Button>
+                                </div>
+                            )}
+                        </Card.Header>
+                        <Card.Body className="d-flex flex-row-reverse">
+                            {props.draggable &&
                             <img className="grip-img ps-1" src={grip} alt={grip} {...provided.dragHandleProps} />}
-                        <div className="d-flex flex-row overflow-auto place-photos">
-                            {props.place.photos.map((value, index) => (
-                                <React.Fragment key={value.photo_id.toString()}>
-                                    <Photo
-                                        photo={value}
-                                        onClick={props.onPhotoClick}
-                                        checked={checked[value.photo_id]}
-                                        mode={props.draggable}
-                                        onCheck={onCheck}
-                                    />
-                                </React.Fragment>
-                            ))}
-                        </div>
-                    </div>
+                            <div className="d-flex flex-row overflow-auto place-photos">
+                                {props.place.photos.map((value, index) => (
+                                    <React.Fragment key={value.photo_id.toString()}>
+                                        <Photo
+                                            photo={value}
+                                            onClick={props.onPhotoClick}
+                                            checked={checked[value.photo_id]}
+                                            mode={props.draggable}
+                                            onCheck={onCheck}
+                                        />
+                                    </React.Fragment>
+                                ))}
+                            </div>
+                        </Card.Body>
+                    </Card>
                 </div>
+
             )}
         </Draggable>
     );
