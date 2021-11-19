@@ -65,7 +65,6 @@ def routeID(request, repo_id):
         
         route = Route.objects.get(repository=repository)
 
-        repository_photos = Photo.objects.filter(repository=repository)
         places_to_return = PlaceInRoute.objects.filter(route=route).order_by("order")
         places = []
         for place in places_to_return:
@@ -86,7 +85,6 @@ def routeID(request, repo_id):
                     "uploader": photo.uploader.username,
                 }
                 photos.append(response_photo)
-            repository_photos.filter(place=place).delete()
 
             response_place = {
                 "place_id": place.place_id,
@@ -107,22 +105,23 @@ def routeID(request, repo_id):
             places.append(response_place)
 
         not_assigned_photos = []
+        repository_photos = Photo.objects.filter(repository=repository)
         for photo in repository_photos:
-            try:
-                photo_tag = PhotoTag.objects.get(photo=photo, user=request.user)
-                photo_tag_text = photo_tag.text
-            except PhotoTag.DoesNotExist:
-                photo_tag_text = ""
-            response_photo = {
-                "photo_id": photo.photo_id,
-                "repo_id": photo.repository.repo_id,
-                "image": photo.image_file.url,
-                "post_time": photo.post_time.strftime(DATE_FORMAT),
-                "tag": photo_tag_text,
-                "uploader": photo.uploader.username,
-            }
-            not_assigned_photos.append(response_photo)
-            
+            if photo.place == None:
+                try:
+                    photo_tag = PhotoTag.objects.get(photo=photo, user=request.user)
+                    photo_tag_text = photo_tag.text
+                except PhotoTag.DoesNotExist:
+                    photo_tag_text = ""
+                response_photo = {
+                    "photo_id": photo.photo_id,
+                    "repo_id": photo.repository.repo_id,
+                    "image": photo.image_file.url,
+                    "post_time": photo.post_time.strftime(DATE_FORMAT),
+                    "tag": photo_tag_text,
+                    "uploader": photo.uploader.username,
+                }
+                not_assigned_photos.append(response_photo)    
 
         response_region = {
             "region_address": route.region_address,
@@ -323,8 +322,8 @@ def places(request, repo_id):
         return HttpResponseBadRequest()
     
     still_existing_place_id = []
+    i = 1
     for place in req_data:
-        i = 1
         try:
             place_id = place["place_id"]
         except (KeyError, JSONDecodeError):
@@ -348,6 +347,7 @@ def places(request, repo_id):
             edit_time = None
 
         edited_place = PlaceInRoute(route=route, order=place_to_edit_order, text=edit_text, time=edit_time, place_id=place_id, place_name=place_to_edit.place_name, place_address=place_to_edit.place_address, latitude=place_to_edit.latitude, longitude=place_to_edit.longitude)
+        
         edited_place.save()
 
         try:
@@ -403,7 +403,6 @@ def places(request, repo_id):
         if not (remove_place.place_id in still_existing_place_id):
             remove_place.delete()
 
-    repository_photos = Photo.objects.filter(repository=repository)
     places_to_return = PlaceInRoute.objects.filter(route=route).order_by("order")
     places = []
     for place in places_to_return:
@@ -424,7 +423,7 @@ def places(request, repo_id):
                 "uploader": photo.uploader.username,
             }
             photos.append(response_photo)
-        repository_photos.filter(place=place).delete()
+
 
         response_place = {
             "place_id": place.place_id,
@@ -443,22 +442,25 @@ def places(request, repo_id):
         except Photo.DoesNotExist:
             pass
         places.append(response_place)
+
     not_assigned_photos = []
+    repository_photos = Photo.objects.filter(repository=repository)
     for photo in repository_photos:
-        try:
-            photo_tag = PhotoTag.objects.get(photo=photo, user=request.user)
-            photo_tag_text = photo_tag.text
-        except PhotoTag.DoesNotExist:
-            photo_tag_text = ""
-        response_photo = {
-            "photo_id": photo.photo_id,
-            "repo_id": photo.repository.repo_id,
-            "image": photo.image_file.url,
-            "post_time": photo.post_time.strftime(DATE_FORMAT),
-            "tag": photo_tag_text,
-            "uploader": photo.uploader.username,
-        }
-        not_assigned_photos.append(response_photo)
+        if photo.place == None:
+            try:
+                photo_tag = PhotoTag.objects.get(photo=photo, user=request.user)
+                photo_tag_text = photo_tag.text
+            except PhotoTag.DoesNotExist:
+                photo_tag_text = ""
+            response_photo = {
+                "photo_id": photo.photo_id,
+                "repo_id": photo.repository.repo_id,
+                "image": photo.image_file.url,
+                "post_time": photo.post_time.strftime(DATE_FORMAT),
+                "tag": photo_tag_text,
+                "uploader": photo.uploader.username,
+            }
+            not_assigned_photos.append(response_photo)
 
     response_dict = {
         "not_assigned": not_assigned_photos,
@@ -504,7 +506,6 @@ def placeID(request, repo_id, place_id):
     new_place = PlaceInRoute(route=route, order=order, place_id=place_id, place_name=place_name, place_address=place_address, latitude=latitude, longitude=longitude)
     new_place.save()
 
-    repository_photos = Photo.objects.filter(repository=repository)
     places_to_return = PlaceInRoute.objects.filter(route=route).order_by("order")
     places = []
     for place in places_to_return:
@@ -525,7 +526,6 @@ def placeID(request, repo_id, place_id):
                 "uploader": photo.uploader.username,
             }
             photos.append(response_photo)
-        repository_photos.filter(place=place).delete()
 
         response_place = {
             "place_id": place.place_id,
@@ -546,21 +546,23 @@ def placeID(request, repo_id, place_id):
         places.append(response_place)
     
     not_assigned_photos = []
+    repository_photos = Photo.objects.filter(repository=repository)
     for photo in repository_photos:
-        try:
-            photo_tag = PhotoTag.objects.get(photo=photo, user=request.user)
-            photo_tag_text = photo_tag.text
-        except PhotoTag.DoesNotExist:
-            photo_tag_text = ""
-        response_photo = {
-            "photo_id": photo.photo_id,
-            "repo_id": photo.repository.repo_id,
-            "image": photo.image_file.url,
-            "post_time": photo.post_time.strftime(DATE_FORMAT),
-            "tag": photo_tag_text,
-            "uploader": photo.uploader.username,
-        }
-        not_assigned_photos.append(response_photo)
+        if photo.place == None:
+            try:
+                photo_tag = PhotoTag.objects.get(photo=photo, user=request.user)
+                photo_tag_text = photo_tag.text
+            except PhotoTag.DoesNotExist:
+                photo_tag_text = ""
+            response_photo = {
+                "photo_id": photo.photo_id,
+                "repo_id": photo.repository.repo_id,
+                "image": photo.image_file.url,
+                "post_time": photo.post_time.strftime(DATE_FORMAT),
+                "tag": photo_tag_text,
+                "uploader": photo.uploader.username,
+            }
+            not_assigned_photos.append(response_photo)
 
     response_dict = {
         "not_assigned": not_assigned_photos,
