@@ -59,7 +59,11 @@ class Route(models.Model):
     )
 
     def __str__(self):
+<<<<<<< HEAD
         return self.region_name
+=======
+        return self.region_address
+>>>>>>> 9282813d4f65ad11f7bd8d3728808c80d3a1f6fa
 
 
 class PlaceInRoute(models.Model):

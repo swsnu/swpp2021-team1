@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 
-from project.models.models import Repository, Photo, PhotoTag
+from project.models.models import Repository, Photo, PhotoTag, Label
 from project.httpResponse import *
 from project.utils import have_common_user
 from project.enum import Scope
@@ -42,14 +42,21 @@ def photos(request, repo_id):
         criteria = request.GET.get("criteria", None)
         raw_post_time = request.GET.get("post_time", None)
         if raw_post_time is not None:
-            post_time = datetime.strptime(raw_post_time, DATE_FORMAT)
-            post_time = timezone.make_aware(post_time)
-        label = request.GET.get("label", None)
-        place = request.GET.get("place", None)
-        if criteria is not None and (raw_post_time or label or place) is not None:
+            try:
+                post_time = datetime.strptime(raw_post_time, DATE_FORMAT)
+                post_time = timezone.make_aware(post_time)
+            except ValueError:
+                return HttpResponseInvalidInput()
+        label_name = request.GET.get("label", None)
+        place_query = request.GET.get("place", None)
+        if criteria is not None and (raw_post_time or label_name or place_query) is not None:
             return HttpResponseInvalidInput()
 
-        photo_list = []
+        photo_list = Photo.objects.filter(repository=repository)
+        if label_name is not None:
+            try:
+                label = Label.objects.get(label_name=label_name)
+                
         for photo in Photo.objects.filter(repository=repository):
 
             try:
