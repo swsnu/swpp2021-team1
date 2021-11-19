@@ -93,13 +93,11 @@ export default function PlaceDetail(props : PlaceDetailProps) {
         const newPlaces : IPlace[] = [...places];
         newPlaces[index] = { ...newPlaces[index], photos: [...newPlaces[index].photos, ...photoList] };
         if (newPlaces[index].photos.length > 0) {
-            console.log("hello");
             newPlaces[index] = { ...newPlaces[index], thumbnail: newPlaces[index].photos[0].image };
         }
         setPlaces(newPlaces);
         const newChecked : {[id : number] : boolean} = {};
         leftList.forEach((value) => {
-            console.log("hello");
             newChecked[value.photo_id] = false;
         });
         setChecked(newChecked);

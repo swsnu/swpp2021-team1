@@ -1,0 +1,17 @@
+.travel-close-button {
+    position: absolute !important;
+    right: 0vh;
+    top: 0vw;
+}
+
+.travel-loading {
+    position: absolute !important;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.travel-background {
+    position: relative;
+    background: rgba(0, 0, 0, 0.5) !important;
+}

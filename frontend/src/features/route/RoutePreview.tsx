@@ -2,7 +2,9 @@ import {
     GoogleMap, InfoBox, InfoWindow, Marker, Polyline, useJsApiLoader, useGoogleMap,
 } from "@react-google-maps/api";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, Image, Modal } from "react-bootstrap";
+import {
+    Badge, Button, Image, Modal,
+} from "react-bootstrap";
 import React, { useEffect, useRef, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useParams } from "react-router";
@@ -13,6 +15,7 @@ import * as actionCreators from "./routeSlice";
 import { toBeLoaded } from "../repository/reposSlice";
 import "./RoutePreview.css";
 import marker from "../../common/assets/marker.gif";
+import Travel from "./popup/Travel";
 
 env.config();
 
@@ -34,6 +37,7 @@ export default function RoutePreview(props : RoutePreviewProps) {
     const dispatch = useDispatch<AppDispatch>();
     const params = useParams<{id : string}>();
     const [map, setMap] = useState<any>(null);
+    const [show, setShow] = useState<boolean>(false);
 
     useEffect(() => {
         if (!route || route.repo_id !== parseInt(params.id)) {
@@ -73,6 +77,13 @@ export default function RoutePreview(props : RoutePreviewProps) {
                     >
                         View Detail
                     </Button>
+                    <Button
+                        className="m-2"
+                        id="travel-button"
+                        onClick={() => setShow(true)}
+                    >
+                        Travel
+                    </Button>
                 </div>
             </div>
             <div className="m-2">
@@ -98,28 +109,43 @@ export default function RoutePreview(props : RoutePreviewProps) {
                                     if (overPlace === value.place_id) setOverPlace(null);
                                 }}
                             >
-                                { overPlace && overPlace === value.place_id && value.thumbnail && (
-                                    <div style={{
-                                        width: "100px",
-                                        zIndex: 10000,
-                                        position: "absolute",
-                                        top: `${100 *
+                                { overPlace && overPlace === value.place_id && (
+                                    <div
+                                        className="route-thumbnail"
+                                        style={{
+                                            width: "100px",
+                                            zIndex: 10000,
+                                            position: "absolute",
+                                            top: `${100 *
                                             ((value.latitude - map.getBounds()?.getNorthEast().lat()) /
                                             (map.getBounds()?.getSouthWest().lat() -
                                             map.getBounds()?.getNorthEast().lat()))}%`,
-                                        left: `${100 *
+                                            left: `${100 *
                                             ((value.longitude - map.getBounds()?.getSouthWest().lng()) /
                                             (map.getBounds()?.getNorthEast().lng() -
                                             map.getBounds()?.getSouthWest().lng()))}%`,
-                                        transform: "translate(-50%, -150%)",
-                                    }}
+                                            transform: value.thumbnail ?
+                                                "translate(-50%, -150%)" : "translate(-50%, -300%)",
+                                        }}
                                     >
-                                        <div className="m-auto">{value.place_name}</div>
-                                        <Image
-                                            src={value.thumbnail}
-                                            alt={value.thumbnail}
-                                            thumbnail
-                                        />
+                                        <Badge
+                                            className="mx-auto route-badge"
+                                            style={{
+                                                width: "fit-content",
+                                                display: "block",
+                                                borderRadius: value.thumbnail ? "10px 10px 0 0" : "",
+                                            }}
+                                        >
+                                            {value.place_name}
+                                        </Badge>
+                                        {value.thumbnail && (
+                                            <Image
+                                                className="route-image"
+                                                src={value.thumbnail}
+                                                alt={value.thumbnail}
+                                                thumbnail
+                                            />
+                                        )}
                                     </div>
                                 )}
                             </Marker>
@@ -135,6 +161,7 @@ export default function RoutePreview(props : RoutePreviewProps) {
                     />
                 </GoogleMap>
             </div>
+            <Travel repo_id={parseInt(params.id)} show={show} setShow={setShow} />
         </div>
     );
 }

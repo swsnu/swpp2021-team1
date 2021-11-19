@@ -1,7 +1,7 @@
-import { SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios, { AxiosResponse } from "axios";
-import { Carousel, Modal } from "react-bootstrap";
-import { IPlace } from "../../../common/Interfaces";
+import { Carousel, CloseButton, Modal } from "react-bootstrap";
+import { IPlace, SetStateAction } from "../../../common/Interfaces";
 
 interface TravelProps {
     repo_id : number;
@@ -15,12 +15,14 @@ export default function Travel(props : TravelProps) {
     const [index, setIndex] = useState<number>(0);
 
     useEffect(() => {
-        axios.get<never, AxiosResponse<IPlace[]>>(`/api/repositories/${props.repo_id}/travel/`)
-            .then((response) => {
-                setIsLoading(false);
-                setPlaces(response.data);
-            });
-    }, []);
+        if (props.show) {
+            axios.get<never, AxiosResponse<IPlace[]>>(`/api/repositories/${props.repo_id}/travel/`)
+                .then((response) => {
+                    setIsLoading(false);
+                    setPlaces(response.data);
+                });
+        }
+    }, [props.show]);
 
     const totalImage : string[] = [];
     places?.forEach((value) => {
@@ -30,7 +32,7 @@ export default function Travel(props : TravelProps) {
     });
 
     return (
-        <Modal show={props.show}>
+        <Modal show={props.show} fullscreen className="travel-background">
             {isLoading ? <h3 className="travel-loading">Loading...</h3> : (
                 <div>
                     <Carousel activeIndex={index} indicators={false}>
@@ -46,6 +48,7 @@ export default function Travel(props : TravelProps) {
                     </Carousel>
                 </div>
             )}
+            <CloseButton className="travel-close-button m-2" onClick={() => props.setShow(false)} />
         </Modal>
     );
 }
