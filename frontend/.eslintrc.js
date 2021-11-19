@@ -63,6 +63,7 @@ module.exports = {
         "jsx-a11y/control-has-associated-label": "off",
         "import/prefer-default-export": "off",
         "react/jsx-props-no-spreading": "off",
+        "no-empty-pattern": "off",
     },
     settings: {
         "import/resolver": {

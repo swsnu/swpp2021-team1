@@ -3,6 +3,7 @@ import { PlaceQueryResult } from "../features/route/routeSlice";
 import {
     IComment,
     IDiscussion,
+    ILabel,
     IPhoto, IPlace, IPost, IRepository, IRoute, IUser,
 } from "./Interfaces";
 
@@ -281,4 +282,38 @@ export async function getPlacesQuery(repo_id : number, queryString : string) {
  * for labelSlice
  */
 
-// TODO
+export async function getRepoLabels({}) {
+    return (await axios.get<any, AxiosResponse<ILabel[]>>(
+        "/api/repositories/:repo_id/labels/",
+    )).data;
+}
+
+export async function postLabel({ label_name }: {label_name: string}) {
+    return (await axios.post<any, AxiosResponse<ILabel[]>>(
+        "/api/repositories/:repo_id/labels/",
+    )).data;
+}
+
+export async function putLabel({ label_name }: { label_name: string }) {
+    return (await axios.put<any, AxiosResponse<ILabel[]>>(
+        "/api/repositories/:repo_id/labels/:label_id/",
+    )).data;
+}
+
+export async function deleteLabel({ }) {
+    return (await axios.delete<any, AxiosResponse<ILabel[]>>(
+        "/api/repositories/:repo_id/labels/:label_id/",
+    )).data;
+}
+
+export async function getLabelPhotos({}) {
+    return (await axios.get<any, AxiosResponse<ILabel[]>>(
+        "/api/repositories/:repo_id/labels/:label_id/photos/",
+    )).data;
+}
+
+export async function putLabelPhotos({ photo_id }: {photo_id: number}) {
+    return (await axios.put<any, AxiosResponse<IPhoto[]>>(
+        "/api/repositories/:repo_id/labels/:label_id/photos/",
+    )).data;
+}
