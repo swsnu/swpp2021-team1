@@ -87,16 +87,17 @@ urlpatterns = [
     ## labelAPI
     path("repositories/<int:repo_id>/labels/", labelViews.labels, name="labels"),
     path(
-        "/api/repositories/<int:repo_id>/labels/<int:label_id>/",
+        "repositories/<int:repo_id>/labels/<int:label_id>/",
         labelViews.labelID,
         name="labelID"
     ),
     path(
-        "/api/repositories/<int:repo_id>/labels/<int:label_id>/photos/",
+        "repositories/<int:repo_id>/labels/<int:label_id>/photos/",
         labelViews.labelPhotos,
         name="labelPhotos"
     ),
-
+]
+"""
     ## routeAPI
     path("/route-search/", routeViews.routeSearch, name="routeSearch"),
     path("repositories/<int:repo_id>/route/", routeViews.route, name="route"),
@@ -108,3 +109,4 @@ urlpatterns = [
 
 
 ]
+"""

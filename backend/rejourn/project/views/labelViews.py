@@ -77,6 +77,7 @@ def labels(request, repo_id):
     return HttpResponseSuccessUpdate(label_list)
 
 
+# /api/repositories/<int:repo_id>/labels/<int:label_id>/
 @require_http_methods(['PUT', 'DELETE'])
 @ensure_csrf_cookie
 def labelID(request, repo_id, label_id):
@@ -95,6 +96,9 @@ def labelID(request, repo_id, label_id):
             label = Label.objects.get(label_id=label_id)
         except(Repository.DoesNotExist, Label.DoesNotExist):
             return HttpResponseNotExist()
+
+        if label.repository != repository:
+            return HttpResponseInvalidInput()
 
         if (request.user not in repository.collaborators.all()
             or request.user != label.user):
@@ -121,6 +125,9 @@ def labelID(request, repo_id, label_id):
     except(Repository.DoesNotExist, Label.DoesNotExist):
         return HttpResponseNotExist()
 
+    if label.repository != repository:
+        return HttpResponseInvalidInput()
+
     if (request.user not in repository.collaborators.all()
         or request.user != label.user):
         return HttpResponseNoPermission()
@@ -136,6 +143,7 @@ def labelID(request, repo_id, label_id):
     return HttpResponseSuccessDelete(label_list)
 
 
+# /api/repositories/<int:repo_id>/labels/<int:label_id>/photos/
 @require_http_methods(['GET', 'PUT'])
 @ensure_csrf_cookie
 def labelPhotos(request, repo_id, label_id):
@@ -148,6 +156,9 @@ def labelPhotos(request, repo_id, label_id):
             label = Label.objects.get(label_id=label_id)
         except(Repository.DoesNotExist, Label.DoesNotExist):
             return HttpResponseNotExist()
+
+        if label.repository != repository:
+            return HttpResponseInvalidInput()
 
         if (request.user not in repository.collaborators.all()
             or request.user != label.user):
@@ -173,16 +184,6 @@ def labelPhotos(request, repo_id, label_id):
         return HttpResponseNotLoggedIn()
 
     try:
-        repository = Repository.objects.get(repo_id=repo_id)
-        label = Label.objects.get(label_id=label_id)
-    except(Repository.DoesNotExist, Label.DoesNotExist):
-        return HttpResponseNotExist()
-
-    if (request.user not in repository.collaborators.all()
-        or request.user != label.user):
-        return HttpResponseNoPermission()
-
-    try:
         request_photo_list = json.loads(request.body.decode())
         photo_id_list = []
         for photo in request_photo_list:
@@ -191,19 +192,31 @@ def labelPhotos(request, repo_id, label_id):
         return HttpResponseBadRequest()
 
     try:
+        repository = Repository.objects.get(repo_id=repo_id)
+        label = Label.objects.get(label_id=label_id)
+    except(Repository.DoesNotExist, Label.DoesNotExist):
+        return HttpResponseNotExist()
+
+    if label.repository != repository:
+        return HttpResponseInvalidInput()
+
+    if (request.user not in repository.collaborators.all()
+        or request.user != label.user):
+        return HttpResponseNoPermission()
+
+    try:
         photo_list = []
         for photo_id in photo_id_list:
             photo = Photo.objects.get(photo_id=photo_id)
             photo_list.append(photo)
     except Photo.DoesNotExist:
-        return HttpResponseNotExist()
+        return HttpResponseInvalidInput()
 
     for photo in photo_list:
         if photo.repository != repository:
             return HttpResponseNoPermission()
     
-    for photo in photo_list:
-        label.photos.add(photo)
+    label.photos.set(photo_list)
     label.save()
 
     photo_list = []
@@ -219,4 +232,4 @@ def labelPhotos(request, repo_id, label_id):
             "uploader" : photo.uploader.username,
             "tag" : photo_tag, 
         }) 
-    return HttpResponseSuccessGet(photo_list)
+    return HttpResponseSuccessUpdate(photo_list)
