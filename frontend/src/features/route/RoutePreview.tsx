@@ -1,9 +1,9 @@
 import {
-    GoogleMap, InfoBox, Marker, useJsApiLoader,
+    GoogleMap, InfoBox, InfoWindow, Marker, Polyline, useJsApiLoader, useGoogleMap,
 } from "@react-google-maps/api";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, Image } from "react-bootstrap";
-import React, { useEffect, useState } from "react";
+import { Button, Image, Modal } from "react-bootstrap";
+import React, { useEffect, useRef, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useParams } from "react-router";
 import * as env from "dotenv";
@@ -11,6 +11,8 @@ import { IRepository, IRoute } from "../../common/Interfaces";
 import { AppDispatch, RootState } from "../../app/store";
 import * as actionCreators from "./routeSlice";
 import { toBeLoaded } from "../repository/reposSlice";
+import "./RoutePreview.css";
+import marker from "../../common/assets/marker.gif";
 
 env.config();
 
@@ -31,6 +33,7 @@ export default function RoutePreview(props : RoutePreviewProps) {
     const history = useHistory();
     const dispatch = useDispatch<AppDispatch>();
     const params = useParams<{id : string}>();
+    const [map, setMap] = useState<any>(null);
 
     useEffect(() => {
         if (!route || route.repo_id !== parseInt(params.id)) {
@@ -80,6 +83,7 @@ export default function RoutePreview(props : RoutePreviewProps) {
                         const ne = new window.google.maps.LatLng(route.region.north, route.region.east);
                         const bounds = new window.google.maps.LatLngBounds(sw, ne);
                         map.fitBounds(bounds);
+                        setMap(map);
                     }}
                     center={new window.google.maps.LatLng(route.region.latitude, route.region.longitude)}
                     zoom={8}
@@ -87,6 +91,7 @@ export default function RoutePreview(props : RoutePreviewProps) {
                     {route.places.map((value) => (
                         <React.Fragment key={value.place_id.toString()}>
                             <Marker
+                                icon={marker}
                                 position={{ lat: value.latitude, lng: value.longitude }}
                                 onMouseOver={() => setOverPlace(value.place_id)}
                                 onMouseOut={() => {
@@ -94,13 +99,40 @@ export default function RoutePreview(props : RoutePreviewProps) {
                                 }}
                             >
                                 { overPlace && overPlace === value.place_id && value.thumbnail && (
-                                    <InfoBox>
-                                        <Image src={value.thumbnail} alt={value.thumbnail} thumbnail />
-                                    </InfoBox>
+                                    <div style={{
+                                        width: "100px",
+                                        zIndex: 10000,
+                                        position: "absolute",
+                                        top: `${100 *
+                                            ((value.latitude - map.getBounds()?.getNorthEast().lat()) /
+                                            (map.getBounds()?.getSouthWest().lat() -
+                                            map.getBounds()?.getNorthEast().lat()))}%`,
+                                        left: `${100 *
+                                            ((value.longitude - map.getBounds()?.getSouthWest().lng()) /
+                                            (map.getBounds()?.getNorthEast().lng() -
+                                            map.getBounds()?.getSouthWest().lng()))}%`,
+                                        transform: "translate(-50%, -150%)",
+                                    }}
+                                    >
+                                        <div className="m-auto">{value.place_name}</div>
+                                        <Image
+                                            src={value.thumbnail}
+                                            alt={value.thumbnail}
+                                            thumbnail
+                                        />
+                                    </div>
                                 )}
                             </Marker>
                         </React.Fragment>
                     ))}
+                    <Polyline
+                        path={(route as IRoute).places.map((value) => ({ lat: value.latitude, lng: value.longitude }))}
+                        options={{
+                            strokeColor: "#880088",
+                            strokeOpacity: 1,
+                            strokeWeight: 1,
+                        }}
+                    />
                 </GoogleMap>
             </div>
         </div>
