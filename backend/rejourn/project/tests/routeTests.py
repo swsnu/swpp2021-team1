@@ -395,6 +395,8 @@ class RouteTestCase(TestCase):
             content_type="application/json",
         )
         self.assertEqual(response.status_code, 201)
+        response = client.get("/api/repositories/1/route/")
+
     
     def test_placeID_post(self):
         client = Client()
