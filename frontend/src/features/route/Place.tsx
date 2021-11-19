@@ -50,7 +50,7 @@ export default function Place(props : PlaceProps) {
         >
             {(provided) => (
                 <div
-                    className="mt-2 place-entry"
+                    className="mt-3 place-entry"
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                 >
@@ -86,7 +86,7 @@ export default function Place(props : PlaceProps) {
                                 </div>
                             )}
                         </Card.Header>
-                        <Card.Body className="d-flex flex-row-reverse">
+                        <Card.Body className="d-flex flex-row-reverse place-wrapper">
                             {props.draggable &&
                             <img className="grip-img ps-1" src={grip} alt={grip} {...provided.dragHandleProps} />}
                             <div className="d-flex flex-row overflow-auto place-photos">
