@@ -7,6 +7,7 @@ from project.views import (
     postViews,
     photoViews,
     routeViews,
+    exploreViews,
 )
 
 
@@ -97,4 +98,6 @@ urlpatterns = [
     ## exploreAPI
     path("explore/users/", exploreViews.exploreUsers, name="exploreUSers"),
     path("explore/repositories/", exploreViews.exploreRepositories, name="exploreRespositories"),
+
+    path("users/<str:username>/feed/", exploreViews.feeds, name="feeds"),
 ]
