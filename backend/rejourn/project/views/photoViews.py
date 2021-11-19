@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 
-from project.models.models import Repository, Photo, PhotoTag, Label
+from project.models.models import Repository, Photo, Label, PhotoTag
 from project.httpResponse import *
 from project.utils import have_common_user
 from project.enum import Scope
@@ -39,30 +39,46 @@ def photos(request, repo_id):
             ):
             return HttpResponseNoPermission()
 
-        criteria = request.GET.get("criteria", None)
-        raw_post_time = request.GET.get("post_time", None)
-        if raw_post_time is not None:
+        raw_start_date = request.GET.get("start_date", None)
+        raw_end_date = request.GET.get("end_date", None)
+        if raw_start_date is not None:
             try:
-                post_time = datetime.strptime(raw_post_time, DATE_FORMAT)
-                post_time = timezone.make_aware(post_time)
+                start_date = datetime.strptime(raw_start_date, DATE_FORMAT)
+                start_date = timezone.make_aware(start_date)
             except ValueError:
                 return HttpResponseInvalidInput()
-        label_name = request.GET.get("label", None)
+        if raw_end_date is not None:
+            try:
+                end_date = datetime.strptime(raw_end_date, DATE_FORMAT)
+                end_date = timezone.make_aware(end_date)
+            except ValueError:
+                return HttpResponseInvalidInput()
+        label_query = request.GET.get("label", None)
         place_query = request.GET.get("place", None)
-        if criteria is not None and (raw_post_time or label_name or place_query) is not None:
-            return HttpResponseInvalidInput()
 
-        photo_list = Photo.objects.filter(repository=repository)
-        if label_name is not None:
-            try:
-                label = Label.objects.get(label_name=label_name)
-                
-        for photo in Photo.objects.filter(repository=repository):
+        photo_set = Photo.objects.filter(repository=repository)
 
-            try:
+        if label_query is not None:
+            label_set = Label.objects.filter(label_name__icontains=label_query)
+            photo_set = photo_set.filter(labels__in=label_set)
+
+        if start_date is not None:
+            photo_set = photo_set.filter(post_time__gte=start_date)
+
+        if end_date is not None:
+            photo_set = photo_set.filter(post_time__lte=end_date)
+
+        if place_query is not None:
+            temp1_photo_set = photo_set.filter(place_name__icontains=place_query)
+            temp2_photo_set = photo_set.filter(place_address__icontains=place_query)
+            photo_set = temp1_photo_set.union(temp2_photo_set)
+
+        photo_list = []
+        for photo in photo_set:
+            if PhotoTag.objects.exists(photo=photo, user=request.user):
                 photo_tag = PhotoTag.objects.get(photo=photo, user=request.user)
                 photo_tag_text = photo_tag.text
-            except PhotoTag.DoesNotExist:
+            else:
                 photo_tag_text = ""
 
             photo_list.insert(
@@ -76,7 +92,11 @@ def photos(request, repo_id):
                     "uploader": photo.uploader.username,
                 },
             )
+        return HttpResponseSuccessGet(photo_list)
 
+# classify by date
+
+###
         if len(photo_list) == 0:
             response_list = []
         elif criteria is not None:
@@ -103,8 +123,7 @@ def photos(request, repo_id):
             )
         else:
             response_list = photo_list
-
-        return HttpResponseSuccessGet(response_list)
+###
 
     if request.method == "POST":
         if not request.user.is_authenticated:

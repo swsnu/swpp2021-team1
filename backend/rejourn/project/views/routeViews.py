@@ -17,9 +17,12 @@ import requests
 from urllib.parse import urlencode
 api_key = settings.GOOGLE_MAPS_API_KEY
 
+
 DATE_FORMAT = "%Y-%m-%d"
 UPLOADED_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
+
+# /api/region-search/
 @require_http_methods(["GET"])
 @ensure_csrf_cookie
 def regionSearch(request):
@@ -49,6 +52,8 @@ def regionSearch(request):
 
     return HttpResponseSuccessGet([response_dict])
 
+
+# /api/repositories/<int:repo_id>/route/
 @require_http_methods(["GET", "POST"])
 @ensure_csrf_cookie
 def routeID(request, repo_id):
@@ -237,6 +242,8 @@ def routeID(request, repo_id):
             new_place.save()
         return HttpResponseSuccessUpdate()
 
+
+# /api/repositories/<int:repo_id>/route/places-search/
 @require_http_methods(["GET"])
 @ensure_csrf_cookie
 def placeSearch(request, repo_id):
@@ -297,6 +304,8 @@ def placeSearch(request, repo_id):
 
     return HttpResponseSuccessGet(response)
 
+
+# /api/repositories/<int:repo_id>/route/places/
 @require_http_methods(["PUT"])
 @ensure_csrf_cookie
 def places(request, repo_id):
@@ -469,6 +478,7 @@ def places(request, repo_id):
 
     return HttpResponseSuccessUpdate(response_dict)
 
+# /api/repositories/<int:repo_id>/route/places/<str:place_id>/
 @require_http_methods(["POST"])
 @ensure_csrf_cookie
 def placeID(request, repo_id, place_id):
@@ -570,3 +580,10 @@ def placeID(request, repo_id, place_id):
     }
 
     return HttpResponseSuccessUpdate(response_dict)
+
+
+# /api/repositories/<int:repo_id>/travel/
+@require_http_methods(["POST"])
+@ensure_csrf_cookie
+def travel(request, repo_id):
+    pass

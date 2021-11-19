@@ -105,5 +105,6 @@ urlpatterns = [
     path("repositories/<int:repo_id>/route/places/", routeViews.places, name="places"),
     path("repositories/<int:repo_id>/route/places/<str:place_id>/", routeViews.placeID, name="placeID"),
 
+    path("repositories/<int:repo_id>/travel/", routeViews.travel, name="travel"),
 
 ]
