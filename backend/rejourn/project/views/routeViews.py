@@ -362,7 +362,7 @@ def places(request, repo_id):
             flag = 0
             for photo in Photo.objects.all():
                 if photo.image_file.url == edit_thumbnail:
-                    photo.thumbnail_of = place_to_edit
+                    photo.thumbnail_of = edited_place
                     photo.save()
                     flag = 1
                     break
