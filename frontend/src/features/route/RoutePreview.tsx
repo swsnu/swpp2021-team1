@@ -1,11 +1,11 @@
 import {
-    GoogleMap, InfoBox, InfoWindow, Marker, Polyline, useJsApiLoader, useGoogleMap,
+    GoogleMap, Marker, Polyline, useJsApiLoader,
 } from "@react-google-maps/api";
 import { useDispatch, useSelector } from "react-redux";
 import {
-    Badge, Button, Image, Modal,
+    Badge, Button, Image,
 } from "react-bootstrap";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useParams } from "react-router";
 import * as env from "dotenv";
@@ -88,22 +88,34 @@ export default function RoutePreview(props : RoutePreviewProps) {
             </div>
             <div className="m-2">
                 <GoogleMap
+                    mapTypeId="257d559a76ad5fe6"
                     mapContainerStyle={{ width: "100%", height: "300px" }}
                     onLoad={(map) => {
                         const sw = new window.google.maps.LatLng(route.region.south, route.region.west);
                         const ne = new window.google.maps.LatLng(route.region.north, route.region.east);
                         const bounds = new window.google.maps.LatLngBounds(sw, ne);
-                        map.fitBounds(bounds);
+                        map.fitBounds(bounds, 0);
+                        window.google.maps.event.addListenerOnce(map, "bounds_changed", () => {
+                            map.setZoom(map.getZoom() as number + 1);
+                        });
                         setMap(map);
                     }}
                     center={new window.google.maps.LatLng(route.region.latitude, route.region.longitude)}
-                    zoom={8}
+                    options={{
+                        fullscreenControl: false,
+                        mapId: "257d559a76ad5fe6",
+                    }}
                 >
-                    {route.places.map((value) => (
+                    {map && route.places.map((value) => (
                         <React.Fragment key={value.place_id.toString()}>
                             <Marker
                                 icon={marker}
-                                position={{ lat: value.latitude, lng: value.longitude }}
+                                position={{
+                                    lat: value.latitude -
+                                        (map.getBounds()?.getNorthEast().lat() -
+                                            map.getBounds()?.getSouthWest().lat()) / 15,
+                                    lng: value.longitude,
+                                }}
                                 onMouseOver={() => setOverPlace(value.place_id)}
                                 onMouseOut={() => {
                                     if (overPlace === value.place_id) setOverPlace(null);
@@ -125,7 +137,7 @@ export default function RoutePreview(props : RoutePreviewProps) {
                                             (map.getBounds()?.getNorthEast().lng() -
                                             map.getBounds()?.getSouthWest().lng()))}%`,
                                             transform: value.thumbnail ?
-                                                "translate(-50%, -150%)" : "translate(-50%, -300%)",
+                                                "translate(-50%, -135%)" : "translate(-50%, -250%)",
                                         }}
                                     >
                                         <Badge
@@ -134,6 +146,7 @@ export default function RoutePreview(props : RoutePreviewProps) {
                                                 width: "fit-content",
                                                 display: "block",
                                                 borderRadius: value.thumbnail ? "10px 10px 0 0" : "",
+                                                background: "#dd88dd",
                                             }}
                                         >
                                             {value.place_name}
@@ -154,9 +167,9 @@ export default function RoutePreview(props : RoutePreviewProps) {
                     <Polyline
                         path={(route as IRoute).places.map((value) => ({ lat: value.latitude, lng: value.longitude }))}
                         options={{
-                            strokeColor: "#880088",
+                            strokeColor: "#991D83",
                             strokeOpacity: 1,
-                            strokeWeight: 1,
+                            strokeWeight: 2,
                         }}
                     />
                 </GoogleMap>

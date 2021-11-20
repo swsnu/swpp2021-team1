@@ -8,14 +8,13 @@ import {
 import {
     getPlacesQuery, getRegionQuery,
     getRoute,
-    postPlaces, postRoute, putPhoto,
+    postPlaces, putPhoto,
     putPlaces,
 } from "../../common/APIs";
-import { PhotosState } from "../photo/photosSlice";
 
 export const fetchRoute = createAsyncThunk<IRoute, number>( // added
     "route/fetch",
-    async (repo_id, thunkAPI) => // payload creator
+    async (repo_id) => // payload creator
         await getRoute(repo_id),
 
 );
@@ -25,7 +24,7 @@ export const addPlace = createAsyncThunk<
         {repo_id : number, place_id : number}
     >( // added
         "route/add",
-        async ({ repo_id, place_id }, thunkAPI) => // payload creator
+        async ({ repo_id, place_id }) => // payload creator
             await postPlaces(repo_id, place_id),
 
     );
@@ -35,29 +34,29 @@ export const editPlaces = createAsyncThunk<
         {repo_id : number, places : IPlace[]}
     >( // added
         "route/edit/place",
-        async ({ repo_id, places }, thunkAPI) => // payload creator
+        async ({ repo_id, places }) => // payload creator
             await putPlaces(repo_id, places),
 
     );
 
 export const searchRegion = createAsyncThunk<PlaceQueryResult[], string>( // added
     "route/search/region",
-    async (queryString, thunkAPI) => // payload creator
+    async (queryString) => // payload creator
         await getRegionQuery(queryString),
 
 );
 
 export const searchPlace = createAsyncThunk<PlaceQueryResult[], {repo_id : number, queryString : string}>( // added
     "route/search/place",
-    async ({ repo_id, queryString }, thunkAPI) => // payload creator
+    async ({ repo_id, queryString }) => // payload creator
         await getPlacesQuery(repo_id, queryString),
 
 );
 
 export const editPhoto = createAsyncThunk<IPhoto, {repo_id : number, photo : IPhoto}>( // added
     "route/photo/edit",
-    async ({ repo_id, photo }, thunkAPI) => // payload creator
-        await putPhoto(repo_id, photo), // TODO
+    async ({ repo_id, photo }) => // payload creator
+        await putPhoto(repo_id, photo),
 
 );
 

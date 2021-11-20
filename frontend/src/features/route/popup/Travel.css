@@ -1,10 +1,11 @@
 .travel-close-button {
     position: absolute !important;
-    right: 0vh;
-    top: 0vw;
+    right: 0;
+    top: 0;
 }
 
 .travel-loading {
+    color: white;
     position: absolute !important;
     left: 50%;
     top: 50%;
@@ -12,6 +13,31 @@
 }
 
 .travel-background {
-    position: relative;
     background: rgba(0, 0, 0, 0.5) !important;
+}
+
+.custom-modal {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.5);
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 10000;
+}
+
+.travel-carousel {
+    position: absolute;
+    left: 10%;
+    top: 25%;
+    width: 50%;
+    height: 50%;
+}
+
+.travel-minimap {
+    position: absolute;;
+    left: 65%;
+    top: 25%;
+    width: 25%;
+    height: 25%;
 }

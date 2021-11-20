@@ -1,7 +1,7 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import { Button, Card } from "react-bootstrap";
-import { IPhoto, IPlace } from "../../common/Interfaces";
+import { IPlace } from "../../common/Interfaces";
 import Photo from "../photo/Photo";
 import "./Place.css";
 import grip from "../../common/assets/grip.svg";
@@ -90,7 +90,7 @@ export default function Place(props : PlaceProps) {
                             {props.draggable &&
                             <img className="grip-img ps-1" src={grip} alt={grip} {...provided.dragHandleProps} />}
                             <div className="d-flex flex-row overflow-auto place-photos">
-                                {props.place.photos.map((value, index) => (
+                                {props.place.photos.map((value) => (
                                     <React.Fragment key={value.photo_id.toString()}>
                                         <Photo
                                             photo={value}

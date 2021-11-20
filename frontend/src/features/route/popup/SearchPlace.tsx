@@ -1,5 +1,5 @@
 import {
-    Button, Dropdown, Form, FormControl, InputGroup, ListGroup, Modal,
+    Button, Form, FormControl, InputGroup, ListGroup, Modal,
 } from "react-bootstrap";
 import React, { useState } from "react";
 import { PlaceQueryResult } from "../routeSlice";

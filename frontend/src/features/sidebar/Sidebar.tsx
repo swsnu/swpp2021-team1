@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import "./Sidebar.css";
 import { Dropdown } from "react-bootstrap";
 import { useHistory } from "react-router";
@@ -6,11 +6,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faBell, faBook, faCompass, faPencilAlt,
 } from "@fortawesome/free-solid-svg-icons";
-import { useDispatch, useSelector } from "react-redux";
 import { Redirect, Link } from "react-router-dom";
-import { AppDispatch, RootState } from "../../app/store";
 import * as actionCreators from "../auth/authSlice";
-import { IUser } from "../../common/Interfaces";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 
 import avatar from "../../common/assets/avatar.jpg";
