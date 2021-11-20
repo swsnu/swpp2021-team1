@@ -7,12 +7,11 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 from django.conf import settings
 
+import requests
 from project.models.models import Repository, Route, PlaceInRoute, Photo, PhotoTag
 from project.httpResponse import *
 from project.utils import have_common_user
 from project.enum import Scope
-
-import requests
 
 api_key = settings.GOOGLE_MAPS_API_KEY
 
