@@ -1,18 +1,19 @@
 import json
 from json.decoder import JSONDecodeError
+from urllib.parse import urlencode
 
 from django.http.response import HttpResponseBadRequest
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
+from django.conf import settings
 
 from project.models.models import Repository, Route, PlaceInRoute, Photo, PhotoTag
 from project.httpResponse import *
 from project.utils import have_common_user
 from project.enum import Scope
-from django.conf import settings
 
 import requests
-from urllib.parse import urlencode
+
 api_key = settings.GOOGLE_MAPS_API_KEY
 
 DATE_FORMAT = "%Y-%m-%d"
@@ -104,7 +105,7 @@ def routeID(request, repo_id):
         not_assigned_photos = []
         repository_photos = Photo.objects.filter(repository=repository)
         for photo in repository_photos:
-            if photo.place == None:
+            if photo.place is None:
                 try:
                     photo_tag = PhotoTag.objects.get(photo=photo, user=request.user)
                     photo_tag_text = photo_tag.text
@@ -218,8 +219,8 @@ def routeID(request, repo_id):
     new_route = Route(region_address=region_address, place_id=place_id, latitude=latitude, longitude=longitude, east=east, west=west, south=south, north=north, repository=repository)
     new_route.save()
 
-    places = PlaceInRoute.objects.filter(route=fork_route)
-    for place in places:
+    fork_places = PlaceInRoute.objects.filter(route=fork_route)
+    for place in fork_places:
         route = new_route
         order = place.order
         place_id = place.place_id
@@ -501,7 +502,7 @@ def placeID(request, repo_id, place_id):
     new_place.save()
 
     places_to_return = PlaceInRoute.objects.filter(route=route).order_by("order")
-    places = []
+    places_response = []
     for place in places_to_return:
         photos_to_return = Photo.objects.filter(place=place)
         photos = []
@@ -537,7 +538,7 @@ def placeID(request, repo_id, place_id):
             response_place["thumbnail"] = Photo.objects.get(thumbnail_of=place).image_file.url
         except Photo.DoesNotExist:
             pass
-        places.append(response_place)
+        places_response.append(response_place)
 
     not_assigned_photos = []
     repository_photos = Photo.objects.filter(repository=repository)
@@ -560,7 +561,7 @@ def placeID(request, repo_id, place_id):
 
     response_dict = {
         "not_assigned": not_assigned_photos,
-        "places": places,
+        "places": places_response,
     }
 
     return HttpResponseSuccessUpdate(response_dict)
