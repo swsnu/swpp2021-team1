@@ -5,4 +5,4 @@ from .repositoryViews import *
 from .userViews import *
 from .labelViews import *
 from .routeViews import *
-from .exploreViews omport *
+from .exploreViews import *
