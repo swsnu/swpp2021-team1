@@ -27,8 +27,8 @@ export default function Travel(props : TravelProps) {
     const [map, setMap] = useState<any>(null);
 
     useEffect(() => {
-        if (!props.show) {
-            axios.get<never, AxiosResponse<{region: IRegion, places: IPlace[]}>>(
+        if (props.show) {
+            axios.get<any, AxiosResponse<{region: IRegion, places: IPlace[]}>>(
                 `/api/repositories/${props.repo_id}/travel/`,
             )
                 .then((response) => {

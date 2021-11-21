@@ -81,6 +81,9 @@ export default function RoutePreview(props : RoutePreviewProps) {
                         className="m-2"
                         id="travel-button"
                         onClick={() => setShow(true)}
+                        disabled={route &&
+                        route.places.reduce((a, b) =>
+                            ({ ...a, photos: [...a.photos, ...b.photos] })).photos.length <= 5}
                     >
                         Travel
                     </Button>
