@@ -1,6 +1,7 @@
 import json
 from json.decoder import JSONDecodeError
 from datetime import datetime
+import random
 
 from django.http.response import HttpResponseBadRequest
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -31,7 +32,7 @@ def regionSearch(request):
         return HttpResponseNotLoggedIn()
 
     query_string = request.GET.get("query", None)
-    
+
     if query_string is None:
         return HttpResponseBadRequest()
     endpoint = 'https://maps.googleapis.com/maps/api/geocode/json'
@@ -67,7 +68,7 @@ def routeID(request, repo_id):
 
         if not ((request.user in repository.collaborators.all()) or (repository.visibility == Scope.PUBLIC) or (repository.visibility == Scope.FRIENDS_ONLY and have_common_user(request.user.friends.all(), repository.collaborators.all()))):
             return HttpResponseNoPermission()
-        
+
         route = Route.objects.get(repository=repository)
 
         places_to_return = PlaceInRoute.objects.filter(route=route).order_by("order")
@@ -155,7 +156,7 @@ def routeID(request, repo_id):
         return HttpResponseNotExist()
     if not request.user in repository.collaborators.all():
         return HttpResponseNoPermission()
-    
+
     request_type = 0 # 0: request by place_id / 1: request by repo_id
     # both containing request is returned with HttpResponseBadRequest()
 
@@ -200,7 +201,7 @@ def routeID(request, repo_id):
         new_route = Route(region_address=region_address, place_id=place_id, latitude=latitude, longitude=longitude, east=east, west=west, south=south, north=north, repository=repository)
         new_route.save()
         return HttpResponseSuccessUpdate()
-    
+
     # request_type == 1
     else:
         try:
@@ -583,7 +584,88 @@ def placeID(request, repo_id, place_id):
 
 
 # /api/repositories/<int:repo_id>/travel/
-@require_http_methods(["POST"])
+@require_http_methods(['GET'])
 @ensure_csrf_cookie
 def travel(request, repo_id):
-    pass
+    try:
+        repository = Repository.objects.get(repo_id=repo_id)
+    except Repository.DoesNotExist:
+        return HttpResponseNotExist()
+    
+    if not (
+                (repository.visibility == Scope.PUBLIC)
+                or (request.user in repository.collaborators.all())
+                or (
+                    repository.visibility == Scope.FRIENDS_ONLY
+                    and have_common_user(
+                        request.user.friends.all(), repository.collaborators.all()
+                    )
+                )
+            ):
+            return HttpResponseNoPermission()
+
+    if Photo.objects.filter(repository=repository).count() <= 5:
+        return HttpResponseInvalidInput()
+
+    place_in_route_set = PlaceInRoute.objects.filter(repository=repository)
+    place_num = len(place_in_route_set)
+
+    if place_num == 0:
+        return HttpResponseInvalidInput()
+
+    place_with_photo_num = 0
+    place_list = []
+    photo_list = []
+    order_count = 1
+    while (order_count <= place_num):
+        current_place = place_in_route_set.get(order=order_count)
+        place_list.append(current_place)
+        photo_set = Photo.objects.filter(place=current_place)
+        temp_photo_list = []
+        if photo_set.count() != 0:
+            place_with_photo_num += 1
+            temp_photo_list = random.shuffle(list(photo_set))
+        photo_list.append(temp_photo_list)
+        order_count += 1
+
+    response_list = []
+    for order_count in range(1, place_num+1):
+        current_place = place_list[order_count-1]
+        current_photo_list = photo_list[order_count-1]
+
+        if len(current_photo_list) == 0:
+            pass
+        elif place_with_photo_num > 20 or len(current_photo_list) == 1:
+            current_photo_list = current_photo_list[0:1]
+        elif place_with_photo_num > 10 or len(current_photo_list) == 2:
+            current_photo_list = current_photo_list[0:2]
+        else:
+            current_photo_list = current_photo_list[0:3]
+
+        photo_dict_list = []
+        for photo in current_photo_list:
+            photo_dict = {
+                'photo_id' : photo.photo_id,
+                'image' : photo.image_file.url,
+                'post_time' : photo.post_time.strftime(UPLOADED_TIME_FORMAT),
+                'uploader' : photo.uploader.username
+            }
+            if PhotoTag.objects.filter(user=request.user, photo=photo).exists():
+                photo_dict['tag'] = PhotoTag.objects.get(user=request.user, photo=photo).text
+            else:
+                photo_dict['tag'] = ""
+            photo_dict_list.append(photo_dict)
+
+        place_dict = {
+            "place_id" : current_place.place_id,
+            "place_name" : current_place.place_name,
+            "place_address" : current_place.place_address,
+            "latitude" : float(current_place.latitude),
+            "longitude" : float(current_place.longitude),
+            'photos' : photo_dict_list,
+        }
+        if current_place.thumbnail is not None:
+            place_dict['thumbnail'] = current_place.image_file.url
+        response_list.append(place_dict)
+
+    return HttpResponseSuccessGet(response_list)

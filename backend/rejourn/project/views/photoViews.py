@@ -75,7 +75,7 @@ def photos(request, repo_id):
 
         photo_list = []
         for photo in photo_set:
-            if PhotoTag.objects.exists(photo=photo, user=request.user):
+            if PhotoTag.objects.filter(photo=photo, user=request.user).exists():
                 photo_tag = PhotoTag.objects.get(photo=photo, user=request.user)
                 photo_tag_text = photo_tag.text
             else:
