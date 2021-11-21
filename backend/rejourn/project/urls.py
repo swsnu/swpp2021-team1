@@ -7,11 +7,8 @@ from project.views import (
     postViews,
     photoViews,
     routeViews,
-<<<<<<< HEAD
     labelViews,
-=======
     exploreViews,
->>>>>>> 2aa486cc0083e233b1c2f4c76741a3eaaebbc060
 )
 
 
