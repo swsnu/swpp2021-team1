@@ -372,16 +372,18 @@ class RouteTestCase(TestCase):
             }]),
             content_type="application/json",
         )
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 400)
         response = client.put(
             "/api/repositories/1/route/places/",
             json.dumps([{
+                "place_in_route_id": 1,
                 "place_id": "ChIJwxapcG71DDURGdhIIeiFBcI",
                 "text": "EDIT_1_TEXT",
                 "time": "2021-11-18",
                 "photos": [{"photo_id": 2}],
             },
             {
+                "place_in_route_id": 3,
                 "place_id": "ChIJYeRTsDD0DDURrIR1mJ_N5r8",
                 "text": "EDIT_2_TEXT",
                 "time": "2021-11-19",
