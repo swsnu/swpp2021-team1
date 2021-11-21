@@ -1,5 +1,7 @@
 import json
 from json.decoder import JSONDecodeError
+from datetime import datetime
+import random
 from urllib.parse import urlencode
 
 from django.http.response import HttpResponseBadRequest
@@ -15,9 +17,12 @@ from project.enum import Scope
 
 api_key = settings.GOOGLE_MAPS_API_KEY
 
+
 DATE_FORMAT = "%Y-%m-%d"
 UPLOADED_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
+
+# /api/region-search/
 @require_http_methods(["GET"])
 @ensure_csrf_cookie
 def regionSearch(request):
@@ -47,6 +52,8 @@ def regionSearch(request):
 
     return HttpResponseSuccessGet([response_dict])
 
+
+# /api/repositories/<int:repo_id>/route/
 @require_http_methods(["GET", "POST"])
 @ensure_csrf_cookie
 def routeID(request, repo_id):
@@ -232,6 +239,8 @@ def routeID(request, repo_id):
         new_place.save()
     return HttpResponseSuccessUpdate()
 
+
+# /api/repositories/<int:repo_id>/route/places-search/
 @require_http_methods(["GET"])
 @ensure_csrf_cookie
 def placeSearch(request, repo_id):
@@ -292,6 +301,8 @@ def placeSearch(request, repo_id):
 
     return HttpResponseSuccessGet(response)
 
+
+# /api/repositories/<int:repo_id>/route/places/
 @require_http_methods(["PUT"])
 @ensure_csrf_cookie
 def places(request, repo_id):
@@ -468,6 +479,7 @@ def places(request, repo_id):
 
     return HttpResponseSuccessUpdate(response_dict)
 
+# /api/repositories/<int:repo_id>/route/places/<str:place_id>/
 @require_http_methods(["POST"])
 @ensure_csrf_cookie
 def placeID(request, repo_id, place_id):
@@ -570,3 +582,91 @@ def placeID(request, repo_id, place_id):
     }
 
     return HttpResponseSuccessUpdate(response_dict)
+
+
+# /api/repositories/<int:repo_id>/travel/
+@require_http_methods(['GET'])
+@ensure_csrf_cookie
+def travel(request, repo_id):
+    try:
+        repository = Repository.objects.get(repo_id=repo_id)
+    except Repository.DoesNotExist:
+        return HttpResponseNotExist()
+    
+    if not (
+                (repository.visibility == Scope.PUBLIC)
+                or (request.user in repository.collaborators.all())
+                or (
+                    repository.visibility == Scope.FRIENDS_ONLY
+                    and have_common_user(
+                        request.user.friends.all(), repository.collaborators.all()
+                    )
+                )
+            ):
+            return HttpResponseNoPermission()
+
+    if Photo.objects.filter(repository=repository).count() <= 5:
+        return HttpResponseInvalidInput()
+
+    place_in_route_set = PlaceInRoute.objects.filter(repository=repository)
+    place_num = len(place_in_route_set)
+
+    if place_num == 0:
+        return HttpResponseInvalidInput()
+
+    place_with_photo_num = 0
+    place_list = []
+    photo_list = []
+    order_count = 1
+    while (order_count <= place_num):
+        current_place = place_in_route_set.get(order=order_count)
+        place_list.append(current_place)
+        photo_set = Photo.objects.filter(place=current_place)
+        temp_photo_list = []
+        if photo_set.count() != 0:
+            place_with_photo_num += 1
+            temp_photo_list = random.shuffle(list(photo_set))
+        photo_list.append(temp_photo_list)
+        order_count += 1
+
+    response_list = []
+    for order_count in range(1, place_num+1):
+        current_place = place_list[order_count-1]
+        current_photo_list = photo_list[order_count-1]
+
+        if len(current_photo_list) == 0:
+            pass
+        elif place_with_photo_num > 20 or len(current_photo_list) == 1:
+            current_photo_list = current_photo_list[0:1]
+        elif place_with_photo_num > 10 or len(current_photo_list) == 2:
+            current_photo_list = current_photo_list[0:2]
+        else:
+            current_photo_list = current_photo_list[0:3]
+
+        photo_dict_list = []
+        for photo in current_photo_list:
+            photo_dict = {
+                'photo_id' : photo.photo_id,
+                'image' : photo.image_file.url,
+                'post_time' : photo.post_time.strftime(UPLOADED_TIME_FORMAT),
+                'uploader' : photo.uploader.username
+            }
+            if PhotoTag.objects.filter(user=request.user, photo=photo).exists():
+                photo_dict['tag'] = PhotoTag.objects.get(user=request.user, photo=photo).text
+            else:
+                photo_dict['tag'] = ""
+            photo_dict_list.append(photo_dict)
+
+        place_dict = {
+            "place_id" : current_place.place_id,
+            "place_name" : current_place.place_name,
+            "place_address" : current_place.place_address,
+            "latitude" : float(current_place.latitude),
+            "longitude" : float(current_place.longitude),
+            'photos' : photo_dict_list,
+        }
+        if current_place.thumbnail is not None:
+            place_dict['thumbnail'] = current_place.image_file.url
+        response_list.append(place_dict)
+
+    return HttpResponseSuccessGet(response_list)
