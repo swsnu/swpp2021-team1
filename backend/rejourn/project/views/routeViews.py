@@ -1,11 +1,8 @@
 import json
 from json.decoder import JSONDecodeError
-<<<<<<< HEAD
 from datetime import datetime
 import random
-=======
 from urllib.parse import urlencode
->>>>>>> 2aa486cc0083e233b1c2f4c76741a3eaaebbc060
 
 from django.http.response import HttpResponseBadRequest
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -70,11 +67,6 @@ def routeID(request, repo_id):
 
         if not ((request.user in repository.collaborators.all()) or (repository.visibility == Scope.PUBLIC) or (repository.visibility == Scope.FRIENDS_ONLY and have_common_user(request.user.friends.all(), repository.collaborators.all()))):
             return HttpResponseNoPermission()
-<<<<<<< HEAD
-
-        route = Route.objects.get(repository=repository)
-=======
->>>>>>> 2aa486cc0083e233b1c2f4c76741a3eaaebbc060
 
         route = Route.objects.get(repository=repository)
         places_to_return = PlaceInRoute.objects.filter(route=route).order_by("order")
@@ -206,10 +198,6 @@ def routeID(request, repo_id):
         new_route = Route(region_address=region_address, place_id=place_id, latitude=latitude, longitude=longitude, east=east, west=west, south=south, north=north, repository=repository)
         new_route.save()
         return HttpResponseSuccessUpdate()
-<<<<<<< HEAD
-
-=======
->>>>>>> 2aa486cc0083e233b1c2f4c76741a3eaaebbc060
     # request_type == 1
 
     try:
