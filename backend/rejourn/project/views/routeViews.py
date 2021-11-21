@@ -84,6 +84,7 @@ def routeID(request, repo_id):
                 photos.append(response_photo)
 
             response_place = {
+                "place_in_route_id": place.place_in_route_id,
                 "place_id": place.place_id,
                 "place_name": place.place_name,
                 "place_address": place.place_address,
@@ -315,34 +316,38 @@ def places(request, repo_id):
     except JSONDecodeError:
         return HttpResponseBadRequest()
 
-    still_existing_place_id = []
+    still_existing_place_in_route_id = []
     i = 1
     for place in req_data:
         try:
             place_id = place["place_id"]
         except (KeyError, JSONDecodeError):
             return HttpResponseBadRequest()
-        still_existing_place_id.append(place_id)
+        still_existing_place_in_route_id.append(place_id)
         try:
-            place_to_edit = PlaceInRoute.objects.get(place_id=place_id)
-
+            place_in_route_id = place["place_in_route_id"]
+        except (KeyError, JSONDecodeError):
+            return HttpResponseBadRequest()
+        still_existing_place_in_route_id.append(place_in_route_id)  
+        try:
+            place_to_edit = PlaceInRoute.objects.get(place_in_route_id=place_in_route_id)
         except PlaceInRoute.DoesNotExist:
             return HttpResponseNotExist()
-        place_to_edit_order = i
+
+        place_to_edit.order = i
 
         try:
-            edit_text = place["text"]
+            place_to_edit.text = place["text"]
         except (KeyError, JSONDecodeError):
-            edit_text = None
+            place_to_edit.text = None
 
         try:
-            edit_time = place["time"]
+            place_to_edit.time = place["time"]
         except (KeyError, JSONDecodeError):
-            edit_time = None
+            place_to_edit.time = None
 
-        edited_place = PlaceInRoute(route=route, order=place_to_edit_order, text=edit_text, time=edit_time, place_id=place_id, place_name=place_to_edit.place_name, place_address=place_to_edit.place_address, latitude=place_to_edit.latitude, longitude=place_to_edit.longitude)
 
-        edited_place.save()
+        place_to_edit.save()
 
         try:
             edit_thumbnail = place["thumbnail"]
@@ -356,7 +361,7 @@ def places(request, repo_id):
             flag = 0
             for photo in Photo.objects.all():
                 if photo.image_file.url == edit_thumbnail:
-                    photo.thumbnail_of = edited_place
+                    photo.thumbnail_of = place_to_edit
                     photo.save()
                     flag = 1
                     break
@@ -388,13 +393,12 @@ def places(request, repo_id):
                     return HttpResponseBadRequest()
             except Photo.DoesNotExist:
                 return HttpResponseNotExist()
-            photo_in_place.place = edited_place
+            photo_in_place.place = place_to_edit
             photo_in_place.save()
-        place_to_edit.delete()
         i += 1
 
     for remove_place in PlaceInRoute.objects.filter(route=route):
-        if not remove_place.place_id in still_existing_place_id:
+        if not remove_place.place_in_route_id in still_existing_place_in_route_id:
             remove_place.delete()
 
     places_to_return = PlaceInRoute.objects.filter(route=route).order_by("order")
@@ -420,6 +424,7 @@ def places(request, repo_id):
 
 
         response_place = {
+            "place_in_route_id": place.place_in_route_id,
             "place_id": place.place_id,
             "place_name": place.place_name,
             "place_address": place.place_address,
@@ -522,6 +527,7 @@ def placeID(request, repo_id, place_id):
             photos.append(response_photo)
 
         response_place = {
+            "place_in_route_id": place.place_in_route_id,
             "place_id": place.place_id,
             "place_name": place.place_name,
             "place_address": place.place_address,
