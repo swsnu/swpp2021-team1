@@ -1,17 +1,14 @@
 import json
 import shutil
 import tempfile
+import datetime
 
 from django.test import TestCase, Client, override_settings
 from django.core.files.uploadedfile import SimpleUploadedFile
-
-from project.models.models import User, Repository, Route, PlaceInRoute, Photo, PhotoTag
-from project.enum import Scope
-
-import datetime
 from django.utils import timezone
 
-
+from project.models.models import User, Repository, Route, PlaceInRoute, Photo
+from project.enum import Scope
 
 MEDIA_ROOT = tempfile.mkdtemp()
 
@@ -152,8 +149,6 @@ class RouteTestCase(TestCase):
             uploader=user_a,
         )
         photo_1.save()
-        photo_image_2 = SimpleUploadedFile("photo_image_2.jpg", b"photo_image_2")
-        photo_image_3 = SimpleUploadedFile("photo_image_3.jpg", b"photo_image_3")
 
     def tearDown(self):
         User.objects.all().delete()
