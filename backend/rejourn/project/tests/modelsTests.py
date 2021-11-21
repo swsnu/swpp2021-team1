@@ -89,7 +89,7 @@ class ModelsTestCase(TestCase):
 
     def makeRoute(self):
         route = Route(
-            region_name="TEST_REGION",
+            region_address="TEST_REGION",
             place_id="TEST_PLACE_ID",
             latitude=150,
             longitude=140.37,

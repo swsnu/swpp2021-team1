@@ -133,7 +133,7 @@ class PhotoTestCase(TestCase):
 
     def test_photos_put(self):
         client = Client()
-        response = client.put("/api/repositories/1/photos/")
+        response = client.put("/api/repositories/1/photos/1/")
         self.assertEqual(response.status_code, 401)
 
         client.post(
@@ -141,10 +141,13 @@ class PhotoTestCase(TestCase):
             json.dumps({"username": "u_3_USERNAME", "password": "u_3_PASSWORD"}),
             content_type="application/json",
         )
-        response = client.put("/api/repositories/5/photos/")
+        response = client.put("/api/repositories/100/photos/1/")
         self.assertEqual(response.status_code, 404)
 
-        response = client.put("/api/repositories/1/photos/")
+        response = client.put("/api/repositories/1/photos/100/")
+        self.assertEqual(response.status_code, 404)
+
+        response = client.put("/api/repositories/1/photos/1/")
         self.assertEqual(response.status_code, 403)
 
         client.get("/api/signout/")
@@ -154,38 +157,31 @@ class PhotoTestCase(TestCase):
             content_type="application/json",
         )
 
-        response = client.put("/api/repositories/1/photos/")
+        response = client.put("/api/repositories/1/photos/1/")
         self.assertEqual(response.status_code, 400)
 
         response = client.put(
-            "/api/repositories/1/photos/",
-            json.dumps([{"photo_id": 5, "tag": "edit_text"}]),
+            "/api/repositories/1/photos/1/",
+            json.dumps({"tag": "edit_text"}),
             content_type="application/json",
         )
-        self.assertEqual(response.status_code, 410)
+        self.assertEqual(response.status_code, 201)
+        self.assertIn("edit_text", response.content.decode())
+        self.assertNotIn("text_tag", response.content.decode())
 
-        photo_1 = Photo.objects.get(photo_id=1)
-        original_phototag1 = PhotoTag.objects.get(photo=photo_1)
         response = client.put(
-            "/api/repositories/1/photos/",
-            json.dumps([{"photo_id": 1, "tag": "edit_text"}]),
+            "/api/repositories/1/photos/1/",
+            json.dumps({"tag": ""}),
+            content_type="application/json",
+        )
+        self.assertNotIn("edit_text", response.content.decode())
+
+        response = client.put(
+            "/api/repositories/1/photos/2/",
+            json.dumps({"tag": "edit_text"}),
             content_type="application/json",
         )
         self.assertIn("edit_text", response.content.decode())
-
-        client.put(
-            "/api/repositories/1/photos/",
-            json.dumps([{"photo_id": 1, "tag": ""}]),
-            content_type="application/json",
-        )
-        self.assertNotIn(original_phototag1, PhotoTag.objects.all().values())
-
-        response = client.put(
-            "/api/repositories/1/photos/",
-            json.dumps([{"photo_id": 1, "tag": "edit_again_text"}]),
-            content_type="application/json",
-        )
-        self.assertIn("edit_again_text", response.content.decode())
 
     def test_photos_delete(self):
         client = Client()

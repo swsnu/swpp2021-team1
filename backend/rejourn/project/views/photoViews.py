@@ -235,7 +235,7 @@ def photoID(request, repo_id, photo_id):
     try:
         repository = Repository.objects.get(repo_id=repo_id)
         photo = Photo.objects.get(photo_id=photo_id)
-    except Repository.DoesNotExist:
+    except (Repository.DoesNotExist, Photo.DoesNotExist):
         return HttpResponseNotExist()
 
     if request.user not in repository.collaborators.all():
@@ -247,7 +247,6 @@ def photoID(request, repo_id, photo_id):
     try:
         req_data = json.loads(request.body.decode())
         new_tag = req_data['tag']
-
     except (JSONDecodeError, KeyError):
         return HttpResponseBadRequest()
 
