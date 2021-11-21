@@ -21,7 +21,7 @@ export const fetchRoute = createAsyncThunk<IRoute, number>( // added
 
 export const addPlace = createAsyncThunk<
         {not_assigned: IPhoto[], places: IPlace[]},
-        {repo_id : number, place_id : number}
+        {repo_id : number, place_id : string}
     >( // added
         "route/add",
         async ({ repo_id, place_id }) => // payload creator
@@ -71,7 +71,7 @@ export const routeInitialState: RouteState = {
 };
 
 interface PlaceQueryResult {
-    place_id : number,
+    place_id : string,
     name? : string,
     formatted_address : string,
 }

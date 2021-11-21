@@ -55,7 +55,7 @@ export const leaveRepository = createAsyncThunk<void, {username : string, repoID
         await deleteCollaborators(repoID, username),
 );
 
-export const editRegion = createAsyncThunk<void, {repo_id : number, place_id : number}>( // added
+export const editRegion = createAsyncThunk<void, {repo_id : number, place_id : string}>( // added
     "repos/region",
     async ({ repo_id, place_id }, thunkAPI) => // payload creator
         await postRoute(repo_id, place_id, "region"),

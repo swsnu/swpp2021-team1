@@ -138,7 +138,8 @@ interface ILabel {
 }
 
 interface IPlace {
-    place_id : number,
+    place_in_route_id: number,
+    place_id : string,
     place_name : string,
     place_address : string,
     text? : string, // optional implementation

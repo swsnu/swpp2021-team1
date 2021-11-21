@@ -43,7 +43,11 @@ export default function RepositoryList(props : RepositoryListProps) {
                 !isLoading && !hasError && (
                     <>
                         <ListGroup>
-                            {repoList.map((value) => <Repository repository={value} />)}
+                            {repoList.map((value) => (
+                                <React.Fragment key={value.repo_id.toString()}>
+                                    <Repository repository={value} />
+                                </React.Fragment>
+                            ))}
                         </ListGroup>
                         { account && user && account.username === user.username &&
                             (

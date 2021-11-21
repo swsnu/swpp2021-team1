@@ -30,8 +30,8 @@
     position: absolute;
     left: 10%;
     top: 25%;
-    width: 50%;
     height: 50%;
+    max-width: 50%;
 }
 
 .travel-minimap {

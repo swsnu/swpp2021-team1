@@ -3,7 +3,9 @@ import axios, { AxiosResponse } from "axios";
 import {
     Carousel, CloseButton,
 } from "react-bootstrap";
-import { GoogleMap, Marker, Polyline } from "@react-google-maps/api";
+import {
+    GoogleMap, Marker, Polyline, Rectangle,
+} from "@react-google-maps/api";
 import {
     IPlace, IRegion, SetStateAction,
 } from "../../../common/Interfaces";
@@ -97,15 +99,25 @@ export default function Travel(props : TravelProps) {
                                 }}
                             >
                                 {map && (
-                                    <Marker
-                                        icon={marker}
-                                        position={{
-                                            lat: places[placeIndex].latitude -
-                                                (map.getBounds()?.getNorthEast().lat() -
-                                                    map.getBounds()?.getSouthWest().lat()) / (window.innerHeight / 120),
-                                            lng: places[placeIndex].longitude,
-                                        }}
-                                    />
+                                    <div>
+                                        <Rectangle
+                                            bounds={map.getBounds()}
+                                            options={{
+                                                fillColor: "#00000080",
+                                                strokeWeight: 0,
+                                            }}
+                                        />
+                                        <Marker
+                                            icon={marker}
+                                            position={{
+                                                lat: places[placeIndex].latitude -
+                                                    (map.getBounds()?.getNorthEast().lat() -
+                                                        map.getBounds()?.getSouthWest().lat()) /
+                                                    (window.innerHeight / 120),
+                                                lng: places[placeIndex].longitude,
+                                            }}
+                                        />
+                                    </div>
                                 )}
                                 <Polyline
                                     path={places.map((value) => ({

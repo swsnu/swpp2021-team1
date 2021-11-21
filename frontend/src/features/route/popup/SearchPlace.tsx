@@ -42,7 +42,7 @@ export default function SearchPlace(props : SearchPlaceProps) {
                     id="place-query-input"
                     type="text"
                     value={query}
-                    placeholder="Search Friends"
+                    placeholder="Search Places"
                     onChange={(event) => setQuery(event.target.value)}
                 />
                 <Button onClick={() => search(query)} disabled={props.isLoading}>
@@ -61,7 +61,7 @@ export default function SearchPlace(props : SearchPlaceProps) {
                                 className="m-1"
                                 type="checkbox"
                                 checked={clicked !== null && value.place_id === clicked.place_id}
-                                name={value.place_id.toString()}
+                                name={value.place_id}
                                 onChange={() => setClicked(value)}
                             />
                             <h6 className="m-2">

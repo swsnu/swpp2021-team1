@@ -32,7 +32,7 @@ export default function RoutePreview(props : RoutePreviewProps) {
     const [isLoading, hasError, route] = useSelector<RootState, [boolean, boolean, IRoute|null]>((state) =>
         [state.route.isLoading, state.route.hasError, state.route.currentRoute]);
     const repo = useSelector<RootState, IRepository>((state) => state.repos.currentRepo as IRepository);
-    const [overPlace, setOverPlace] = useState<number|null>(null);
+    const [overPlace, setOverPlace] = useState<string|null>(null);
     const history = useHistory();
     const dispatch = useDispatch<AppDispatch>();
     const params = useParams<{id : string}>();
@@ -140,17 +140,14 @@ export default function RoutePreview(props : RoutePreviewProps) {
                                                 "translate(-50%, -135%)" : "translate(-50%, -250%)",
                                         }}
                                     >
-                                        <Badge
-                                            className="mx-auto route-badge"
+                                        <div
+                                            className="mx-auto px-2 route-badge"
                                             style={{
-                                                width: "fit-content",
-                                                display: "block",
-                                                borderRadius: value.thumbnail ? "10px 10px 0 0" : "",
-                                                background: "#dd88dd",
+                                                borderRadius: value.thumbnail ? "10px 10px 0 0" : "10px",
                                             }}
                                         >
                                             {value.place_name}
-                                        </Badge>
+                                        </div>
                                         {value.thumbnail && (
                                             <Image
                                                 className="route-image"
