@@ -42,7 +42,7 @@ export default function PhotoPreview(props : PhotoPreviewProps) {
         });
     }, [dispatch]);
 
-    function onPhotoClick(photo_id : number) {
+    function onPhotoClick(photo_id: number) {
         dispatch(actionCreator.focusPhoto(photo_id));
         setPhotoShow(true);
     }

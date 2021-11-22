@@ -5,7 +5,7 @@ import {
 } from "../../common/APIs";
 import { ILabel, IPhoto } from "../../common/Interfaces";
 
-const labelsAdapter = createEntityAdapter<ILabel>({
+export const labelsAdapter = createEntityAdapter<ILabel>({
     selectId: (label: ILabel) => label.label_id,
     sortComparer: (a, b) => a.label_name.localeCompare(b.label_name),
 });

@@ -14,5 +14,10 @@
     ],
     "eslint.alwaysShowStatus": true,
     "eslint.format.enable": true,
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "[javascript]": {
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    },
+    "jest.rootPath": "frontend",
+    "jest.jestCommandLine": "yarn test --watchAll=false --coverage"
 }

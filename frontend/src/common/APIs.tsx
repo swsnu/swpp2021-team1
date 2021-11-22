@@ -290,7 +290,7 @@ export async function getLabels(repo_id: number) {
 
 export async function postLabel(repo_id: number, data: {label_name: string}) {
     return (await axios.post<any, AxiosResponse<ILabel[]>>(
-        `/api/respositories/${repo_id}/labels/`,
+        `/api/repositories/${repo_id}/labels/`,
         data,
     )).data;
 }
@@ -318,11 +318,5 @@ export async function putLabelPhotos(repo_id: number, label_id: number, data: {p
     return (await axios.put<any, AxiosResponse<IPhoto[]>>(
         `/api/repositories/${repo_id}/labels/${label_id}/photos/`,
         data,
-    )).data;
-}
-
-export async function getPhotoSearchResult(repo_id: number, queryString: string) {
-    return (await axios.get<any, AxiosResponse<IPhoto[]>>(
-        `/api/repositories/${repo_id}/photos/${queryString}`,
     )).data;
 }

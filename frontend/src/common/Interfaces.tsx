@@ -78,8 +78,8 @@ interface IPhoto {
     post_time? : string;
     tag? : string;
     local_tag? : string;
-    /* label? : ILabel[];
-    place? : IPlace; */
+    label? : ILabel[];
+    // place? : IPlace;
     uploader? : string; // sure?
 }
 

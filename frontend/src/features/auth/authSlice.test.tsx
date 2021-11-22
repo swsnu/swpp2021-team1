@@ -80,7 +80,6 @@ describe("authSlice", () => {
         expect(status).toBe("fulfilled");
     });
 
-    // TODO (178-179)
     it("should add friend correctly when currentUser is the new friend", async () => {
         await store.dispatch(switchCurrentUser("username"));
         const currentUsername = store.getState().auth.currentUser?.username as string;
