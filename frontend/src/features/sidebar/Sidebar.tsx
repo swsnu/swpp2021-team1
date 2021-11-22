@@ -71,7 +71,7 @@ function Sidebar(props: SidebarProps) {
                         Explore
                     </Link>
                     <Link
-                        id="explore-menu"
+                        id="noti-menu"
                         to="#"
                         className="nav-link link-dark mb-4 fs-5"
                     >

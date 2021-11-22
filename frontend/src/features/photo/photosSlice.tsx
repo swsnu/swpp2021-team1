@@ -4,7 +4,7 @@ import {
 import { IPhoto, IPost, IRepository } from "../../common/Interfaces";
 import { fetchRepositories, reposInitialState, ReposState } from "../repository/reposSlice";
 import {
-    deletePhotos, getPhotos, getRepositories, postPhotos, putPhoto,
+    deletePhotos, getPhotos, getRepositories, postPhotos, putLabelPhotos, putPhoto,
 } from "../../common/APIs";
 
 export const fetchPhotos = createAsyncThunk<IPhoto[], number>( // added
@@ -33,6 +33,16 @@ export const removePhotos = createAsyncThunk<IPhoto[], {repo_id : number, photos
     async ({ repo_id, photos_id }, thunkAPI) => // payload creator
         await deletePhotos(repo_id, photos_id),
 
+);
+
+export const assignLabel = createAsyncThunk<IPhoto[], {
+    repoId: number, labelId: number, photos: { photo_id: number }[]
+}>(
+    "photos/assignLabel",
+    async ({ repoId, labelId, photos }) => {
+        const resultPhotos = await putLabelPhotos(repoId, labelId, photos);
+        return resultPhotos;
+    },
 );
 
 export const photosInitialState: PhotosState = {
@@ -122,6 +132,16 @@ const photosSlice = createSlice<PhotosState, SliceCaseReducers<PhotosState>>({
         });
         builder.addCase(removePhotos.rejected, (state: PhotosState) => {
             // state.isLoading = false;
+            state.hasError = true;
+        });
+        builder.addCase(assignLabel.pending, (state: PhotosState) => {
+            state.hasError = false;
+        });
+        builder.addCase(assignLabel.fulfilled, (state: PhotosState, action: PayloadAction<IPhoto[]>) => {
+            state.hasError = false;
+            state.photoList = action.payload;
+        });
+        builder.addCase(assignLabel.rejected, (state: PhotosState) => {
             state.hasError = true;
         });
     },

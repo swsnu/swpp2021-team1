@@ -6,8 +6,6 @@
         "javascript": "javascriptreact"
     },
     "editor.wordWrap": "on",
-    "javascript.format.semicolons": "insert",
-    "typescript.format.semicolons": "insert",
     "typescript.preferences.quoteStyle": "double",
     "javascript.referencesCodeLens.enabled": true,
     "eslint.packageManager": "yarn",

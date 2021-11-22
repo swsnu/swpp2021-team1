@@ -1,9 +1,8 @@
 import axios, { AxiosResponse } from "axios";
+
 import { PlaceQueryResult } from "../features/route/routeSlice";
 import {
-    IComment,
-    IDiscussion,
-    IPhoto, IPlace, IPost, IRepository, IRoute, IUser,
+    IComment, IDiscussion, ILabel, IPhoto, IPlace, IPost, IRepository, IRoute, IUser,
 } from "./Interfaces";
 
 axios.defaults.xsrfCookieName = "csrftoken";
@@ -283,4 +282,47 @@ export async function getPlacesQuery(repo_id : number, queryString : string) {
  * for labelSlice
  */
 
-// TODO
+export async function getLabels(repo_id: number) {
+    return (await axios.get<any, AxiosResponse<ILabel[]>>(
+        `/api/repositories/${repo_id}/labels/`,
+    )).data;
+}
+
+export async function postLabel(repo_id: number, data: {label_name: string}) {
+    return (await axios.post<any, AxiosResponse<ILabel[]>>(
+        `/api/respositories/${repo_id}/labels/`,
+        data,
+    )).data;
+}
+
+export async function putLabel(repo_id: number, label_id: number, data: { label_name: string; }) {
+    return (await axios.put<any, AxiosResponse<ILabel[]>>(
+        `/api/repositories/${repo_id}/labels/${label_id}/`,
+        data,
+    )).data;
+}
+
+export async function deleteLabel(repo_id: number, label_id: number) {
+    return (await axios.delete<any, AxiosResponse<ILabel[]>>(
+        `/api/repositories/${repo_id}/labels/${label_id}/`,
+    )).data;
+}
+
+export async function getLabelPhotos(repo_id: number, label_id: number) {
+    return (await axios.get<any, AxiosResponse<IPhoto[]>>(
+        `/api/repositories/${repo_id}/labels/${label_id}/photos/`,
+    )).data;
+}
+
+export async function putLabelPhotos(repo_id: number, label_id: number, data: {photo_id: number}[]) {
+    return (await axios.put<any, AxiosResponse<IPhoto[]>>(
+        `/api/repositories/${repo_id}/labels/${label_id}/photos/`,
+        data,
+    )).data;
+}
+
+export async function getPhotoSearchResult(repo_id: number, queryString: string) {
+    return (await axios.get<any, AxiosResponse<IPhoto[]>>(
+        `/api/repositories/${repo_id}/photos/${queryString}`,
+    )).data;
+}
