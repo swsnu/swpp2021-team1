@@ -7,6 +7,8 @@ from project.views import (
     postViews,
     photoViews,
     routeViews,
+    labelViews,
+    exploreViews,
 )
 
 
@@ -81,9 +83,20 @@ urlpatterns = [
 
     ## photoAPI
     path("repositories/<int:repo_id>/photos/", photoViews.photos, name="photos"),
+    path("repositories/<int:repo_id>/photos/<int:photo_id>/", photoViews.photoID, name="photoID"),
 
     ## labelAPI
-
+    path("repositories/<int:repo_id>/labels/", labelViews.labels, name="labels"),
+    path(
+        "repositories/<int:repo_id>/labels/<int:label_id>/",
+        labelViews.labelID,
+        name="labelID"
+    ),
+    path(
+        "repositories/<int:repo_id>/labels/<int:label_id>/photos/",
+        labelViews.labelPhotos,
+        name="labelPhotos"
+    ),
 
     ## routeAPI
     path("region-search/", routeViews.regionSearch, name="regionSearch"),
@@ -93,5 +106,12 @@ urlpatterns = [
     path("repositories/<int:repo_id>/route/places/", routeViews.places, name="places"),
     path("repositories/<int:repo_id>/route/places/<str:place_id>/", routeViews.placeID, name="placeID"),
 
+    path("repositories/<int:repo_id>/travel/", routeViews.travel, name="travel"),
 
+    ## exploreAPI
+    path("explore/users/", exploreViews.exploreUsers, name="exploreUsers"),
+    path("explore/repositories/", exploreViews.exploreRepositories, name="exploreRespositories"),
+    path("explore/places/", exploreViews.explorePlaces, name="explorePlaces"),
+
+    path("users/<str:username>/feed/", exploreViews.feeds, name="feeds"),
 ]
