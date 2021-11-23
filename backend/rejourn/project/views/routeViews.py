@@ -597,7 +597,8 @@ def travel(request, repo_id):
                 (repository.visibility == Scope.PUBLIC)
                 or (request.user in repository.collaborators.all())
                 or (
-                    repository.visibility == Scope.FRIENDS_ONLY
+                    request.user.is_authenticated
+                    and repository.visibility == Scope.FRIENDS_ONLY
                     and have_common_user(
                         request.user.friends.all(), repository.collaborators.all()
                     )
@@ -605,10 +606,14 @@ def travel(request, repo_id):
             ):
             return HttpResponseNoPermission()
 
+    try:
+        route = Route.objects.get(repository=repository)
+    except Route.DoesNotExist:
+        return HttpResponseNotExist()
+
     if Photo.objects.filter(repository=repository).count() <= 5:
         return HttpResponseInvalidInput()
 
-    route = Route.objects.get(repository=repository)
     place_in_route_set = PlaceInRoute.objects.filter(route=route)
     place_num = len(place_in_route_set)
 
@@ -636,7 +641,8 @@ def travel(request, repo_id):
         temp_photo_list = []
         if photo_set.count() != 0:
             place_with_photo_num += 1
-            temp_photo_list = random.shuffle(list(photo_set))
+            temp_photo_list = list(photo_set)
+            random.shuffle(temp_photo_list)
         photo_list.append(temp_photo_list)
 
         if (width_over_zero
@@ -708,7 +714,7 @@ def travel(request, repo_id):
             "longitude" : float(current_place.longitude),
             'photos' : photo_dict_list,
         }
-        if current_place.thumbnail is not None:
+        if hasattr(current_place, 'thumbnail'):
             place_dict['thumbnail'] = current_place.image_file.url
         route_list.append(place_dict)
 
