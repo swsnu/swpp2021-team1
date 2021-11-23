@@ -157,7 +157,7 @@ class RouteTestCase(TestCase):
         PlaceInRoute.objects.all().delete()
         Photo.objects.all().delete()
         shutil.rmtree(MEDIA_ROOT, ignore_errors=True)
-    
+
     def test_regionSearch_get(self):
         client = Client()
         response = client.delete("/api/region-search/")
@@ -175,7 +175,7 @@ class RouteTestCase(TestCase):
         response = client.get("/api/region-search/?query=jeju 애월")
         self.assertEqual(response.status_code, 200)
         self.assertIn('Aewol-eup, Jeju-si, Jeju-do, South Korea', response.content.decode())
-        
+
     def test_routeID_get(self):
         client = Client()
         response = client.delete("/api/repositories/1/route/")
@@ -392,7 +392,7 @@ class RouteTestCase(TestCase):
         self.assertEqual(response.status_code, 201)
         response = client.get("/api/repositories/1/route/")
 
-    
+
     def test_placeID_post(self):
         client = Client()
         response = client.delete("/api/repositories/1/route/places/ChIJ66OlkbP1DDURa0xq5SHaKHg/")
@@ -420,3 +420,7 @@ class RouteTestCase(TestCase):
         self.assertEqual(response.status_code, 404)
         response = client.post("/api/repositories/1/route/places/ChIJ66OlkbP1DDURa0xq5SHaKHg/")
         self.assertEqual(response.status_code, 201)
+
+
+    def test_travel(self):
+        pass

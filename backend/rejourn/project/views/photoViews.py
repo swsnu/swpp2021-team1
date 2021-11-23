@@ -62,10 +62,10 @@ def photos(request, repo_id):
             label_set = Label.objects.filter(label_name__icontains=label_query)
             photo_set = photo_set.filter(labels__in=label_set)
 
-        if start_date is not None:
+        if raw_start_date is not None:
             photo_set = photo_set.filter(post_time__gte=start_date)
 
-        if end_date is not None:
+        if raw_end_date is not None:
             photo_set = photo_set.filter(post_time__lte=end_date)
 
         if place_query is not None:
