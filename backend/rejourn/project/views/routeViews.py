@@ -714,8 +714,6 @@ def travel(request, repo_id):
             "longitude" : float(current_place.longitude),
             'photos' : photo_dict_list,
         }
-        if hasattr(current_place, 'thumbnail'):
-            place_dict['thumbnail'] = current_place.image_file.url
         route_list.append(place_dict)
 
     east_limit += width_span / 10
