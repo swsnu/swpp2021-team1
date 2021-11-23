@@ -1,4 +1,5 @@
 import React from "react";
+import { PlaceQueryResult } from "../features/route/routeSlice";
 
 enum Visibility {
     ALL,
@@ -150,12 +151,37 @@ interface IPlace {
     photos : IPhoto[],
 }
 
+export function placeFactory() {
+    return {
+        place_in_route_id: randomInt(),
+        place_id: randomString(),
+        place_name: randomString(),
+        place_address: randomString(),
+        text: randomString(),
+        latitude: randomInt(),
+        longitude: randomInt(),
+        time: randomString(),
+        thumbnail: randomString(),
+        photos: [photoFactory()],
+    } as IPlace;
+}
+
 interface IRoute {
     route_id : number,
     repo_id : number,
     not_assigned : IPhoto[],
     places : IPlace[], // sorted list
     region : IRegion,
+}
+
+export function routeFactory() {
+    return {
+        route_id: randomInt(),
+        repo_id: randomInt(),
+        not_assigned: [photoFactory()],
+        places: [placeFactory()],
+        region: regionFactory(),
+    } as IRoute;
 }
 
 interface IRegion {
@@ -167,6 +193,27 @@ interface IRegion {
     south : number,
     west : number,
     east : number,
+}
+
+export function regionFactory() {
+    return {
+        region_address: randomString(),
+        place_id: randomInt(),
+        latitude: randomInt(),
+        longitude: randomInt(),
+        north: randomInt(),
+        south: randomInt(),
+        west: randomInt(),
+        east: randomInt(),
+    } as IRegion;
+}
+
+export function placeQueryFactory() {
+    return {
+        place_id: randomString(),
+        name: randomString(),
+        formatted_address: randomString(),
+    } as PlaceQueryResult;
 }
 
 export type SetStateAction<T> = React.Dispatch<React.SetStateAction<T>>

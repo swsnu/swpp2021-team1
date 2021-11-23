@@ -3,7 +3,7 @@ import {
 } from "@react-google-maps/api";
 import { useDispatch, useSelector } from "react-redux";
 import {
-    Badge, Button, Image,
+    Button, Image,
 } from "react-bootstrap";
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
@@ -81,7 +81,7 @@ export default function RoutePreview(props : RoutePreviewProps) {
                         className="m-2"
                         id="travel-button"
                         onClick={() => setShow(true)}
-                        disabled={route &&
+                        disabled={route && route.places.length > 0 &&
                         route.places.reduce((a, b) =>
                             ({ ...a, photos: [...a.photos, ...b.photos] })).photos.length <= 5}
                     >

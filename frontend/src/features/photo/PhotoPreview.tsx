@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, ListGroup } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { AppDispatch, RootState } from "../../app/store";
@@ -15,7 +15,6 @@ interface PhotoPreviewProps {
 }
 
 export default function PhotoPreview(props : PhotoPreviewProps) {
-    const [index, setIndex] = useState<number>(0);
     const [isLoading, hasError, currentPhoto, photoList] = useSelector<RootState,
         [boolean, boolean, IPhoto|null, IPhoto[]]>((state) =>
             [state.photos.isLoading, state.photos.hasError, state.photos.currentPhoto, state.photos.photoList]);

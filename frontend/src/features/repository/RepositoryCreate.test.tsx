@@ -2,7 +2,6 @@ import { createMemoryHistory } from "history";
 import { configureStore } from "@reduxjs/toolkit";
 import { Provider } from "react-redux";
 import { Route, Router } from "react-router-dom";
-import * as ReactRouter from "react-router-dom";
 import React from "react";
 import * as redux from "react-redux";
 import { mount } from "enzyme";
@@ -29,7 +28,7 @@ function makeStoredComponent() {
 
     return (
         <Provider store={store}>
-            <Router history={history}>
+            <Router history={historyMock}>
                 <Route path="/" render={() => <RepositoryCreate />} />
             </Router>
         </Provider>
@@ -40,16 +39,16 @@ describe("RepositoryCreate", () => {
     let createMock : any;
     let regionMock : any;
     let searchMock : any;
-    let mockSelector : any;
+
     beforeEach(() => {
-        const spy = jest.spyOn(redux, "useDispatch").mockImplementation((() =>
-            (e : any) => ({
+        jest.spyOn(redux, "useDispatch").mockImplementation((() =>
+            () => ({
                 then: (e : () => any) => e(),
             })) as typeof jest.fn);
         createMock = jest.spyOn(actionCreator, "createRepository").mockImplementation(jest.fn);
         regionMock = jest.spyOn(actionCreator, "editRegion").mockImplementation(jest.fn);
         searchMock = jest.spyOn(actionCreator2, "searchRegion").mockImplementation(jest.fn);
-        mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+        jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
             auth: {
                 account: { ...userFactory(), friends: [] },
                 hasError: false,
@@ -67,7 +66,7 @@ describe("RepositoryCreate", () => {
         }));
         jest.spyOn(SearchPlace, "default").mockImplementation((props) => (
             <div>
-                <button id="c" type="button" onClick={() => props.onConfirm({ place_id: -1, formatted_address: "" })}>
+                <button id="c" type="button" onClick={() => props.onConfirm({ place_id: "-1", formatted_address: "" })}>
                     mock
                 </button>
                 <button id="d" type="button" onClick={() => props.onSearch("")}>
@@ -82,7 +81,7 @@ describe("RepositoryCreate", () => {
     });
 
     it("Should not render if user is null", () => {
-        mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+        jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
             auth: {
                 account: null,
                 hasError: false,
@@ -103,7 +102,7 @@ describe("RepositoryCreate", () => {
     });
 
     it("Should redirect if repository is created", () => {
-        mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+        jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
             auth: {
                 account: null,
                 hasError: false,
@@ -140,7 +139,6 @@ describe("RepositoryCreate", () => {
         component.find("FormControl").at(3).simulate("change", { target: { name: "end-date", value: "2021-08-30" } });
         component.find("mockConstructor").find("button").at(0).simulate("click");
         const wrapper = component.find("FormCheck");
-        // TODO : check place
         wrapper.at(0).find("input").simulate("change", { target: { checked: false } });
         wrapper.at(1).find("input").simulate("change", { target: { checked: false } });
         wrapper.at(2).find("input").simulate("change", { target: { checked: false } });
@@ -152,5 +150,12 @@ describe("RepositoryCreate", () => {
         const component = mount(makeStoredComponent());
         component.find("#add-collaborator-button").at(0).simulate("click");
         expect(component.find("AddCollaborators ModalHeader").length).toBe(1);
+    });
+
+    it("Should be able to search place", () => {
+        const component = mount(makeStoredComponent());
+        component.find("#search-region-button").at(1).simulate("click");
+        component.find("#d").simulate("click");
+        expect(searchMock).toHaveBeenCalledTimes(1);
     });
 });

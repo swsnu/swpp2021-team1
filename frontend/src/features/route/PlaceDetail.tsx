@@ -3,7 +3,6 @@ import {
 } from "react-bootstrap";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router-dom";
 import { useParams } from "react-router";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 import { AppDispatch, RootState } from "../../app/store";
@@ -35,11 +34,10 @@ export default function PlaceDetail(props : PlaceDetailProps) {
             ]);
     const [mode, setMode] = useState<boolean>(false);
     const [notAssigned, setNotAssigned] = useState<IPhoto[]>([]);
-    const [places, setPlaces] = useState<IPlace[]>([]);
+    const [places, setPlaces] = useState<IPlace[]>(route ? [...route.places] : []);
     const [checked, setChecked] = useState<{[id : number] : boolean}>([]);
     const [show, setShow] = useState<boolean>(false);
     const [photoShow, setPhotoShow] = useState<boolean>(false);
-    const history = useHistory();
     const dispatch = useDispatch<AppDispatch>();
     const params = useParams<{id : string}>();
 
@@ -248,6 +246,7 @@ export default function PlaceDetail(props : PlaceDetailProps) {
                     dispatch(actionCreators.addPlace({ repo_id: parseInt(params.id), place_id: result.place_id }))}
                 onSearch={(query) =>
                     dispatch(actionCreators.searchPlace({ repo_id: parseInt(params.id), queryString: query }))}
+                onClear={() => dispatch(actionCreators.clearResult(null))}
                 show={show}
                 setShow={setShow}
             />

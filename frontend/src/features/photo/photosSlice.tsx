@@ -1,36 +1,35 @@
 import {
     createAsyncThunk, createSlice, PayloadAction, SliceCaseReducers,
 } from "@reduxjs/toolkit";
-import { IPhoto, IPost, IRepository } from "../../common/Interfaces";
-import { fetchRepositories, reposInitialState, ReposState } from "../repository/reposSlice";
+import { IPhoto } from "../../common/Interfaces";
 import {
-    deletePhotos, getPhotos, getRepositories, postPhotos, putPhoto,
+    deletePhotos, getPhotos, postPhotos, putPhoto,
 } from "../../common/APIs";
 
 export const fetchPhotos = createAsyncThunk<IPhoto[], number>( // added
     "photos/list",
-    async (repo_id, thunkAPI) => // payload creator
+    async (repo_id) => // payload creator
         await getPhotos(repo_id),
 
 );
 
 export const addPhotos = createAsyncThunk<IPhoto[], {repo_id : number, images : FormData}>( // added
     "photos/add",
-    async ({ repo_id, images }, thunkAPI) => // payload creator
+    async ({ repo_id, images }) => // payload creator
         await postPhotos(repo_id, images),
 
 );
 
 export const editPhoto = createAsyncThunk<IPhoto, {repo_id : number, photo : IPhoto}>( // added
     "photos/edit",
-    async ({ repo_id, photo }, thunkAPI) => // payload creator
+    async ({ repo_id, photo }) => // payload creator
         await putPhoto(repo_id, photo),
 
 );
 
 export const removePhotos = createAsyncThunk<IPhoto[], {repo_id : number, photos_id : {photo_id : number}[]}>( // added
     "photos/remove",
-    async ({ repo_id, photos_id }, thunkAPI) => // payload creator
+    async ({ repo_id, photos_id }) => // payload creator
         await deletePhotos(repo_id, photos_id),
 
 );

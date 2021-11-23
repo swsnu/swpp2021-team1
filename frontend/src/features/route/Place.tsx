@@ -14,9 +14,9 @@ interface PlaceProps {
     index : number,
     draggable : boolean,
     onPhotoClick : (photo_id : number) => void,
-    onAdd : (place_id : number) => void,
-    onDelete : (place_id : number, photos : number[]) => void,
-    onPlaceDelete : (place_id : number) => void,
+    onAdd : (index : number) => void,
+    onDelete : (index : number, photos : number[]) => void,
+    onPlaceDelete : (index : number) => void,
 }
 
 export default function Place(props : PlaceProps) {

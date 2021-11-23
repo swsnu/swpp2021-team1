@@ -35,19 +35,18 @@ function makeStoredComponent() {
 // TODO : test 변경 필요
 describe("PhotoPreview", () => {
     const user = userFactory();
-    let fetchMock : any;
     let focusMock : any;
     let addMock : any;
     let editMock : any;
     let removeMock : any;
 
     beforeEach(() => {
-        const spy = jest.spyOn(redux, "useDispatch").mockImplementation((() =>
-            (e : any) => ({
-                then: (e : () => any) => null,
+        jest.spyOn(redux, "useDispatch").mockImplementation((() =>
+            () => ({
+                then: () => null,
             })) as typeof jest.fn);
         jest.spyOn(react, "useEffect").mockImplementation(jest.fn());
-        fetchMock = jest.spyOn(actionCreator, "fetchPhotos").mockImplementation(jest.fn);
+        jest.spyOn(actionCreator, "fetchPhotos").mockImplementation(jest.fn);
         focusMock = jest.spyOn(actionCreator, "focusPhoto").mockImplementation(() =>
             ({} as {type : string, payload : undefined}));
         addMock = jest.spyOn(actionCreator, "addPhotos").mockImplementation(jest.fn);
@@ -66,7 +65,7 @@ describe("PhotoPreview", () => {
     });
 
     it("Should not render during loading", () => {
-        const mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+        jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
             auth: {
                 account: { ...user, friends: [] },
             },
@@ -85,7 +84,7 @@ describe("PhotoPreview", () => {
     });
 
     it("Should render correctly", () => {
-        const mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+        jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
             auth: {
                 account: { ...user, friends: [] },
             },
@@ -104,7 +103,7 @@ describe("PhotoPreview", () => {
     });
 
     it("Should be able to delete photo", () => {
-        const mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+        jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
             auth: {
                 account: { ...user, friends: [] },
             },
@@ -127,7 +126,7 @@ describe("PhotoPreview", () => {
     });
 
     it("Should be able to add photo", () => {
-        const mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+        jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
             auth: {
                 account: { ...user, friends: [] },
             },
@@ -148,7 +147,7 @@ describe("PhotoPreview", () => {
     });
 
     it("Should be able to edit photo", () => {
-        const mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+        jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
             auth: {
                 account: { ...user, friends: [] },
             },
@@ -170,7 +169,7 @@ describe("PhotoPreview", () => {
     });
 
     it("Only collaborators can add photo", () => {
-        const mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+        jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
             auth: {
                 account: { ...user, friends: [] },
             },

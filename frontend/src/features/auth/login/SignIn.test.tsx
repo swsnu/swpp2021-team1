@@ -1,13 +1,10 @@
-import { BrowserRouter, Route, Router } from "react-router-dom";
+import { Route, Router } from "react-router-dom";
 import React from "react";
-import { Provider, useDispatch } from "react-redux";
+import { Provider } from "react-redux";
 import { mount } from "enzyme";
 import * as redux from "react-redux";
-import { Action } from "redux";
-import { debug } from "util";
 import { configureStore } from "@reduxjs/toolkit";
 import { createBrowserHistory } from "history";
-import store from "../../../app/store";
 import SignIn from "./SignIn";
 import * as actionCreator from "../authSlice";
 import { userFactory } from "../../../common/Interfaces";
@@ -48,8 +45,8 @@ describe("SignIn", () => {
     });
 
     it("Should be able to dispatch actions", () => {
-        const spy = jest.spyOn(redux, "useDispatch").mockImplementation((() =>
-            (e : any) => ({
+        jest.spyOn(redux, "useDispatch").mockImplementation((() =>
+            () => ({
                 then: (e : () => any) => e(),
             })) as typeof jest.fn);
         const spySlice = jest.spyOn(actionCreator, "signIn").mockImplementation(jest.fn);
@@ -62,16 +59,16 @@ describe("SignIn", () => {
     });
 
     it("Should be able to click signup button", () => {
-        const spy = jest.spyOn(redux, "useDispatch").mockImplementation(jest.fn);
-        const spySelect = jest.spyOn(redux, "useSelector").mockImplementation(() => [null, false]);
+        jest.spyOn(redux, "useDispatch").mockImplementation(jest.fn);
+        jest.spyOn(redux, "useSelector").mockImplementation(() => [null, false]);
         const component = mount(makeStoredComponent());
         const wrapper = component.find("Button");
         wrapper.at(1).simulate("click");
     });
 
     it("Should render redirect if account is not null", () => {
-        const spy = jest.spyOn(redux, "useDispatch").mockImplementation(jest.fn);
-        const spySelect = jest.spyOn(redux, "useSelector").mockImplementation(() => [userFactory(), false]);
+        jest.spyOn(redux, "useDispatch").mockImplementation(jest.fn);
+        jest.spyOn(redux, "useSelector").mockImplementation(() => [userFactory(), false]);
         const component = mount(makeStoredComponent());
         const wrapper = component.find("Redirect");
         expect(wrapper.length).toBe(1);

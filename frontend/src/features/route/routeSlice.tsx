@@ -98,6 +98,9 @@ const routeSlice = createSlice<RouteState, SliceCaseReducers<RouteState>>({
                 }));
             state.focusedPhoto = photo;
         },
+        clearResult: (state: RouteState, action: PayloadAction<null>) => {
+            state.queryResult = [];
+        },
     },
     extraReducers: (builder) => {
         builder.addCase(fetchRoute.pending, (state: RouteState) => {
@@ -185,7 +188,7 @@ const routeSlice = createSlice<RouteState, SliceCaseReducers<RouteState>>({
             let index = -1;
             const place = state.currentRoute?.places.findIndex((value) =>
                 (index = value.photos.findIndex((value1) => action.payload.photo_id === value1.photo_id)) !== -1);
-            if (state.currentRoute && place && place !== -1) {
+            if (state.currentRoute && place !== undefined && place !== -1) {
                 state.currentRoute.places[place].photos[index] = { ...action.payload };
             }
             state.hasError = false;
@@ -197,5 +200,5 @@ const routeSlice = createSlice<RouteState, SliceCaseReducers<RouteState>>({
 });
 
 export type { RouteState, PlaceQueryResult };
-export const { focusPhoto } = routeSlice.actions;
+export const { focusPhoto, clearResult } = routeSlice.actions;
 export default routeSlice.reducer;

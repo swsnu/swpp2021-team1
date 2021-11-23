@@ -10,6 +10,7 @@ interface SearchPlaceProps {
     isLoading : boolean,
     onConfirm : (place : PlaceQueryResult) => void,
     onSearch : (query : string) => void,
+    onClear : () => void,
     show : boolean,
     setShow : SetStateAction<boolean>,
 }
@@ -24,12 +25,18 @@ export default function SearchPlace(props : SearchPlaceProps) {
 
     function onConfirm() {
         props.onConfirm((clicked as PlaceQueryResult));
+        props.onClear();
         props.setShow(false);
     }
 
     function search(query : string) {
         setClicked(null);
         props.onSearch(query);
+    }
+
+    function onCancel() {
+        props.onClear();
+        props.setShow(false);
     }
 
     return (
@@ -74,7 +81,7 @@ export default function SearchPlace(props : SearchPlaceProps) {
             </ListGroup>
             <Modal.Footer>
                 <Button variant="primary" onClick={onConfirm} disabled={!clicked}>Confirm</Button>
-                <Button variant="primary" onClick={() => props.setShow(false)}>Cancel</Button>
+                <Button variant="primary" onClick={onCancel}>Cancel</Button>
             </Modal.Footer>
         </Modal>
     );
