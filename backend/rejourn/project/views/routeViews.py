@@ -597,7 +597,8 @@ def travel(request, repo_id):
                 (repository.visibility == Scope.PUBLIC)
                 or (request.user in repository.collaborators.all())
                 or (
-                    repository.visibility == Scope.FRIENDS_ONLY
+                    request.user.is_authenticated
+                    and repository.visibility == Scope.FRIENDS_ONLY
                     and have_common_user(
                         request.user.friends.all(), repository.collaborators.all()
                     )
@@ -605,14 +606,28 @@ def travel(request, repo_id):
             ):
             return HttpResponseNoPermission()
 
+    try:
+        route = Route.objects.get(repository=repository)
+    except Route.DoesNotExist:
+        return HttpResponseNotExist()
+
     if Photo.objects.filter(repository=repository).count() <= 5:
         return HttpResponseInvalidInput()
 
-    place_in_route_set = PlaceInRoute.objects.filter(repository=repository)
+    place_in_route_set = PlaceInRoute.objects.filter(route=route)
     place_num = len(place_in_route_set)
 
     if place_num == 0:
         return HttpResponseInvalidInput()
+
+    first_place = place_in_route_set.get(order=1)
+    east_limit = first_place.longitude
+    west_limit = first_place.longitude
+    south_limit = first_place.latitude
+    north_limit = first_place.latitude
+    width_span = 0
+    width_over_zero = False
+    height_span = 0
 
     place_with_photo_num = 0
     place_list = []
@@ -622,14 +637,48 @@ def travel(request, repo_id):
         current_place = place_in_route_set.get(order=order_count)
         place_list.append(current_place)
         photo_set = Photo.objects.filter(place=current_place)
+
         temp_photo_list = []
         if photo_set.count() != 0:
             place_with_photo_num += 1
-            temp_photo_list = random.shuffle(list(photo_set))
+            temp_photo_list = list(photo_set)
+            random.shuffle(temp_photo_list)
         photo_list.append(temp_photo_list)
+
+        if (width_over_zero
+            and current_place.longitude > east_limit 
+            and current_place.longitude < west_limit):
+            if current_place.longitude - east_limit > west_limit - current_place.longitude:
+                width_span += west_limit - current_place.longitude
+                west_limit = current_place.longitude
+            else:
+                width_span += current_place.longitude - east_limit
+                east_limit = current_place.longitude
+        elif (not width_over_zero) and current_place.longitude > east_limit:
+            if current_place.longitude - east_limit < 360 - (current_place.longitude - west_limit):
+                width_span += current_place.longitude - east_limit
+                east_limit = current_place.longitude
+            else:
+                width_over_zero = True
+                width_span += 360 - (current_place.longitude - west_limit)
+                west_limit = current_place.longitude
+        elif (not width_over_zero) and current_place.longitude < west_limit:
+            if west_limit - current_place.longitude < 360 - (east_limit - current_place.longitude):
+                width_span += west_limit - current_place.longitude
+                west_limit = current_place.longitude
+            else:
+                width_over_zero = True
+                width_span += 360 - (east_limit - current_place.longitude)
+                east_limit = current_place.longitude
+
+        if current_place.latitude > north_limit:
+            north_limit = current_place.latitude
+        if current_place.latitude < south_limit:
+            south_limit = current_place.latitude
+
         order_count += 1
 
-    response_list = []
+    route_list = []
     for order_count in range(1, place_num+1):
         current_place = place_list[order_count-1]
         current_photo_list = photo_list[order_count-1]
@@ -665,8 +714,39 @@ def travel(request, repo_id):
             "longitude" : float(current_place.longitude),
             'photos' : photo_dict_list,
         }
-        if current_place.thumbnail is not None:
+        if hasattr(current_place, 'thumbnail'):
             place_dict['thumbnail'] = current_place.image_file.url
-        response_list.append(place_dict)
+        route_list.append(place_dict)
 
-    return HttpResponseSuccessGet(response_list)
+    east_limit += width_span / 10
+    if east_limit > 180 :
+        east_limit -= 360
+    west_limit -= width_span / 10
+    if west_limit < -180 :
+        west_limit += 360
+    
+    height_span = north_limit - south_limit
+    north_limit += height_span / 10
+    if north_limit > 90 :
+        north_limit = 90
+    south_limit -= height_span / 10
+    if south_limit < -90 :
+        south_limit = -90
+
+    region_dict = {
+        'region_address' : route.region_address,
+        'place_id' : route.place_id,
+        'latitude' : float(route.latitude),
+        'longitude' : float(route.longitude),
+        'east' : east_limit,
+        'west' : west_limit,
+        'south' : south_limit,
+        'north' : north_limit,
+    }
+
+    response_dict = {
+        'region' : region_dict,
+        'route' : route_list,
+    }
+
+    return HttpResponseSuccessGet(response_dict)
