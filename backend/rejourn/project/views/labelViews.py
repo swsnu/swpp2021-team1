@@ -170,12 +170,21 @@ def labelPhotos(request, repo_id, label_id):
                 photo_tag = PhotoTag.objects.get(user=request.user, photo=photo).text
             else:
                 photo_tag = ""
+            
+            label_list = []
+            for label in photo.labels.all():
+                label_list.append({
+                    'label_id' : label.label_id,
+                    'label_name' : label.label_name,
+                })
             photo_list.insert(0,{
+                "repo_id" : repo_id,
                 "photo_id" : photo.photo_id,
                 "image" : photo.image_file.url,
                 "post_time" : photo.post_time.strftime(UPLOADED_TIME_FORMAT),
                 "uploader" : photo.uploader.username,
-                "tag" : photo_tag, 
+                "tag" : photo_tag,
+                "labels" : label_list,
             }) 
         return HttpResponseSuccessGet(photo_list)
 
@@ -225,11 +234,21 @@ def labelPhotos(request, repo_id, label_id):
             photo_tag = PhotoTag.objects.get(user=request.user, photo=photo).text
         else:
             photo_tag = ""
+        
+        label_list = []
+        for label in photo.labels.all():
+            label_list.append({
+                'label_id' : label.label_id,
+                'label_name' : label.label_name,
+            })
+
         photo_list.insert(0,{
+            "repo_id" : repo_id,
             "photo_id" : photo.photo_id,
             "image" : photo.image_file.url,
             "post_time" : photo.post_time.strftime(UPLOADED_TIME_FORMAT),
             "uploader" : photo.uploader.username,
             "tag" : photo_tag, 
-        }) 
+            "labels" : label_list,
+        })
     return HttpResponseSuccessUpdate(photo_list)
