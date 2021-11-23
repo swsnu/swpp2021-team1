@@ -46,7 +46,11 @@ export const labelsSlice = createSlice({
     initialState: labelsAdapter.getInitialState<{
         loading: "idle" | "pending" | "succeeded" | "failed",
     }>({ loading: "idle" }),
-    reducers: {},
+    reducers: {
+        setLabelsIdle(state, action) {
+            state.loading = "idle";
+        },
+    },
     extraReducers: (builder) => {
         builder.addCase(loadLabels.pending, (state, action) => {
             state.loading = "pending";
@@ -61,6 +65,9 @@ export const labelsSlice = createSlice({
         builder.addCase(newLabel.fulfilled, (state, action) => {
             labelsAdapter.setAll(state, action.payload);
         });
+        builder.addCase(newLabel.rejected, (state, action) => {
+            state.loading = "failed";
+        });
         builder.addCase(editLabel.fulfilled, (state, action) => {
             labelsAdapter.setAll(state, action.payload);
         });
@@ -69,6 +76,8 @@ export const labelsSlice = createSlice({
         });
     },
 });
+
+export const { setLabelsIdle } = labelsSlice.actions;
 
 export default labelsSlice.reducer;
 export const labelsSelectors = labelsAdapter.getSelectors<RootState>((state) => state.labels);

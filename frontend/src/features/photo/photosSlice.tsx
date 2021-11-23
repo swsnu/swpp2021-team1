@@ -40,8 +40,8 @@ export const assignLabel = createAsyncThunk<IPhoto[], {
 }>(
     "photos/assignLabel",
     async ({ repoId, labelId, photos }) => {
-        const resultPhotos = await putLabelPhotos(repoId, labelId, photos);
-        return resultPhotos;
+        const response = await putLabelPhotos(repoId, labelId, photos);
+        return response;
     },
 );
 
@@ -139,7 +139,11 @@ const photosSlice = createSlice<PhotosState, SliceCaseReducers<PhotosState>>({
         });
         builder.addCase(assignLabel.fulfilled, (state: PhotosState, action: PayloadAction<IPhoto[]>) => {
             state.hasError = false;
-            state.photoList = action.payload;
+            // TODO: 수빈 - API 수정되면 payload로 들어온값으로 state 업뎃
+            action.payload.forEach((photo) => {
+                const index = state.photoList.findIndex((p) => p.photo_id === photo.photo_id);
+                if (index >= 0) state.photoList[index] = photo;
+            });
         });
         builder.addCase(assignLabel.rejected, (state: PhotosState) => {
             state.hasError = true;

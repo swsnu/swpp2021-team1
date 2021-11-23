@@ -10,10 +10,17 @@ import {
     ILabel, IPhoto, IRepository, IUser,
 } from "../../common/Interfaces";
 import Photo from "../photo/Photo";
-import { editPhoto, fetchPhotos, focusPhoto } from "../photo/photosSlice";
-import { labelsSelectors, loadLabels } from "./labelsSlice";
+import {
+    assignLabel, editPhoto, fetchPhotos, focusPhoto,
+} from "../photo/photosSlice";
+import {
+    deleteOneLabel,
+    editLabel,
+    labelsSelectors, loadLabels, newLabel, setLabelsIdle,
+} from "./labelsSlice";
 import "./LabelsSection.css";
 import FocusedPhoto from "../photo/popup/FocusedPhoto";
+import { deleteLabel } from "../../common/APIs";
 
 interface labelsSectionProps
 {
@@ -48,7 +55,7 @@ const LabelsSection = (props: labelsSectionProps) => {
             await dispatch(loadLabels({ repoId }));
         };
         if (labelsLoading === "idle") loadPage();
-    }, [dispatch]);
+    }, [dispatch, labelsLoading]);
 
     useEffect(() => {
         if (allPhotos) setDisplayPhotos(allPhotos);
@@ -57,8 +64,16 @@ const LabelsSection = (props: labelsSectionProps) => {
     useEffect(() => {
         const listOfLabels = selectedLabels.map((option) => option.value);
         if (selectedLabels.length === 0) setDisplayPhotos(allPhotos);
-        else setDisplayPhotos(allPhotos.filter((photo) => photo.label?.some((r) => listOfLabels.includes(r))));
+        else {
+            const filterPhoto = (photo: IPhoto) =>
+                photo.label?.some((label) => listOfLabels.some((labelToMatch) => labelToMatch === label));
+            setDisplayPhotos(allPhotos.filter(filterPhoto));
+        }
     }, [selectedLabels]);
+
+    useEffect(() => {
+        setChecked({});
+    }, [mode]);
 
     const onPhotoClick = (photoId: number) => {
         dispatch(focusPhoto(photoId));
@@ -78,6 +93,23 @@ const LabelsSection = (props: labelsSectionProps) => {
             photo: { ...currentPhoto as IPhoto, tag },
         }));
     }
+
+    const onNewLabel = () => {
+        const submitNewLabel = async () => {
+            const newName = window.prompt("Name of new label: ");
+            await (dispatch(newLabel({ repoId: (repoId as number), labelName: (newName as string) })));
+        };
+        submitNewLabel();
+    };
+
+    const onAssignLabel = (labelId: number) => {
+        dispatch(assignLabel({
+            repoId: (repoId as number),
+            labelId,
+            photos: allPhotos.filter((photo) => checked[photo.photo_id]),
+        }));
+        setMode(!mode);
+    };
 
     let content;
 
@@ -101,21 +133,65 @@ const LabelsSection = (props: labelsSectionProps) => {
                         className="basic-multi-select mx-5"
                         classNamePrefix="select"
                     />
-                    <DropdownButton title="Edit...">
-                        <Dropdown.Item>New label...</Dropdown.Item>
-                        <Dropdown.Item>Assign labels to photos</Dropdown.Item>
-                        <Dropdown.Item>Rename label</Dropdown.Item>
-                        <Dropdown.Item>Delete label</Dropdown.Item>
-                    </DropdownButton>
-                    <div>
-
-                        <Button
+                    <DropdownButton title="Edit..." hidden={mode}>
+                        <Dropdown.Item
+                            onClick={onNewLabel}
+                        >
+                            New label...
+                        </Dropdown.Item>
+                        <Dropdown.Item
                             onClick={() => setMode(!mode)}
                         >
-                            {mode ? "Cancel" : "Edit"}
+                            Assign labels
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                            onClick={() => {
+                                const labelName = window.prompt("Enter name of label to edit: ");
+                                const label = labels.find((label) => label.label_name === labelName);
+                                if (label) {
+                                    const newName = window.prompt("Enter new name: ");
+                                    dispatch(editLabel({
+                                        repoId: repoId as number, labelId: label.label_id, newName: newName as string,
+                                    }));
+                                }
+                                else {
+                                    window.alert(`Label '${labelName}' does not exist!`);
+                                }
+                            }}
+                        >
+                            Rename label
 
-                        </Button>
-                    </div>
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                            onClick={() => {
+                                const labelName = window.prompt("Enter name of label to delete");
+                                const label = labels.find((label) => label.label_name === labelName);
+                                if (label) {
+                                    dispatch(deleteOneLabel({
+                                        repoId: repoId as number,
+                                        labelId: label.label_id,
+                                    }));
+                                }
+                                else {
+                                    window.alert(`Label '${labelName}' does not exist!`);
+                                }
+                            }}
+                        >
+                            Delete label
+                        </Dropdown.Item>
+                    </DropdownButton>
+                    <DropdownButton title="Done..." hidden={!mode}>
+                        {labels.map((label) => (
+                            <Dropdown.Item
+                                key={label.label_id}
+                                onClick={() => onAssignLabel(label.label_id)}
+                                value={label.label_id}
+                            >
+                                {label.label_name}
+                            </Dropdown.Item>
+                        ))}
+                        <Dropdown.Item onClick={() => setMode(!mode)}>Cancel</Dropdown.Item>
+                    </DropdownButton>
                 </div>
                 <div
                     className="p-2 photosContainer"
@@ -143,7 +219,7 @@ const LabelsSection = (props: labelsSectionProps) => {
                             onEdit={onEdit}
                             show={photoFocused}
                             setShow={setPhotoFocused}
-                            canEdit
+                            canEdit={!mode}
                         />
                     )
                 }
