@@ -1,0 +1,12 @@
+.photosContainer {
+    height: 200px;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content:center;
+}
+.photoEntry {
+    /* flex: 1 auto; */
+    height: 100% !important;
+    width: fit-content !important;
+}
