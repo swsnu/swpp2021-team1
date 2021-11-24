@@ -28,13 +28,15 @@ export default function Travel(props : TravelProps) {
 
     useEffect(() => {
         if (props.show) {
-            axios.get<any, AxiosResponse<{region: IRegion, places: IPlace[]}>>(
+            axios.get<any, AxiosResponse<{region: IRegion, route: IPlace[]}>>(
                 `/api/repositories/${props.repo_id}/travel/`,
             )
                 .then((response) => {
                     setIsLoading(false);
-                    setPlaces(response.data.places);
+                    setPlaces(response.data.route);
                     setRegion(response.data.region);
+                    setIndex(0);
+                    setPlaceIndex(0);
                 });
         }
     }, [props.show]);
@@ -59,20 +61,26 @@ export default function Travel(props : TravelProps) {
             {isLoading ? <h2 className="travel-loading">Loading...</h2> : (
                 <div>
                     <div className="travel-carousel">
-                        <Carousel activeIndex={index} indicators={false} onSelect={onChange}>
-                            {places.map((value) => (
-                                value.photos.map((photo) => (
-                                    <React.Fragment key={photo.photo_id.toString()}>
-                                        <Carousel.Item interval={3000}>
+                        <Carousel
+                            className="travel-photo"
+                            activeIndex={index}
+                            indicators={false}
+                            onSelect={onChange}
+                            pause={false}
+                        >
+                            {places.length > 0 && places.reduce((a, b) =>
+                                ({ ...a, photos: [...a.photos, ...b.photos] }))
+                                .photos.map((photo) => (
+                                    <Carousel.Item className="travel-photo" interval={3000}>
+                                        <div className="w-100 h-100 travel-image-background">
                                             <img
-                                                className="d-block w-100"
+                                                className="travel-image"
                                                 src={photo.image}
                                                 alt={photo.image}
                                             />
-                                        </Carousel.Item>
-                                    </React.Fragment>
-                                ))
-                            ))}
+                                        </div>
+                                    </Carousel.Item>
+                                ))}
                         </Carousel>
                     </div>
                     {region && (
@@ -86,7 +94,7 @@ export default function Travel(props : TravelProps) {
                                     const bounds = new window.google.maps.LatLngBounds(sw, ne);
                                     map.fitBounds(bounds, 0);
                                     window.google.maps.event.addListenerOnce(map, "bounds_changed", () => {
-                                        map.setZoom(map.getZoom() as number + 1);
+                                        map.setZoom(map.getZoom() as number - 1);
                                     });
                                     setMap(map);
                                 }}
@@ -103,7 +111,8 @@ export default function Travel(props : TravelProps) {
                                         <Rectangle
                                             bounds={map.getBounds()}
                                             options={{
-                                                fillColor: "#00000080",
+                                                fillOpacity: 0.3,
+                                                fillColor: "#000000",
                                                 strokeWeight: 0,
                                             }}
                                         />
@@ -113,23 +122,23 @@ export default function Travel(props : TravelProps) {
                                                 lat: places[placeIndex].latitude -
                                                     (map.getBounds()?.getNorthEast().lat() -
                                                         map.getBounds()?.getSouthWest().lat()) /
-                                                    (window.innerHeight / 120),
+                                                    (window.innerHeight / 80),
                                                 lng: places[placeIndex].longitude,
+                                            }}
+                                        />
+                                        <Polyline
+                                            path={places.map((value) => ({
+                                                lat: value.latitude,
+                                                lng: value.longitude,
+                                            }))}
+                                            options={{
+                                                strokeColor: "#FF66E4",
+                                                strokeOpacity: 1,
+                                                strokeWeight: 2,
                                             }}
                                         />
                                     </div>
                                 )}
-                                <Polyline
-                                    path={places.map((value) => ({
-                                        lat: value.latitude,
-                                        lng: value.longitude,
-                                    }))}
-                                    options={{
-                                        strokeColor: "#FF66E4",
-                                        strokeOpacity: 1,
-                                        strokeWeight: 2,
-                                    }}
-                                />
                             </GoogleMap>
                         </div>
                     )}

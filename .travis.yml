@@ -8,6 +8,8 @@ jobs:
           organization: "swsnu"
           token:
             secure: "d2o4WCYebaPPjVE9yVhZ3kzSwj4vysjbe0I3LxO6U4K0Uf4ItpoYwCcczlJ0ILELcZGP8jwj46eI44M73S4xDyQ5jTs2+1waapLxXDzyaHUqg4iYCaWkDK8hJD/P7McizyZvy4pE0kCl92wERaqRiPQT/seKy9zxGu/baE7BD+bufo/s7td23rb3nAO3vxTE462gq4qpd29G1RsKeMltOP/Gam0NxrnOvb+X8pBEDjwU5usny2frWO96qvN0TZrZXPVbbBsvV/ZhCmL66vWb7wnKJK/GkLgxlPqIsJITF84XR0Qe7/uReVHEaLxH8zCPcMOZwP+pYnBIkdCjhHu65yzsPE5fTGcXgdgOyapKnbLLl+PWe/Q6yxQXsP32sxGw4r7anKpHvYSnbir7lL+fHWpaiLnXVDA6pX31B0RoU38GK+CReWgdSnJ1BH+RAZCC49LBJefYNnQGXo61v2iRRSlcWp/+C8b9GEeDy1TuoZK1dXaHiezq7ve5esw/8LxjUjwmk2T0OzHe/j3lr8HITZMjilU6FpxFFKJ8ZAeAbTd7e90kPETXIJynRfm4DKWIb4GDLA80ilEuFZdg6+3fPkINSbsmNUQ4SAxYVGOH5Q6o4WtDcTrJyFB/tF4c93BnMSPez1EO43edbDFYPaYzIITLVhhMPtt5/WF3WzcJ9X8="
+      before_install:
+        - openssl aes-256-cbc -K $encrypted_17e99e62e63d_key -iv $encrypted_17e99e62e63d_iv -in .env.enc -out backend/rejourn/rejourn/.env -d
       install:
         - source ~/virtualenv/python3.7/bin/activate
         - gem install coveralls-lcov

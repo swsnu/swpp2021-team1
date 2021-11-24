@@ -26,7 +26,7 @@ function Sidebar(props: SidebarProps) {
         dispatch(actionCreators.fetchSession());
         const id = setInterval(() => {
             dispatch(actionCreators.fetchSession());
-        }, 1000);
+        }, 3500);
 
         return () => clearInterval(id);
     }, [dispatch]);
