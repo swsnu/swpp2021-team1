@@ -424,7 +424,7 @@ def places(request, repo_id):
 
 
         response_place = {
-            "place_in_route_id": place.place_in_route_id,
+            "place_in_route_id": place_in_route_id,
             "place_id": place.place_id,
             "place_name": place.place_name,
             "place_address": place.place_address,
