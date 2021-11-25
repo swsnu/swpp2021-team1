@@ -64,9 +64,40 @@ class ExploreTestCase(TestCase):
             visibility=Scope.PRIVATE,
         )
         user_f = User.objects.get(username="jklabc")
+        user_0.friends.add(user_a)
+        user_0.friends.add(user_c)
+        user_0.friends.add(user_e)
 
     def tearDown(self):
+        User.objects.all().delete()
+    
     def test_exploreUsers(self):
+        client = Client()
+        response = client.delete("/api/explore/users/")
+        self.assertEqual(response.status_code, 405)
+
+        response = client.get("/api/explore/users/")
+        self.assertEqual(response.status_code, 401)
+
+        client.post(
+            "/api/signin/",
+            json.dumps({"username": "MAIN_USER", "password": "MAIN_PW"}),
+            content_type="application/json",
+        )
+        response = client.get("/api/explore/users/")
+        self.assertEqual(response.status_code, 400)
+        response = client.get("/api/explore/users/?query=abc")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("abcdef", response.content.decode())
+        self.assertIn("defabc", response.content.decode())
+        self.assertIn("abcghi", response.content.decode())
+        self.assertNotIn("ghiabc", response.content.decode())
+        self.assertNotIn("abcjkl", response.content.decode())
+        self.assertNotIn("jklabc", response.content.decode())
+
     def test_exploreRepositories(self):
+        pass
     def test_explorePlaces(self):
+        pass
     def test_feeds(self):
+        pass
