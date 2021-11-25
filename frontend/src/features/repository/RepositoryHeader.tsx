@@ -1,16 +1,16 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import * as actionCreator from "./reposSlice";
 import { AppDispatch, RootState } from "../../app/store";
-import { IRepository, IUser } from "../../common/Interfaces";
+import { IRepository } from "../../common/Interfaces";
 import "./RepositoryHeader.css";
 
 interface RepositoryHeaderProps {
 
 }
 
-export default function RepositoryHeader() {
+export default function RepositoryHeader(props : RepositoryHeaderProps) {
     const dispatch = useDispatch<AppDispatch>();
     const [isLoading, hasError] = useSelector<RootState, [boolean, boolean]>((state) =>
         [state.repos.isLoading, state.repos.hasError]);

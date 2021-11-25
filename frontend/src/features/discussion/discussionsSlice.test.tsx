@@ -4,7 +4,6 @@ import {
     commentFactory,
     discussionFactory, IComment,
     IDiscussion,
-    IPhoto, IRepository, photoFactory, repositoryFactory,
 } from "../../common/Interfaces";
 import discussionsReducer, {
     fetchDiscussions, fetchDiscussion,

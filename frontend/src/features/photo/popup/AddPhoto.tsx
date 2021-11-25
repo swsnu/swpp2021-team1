@@ -1,8 +1,8 @@
 import {
-    Button, Modal, Form, Image, CloseButton, ListGroup,
+    Button, Modal, Form, Image,
 } from "react-bootstrap";
 import React, { useState } from "react";
-import { IUser, SetStateAction } from "../../../common/Interfaces";
+import { SetStateAction } from "../../../common/Interfaces";
 import "./AddPhoto.css";
 
 interface AddPhotoProps {

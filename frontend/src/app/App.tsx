@@ -19,6 +19,7 @@ import PostList from "../features/post/PostList";
 import "./App.css";
 import PostDetail from "../features/post/PostDetail";
 import PostCreate from "../features/post/PostCreate";
+import PlaceDetail from "../features/route/PlaceDetail";
 
 export default function App() {
     return (
@@ -64,6 +65,7 @@ export default function App() {
                                     <Route path="/repos/:id" exact component={RepositoryDetail} />
                                     <Route path="/repos/:id/discussion" exact component={DiscussionList} />
                                     <Route path="/repos/:id/discussion/create" exact component={DiscussionCreate} />
+                                    <Route path="/repos/:id/place" exact component={PlaceDetail} />
                                     <Route
                                         path="/repos/:id/discussion/:id2"
                                         exact

@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Redirect, useHistory, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
-    Badge, Button, Tab, Tabs,
+    Tab, Tabs,
 } from "react-bootstrap";
 import { AppDispatch, RootState } from "../../app/store";
 import { IRepository, IUser } from "../../common/Interfaces";
 import * as actionCreator from "./reposSlice";
-import AddCollaborators from "./popup/AddCollaborators";
 import RepositorySettings from "./tab/RepositorySettings";
 import Group from "./tab/Group";
 import Mine from "./tab/Mine";
@@ -24,7 +23,6 @@ export default function RepositoryDetail(props : RepositoryDetailProps) {
         [state.repos.isLoading, state.repos.hasError]);
     const [user, currentRepo] = useSelector<RootState, [IUser|null, IRepository|null]>((state) =>
         [state.auth.account, state.repos.currentRepo]);
-    const history = useHistory();
     const params = useParams<{id : string}>();
 
     useEffect(() => {
