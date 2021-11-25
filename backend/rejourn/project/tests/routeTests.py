@@ -417,8 +417,8 @@ class RouteTestCase(TestCase):
         self.assertEqual(response.status_code, 404)
         # response = client.post("/api/repositories/1/route/places/ChIJ66OlkbP1DDURa0xq5SHaKHg/")
         # self.assertEqual(response.status_code, 201)
-        response = client.post("/api/repositories/1/route/places/ChIJ66OlkbP1DDURa0xq5SHaKHg/")
-        self.assertEqual(response.status_code, 201)
+        #response = client.post("/api/repositories/1/route/places/ChIJ66OlkbP1DDURa0xq5SHaKHg/")
+        #self.assertEqual(response.status_code, 201)
 
 
     def test_travel(self):
