@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useHistory, Link } from "react-router-dom";
-import { RouteComponentProps, useParams } from "react-router";
+import { Link } from "react-router-dom";
+import { useParams } from "react-router";
 import {
     ButtonGroup, Button, Image,
 } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserPlus } from "@fortawesome/free-solid-svg-icons";
-import axios from "axios";
-import { ALL } from "dns";
 import { IUser, Visibility } from "../../common/Interfaces";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { getFriends } from "../../common/APIs";

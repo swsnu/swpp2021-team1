@@ -1,4 +1,4 @@
-import { AsyncThunkAction, configureStore } from "@reduxjs/toolkit";
+import { configureStore } from "@reduxjs/toolkit";
 import Factory from "../../mocks/dataGenerator";
 import postsReducer, {
     fetchPostComments, fetchRepoPosts,

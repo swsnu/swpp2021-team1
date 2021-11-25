@@ -4,7 +4,6 @@
 // learn more: https://github.com/testing-library/jest-dom
 import Enzyme from "enzyme";
 import EnzymeAdapter from "enzyme-adapter-react-17-updated";
-import server from "./mocks/server";
 
 Enzyme.configure({
     adapter: new (EnzymeAdapter as any)(),
