@@ -3,7 +3,9 @@ import { useParams } from "react-router";
 import Select from "react-select";
 
 import { useSelector } from "react-redux";
-import { Button, Dropdown, DropdownButton } from "react-bootstrap";
+import {
+    Badge, Button, Dropdown, DropdownButton,
+} from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import store, { RootState } from "../../app/store";
 import {
@@ -49,6 +51,7 @@ const LabelsSection = (props: labelsSectionProps) => {
     const [user, repo] = useSelector<RootState, [IUser|null, IRepository|null]>((state) =>
         [state.auth.account, state.repos.currentRepo]);
     const [mode, setMode] = useState<boolean>(false);
+    const [hoveringPhoto, setHoveringPhoto] = useState<number | null>(null);
 
     useEffect(() => {
         const loadPage = async () => {
@@ -62,12 +65,31 @@ const LabelsSection = (props: labelsSectionProps) => {
     }, [allPhotos]);
 
     useEffect(() => {
+        // console.log(selectedLabels);
         const listOfLabels = selectedLabels.map((option) => option.value);
         if (selectedLabels.length === 0) setDisplayPhotos(allPhotos);
         else {
-            const filterPhoto = (photo: IPhoto) =>
-                photo.label?.some((label) => listOfLabels.some((labelToMatch) => labelToMatch === label));
-            setDisplayPhotos(allPhotos.filter(filterPhoto));
+            // console.log(allPhotos);
+            const filterPhoto = (photo: IPhoto) => {
+                if (photo.labels) {
+                    console.log(photo.labels);
+                    return photo.labels.some((label) => {
+                        console.log(photo);
+                        return listOfLabels.some((labelToMatch) => {
+                            console.log(photo);
+                            console.log(label);
+                            return labelToMatch === label;
+                        });
+                    });
+                }
+                return false;
+            };
+            // console.log(allPhotos);
+            setDisplayPhotos(allPhotos.filter((photo: IPhoto) => {
+                console.log(photo);
+                if (photo.labels) console.log(photo.labels);
+                return true;
+            }));
         }
     }, [selectedLabels]);
 
@@ -201,6 +223,11 @@ const LabelsSection = (props: labelsSectionProps) => {
                         <div
                             className="photoEntry my-2"
                             key={value.photo_id.toString()}
+                            onMouseOver={() => setHoveringPhoto(value.photo_id)}
+                            onFocus={() => setHoveringPhoto(value.photo_id)}
+                            onMouseOut={() => setHoveringPhoto(null)}
+                            onBlur={() => setHoveringPhoto(null)}
+                            style={{ position: "relative" }}
                         >
                             <Photo
                                 photo={value}
@@ -209,6 +236,19 @@ const LabelsSection = (props: labelsSectionProps) => {
                                 mode={mode}
                                 onCheck={onCheck}
                             />
+                            <div
+                                className="badges-container px-3"
+                                hidden={hoveringPhoto !== value.photo_id}
+                            >
+                                {
+                                    value.labels?.map((label) => (
+                                        <Badge className="label-badge">
+                                            {label.label_name}
+                                        </Badge>
+                                    ))
+                                }
+
+                            </div>
                         </div>
                     ))}
                 </div>

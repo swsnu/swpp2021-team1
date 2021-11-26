@@ -3,7 +3,7 @@ import {
 } from "@reduxjs/toolkit";
 import { IPhoto } from "../../common/Interfaces";
 import {
-    deletePhotos, getPhotos, postPhotos, putPhoto,
+    deletePhotos, getPhotos, postPhotos, putLabelPhotos, putPhoto,
 } from "../../common/APIs";
 
 export const fetchPhotos = createAsyncThunk<IPhoto[], number>( // added
@@ -138,7 +138,6 @@ const photosSlice = createSlice<PhotosState, SliceCaseReducers<PhotosState>>({
         });
         builder.addCase(assignLabel.fulfilled, (state: PhotosState, action: PayloadAction<IPhoto[]>) => {
             state.hasError = false;
-            // TODO: 수빈 - API 수정되면 payload로 들어온값으로 state 업뎃
             action.payload.forEach((photo) => {
                 const index = state.photoList.findIndex((p) => p.photo_id === photo.photo_id);
                 if (index >= 0) state.photoList[index] = photo;

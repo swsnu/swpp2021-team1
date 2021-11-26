@@ -10,7 +10,7 @@ import Profile from "./Profile";
 const user = userFactory();
 const users = [user];
 
-const authMocauthSlicekSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
+const authMockSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
     name: "auth",
     initialState: {
         isLoading: true,
@@ -26,7 +26,6 @@ const authMocauthSlicekSlice = createSlice<AuthState, SliceCaseReducers<AuthStat
             state.hasError = false;
         },
     },
-    extraReducers: authSlice.
 });
 
 describe("Profile", () => {
