@@ -1,0 +1,33 @@
+.route-thumbnail {
+    position: relative;
+}
+
+.route-thumbnail:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border: 7px solid transparent;
+    border-top-color: #FF66E4;
+    border-bottom: 0;
+    margin-left: -7px;
+    margin-bottom: -7px;
+}
+
+.route-image {
+    background: #FF66E4 !important;
+    border: 0 !important;
+}
+
+.route-badge {
+    padding-bottom: 0.125rem;
+    white-space : nowrap;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: bold;
+    background: #FF66E4;
+    width: fit-content;
+    display: block;
+}

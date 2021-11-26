@@ -32,25 +32,25 @@ function makeStoredComponent() {
         </Provider>
     );
 }
-
+// TODO : test 변경 필요
 describe("PhotoPreview", () => {
-    let fetchMock : any;
+    const user = userFactory();
     let focusMock : any;
     let addMock : any;
     let editMock : any;
     let removeMock : any;
 
     beforeEach(() => {
-        const spy = jest.spyOn(redux, "useDispatch").mockImplementation((() =>
-            (e : any) => ({
-                then: (e : () => any) => null,
+        jest.spyOn(redux, "useDispatch").mockImplementation((() =>
+            () => ({
+                then: () => null,
             })) as typeof jest.fn);
         jest.spyOn(react, "useEffect").mockImplementation(jest.fn());
-        fetchMock = jest.spyOn(actionCreator, "fetchPhotos").mockImplementation(jest.fn);
+        jest.spyOn(actionCreator, "fetchPhotos").mockImplementation(jest.fn);
         focusMock = jest.spyOn(actionCreator, "focusPhoto").mockImplementation(() =>
             ({} as {type : string, payload : undefined}));
         addMock = jest.spyOn(actionCreator, "addPhotos").mockImplementation(jest.fn);
-        editMock = jest.spyOn(actionCreator, "editPhotos").mockImplementation(jest.fn);
+        editMock = jest.spyOn(actionCreator, "editPhoto").mockImplementation(jest.fn);
         removeMock = jest.spyOn(actionCreator, "removePhotos").mockImplementation(jest.fn);
         jest.spyOn(AddPhoto, "default").mockImplementation((props) =>
             <button id="a" type="button" onClick={() => props.commitPhotos(new FormData())}>mock</button>);
@@ -65,7 +65,13 @@ describe("PhotoPreview", () => {
     });
 
     it("Should not render during loading", () => {
-        const mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+        jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+            auth: {
+                account: { ...user, friends: [] },
+            },
+            repos: {
+                currentRepo: { ...repositoryFactory(), collaborators: [user] },
+            },
             photos: {
                 photoList: [photoFactory(), photoFactory()],
                 currentPhoto: photoFactory(),
@@ -78,7 +84,13 @@ describe("PhotoPreview", () => {
     });
 
     it("Should render correctly", () => {
-        const mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+        jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+            auth: {
+                account: { ...user, friends: [] },
+            },
+            repos: {
+                currentRepo: { ...repositoryFactory(), collaborators: [user] },
+            },
             photos: {
                 photoList: [photoFactory(), photoFactory()],
                 currentPhoto: photoFactory(),
@@ -91,7 +103,13 @@ describe("PhotoPreview", () => {
     });
 
     it("Should be able to delete photo", () => {
-        const mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+        jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+            auth: {
+                account: { ...user, friends: [] },
+            },
+            repos: {
+                currentRepo: { ...repositoryFactory(), collaborators: [user] },
+            },
             photos: {
                 photoList: [photoFactory(), photoFactory()],
                 currentPhoto: photoFactory(),
@@ -108,7 +126,13 @@ describe("PhotoPreview", () => {
     });
 
     it("Should be able to add photo", () => {
-        const mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+        jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+            auth: {
+                account: { ...user, friends: [] },
+            },
+            repos: {
+                currentRepo: { ...repositoryFactory(), collaborators: [user] },
+            },
             photos: {
                 photoList: [photoFactory(), photoFactory()],
                 currentPhoto: photoFactory(),
@@ -123,7 +147,13 @@ describe("PhotoPreview", () => {
     });
 
     it("Should be able to edit photo", () => {
-        const mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+        jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+            auth: {
+                account: { ...user, friends: [] },
+            },
+            repos: {
+                currentRepo: { ...repositoryFactory(), collaborators: [user] },
+            },
             photos: {
                 photoList: [photoFactory(), photoFactory()],
                 currentPhoto: photoFactory(),
@@ -136,5 +166,24 @@ describe("PhotoPreview", () => {
         component.find("mockConstructor").at(3).find("button").simulate("click");
         expect(focusMock).toHaveBeenCalledTimes(1);
         expect(editMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("Only collaborators can add photo", () => {
+        jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+            auth: {
+                account: { ...user, friends: [] },
+            },
+            repos: {
+                currentRepo: { ...repositoryFactory(), collaborators: [] },
+            },
+            photos: {
+                photoList: [photoFactory(), photoFactory()],
+                currentPhoto: photoFactory(),
+                hasError: false,
+                isLoading: false,
+            },
+        }));
+        const component = mount(makeStoredComponent());
+        expect(component.find("#add-photo-button").length).toBe(0);
     });
 });

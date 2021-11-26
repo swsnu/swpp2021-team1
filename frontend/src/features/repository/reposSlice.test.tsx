@@ -7,8 +7,8 @@ import reposReducer, {
     addCollaborators,
     createRepository, editRepository,
     fetchRepositories, fetchRepository, handleError, removeRepository,
-    reposInitialState, leaveRepository,
-    toBeLoaded,
+    leaveRepository,
+    toBeLoaded, editRegion, forkRoute,
 } from "./reposSlice";
 
 jest.mock("../../common/APIs");
@@ -66,7 +66,6 @@ describe("reposSlice", () => {
     });
 
     it("Should remove repository correctly", () => {
-        const repository : IRepository = repositoryFactory();
         mockedAPIs.deleteRepository.mockResolvedValue();
         store.dispatch(removeRepository(1)).then(() => {
             expect(store.getState().repos.isLoading).toEqual(false);
@@ -89,21 +88,22 @@ describe("reposSlice", () => {
         });
     });
 
-    it("Should add collaborator correctly", () => {
-        const repository : IRepository = repositoryFactory();
+    it("Should add collaborator correctly", async () => {
         const user : IUser = userFactory();
+        const repository : IRepository = repositoryFactory();
         mockedAPIs.postCollaborators.mockResolvedValue([user]);
-        store.dispatch(addCollaborators({ repoID: 1, users: [] })).then(() => {
-            expect(store.getState().repos.isLoading).toEqual(false);
-        });
+        await store.dispatch(addCollaborators({ repoID: 1, users: [] }));
+        expect(store.getState().repos.isLoading).toEqual(false);
+        mockedAPIs.getRepository.mockResolvedValue(repository);
+        await store.dispatch(fetchRepository(1));
+        await store.dispatch(addCollaborators({ repoID: 1, users: [] }));
+        expect(store.getState().repos.currentRepo?.collaborators).toEqual([user]);
         mockedAPIs.postCollaborators.mockRejectedValue(undefined);
-        store.dispatch(addCollaborators({ repoID: 1, users: [] })).then(() => {
-            expect(store.getState().repos.hasError).toEqual(true);
-        });
+        await store.dispatch(addCollaborators({ repoID: 1, users: [] }));
+        expect(store.getState().repos.hasError).toEqual(true);
     });
 
     it("Should secede from repo correctly + handle error + to be loaded", () => {
-        const repository : IRepository = repositoryFactory();
         mockedAPIs.deleteCollaborators.mockResolvedValue();
         store.dispatch(leaveRepository({ repoID: 1, username: "a" })).then(() => {
             expect(store.getState().repos.isLoading).toEqual(false);
@@ -118,5 +118,27 @@ describe("reposSlice", () => {
         // to be loaded
         store.dispatch(toBeLoaded(null));
         expect(store.getState().repos.isLoading).toEqual(true);
+    });
+
+    it("Should able to edit region", () => {
+        mockedAPIs.postRoute.mockResolvedValue();
+        store.dispatch(editRegion({ repo_id: 1, place_id: "1" })).then(() => {
+            expect(store.getState().repos.isLoading).toEqual(false);
+        });
+        mockedAPIs.postRoute.mockRejectedValue(undefined);
+        store.dispatch(editRegion({ repo_id: 1, place_id: "a" })).then(() => {
+            expect(store.getState().repos.hasError).toEqual(true);
+        });
+    });
+
+    it("Should able to fork repo", () => {
+        mockedAPIs.postRoute.mockResolvedValue();
+        store.dispatch(forkRoute({ repo_id: 1, forked_repo_id: 1 })).then(() => {
+            expect(store.getState().repos.isLoading).toEqual(false);
+        });
+        mockedAPIs.postRoute.mockRejectedValue(undefined);
+        store.dispatch(forkRoute({ repo_id: 1, forked_repo_id: 1 })).then(() => {
+            expect(store.getState().repos.hasError).toEqual(true);
+        });
     });
 });

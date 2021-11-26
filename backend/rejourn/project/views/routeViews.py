@@ -1,5 +1,7 @@
 import json
 from json.decoder import JSONDecodeError
+from datetime import datetime
+import random
 from urllib.parse import urlencode
 
 from django.http.response import HttpResponseBadRequest
@@ -15,9 +17,12 @@ from project.enum import Scope
 
 api_key = settings.GOOGLE_MAPS_API_KEY
 
+
 DATE_FORMAT = "%Y-%m-%d"
 UPLOADED_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
+
+# /api/region-search/
 @require_http_methods(["GET"])
 @ensure_csrf_cookie
 def regionSearch(request):
@@ -47,6 +52,8 @@ def regionSearch(request):
 
     return HttpResponseSuccessGet([response_dict])
 
+
+# /api/repositories/<int:repo_id>/route/
 @require_http_methods(["GET", "POST"])
 @ensure_csrf_cookie
 def routeID(request, repo_id):
@@ -232,6 +239,8 @@ def routeID(request, repo_id):
         new_place.save()
     return HttpResponseSuccessUpdate()
 
+
+# /api/repositories/<int:repo_id>/route/places-search/
 @require_http_methods(["GET"])
 @ensure_csrf_cookie
 def placeSearch(request, repo_id):
@@ -292,6 +301,8 @@ def placeSearch(request, repo_id):
 
     return HttpResponseSuccessGet(response)
 
+
+# /api/repositories/<int:repo_id>/route/places/
 @require_http_methods(["PUT"])
 @ensure_csrf_cookie
 def places(request, repo_id):
@@ -424,7 +435,7 @@ def places(request, repo_id):
 
 
         response_place = {
-            "place_in_route_id": place.place_in_route_id,
+            "place_in_route_id": place_in_route_id,
             "place_id": place.place_id,
             "place_name": place.place_name,
             "place_address": place.place_address,
@@ -468,6 +479,7 @@ def places(request, repo_id):
 
     return HttpResponseSuccessUpdate(response_dict)
 
+# /api/repositories/<int:repo_id>/route/places/<str:place_id>/
 @require_http_methods(["POST"])
 @ensure_csrf_cookie
 def placeID(request, repo_id, place_id):
@@ -570,3 +582,169 @@ def placeID(request, repo_id, place_id):
     }
 
     return HttpResponseSuccessUpdate(response_dict)
+
+
+# /api/repositories/<int:repo_id>/travel/
+@require_http_methods(['GET'])
+@ensure_csrf_cookie
+def travel(request, repo_id):
+    try:
+        repository = Repository.objects.get(repo_id=repo_id)
+    except Repository.DoesNotExist:
+        return HttpResponseNotExist()
+    
+    if not (
+                (repository.visibility == Scope.PUBLIC)
+                or (request.user in repository.collaborators.all())
+                or (
+                    request.user.is_authenticated
+                    and repository.visibility == Scope.FRIENDS_ONLY
+                    and have_common_user(
+                        request.user.friends.all(), repository.collaborators.all()
+                    )
+                )
+            ):
+            return HttpResponseNoPermission()
+
+    try:
+        route = Route.objects.get(repository=repository)
+    except Route.DoesNotExist:
+        return HttpResponseNotExist()
+
+    if Photo.objects.filter(repository=repository).count() <= 5:
+        return HttpResponseInvalidInput()
+
+    place_in_route_set = PlaceInRoute.objects.filter(route=route)
+    place_num = len(place_in_route_set)
+
+    if place_num == 0:
+        return HttpResponseInvalidInput()
+
+    first_place = place_in_route_set.get(order=1)
+    east_limit = first_place.longitude
+    west_limit = first_place.longitude
+    south_limit = first_place.latitude
+    north_limit = first_place.latitude
+    width_span = 0
+    width_over_zero = False
+    height_span = 0
+
+    place_with_photo_num = 0
+    place_list = []
+    photo_list = []
+    order_count = 1
+    while (order_count <= place_num):
+        current_place = place_in_route_set.get(order=order_count)
+        place_list.append(current_place)
+        photo_set = Photo.objects.filter(place=current_place)
+
+        temp_photo_list = []
+        if photo_set.count() != 0:
+            place_with_photo_num += 1
+            temp_photo_list = list(photo_set)
+            random.shuffle(temp_photo_list)
+        photo_list.append(temp_photo_list)
+
+        if (width_over_zero
+            and current_place.longitude > east_limit 
+            and current_place.longitude < west_limit):
+            if current_place.longitude - east_limit > west_limit - current_place.longitude:
+                width_span += west_limit - current_place.longitude
+                west_limit = current_place.longitude
+            else:
+                width_span += current_place.longitude - east_limit
+                east_limit = current_place.longitude
+        elif (not width_over_zero) and current_place.longitude > east_limit:
+            if current_place.longitude - east_limit < 360 - (current_place.longitude - west_limit):
+                width_span += current_place.longitude - east_limit
+                east_limit = current_place.longitude
+            else:
+                width_over_zero = True
+                width_span += 360 - (current_place.longitude - west_limit)
+                west_limit = current_place.longitude
+        elif (not width_over_zero) and current_place.longitude < west_limit:
+            if west_limit - current_place.longitude < 360 - (east_limit - current_place.longitude):
+                width_span += west_limit - current_place.longitude
+                west_limit = current_place.longitude
+            else:
+                width_over_zero = True
+                width_span += 360 - (east_limit - current_place.longitude)
+                east_limit = current_place.longitude
+
+        if current_place.latitude > north_limit:
+            north_limit = current_place.latitude
+        if current_place.latitude < south_limit:
+            south_limit = current_place.latitude
+
+        order_count += 1
+
+    route_list = []
+    for order_count in range(1, place_num+1):
+        current_place = place_list[order_count-1]
+        current_photo_list = photo_list[order_count-1]
+
+        if len(current_photo_list) == 0:
+            pass
+        elif place_with_photo_num > 20 or len(current_photo_list) == 1:
+            current_photo_list = current_photo_list[0:1]
+        elif place_with_photo_num > 10 or len(current_photo_list) == 2:
+            current_photo_list = current_photo_list[0:2]
+        else:
+            current_photo_list = current_photo_list[0:3]
+
+        photo_dict_list = []
+        for photo in current_photo_list:
+            photo_dict = {
+                'photo_id' : photo.photo_id,
+                'image' : photo.image_file.url,
+                'post_time' : photo.post_time.strftime(UPLOADED_TIME_FORMAT),
+                'uploader' : photo.uploader.username
+            }
+            if PhotoTag.objects.filter(user=request.user, photo=photo).exists():
+                photo_dict['tag'] = PhotoTag.objects.get(user=request.user, photo=photo).text
+            else:
+                photo_dict['tag'] = ""
+            photo_dict_list.append(photo_dict)
+
+        place_dict = {
+            "place_id" : current_place.place_id,
+            "place_name" : current_place.place_name,
+            "place_address" : current_place.place_address,
+            "latitude" : float(current_place.latitude),
+            "longitude" : float(current_place.longitude),
+            'photos' : photo_dict_list,
+        }
+        route_list.append(place_dict)
+
+    east_limit += width_span / 10
+    if east_limit > 180 :
+        east_limit -= 360
+    west_limit -= width_span / 10
+    if west_limit < -180 :
+        west_limit += 360
+    
+    height_span = north_limit - south_limit
+    north_limit += height_span / 10
+    if north_limit > 90 :
+        north_limit = 90
+    south_limit -= height_span / 10
+    if south_limit < -90 :
+        south_limit = -90
+
+    region_dict = {
+        'region_address' : route.region_address,
+        'place_id' : route.place_id,
+        'latitude' : float(route.latitude),
+        'longitude' : float(route.longitude),
+        'east' : east_limit,
+        'west' : west_limit,
+        'south' : south_limit,
+        'north' : north_limit,
+    }
+
+    response_dict = {
+        'region' : region_dict,
+        'route' : route_list,
+    }
+
+    return HttpResponseSuccessGet(response_dict)

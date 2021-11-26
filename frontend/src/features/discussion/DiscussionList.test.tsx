@@ -6,7 +6,6 @@ import React from "react";
 import { mount } from "enzyme";
 import * as redux from "react-redux";
 import discussionsReducer from "./discussionsSlice";
-import DiscussionCreate from "./DiscussionCreate";
 import * as actionCreators from "./discussionsSlice";
 import { discussionFactory, IDiscussion } from "../../common/Interfaces";
 import DiscussionList from "./DiscussionList";
@@ -35,9 +34,9 @@ describe("DiscussionList", () => {
     let list : IDiscussion[] = [];
 
     beforeEach(() => {
-        const mockfetch = jest.spyOn(actionCreators, "fetchDiscussions").mockImplementation((id : number) =>
+        jest.spyOn(actionCreators, "fetchDiscussions").mockImplementation((id : number) =>
             (jest.fn()));
-        const mockLoad = jest.spyOn(actionCreators, "toBeLoaded").mockImplementation(() =>
+        jest.spyOn(actionCreators, "toBeLoaded").mockImplementation(() =>
             ({ type: "" } as { payload: any; type: string; }));
         list = [];
         for (let i = 0; i < 30; i++) {
@@ -52,14 +51,14 @@ describe("DiscussionList", () => {
     });
 
     it("Should not render until loading", () => {
-        const mockSelector = jest.spyOn(redux, "useSelector").mockImplementation(() =>
+        jest.spyOn(redux, "useSelector").mockImplementation(() =>
             [true, false, [discussionFactory()]]);
         const component = mount(makeStoredComponent());
         expect(component.find("div").length).toBe(0);
     });
 
     it("Should not render if has error", () => {
-        const mockSelector = jest.spyOn(redux, "useSelector").mockImplementation(() =>
+        jest.spyOn(redux, "useSelector").mockImplementation(() =>
             [false, true, [discussionFactory()]]);
         const component = mount(makeStoredComponent());
         expect(component.find("div").length).toBe(0);

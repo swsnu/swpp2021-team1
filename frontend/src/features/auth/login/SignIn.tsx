@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Redirect, useHistory } from "react-router-dom";
 import { Form, Button } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { AppDispatch, RootState } from "../../../app/store";
 import { IUser } from "../../../common/Interfaces";
 import * as actionCreator from "../authSlice";
@@ -21,7 +20,6 @@ export default function SignIn(props: SignInProps) {
     const [account, hasError] = useSelector<RootState, [IUser|null, boolean]>((state) =>
         [state.auth.account, state.auth.hasError]);
     const [loginClicked, setLoginClicked] = useState<boolean>(false);
-    const history = useHistory();
 
     useEffect(() => {
         dispatch(actionCreator.fetchSession());

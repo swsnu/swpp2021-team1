@@ -1,4 +1,4 @@
-import { Badge, ListGroup } from "react-bootstrap";
+import { ListGroup } from "react-bootstrap";
 import React from "react";
 import { useHistory } from "react-router-dom";
 import { IDiscussion } from "../../common/Interfaces";

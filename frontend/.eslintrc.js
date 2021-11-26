@@ -62,6 +62,8 @@ module.exports = {
         "no-plusplus": "off",
         "jsx-a11y/control-has-associated-label": "off",
         "import/prefer-default-export": "off",
+        "react/jsx-props-no-spreading": "off",
+        "@typescript-eslint/no-explicit-any": "off",
     },
     settings: {
         "import/resolver": {

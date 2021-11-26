@@ -1,15 +1,13 @@
 import { createBrowserHistory } from "history";
-import { AsyncThunkAction, configureStore } from "@reduxjs/toolkit";
+import { configureStore } from "@reduxjs/toolkit";
 import { Provider } from "react-redux";
 import { Route, Router } from "react-router-dom";
 import React from "react";
 import { mount } from "enzyme";
 import * as redux from "react-redux";
 import discussionsReducer from "./discussionsSlice";
-import DiscussionCreate from "./DiscussionCreate";
 import * as actionCreators from "./discussionsSlice";
 import { commentFactory, discussionFactory, userFactory } from "../../common/Interfaces";
-import DiscussionPreview from "./DiscussionPreview";
 import DiscussionDetail from "./DiscussionDetail";
 import * as Comment from "../comments/Comment";
 
@@ -34,21 +32,19 @@ function makeStoredComponent() {
 }
 
 describe("DiscussionDetail", () => {
-    let fetchDMock : any;
     let editDMock : any;
-    let removeDMock : any;
     let createCMock : any;
     let editCMock : any;
     let removeCMock : any;
 
     beforeEach(() => {
-        fetchDMock = jest.spyOn(actionCreators, "fetchDiscussion").mockImplementation((e) =>
+        jest.spyOn(actionCreators, "fetchDiscussion").mockImplementation(() =>
             (jest.fn()));
-        editDMock = jest.spyOn(actionCreators, "editDiscussion").mockImplementation((e) => (jest.fn()));
-        removeDMock = jest.spyOn(actionCreators, "removeDiscussion").mockImplementation((e) => (jest.fn()));
-        createCMock = jest.spyOn(actionCreators, "createComment").mockImplementation((e) => (jest.fn()));
-        editCMock = jest.spyOn(actionCreators, "editComment").mockImplementation((e) => (jest.fn()));
-        removeCMock = jest.spyOn(actionCreators, "removeComment").mockImplementation((e) => (jest.fn()));
+        editDMock = jest.spyOn(actionCreators, "editDiscussion").mockImplementation(() => (jest.fn()));
+        jest.spyOn(actionCreators, "removeDiscussion").mockImplementation(() => (jest.fn()));
+        createCMock = jest.spyOn(actionCreators, "createComment").mockImplementation(() => (jest.fn()));
+        editCMock = jest.spyOn(actionCreators, "editComment").mockImplementation(() => (jest.fn()));
+        removeCMock = jest.spyOn(actionCreators, "removeComment").mockImplementation(() => (jest.fn()));
         jest.spyOn(Comment, "default").mockImplementation((props) => (
             <div>
                 <button type="button" onClick={() => props.edit("")}>edit</button>
@@ -62,13 +58,13 @@ describe("DiscussionDetail", () => {
     });
 
     it("Should not render until loading", () => {
-        const mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+        jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
             auth: {
                 account: { ...userFactory(), friends: [] },
                 isLoading: true,
             },
             discussions: {
-                currentRepo: null,
+                currentDiscussion: null,
                 hasError: false,
                 isLoading: true,
             },
@@ -78,7 +74,7 @@ describe("DiscussionDetail", () => {
     });
 
     it("Should express 404 error if has error", () => {
-        const mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+        jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
             auth: {
                 account: { ...userFactory(), friends: [] },
                 isLoading: false,
@@ -95,7 +91,7 @@ describe("DiscussionDetail", () => {
 
     it("Should be able edit/delete discussion if user is owner", () => {
         const user = userFactory();
-        const mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+        jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
             auth: {
                 account: { ...user, friends: [] },
                 isLoading: false,
@@ -117,7 +113,7 @@ describe("DiscussionDetail", () => {
     });
 
     it("Should be able to add comment", () => {
-        const mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+        jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
             auth: {
                 account: userFactory(),
                 isLoading: false,
@@ -135,7 +131,7 @@ describe("DiscussionDetail", () => {
     });
 
     it("Should be able to edit/delete comment", () => {
-        const mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+        jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
             auth: {
                 account: userFactory(),
                 isLoading: false,
@@ -154,7 +150,7 @@ describe("DiscussionDetail", () => {
     });
 
     it("Should be able to go back to list page", () => {
-        const mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+        jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
             auth: {
                 account: userFactory(),
                 isLoading: false,

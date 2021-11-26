@@ -1,7 +1,6 @@
-import { Form, Image, ListGroup } from "react-bootstrap";
-import { type } from "os";
+import { Form, Image } from "react-bootstrap";
 import React from "react";
-import { IPhoto, Visibility } from "../../common/Interfaces";
+import { IPhoto } from "../../common/Interfaces";
 import "./Photo.css";
 
 interface PhotoProps {
@@ -15,7 +14,7 @@ interface PhotoProps {
 export default function Photo(props : PhotoProps) {
     return (
         <button
-            className="photo-wrapper-button mb-1"
+            className="photo-wrapper-button m-1"
             disabled={props.mode}
             onClick={() => props.onClick(props.photo.photo_id)}
             type="button"

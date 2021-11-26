@@ -1,7 +1,7 @@
 import { createBrowserHistory } from "history";
 import { configureStore } from "@reduxjs/toolkit";
 import { Provider } from "react-redux";
-import router, { Route, Router } from "react-router-dom";
+import { Route, Router } from "react-router-dom";
 import React from "react";
 import * as redux from "react-redux";
 import { mount } from "enzyme";
@@ -9,7 +9,6 @@ import authReducer from "../auth/authSlice";
 import reposReducer from "./reposSlice";
 import postsReducer from "../post/postsSlice";
 import photosReducer from "../photo/photosSlice";
-import * as actionCreator from "./reposSlice";
 import { repositoryFactory, userFactory } from "../../common/Interfaces";
 import RepositoryDetail from "./RepositoryDetail";
 import * as Group from "./tab/Group";
@@ -39,16 +38,15 @@ function makeStoredComponent() {
 }
 
 describe("RepositoryDetail", () => {
-    let mockSelector : any;
     beforeEach(() => {
         const repo = repositoryFactory();
 
-        const spy = jest.spyOn(redux, "useDispatch").mockImplementation((() =>
-            (e : any) => ({
+        jest.spyOn(redux, "useDispatch").mockImplementation((() =>
+            () => ({
                 then: (e : () => any) => e(),
             })) as typeof jest.fn);
 
-        mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+        jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
             auth: {
                 account: userFactory(),
                 hasError: false,
@@ -61,10 +59,10 @@ describe("RepositoryDetail", () => {
             },
         }));
 
-        const effect = jest.spyOn(React, "useEffect").mockImplementation(jest.fn);
-        jest.spyOn(Group, "default").mockImplementation((props) => (<div />));
-        jest.spyOn(Mine, "default").mockImplementation((props) => (<div />));
-        jest.spyOn(RepositorySettings, "default").mockImplementation((props) => (<div />));
+        jest.spyOn(React, "useEffect").mockImplementation(jest.fn);
+        jest.spyOn(Group, "default").mockImplementation(() => (<div />));
+        jest.spyOn(Mine, "default").mockImplementation(() => (<div />));
+        jest.spyOn(RepositorySettings, "default").mockImplementation(() => (<div />));
     });
 
     afterEach(() => {
@@ -72,7 +70,7 @@ describe("RepositoryDetail", () => {
     });
 
     it("Should not render if user is null", () => {
-        mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+        jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
             auth: {
                 account: null,
                 hasError: false,
@@ -89,7 +87,7 @@ describe("RepositoryDetail", () => {
     });
 
     it("Should not render if repository is null", () => {
-        mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+        jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
             auth: {
                 account: userFactory(),
                 hasError: false,
@@ -130,7 +128,7 @@ describe("RepositoryDetail", () => {
 
     it("Should be able to click settings if has authorization", () => {
         const user = userFactory();
-        mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+        jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
             auth: {
                 account: { ...user, friends: [] },
                 hasError: false,

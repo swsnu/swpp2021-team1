@@ -1,7 +1,5 @@
 import { mount } from "enzyme";
-import { BrowserRouter } from "react-router-dom";
-import { act } from "@testing-library/react";
-import { repositoryFactory, userFactory } from "../../../common/Interfaces";
+import { userFactory } from "../../../common/Interfaces";
 import AddCollaborators from "./AddCollaborators";
 
 const mockFunction = jest.fn();
@@ -10,7 +8,6 @@ const mockShow = jest.fn();
 describe("AddCollaborators", () => {
     it("Should display No Result if no searched friends", async () => {
         const user = userFactory();
-        const friend = userFactory();
         const component = mount(
             <AddCollaborators
                 user={{ ...userFactory(), friends: [] }}

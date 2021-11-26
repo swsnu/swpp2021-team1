@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom";
 import { useHistory } from "react-router";
 import { AppDispatch, RootState } from "../../app/store";
 import * as actionCreators from "./discussionsSlice";
-import { IComment, IDiscussion, IUser } from "../../common/Interfaces";
+import { IDiscussion, IUser } from "../../common/Interfaces";
 import { fetchDiscussion } from "./discussionsSlice";
 import Comment from "../comments/Comment";
 import "../comments/Comments.css";
