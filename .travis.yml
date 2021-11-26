@@ -35,3 +35,6 @@ jobs:
         - cd ..
         - cd ..
         - sonar-scanner
+      env:
+        global:
+          secure: VYGboiwY/KSgOYySKJ2ZHEaWE1k3tz+wEt5l27soR77MSHC3hPigKPiE0wt4rJoEruefJZvz8NqwxBYa0hdFWfQh1jxtpYVcq8PWhm4hcpsq6xaLUn7Mt1FopvZbnydrgOQ7yftC8poESaBRHfv0bK6a7vuMqISgbD17gUPN5TfAI8/5rSzGxB0pcKAHKhhy5dXxuuUtyKWHyrd9okeoW8k+BmZCoemH5ICfdU7Z3fu9SwwXn1rbZXGBVpRqzeolhAiCpOT5l5/LajW2hq62i2qnTU5rBG8d1MLvo4KzHBcl/eKylDjGt+8sAYQGTL9DBLoSw08uBhl7qABLP14b8S2K/p1c5+2KbH2/bjZmOeLGnoNoA5yjsPswjE8jIUb/FlaQj2fzr5B18l3I19jr5UKrJsyScgt76wxS/zo1pT+ZDGmVDdCGIykpenZ7ykGg1RBr9CX4r9rJWgQkSPyFZpdAl/mlG6yUB4tOaqYfBJmAKxLHkRTS4W3sjhcKYLHNCS0TltuMlHtogcFl17cQKhG2oQDNNYmSmh1+XwGlgROIKlPWvC43VI2Nr6KyHvfsS8CjvSNTvVjbVGWAxbEUTStZ0DjbUMjTh1/tkfJbJmECO2ixubqCEJ/PBIthJ7HLmV/UoeLMHzBqQhr/hcRrThZtpk+iEA5/5jfNiwzs2wk=
