@@ -4,6 +4,7 @@ from django.http.response import HttpResponseBadRequest
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 from django.db.models import Count
+from django.db import models
 
 from project.models.models import User, Repository, Route, PlaceInRoute, Post
 from project.httpResponse import *
@@ -21,10 +22,12 @@ def exploreUsers(request):
     
     friends = User.objects.filter(friends__user_id=request.user.user_id)
     friends_not_private = friends.filter(visibility=(Scope.PUBLIC or Scope.FRIENDS_ONLY))
-    friends_matching = friends_not_private.filter(username__icontains=query_user)
+    friends_matching = friends_not_private.filter(username__icontains=query_user).annotate(order=models.Value(0, models.IntegerField()))
     public_users = User.objects.filter(visibility=Scope.PUBLIC)
-    public_users_matching = public_users.filter(username__icontains=query_user)
-    possible_users_matching = friends_matching.union(public_users_matching)
+    public_users_matching = public_users.filter(username__icontains=query_user).annotate(order=models.Value(1, models.IntegerField()))
+    possible_users_matching = friends_matching.union(public_users_matching).order_by('order')
+    print(possible_users_matching)
+    ###order 맞추기. https://stackoverflow.com/questions/18235419/how-to-chain-django-querysets-preserving-individual-order
 
     response_list = []
     temp = []

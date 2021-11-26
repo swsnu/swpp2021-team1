@@ -15,6 +15,7 @@ MEDIA_ROOT = tempfile.mkdtemp()
 @override_settings(MEDIA_ROOT=MEDIA_ROOT)
 class ExploreTestCase(TestCase):
     def setUp(self):
+        
         User.objects.create_user(
             username="MAIN_USER",
             email="MAIN_EMAIL",
@@ -22,18 +23,22 @@ class ExploreTestCase(TestCase):
             visibility=Scope.PUBLIC,
         )
         user_0 = User.objects.get(username="MAIN_USER")
+        profile_image_a = SimpleUploadedFile("profile_image_a.jpg", b"profile_image_a")
         User.objects.create_user(
             username="abcdef",
             email="TEST_A_EMAIL",
             password="TEST_A_PW",
             visibility=Scope.PUBLIC,
+            profile_picture=profile_image_a,
         )
         user_a = User.objects.get(username="abcdef")
+        profile_image_b = SimpleUploadedFile("profile_image_b.jpg", b"profile_image_b")
         User.objects.create_user(
             username="defabc",
             email="TEST_B_EMAIL",
             password="TEST_B_PW",
             visibility=Scope.PUBLIC,
+            profile_picture=profile_image_b,
         )
         user_b = User.objects.get(username="defabc")
         User.objects.create_user(
@@ -67,6 +72,7 @@ class ExploreTestCase(TestCase):
         user_0.friends.add(user_a)
         user_0.friends.add(user_c)
         user_0.friends.add(user_e)
+        user_0.friends.add(user_d)
 
     def tearDown(self):
         User.objects.all().delete()
@@ -91,9 +97,10 @@ class ExploreTestCase(TestCase):
         self.assertIn("abcdef", response.content.decode())
         self.assertIn("defabc", response.content.decode())
         self.assertIn("abcghi", response.content.decode())
-        self.assertNotIn("ghiabc", response.content.decode())
+        self.assertIn("ghiabc", response.content.decode())
         self.assertNotIn("abcjkl", response.content.decode())
         self.assertNotIn("jklabc", response.content.decode())
+        print(response.content.decode())
 
     def test_exploreRepositories(self):
         pass
