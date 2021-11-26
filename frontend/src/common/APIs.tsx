@@ -245,7 +245,7 @@ export async function getRoute(repo_id: number) {
     )).data;
 }
 
-export async function postRoute(repo_id: number, id : number, mode : "region"|"fork") {
+export async function postRoute(repo_id: number, id : string|number, mode : "region"|"fork") {
     if (mode === "region") {
         await axios.post(`/api/repositories/${repo_id}/route/`, { place_id: id });
     }
@@ -254,7 +254,7 @@ export async function postRoute(repo_id: number, id : number, mode : "region"|"f
     }
 }
 
-export async function postPlaces(repo_id: number, place_id: number) {
+export async function postPlaces(repo_id: number, place_id: string) {
     return (await axios.post<any, AxiosResponse<{not_assigned: IPhoto[], places: IPlace[]}>>(
         `/api/repositories/${repo_id}/route/places/${place_id}/`,
     )).data;

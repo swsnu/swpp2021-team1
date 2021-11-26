@@ -1,8 +1,4 @@
 import { mount } from "enzyme";
-import { BrowserRouter } from "react-router-dom";
-import { act } from "@testing-library/react";
-import { photoFactory } from "../../../common/Interfaces";
-import FocusedPhoto from "./FocusedPhoto";
 import AddPhoto from "./AddPhoto";
 
 const mockFunction = jest.fn();

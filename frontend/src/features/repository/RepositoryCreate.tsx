@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Redirect, useHistory } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import {
     Badge, Button, Form, FormControl, InputGroup,
 } from "react-bootstrap";
-import { useLocation } from "react-router"; // 테스트용 임시 처리
+import { useLocation } from "react-router";
 import { AppDispatch, RootState } from "../../app/store";
 import { IRepository, IUser, Visibility } from "../../common/Interfaces";
 import * as actionCreator from "./reposSlice";
 import AddCollaborators from "./popup/AddCollaborators";
-import { signIn } from "../auth/authSlice";
-import { PlaceQueryResult, searchRegion } from "../route/routeSlice";
+import { clearResult, PlaceQueryResult, searchRegion } from "../route/routeSlice";
 import SearchPlace from "../route/popup/SearchPlace";
 
 interface RepositoryCreateProps {
@@ -39,7 +38,6 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
     const [visibility, setVisibility] = useState<Visibility>(Visibility.ALL);
     const [flag, setFlag] = useState<boolean>(!!user);
     const [region, setRegion] = useState<PlaceQueryResult|null>(null);
-    const history = useHistory();
     const location = useLocation<{repo_id : number, region_name : string}|undefined>();
     useEffect(() => {
         if (!flag && user) {
@@ -146,7 +144,7 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
                             region.formatted_address : ""}
                     readOnly
                 />
-                <Button onClick={() => setSearchShow(true)} disabled={!!location.state}>
+                <Button id="search-region-button" onClick={() => setSearchShow(true)} disabled={!!location.state}>
                     {location.state ? "Forked" : "Search"}
                 </Button>
             </InputGroup>
@@ -190,21 +188,21 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
                         label="Anyone"
                         type="checkbox"
                         checked={visibility === Visibility.ALL}
-                        onChange={(e) => setVisibility(Visibility.ALL)}
+                        onChange={() => setVisibility(Visibility.ALL)}
                     />
                     <Form.Check
                         inline
                         label="Members' Friends"
                         type="checkbox"
                         checked={visibility === Visibility.MEMBER_AND_FRIENDS}
-                        onChange={(e) => setVisibility(Visibility.MEMBER_AND_FRIENDS)}
+                        onChange={() => setVisibility(Visibility.MEMBER_AND_FRIENDS)}
                     />
                     <Form.Check
                         inline
                         label="Only Members"
                         type="checkbox"
                         checked={visibility === Visibility.ONLY_MEMBERS}
-                        onChange={(e) => setVisibility(Visibility.ONLY_MEMBERS)}
+                        onChange={() => setVisibility(Visibility.ONLY_MEMBERS)}
                     />
                 </div>
             </Form>
@@ -249,6 +247,7 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
                 isLoading={isQueryLoading}
                 onConfirm={(result) => setRegion(result)}
                 onSearch={(query) => dispatch(searchRegion(query))}
+                onClear={() => dispatch(clearResult(null))}
                 show={searchShow}
                 setShow={setSearchShow}
             />

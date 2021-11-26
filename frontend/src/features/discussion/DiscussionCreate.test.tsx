@@ -31,14 +31,14 @@ function makeStoredComponent() {
 
 describe("DiscussionCreate", () => {
     it("Should not redirect if current discussion is loaded", () => {
-        const mockSelector = jest.spyOn(redux, "useSelector").mockImplementation(() => [false, discussionFactory()]);
+        jest.spyOn(redux, "useSelector").mockImplementation(() => [false, discussionFactory()]);
         const component = mount(makeStoredComponent());
         expect(component.find("Redirect").length).toBe(1);
     });
 
     it("Should render correctly", () => {
-        const mockSelector = jest.spyOn(redux, "useSelector").mockImplementation(() => [true, null]);
-        const mockDispatch = jest.spyOn(redux, "useDispatch").mockImplementation(jest.fn);
+        jest.spyOn(redux, "useSelector").mockImplementation(() => [true, null]);
+        jest.spyOn(redux, "useDispatch").mockImplementation(jest.fn);
         const mockCreate = jest.spyOn(actionCreators, "createDiscussion").mockImplementation(jest.fn);
         const component = mount(makeStoredComponent());
         component.find("input").simulate("change", { target: { value: "TEST" } });

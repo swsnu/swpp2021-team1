@@ -4,7 +4,7 @@ import {
 import { RootState } from "../../app/store";
 import { IComment, IPhoto, IPost } from "../../common/Interfaces";
 import {
-    getPostComments, getPostComment, postPostComment, putPostComment, deletePostComment,
+    getPostComments, postPostComment, putPostComment, deletePostComment,
     getUserPosts, getRepositoryPosts, postPost, getPost, putPost, deletePost,
 } from "../../common/APIs";
 

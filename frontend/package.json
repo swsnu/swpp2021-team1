@@ -7,6 +7,7 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "@fortawesome/react-fontawesome": "^0.1.16",
+    "@googlemaps/jest-mocks": "^1.3.8",
     "@popperjs/core": "^2.10.2",
     "@react-google-maps/api": "^2.7.0",
     "@reduxjs/toolkit": "^1.6.2",

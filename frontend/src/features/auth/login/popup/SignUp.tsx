@@ -1,13 +1,12 @@
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
     Button, Form, InputGroup, Modal,
 } from "react-bootstrap";
-import { useHistory } from "react-router-dom";
 import axios from "axios";
 import { IUser, Visibility } from "../../../../common/Interfaces";
 import * as actionCreators from "../../authSlice";
-import { AppDispatch, RootState } from "../../../../app/store";
+import { AppDispatch } from "../../../../app/store";
 
 interface SignUpProps {
     show: boolean
@@ -25,16 +24,13 @@ export default function SignUp(props : SignUpProps) {
     const [visibility, setVisibility] = useState<Visibility>(Visibility.ALL);
     // 해당 닉네임을 이용할 수 있는지 확인하는 state
     const dispatch = useDispatch<AppDispatch>();
-    const [isLoading, hasError] = useSelector<RootState, [boolean, boolean]>((state) =>
-        [state.auth.isLoading, state.auth.hasError]);
-    const history = useHistory();
 
     function checkDuplicate() {
         axios.get<IUser>(`/api/users/${username}`)
-            .then((response) => {
+            .then(() => {
                 setCanUse(false);
             })
-            .catch((error) => {
+            .catch(() => {
                 setCanUse(true);
             });
     }
@@ -181,21 +177,21 @@ export default function SignUp(props : SignUpProps) {
                                 label="Anyone"
                                 type="checkbox"
                                 checked={visibility === Visibility.ALL}
-                                onChange={(e) => setVisibility(Visibility.ALL)}
+                                onChange={() => setVisibility(Visibility.ALL)}
                             />
                             <Form.Check
                                 inline
                                 label="Friends"
                                 type="checkbox"
                                 checked={visibility === Visibility.MEMBER_AND_FRIENDS}
-                                onChange={(e) => setVisibility(Visibility.MEMBER_AND_FRIENDS)}
+                                onChange={() => setVisibility(Visibility.MEMBER_AND_FRIENDS)}
                             />
                             <Form.Check
                                 inline
                                 label="No One"
                                 type="checkbox"
                                 checked={visibility === Visibility.ONLY_MEMBERS}
-                                onChange={(e) => setVisibility(Visibility.ONLY_MEMBERS)}
+                                onChange={() => setVisibility(Visibility.ONLY_MEMBERS)}
                             />
                         </div>
                     </Form.Group>

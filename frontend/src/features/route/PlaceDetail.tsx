@@ -3,7 +3,6 @@ import {
 } from "react-bootstrap";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router-dom";
 import { useParams } from "react-router";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 import { AppDispatch, RootState } from "../../app/store";
@@ -35,11 +34,10 @@ export default function PlaceDetail(props : PlaceDetailProps) {
             ]);
     const [mode, setMode] = useState<boolean>(false);
     const [notAssigned, setNotAssigned] = useState<IPhoto[]>([]);
-    const [places, setPlaces] = useState<IPlace[]>([]);
+    const [places, setPlaces] = useState<IPlace[]>(route ? [...route.places] : []);
     const [checked, setChecked] = useState<{[id : number] : boolean}>([]);
     const [show, setShow] = useState<boolean>(false);
     const [photoShow, setPhotoShow] = useState<boolean>(false);
-    const history = useHistory();
     const dispatch = useDispatch<AppDispatch>();
     const params = useParams<{id : string}>();
 
@@ -53,10 +51,15 @@ export default function PlaceDetail(props : PlaceDetailProps) {
         dispatch(actionCreators.fetchRoute(parseInt(params.id)));
     }, [dispatch]);
 
+    useEffect(() => {
+        if (route) {
+            setPlaces([...route.places]);
+        }
+    }, [dispatch, route]);
+
     function changeMode() {
         setMode(true);
         setNotAssigned((route as IRoute).not_assigned);
-        setPlaces((route as IRoute).places);
         const newChecked : {[id : number] : boolean} = {};
         (route as IRoute).not_assigned.forEach((value) => {
             newChecked[value.photo_id] = false;
@@ -71,6 +74,7 @@ export default function PlaceDetail(props : PlaceDetailProps) {
 
     function cancel() {
         setMode(false);
+        setPlaces([...(route as IRoute).places]);
     }
 
     function onDragEnd(result: DropResult) {
@@ -81,12 +85,11 @@ export default function PlaceDetail(props : PlaceDetailProps) {
         setPlaces(temp);
     }
 
-    function onAdd(place_id : number) {
+    function onAdd(index : number) {
         const photos : number[] = [];
         Object.keys(checked).forEach((key) => {
             if (checked[parseInt(key)]) photos.push(parseInt(key));
         });
-        const index = places.findIndex((value) => value.place_id === place_id);
         const photoList = notAssigned.filter((value) => photos.find((value1) => value1 === value.photo_id));
         const leftList = notAssigned.filter((value) => !photos.find((value1) => value1 === value.photo_id));
         setNotAssigned(leftList);
@@ -103,8 +106,7 @@ export default function PlaceDetail(props : PlaceDetailProps) {
         setChecked(newChecked);
     }
 
-    function onDelete(place_id : number, photos : number[]) {
-        const index = places.findIndex((value) => value.place_id === place_id);
+    function onDelete(index : number, photos : number[]) {
         const photoList = places[index].photos.filter((value) => photos.find((value1) => value1 === value.photo_id));
         const leftList = places[index].photos.filter((value) => !photos.find((value1) => value1 === value.photo_id));
         const temp : IPhoto[] = [...notAssigned, ...photoList];
@@ -122,8 +124,7 @@ export default function PlaceDetail(props : PlaceDetailProps) {
         setChecked(newChecked);
     }
 
-    function onPlaceDelete(place_id : number) {
-        const index = places.findIndex((value) => value.place_id === place_id);
+    function onPlaceDelete(index : number) {
         const temp = [...places];
         const [deleted] = temp.splice(index, 1);
         setPlaces(temp);
@@ -183,33 +184,19 @@ export default function PlaceDetail(props : PlaceDetailProps) {
                             {...provided.droppableProps}
                             ref={provided.innerRef}
                         >
-                            {!mode ?
-                                (route as IRoute).places.map((value, index) => (
-                                    <React.Fragment key={value.place_id.toString()}>
-                                        <Place
-                                            place={value}
-                                            index={index}
-                                            draggable={mode}
-                                            onPhotoClick={onPhotoClick}
-                                            onAdd={onAdd}
-                                            onDelete={onDelete}
-                                            onPlaceDelete={onPlaceDelete}
-                                        />
-                                    </React.Fragment>
-                                )) :
-                                places.map((value, index) => (
-                                    <React.Fragment key={value.place_id.toString()}>
-                                        <Place
-                                            place={value}
-                                            index={index}
-                                            draggable={mode}
-                                            onPhotoClick={onPhotoClick}
-                                            onAdd={onAdd}
-                                            onDelete={onDelete}
-                                            onPlaceDelete={onPlaceDelete}
-                                        />
-                                    </React.Fragment>
-                                ))}
+                            {places.map((value, index) => (
+                                <React.Fragment key={value.place_in_route_id}>
+                                    <Place
+                                        place={value}
+                                        index={index}
+                                        draggable={mode}
+                                        onPhotoClick={onPhotoClick}
+                                        onAdd={onAdd}
+                                        onDelete={onDelete}
+                                        onPlaceDelete={onPlaceDelete}
+                                    />
+                                </React.Fragment>
+                            ))}
                             {provided.placeholder}
                         </div>
                     )}
@@ -259,6 +246,7 @@ export default function PlaceDetail(props : PlaceDetailProps) {
                     dispatch(actionCreators.addPlace({ repo_id: parseInt(params.id), place_id: result.place_id }))}
                 onSearch={(query) =>
                     dispatch(actionCreators.searchPlace({ repo_id: parseInt(params.id), queryString: query }))}
+                onClear={() => dispatch(actionCreators.clearResult(null))}
                 show={show}
                 setShow={setShow}
             />

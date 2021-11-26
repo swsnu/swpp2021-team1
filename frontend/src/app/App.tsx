@@ -1,7 +1,7 @@
 import React from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import {
-    BrowserRouter, Route, Redirect, Switch,
+    Route, Redirect, Switch,
 } from "react-router-dom";
 import SignIn from "../features/auth/login/SignIn";
 import Profile from "../features/profile/Profile";

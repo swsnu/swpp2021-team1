@@ -20,28 +20,28 @@ def exploreUsers(request):
         return HttpResponseBadRequest()
     
     friends = User.objects.filter(friends__user_id=request.user.user_id)
+    friends_not_private = friends.filter(visibility=(Scope.PUBLIC or Scope.FRIENDS_ONLY))
+    friends_matching = friends_not_private.filter(username__icontains=query_user)
+    public_users = User.objects.filter(visibility=Scope.PUBLIC)
+    public_users_matching = public_users.filter(username__icontains=query_user)
+    possible_users_matching = friends_matching.union(public_users_matching)
 
     response_list = []
     temp = []
-    for user in friends.filter(username__icontains=query_user):
-        if user.username__istartswith == query_user:
-            response_list.append({"username": user.username, "bio": user.bio, "profile_picture": user.profile_picture.url})
+    for user in possible_users_matching:
+        if user.username.startswith(query_user):
+            if bool(user.profile_picture):
+                response_list.append({"username": user.username, "bio": user.bio, "profile_picture": user.profile_picture.url})
+            else:
+                response_list.append({"username": user.username, "bio": user.bio})
         else:
-            temp.append({"username": user.username, "bio": user.bio, "profile_picture": user.profile_picture.url})
+            temp.append(user)
 
     for user in temp:
-        response_list.append({"username": user.username, "bio": user.bio, "profile_picture": user.profile_picture.url})
-
-    public_users = User.objects.filter(visibility=Scope.PUBLIC)
-    temp = []
-    for user in public_users.filter(username__icontains=query_user):
-        if user.username__istartswith == query_user:
+        if bool(user.profile_picture):
             response_list.append({"username": user.username, "bio": user.bio, "profile_picture": user.profile_picture.url})
         else:
-            temp.append({"username": user.username, "bio": user.bio, "profile_picture": user.profile_picture.url})
-
-    for user in temp:
-        response_list.append({"username": user.username, "bio": user.bio, "profile_picture": user.profile_picture.url})    
+            response_list.append({"username": user.username, "bio": user.bio})  
 
     return HttpResponseSuccessGet(response_list)
 

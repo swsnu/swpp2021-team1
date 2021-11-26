@@ -3,7 +3,7 @@ import {
     Badge, Button, Form, FormControl, InputGroup,
 } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useParams } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import AddCollaborators from "../popup/AddCollaborators";
 import { IRepository, IUser, Visibility } from "../../../common/Interfaces";
 import * as actionCreator from "../reposSlice";
@@ -150,21 +150,21 @@ export default function RepositorySettings(props : RepositorySettingProps) {
                         label="Anyone"
                         type="checkbox"
                         checked={visibility === Visibility.ALL}
-                        onChange={(e) => setVisibility(Visibility.ALL)}
+                        onChange={() => setVisibility(Visibility.ALL)}
                     />
                     <Form.Check
                         inline
                         label="Members' Friends"
                         type="checkbox"
                         checked={visibility === Visibility.MEMBER_AND_FRIENDS}
-                        onChange={(e) => setVisibility(Visibility.MEMBER_AND_FRIENDS)}
+                        onChange={() => setVisibility(Visibility.MEMBER_AND_FRIENDS)}
                     />
                     <Form.Check
                         inline
                         label="Only Members"
                         type="checkbox"
                         checked={visibility === Visibility.ONLY_MEMBERS}
-                        onChange={(e) => setVisibility(Visibility.ONLY_MEMBERS)}
+                        onChange={() => setVisibility(Visibility.ONLY_MEMBERS)}
                     />
                 </div>
             </Form>

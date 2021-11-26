@@ -14,9 +14,9 @@ interface PlaceProps {
     index : number,
     draggable : boolean,
     onPhotoClick : (photo_id : number) => void,
-    onAdd : (place_id : number) => void,
-    onDelete : (place_id : number, photos : number[]) => void,
-    onPlaceDelete : (place_id : number) => void,
+    onAdd : (index : number) => void,
+    onDelete : (index : number, photos : number[]) => void,
+    onPlaceDelete : (index : number) => void,
 }
 
 export default function Place(props : PlaceProps) {
@@ -39,13 +39,12 @@ export default function Place(props : PlaceProps) {
         Object.keys(checked).forEach((key) => {
             if (checked[parseInt(key)]) photos_id.push(parseInt(key));
         });
-        props.onDelete(props.place.place_id, photos_id);
+        props.onDelete(props.index, photos_id);
     }
 
     return (
         <Draggable
-            key={props.place.place_id.toString()}
-            draggableId={props.place.place_id.toString()}
+            draggableId={props.place.place_in_route_id.toString()}
             index={props.index}
         >
             {(provided) => (
@@ -67,7 +66,7 @@ export default function Place(props : PlaceProps) {
                                 <div>
                                     <Button
                                         className="me-1 place-buttons"
-                                        onClick={() => props.onAdd(props.place.place_id)}
+                                        onClick={() => props.onAdd(props.index)}
                                     >
                                         <img src={down} alt={down} />
                                     </Button>
@@ -79,7 +78,7 @@ export default function Place(props : PlaceProps) {
                                     </Button>
                                     <Button
                                         className="me-1 place-buttons"
-                                        onClick={() => props.onPlaceDelete(props.place.place_id)}
+                                        onClick={() => props.onPlaceDelete(props.index)}
                                     >
                                         <img src={trash} alt={trash} />
                                     </Button>

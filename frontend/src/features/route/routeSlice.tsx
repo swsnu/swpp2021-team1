@@ -21,7 +21,7 @@ export const fetchRoute = createAsyncThunk<IRoute, number>( // added
 
 export const addPlace = createAsyncThunk<
         {not_assigned: IPhoto[], places: IPlace[]},
-        {repo_id : number, place_id : number}
+        {repo_id : number, place_id : string}
     >( // added
         "route/add",
         async ({ repo_id, place_id }) => // payload creator
@@ -71,7 +71,7 @@ export const routeInitialState: RouteState = {
 };
 
 interface PlaceQueryResult {
-    place_id : number,
+    place_id : string,
     name? : string,
     formatted_address : string,
 }
@@ -97,6 +97,9 @@ const routeSlice = createSlice<RouteState, SliceCaseReducers<RouteState>>({
                     if (value1.photo_id === action.payload) photo = value1;
                 }));
             state.focusedPhoto = photo;
+        },
+        clearResult: (state: RouteState, action: PayloadAction<null>) => {
+            state.queryResult = [];
         },
     },
     extraReducers: (builder) => {
@@ -185,7 +188,7 @@ const routeSlice = createSlice<RouteState, SliceCaseReducers<RouteState>>({
             let index = -1;
             const place = state.currentRoute?.places.findIndex((value) =>
                 (index = value.photos.findIndex((value1) => action.payload.photo_id === value1.photo_id)) !== -1);
-            if (state.currentRoute && place && place !== -1) {
+            if (state.currentRoute && place !== undefined && place !== -1) {
                 state.currentRoute.places[place].photos[index] = { ...action.payload };
             }
             state.hasError = false;
@@ -197,5 +200,5 @@ const routeSlice = createSlice<RouteState, SliceCaseReducers<RouteState>>({
 });
 
 export type { RouteState, PlaceQueryResult };
-export const { focusPhoto } = routeSlice.actions;
+export const { focusPhoto, clearResult } = routeSlice.actions;
 export default routeSlice.reducer;

@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import * as APIs from "../../common/APIs";
 import {
-    IPhoto, IRepository, photoFactory, repositoryFactory,
+    IPhoto, photoFactory,
 } from "../../common/Interfaces";
 import photosReducer, {
     addPhotos, editPhoto, fetchPhotos,

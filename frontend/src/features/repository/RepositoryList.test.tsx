@@ -8,7 +8,6 @@ import { mount } from "enzyme";
 import authReducer from "../auth/authSlice";
 import reposReducer from "./reposSlice";
 import postsReducer from "../post/postsSlice";
-import RepositorySettings from "./tab/RepositorySettings";
 import RepositoryList from "./RepositoryList";
 import { repositoryFactory, userFactory } from "../../common/Interfaces";
 import * as actionCreator from "./reposSlice";
@@ -35,21 +34,20 @@ function makeStoredComponent() {
 }
 
 describe("RepositoryList", () => {
-    let fetchMock : any;
     let loadMock : any;
 
     beforeEach(() => {
-        const spy = jest.spyOn(redux, "useDispatch").mockImplementation((() =>
-            (e : any) => ({
+        jest.spyOn(redux, "useDispatch").mockImplementation((() =>
+            () => ({
                 then: (e : () => any) => e(),
             })) as typeof jest.fn);
-        fetchMock = jest.spyOn(actionCreator, "fetchRepositories").mockImplementation(jest.fn);
+        jest.spyOn(actionCreator, "fetchRepositories").mockImplementation(jest.fn);
         loadMock = jest.spyOn(actionCreator, "toBeLoaded").mockImplementation(() =>
             ({} as {type : string, payload : undefined}));
     });
 
     it("Should render correctly", () => {
-        const mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+        jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
             auth: {
                 account: userFactory(),
                 currentUser: userFactory(),
@@ -68,7 +66,7 @@ describe("RepositoryList", () => {
 
     it("Should button if seeing my account", () => {
         const user = userFactory();
-        const mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
+        jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
             auth: {
                 account: user,
                 currentUser: user,

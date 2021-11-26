@@ -1,7 +1,7 @@
 import {
-    Button, Form, Image, InputGroup, Modal,
+    Form, Image, InputGroup, Modal,
 } from "react-bootstrap";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { IPhoto, SetStateAction } from "../../../common/Interfaces";
 
 interface FocusedPhotoProps {

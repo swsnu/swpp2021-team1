@@ -10,6 +10,7 @@ interface SearchPlaceProps {
     isLoading : boolean,
     onConfirm : (place : PlaceQueryResult) => void,
     onSearch : (query : string) => void,
+    onClear : () => void,
     show : boolean,
     setShow : SetStateAction<boolean>,
 }
@@ -24,12 +25,18 @@ export default function SearchPlace(props : SearchPlaceProps) {
 
     function onConfirm() {
         props.onConfirm((clicked as PlaceQueryResult));
+        props.onClear();
         props.setShow(false);
     }
 
     function search(query : string) {
         setClicked(null);
         props.onSearch(query);
+    }
+
+    function onCancel() {
+        props.onClear();
+        props.setShow(false);
     }
 
     return (
@@ -42,7 +49,7 @@ export default function SearchPlace(props : SearchPlaceProps) {
                     id="place-query-input"
                     type="text"
                     value={query}
-                    placeholder="Search Friends"
+                    placeholder="Search Places"
                     onChange={(event) => setQuery(event.target.value)}
                 />
                 <Button onClick={() => search(query)} disabled={props.isLoading}>
@@ -61,7 +68,7 @@ export default function SearchPlace(props : SearchPlaceProps) {
                                 className="m-1"
                                 type="checkbox"
                                 checked={clicked !== null && value.place_id === clicked.place_id}
-                                name={value.place_id.toString()}
+                                name={value.place_id}
                                 onChange={() => setClicked(value)}
                             />
                             <h6 className="m-2">
@@ -74,7 +81,7 @@ export default function SearchPlace(props : SearchPlaceProps) {
             </ListGroup>
             <Modal.Footer>
                 <Button variant="primary" onClick={onConfirm} disabled={!clicked}>Confirm</Button>
-                <Button variant="primary" onClick={() => props.setShow(false)}>Cancel</Button>
+                <Button variant="primary" onClick={onCancel}>Cancel</Button>
             </Modal.Footer>
         </Modal>
     );

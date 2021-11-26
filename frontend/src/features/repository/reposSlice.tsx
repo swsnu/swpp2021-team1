@@ -1,7 +1,6 @@
 import {
     createAsyncThunk,
     createSlice,
-    current,
     PayloadAction,
     SliceCaseReducers,
 } from "@reduxjs/toolkit";
@@ -16,55 +15,55 @@ import {
 
 export const fetchRepositories = createAsyncThunk<IRepository[], string>( // added
     "repos/list",
-    async (username, thunkAPI) => // payload creator
+    async (username) => // payload creator
         await getRepositories(username),
 
 );
 
 export const createRepository = createAsyncThunk<IRepository, IRepository>( // added
     "repos/add",
-    async (repo, thunkAPI) => await postRepositories(repo),
+    async (repo) => await postRepositories(repo),
 );
 
 export const editRepository = createAsyncThunk<IRepository, IRepository>( // added
     "repos/edit",
-    async (repo, thunkAPI) => await putRepository(repo),
+    async (repo) => await putRepository(repo),
 );
 
 export const removeRepository = createAsyncThunk<void, number>( // added
     "repos/delete",
-    async (repo_id, thunkAPI) => {
+    async (repo_id) => {
         await deleteRepository(repo_id);
     },
 );
 
 export const fetchRepository = createAsyncThunk<IRepository, number>( // added
     "repos/repo",
-    async (repoID, thunkAPI) => await getRepository(repoID),
+    async (repoID) => await getRepository(repoID),
 );
 
 export const addCollaborators = createAsyncThunk<IUser[], {repoID : number, users : {username: string}[]}>( // added
     "repos/collaborators",
-    async ({ repoID, users }, thunkAPI) =>
+    async ({ repoID, users }) =>
         await postCollaborators(repoID, users),
 );
 
 export const leaveRepository = createAsyncThunk<void, {username : string, repoID : number}>( // added
     "repos/leave",
-    async ({ username, repoID }, thunkAPI) =>
+    async ({ username, repoID }) =>
         await deleteCollaborators(repoID, username),
 );
 
-export const editRegion = createAsyncThunk<void, {repo_id : number, place_id : number}>( // added
+export const editRegion = createAsyncThunk<void, {repo_id : number, place_id : string}>( // added
     "repos/region",
-    async ({ repo_id, place_id }, thunkAPI) => // payload creator
+    async ({ repo_id, place_id }) => // payload creator
         await postRoute(repo_id, place_id, "region"),
 
 );
 
 export const forkRoute = createAsyncThunk<void, {repo_id : number, forked_repo_id : number}>( // added
     "repos/fork",
-    async ({ repo_id, forked_repo_id }, thunkAPI) => // payload creator
+    async ({ repo_id, forked_repo_id }) => // payload creator
         await postRoute(repo_id, forked_repo_id, "fork"),
 
 );

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
     Badge,
     Button,
@@ -8,7 +8,7 @@ import {
     InputGroup,
     Modal,
 } from "react-bootstrap";
-import { IUser, SetStateAction, userFactory } from "../../../common/Interfaces";
+import { IUser, SetStateAction } from "../../../common/Interfaces";
 import "./AddCollaborators.css";
 
 interface AddCollaboratorsProps {
@@ -22,7 +22,6 @@ interface AddCollaboratorsProps {
 export default function AddCollaborators(props : AddCollaboratorsProps) {
     const [collaborators, setCollaborators] = useState<IUser[]>(props.collaborators);
     const [queryString, setQueryString] = useState<string>("");
-    const [clicked, setClicked] = useState<boolean>(false);
     const [filteredFriend, setFilteredFriend] = useState<IUser[]>(props.user.friends as IUser[]);
 
     function close() {

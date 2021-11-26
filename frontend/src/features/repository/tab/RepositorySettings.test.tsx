@@ -8,7 +8,6 @@ import { mount } from "enzyme";
 import authReducer from "../../auth/authSlice";
 import reposReducer from "../reposSlice";
 import postsReducer from "../../post/postsSlice";
-import SignUp from "../../auth/login/popup/SignUp";
 import RepositorySettings from "./RepositorySettings";
 import * as actionCreator from "../reposSlice";
 import { repositoryFactory, userFactory } from "../../../common/Interfaces";
@@ -35,22 +34,20 @@ function makeStoredComponent() {
 }
 
 describe("RepositorySettings", () => {
-    let collabMock : any;
     let editMock : any;
     let removeMock : any;
     let secedeMock : any;
-    let mockSelector : any;
     beforeEach(() => {
-        const spy = jest.spyOn(redux, "useDispatch").mockImplementation((() =>
-            (e : any) => ({
+        jest.spyOn(redux, "useDispatch").mockImplementation((() =>
+            () => ({
                 then: (e : () => any) => e(),
             })) as typeof jest.fn);
 
-        collabMock = jest.spyOn(actionCreator, "addCollaborators").mockImplementation(jest.fn);
+        jest.spyOn(actionCreator, "addCollaborators").mockImplementation(jest.fn);
         editMock = jest.spyOn(actionCreator, "editRepository").mockImplementation(jest.fn);
         removeMock = jest.spyOn(actionCreator, "removeRepository").mockImplementation(jest.fn);
         secedeMock = jest.spyOn(actionCreator, "leaveRepository").mockImplementation(jest.fn);
-        mockSelector = jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => {
+        jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => {
             e({ auth: { account: undefined }, repos: { currentRepo: undefined } });
             return [{ ...userFactory(), friends: [] }, { ...repositoryFactory(), collaborators: [userFactory()] }];
         });
@@ -90,7 +87,7 @@ describe("RepositorySettings", () => {
 
     it("Should be able to remove repo", () => {
         const user = { ...userFactory(), friends: [] };
-        const mockSelector = jest.spyOn(redux, "useSelector").mockImplementation(() =>
+        jest.spyOn(redux, "useSelector").mockImplementation(() =>
             [user, { ...repositoryFactory(), owner: user.username }]);
         const component = mount(makeStoredComponent());
         component.find("#delete-repo-button").at(0).simulate("click");
