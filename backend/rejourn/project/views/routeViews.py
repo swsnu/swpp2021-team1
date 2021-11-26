@@ -1,6 +1,5 @@
 import json
 from json.decoder import JSONDecodeError
-from datetime import datetime
 import random
 from urllib.parse import urlencode
 
@@ -289,7 +288,8 @@ def placeSearch(request, repo_id):
             "formatted_address": formatted_address,
         }
         if ((-0.5<(geocoding_response.json()['results'][0]['geometry']['location']['lat']-float(route.latitude)) < 0.5)
-            and (-0.5<(geocoding_response.json()['results'][0]['geometry']['location']['lng']-float(route.longitude)) < 0.5)):
+            and (-0.5<(geocoding_response.json()['results'][0]['geometry']['location']['lng']-float(route.longitude))
+                < 0.5)):
             place_id_0 = place_id
             response.append(response_dict)
 
