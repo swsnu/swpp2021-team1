@@ -14,7 +14,7 @@ from project.models.models import (
     Photo,
 )
 from project.httpResponse import *
-from project.enum import Scope
+from project.enum import Scope, PostType, RepoTravel
 from project.utils import have_common_user
 
 
@@ -61,18 +61,19 @@ def userPosts(request, user_name):
             }
             if bool(post.author.profile_picture):
                 author_info["profile_picture"] = post.author.profile_picture.url
-
-            post_list.insert(
-                0,
-                {
-                    "post_id": post.post_id,
-                    "repo_id": post.repository.repo_id,
-                    "author": author_info,
-                    "title": post.title,
-                    "post_time": post.post_time.strftime(UPLOADED_TIME_FORMAT),
-                    "photos": photo_list,
-                },
-            )
+            if post.post_type != PostType.REPO:
+                post_list.insert(
+                    0,
+                    {
+                        "post_id": post.post_id,
+                        "repo_id": post.repository.repo_id,
+                        "author": [author_info],
+                        "title": post.title,
+                        "post_time": post.post_time.strftime(UPLOADED_TIME_FORMAT),
+                        "photos": photo_list,
+                        "post_type": post.post_type,
+                    },
+                )
 
     return HttpResponseSuccessGet(post_list)
 
@@ -92,6 +93,39 @@ def repoPosts(request, repo_id):
         if request.user not in repository.collaborators.all():
             return HttpResponseNoPermission()
 
+        try:
+            req_data = json.loads(request.body.decode())
+            post_type = req_data["post_type"]
+            if post_type == PostType.REPO:
+                text = ""
+                new_post = Post(repository=repository, author=request.user, title=repository.repo_name, text=text, post_type=post_type)
+                repository.travel = RepoTravel.TRAVEL_ON
+                new_post.save()
+                author_list = []
+                for collaborator in repository.collaborators:
+                    author_info = {
+                        "username": collaborator.username,
+                        "bio": collaborator.bio,
+                    }
+                    if bool(collaborator.profile_picture):
+                        author_info["profile_picture"] = collaborator.profile_picture.url
+                    author_list.append(author_info)
+
+                response_dict = {
+                    "post_id": new_post.post_id,
+                    "repo_id": new_post.repository.repo_id,
+                    "author": author_list,
+                    "title": new_post.title,
+                    "text": new_post.text,
+                    "post_time": new_post.post_time.strftime(UPLOADED_TIME_FORMAT),
+                    "photos": [],
+                    "comments": [],
+                    "post_type": new_post.post_type,
+                }
+                return HttpResponseSuccessUpdate(response_dict)
+
+        except (KeyError, JSONDecodeError):
+            pass
         try:
             req_data = json.loads(request.body.decode())
             title = req_data["title"]
@@ -160,14 +194,37 @@ def repoPosts(request, repo_id):
         response_dict = {
             "post_id": new_post.post_id,
             "repo_id": new_post.repository.repo_id,
-            "author": author_info,
+            "author": [author_info],
             "title": new_post.title,
             "text": new_post.text,
             "post_time": new_post.post_time.strftime(UPLOADED_TIME_FORMAT),
             "photos": photos,
             "comments": [],
+            "post_type": new_post.post_type,
         }
         return HttpResponseSuccessUpdate(response_dict)
+
+    elif request.method == "PUT":
+        if not request.user.is_authenticated:
+            return HttpResponseNotLoggedIn()
+        try:
+            repository = Repository.objects.get(repo_id=repo_id)
+        except Repository.DoesNotExist:
+            return HttpResponseNotExist()
+
+        if request.user not in repository.collaborators.all():
+            return HttpResponseNoPermission()
+
+        try:
+            req_data = json.loads(request.body.decode())
+            post_type = req_data["post_type"]
+            travel = req_data["travel"]
+            if post_type != PostType.REPO:
+                return HttpResponseBadRequest()
+            repository.travel = travel
+            repository.save()
+        except (KeyError, JSONDecodeError):
+            return HttpResponseBadRequest()
 
     # request.method == "GET":
     try:
@@ -207,18 +264,19 @@ def repoPosts(request, repo_id):
         }
         if bool(post.author.profile_picture):
             author_info["profile_picture"] = post.author.profile_picture.url
-
-        post_list.insert(
-            0,
-            {
-                "post_id": post.post_id,
-                "repo_id": post.repository.repo_id,
-                "author": author_info,
-                "title": post.title,
-                "post_time": post.post_time.strftime(UPLOADED_TIME_FORMAT),
-                "photos": photo_list,
-            },
-        )
+        if post.post_type != PostType.REPO:
+            post_list.insert(
+                0,
+                {
+                    "post_id": post.post_id,
+                    "repo_id": post.repository.repo_id,
+                    "author": [author_info],
+                    "title": post.title,
+                    "post_time": post.post_time.strftime(UPLOADED_TIME_FORMAT),
+                    "photos": photo_list,
+                    "post_type": post.post_type,
+                },
+            )
     return HttpResponseSuccessGet(post_list)
 
 
@@ -255,13 +313,30 @@ def postID(request, post_id):
                     "image": photo_order.photo.image_file.url,
                 }
             )
+        response_title = ""
+        response_text = ""
+        author_list = []
+        if post.post_type == PostType.PERSONAL:
+            author_info = {
+                "username": post.author.username,
+                "bio": post.author.bio,
+            }
+            if bool(post.author.profile_picture):
+                author_info["profile_picture"] = post.author.profile_picture.url
+            author_list.append(author_info)
+            response_title = post.title
+            response_text = post.text
+        else:
+            for collaborator in repository.collaborators:
+                author_info = {
+                    "username": collaborator.username,
+                    "bio": collaborator.bio,
+                    }
+                if bool(collaborator.profile_picture):
+                    author_info["profile_picture"] = collaborator.profile_picture.url
+                author_list.append(author_info)
+            response_title = repository.repo_name
 
-        author_info = {
-            "username": post.author.username,
-            "bio": post.author.bio,
-        }
-        if bool(post.author.profile_picture):
-            author_info["profile_picture"] = post.author.profile_picture.url
 
         comment_list = []
         for comment in PostComment.objects.filter(post=post):
@@ -284,12 +359,13 @@ def postID(request, post_id):
         response_dict = {
             "post_id": post.post_id,
             "repo_id": post.repository.repo_id,
-            "author": author_info,
-            "title": post.title,
-            "text": post.text,
+            "author": author_list,
+            "title": response_title,
+            "text": response_text,
             "post_time": post.post_time.strftime(UPLOADED_TIME_FORMAT),
             "photos": photo_list,
             "comments": comment_list,
+            "post_type": post.post_type,
         }
         return HttpResponseSuccessGet(response_dict)
 
@@ -413,7 +489,7 @@ def postID(request, post_id):
     response_dict = {
         "post_id": post.post_id,
         "repo_id": post.repository.repo_id,
-        "author": author_info,
+        "author": [author_info],
         "title": post.title,
         "text": post.text,
         "post_time": post.post_time.strftime(UPLOADED_TIME_FORMAT),

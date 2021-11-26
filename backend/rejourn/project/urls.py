@@ -81,6 +81,7 @@ urlpatterns = [
         name="postCommentID",
     ),
 
+
     ## photoAPI
     path("repositories/<int:repo_id>/photos/", photoViews.photos, name="photos"),
     path("repositories/<int:repo_id>/photos/<int:photo_id>/", photoViews.photoID, name="photoID"),
@@ -113,5 +114,5 @@ urlpatterns = [
     path("explore/repositories/", exploreViews.exploreRepositories, name="exploreRespositories"),
     path("explore/places/", exploreViews.explorePlaces, name="explorePlaces"),
 
-    path("users/<str:username>/feed/", exploreViews.feeds, name="feeds"),
+    path("users/<str:username>/feeds/", exploreViews.feeds, name="feeds"),
 ]

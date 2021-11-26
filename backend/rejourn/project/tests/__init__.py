@@ -6,6 +6,7 @@ from .postTests import PostTestCase, PostCommentTestCase
 from .repositoryTests import RepositoryTestCase
 from .labelTests import LabelTestCase
 from .routeTests import RouteTestCase
+from .exploreTests import ExploreTestCase
 
 __all__ = [
     "ModelsTestCase",
@@ -19,4 +20,5 @@ __all__ = [
     "PostCommentTestCase",
     "LabelTestCase",
     "RouteTestCase",
+    "ExploreTestCase",
 ]

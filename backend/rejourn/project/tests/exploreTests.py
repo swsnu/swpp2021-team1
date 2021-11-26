@@ -74,8 +74,135 @@ class ExploreTestCase(TestCase):
         user_0.friends.add(user_e)
         user_0.friends.add(user_d)
 
+        repo_a = Repository(
+            repo_name="travel fun!",
+            visibility=Scope.PUBLIC,
+            owner=user_0,
+        )
+        repo_a.save()
+        repo_a.collaborators.add(user_0)
+        repo_b = Repository(
+            repo_name="fun traveling",
+            visibility=Scope.FRIENDS_ONLY,
+            owner=user_a,
+        )
+        repo_b.save()
+        repo_b.collaborators.add(user_a)
+        repo_c = Repository(
+            repo_name="We love travel",
+            visibility=Scope.FRIENDS_ONLY,
+            owner=user_b,
+        )
+        repo_c.save()
+        repo_c.collaborators.add(user_b)
+        repo_d = Repository(
+            repo_name="travel enjoy",
+            visibility=Scope.PRIVATE,
+            owner=user_d,
+        )
+        repo_d.save()
+        repo_d.collaborators.add(user_d)
+
+        route_a = Route(
+            region_address="대한민국 제주특별자치도 제주시 애월읍",
+            place_id="ChIJb5-d7KL3DDURuO6p2BOUdOw",
+            latitude=33.4619478,
+            longitude=126.3295244,
+            east=126.518352,
+            west=126.2953071,
+            south=33.341656,
+            north=33.5032356,
+            repository=repo_a,
+        )
+        route_a.save()
+
+        route_b = Route(
+            region_address="대한민국 제주특별자치도 제주시 애월읍",
+            place_id="ChIJb5-d7KL3DDURuO6p2BOUdOw",
+            latitude=33.4619478,
+            longitude=126.3295244,
+            east=126.518352,
+            west=126.2953071,
+            south=33.341656,
+            north=33.5032356,
+            repository=repo_b,
+        )
+        route_b.save()
+        
+        place_a_1 = PlaceInRoute(
+            route=route_a,
+            order=1,
+            time=datetime.datetime.now(tz=timezone.utc),
+            text="바다에서 단체사진찍기",
+            place_id="ChIJwxapcG71DDURGdhIIeiFBcI",
+            place_name="곽지해수욕장",
+            place_address="대한민국 제주특별자치도 제주시 애월읍 곽지리 곽지해수욕장",
+            latitude=33.450902,
+            longitude=126.3057298,
+        )
+        place_a_1.save()
+        place_a_2 = PlaceInRoute(
+            route=route_a,
+            order=2,
+            place_id="ChIJxZHZGcX1DDURkgoYNph7RNk",
+            place_name="제주샘주",
+            place_address="대한민국 제주특별자치도 제주시 애월읍 애원로 283",
+            latitude=33.4446362,
+            longitude=126.3375372,
+        )
+        place_a_2.save()
+        place_a_3 = PlaceInRoute(
+            route=route_a,
+            order=3,
+            place_id="ChIJYeRTsDD0DDURrIR1mJ_N5r8",
+            place_name="카페인디고",
+            place_address="대한민국 제주특별자치도 제주시 애월읍 고내리 1218-1",
+            latitude=33.4663593,
+            longitude=126.3340838,
+        )
+        place_a_3.save()
+
+        place_b_1 = PlaceInRoute(
+            route=route_b,
+            order=1,
+            time=datetime.datetime.now(tz=timezone.utc),
+            text="바다에서 단체사진찍기",
+            place_id="ChIJwxapcG71DDURGdhIIeiFBcI",
+            place_name="곽지해수욕장",
+            place_address="대한민국 제주특별자치도 제주시 애월읍 곽지리 곽지해수욕장",
+            latitude=33.450902,
+            longitude=126.3057298,
+        )
+        place_b_1.save()
+        place_b_2 = PlaceInRoute(
+            route=route_b,
+            order=2,
+            place_id="ChIJxZHZGcX1DDURkgoYNph7RNk",
+            place_name="제주샘주",
+            place_address="대한민국 제주특별자치도 제주시 애월읍 애원로 283",
+            latitude=33.4446362,
+            longitude=126.3375372,
+        )
+        place_b_2.save()
+        place_b_3 = PlaceInRoute(
+            route=route_b,
+            order=3,
+            place_id="ChIJYeRTsDD0DDURrIR1mJ_N5r8",
+            place_name="카페인디고",
+            place_address="대한민국 제주특별자치도 제주시 애월읍 고내리 1218-1",
+            latitude=33.4663593,
+            longitude=126.3340838,
+        )
+        place_b_3.save()
+
+
+
     def tearDown(self):
         User.objects.all().delete()
+        Repository.objects.all().delete()
+        Route.objects.all().delete()
+        PlaceInRoute.objects.all().delete()
+        shutil.rmtree(MEDIA_ROOT, ignore_errors=True)
     
     def test_exploreUsers(self):
         client = Client()
@@ -103,7 +230,27 @@ class ExploreTestCase(TestCase):
         print(response.content.decode())
 
     def test_exploreRepositories(self):
-        pass
+        client = Client()
+        response = client.delete("/api/explore/repositories/")
+        self.assertEqual(response.status_code, 405)
+
+        response = client.get("/api/explore/repositories/")
+        self.assertEqual(response.status_code, 401)
+
+        client.post(
+            "/api/signin/",
+            json.dumps({"username": "MAIN_USER", "password": "MAIN_PW"}),
+            content_type="application/json",
+        )
+        response = client.get("/api/explore/repositories/")
+        self.assertEqual(response.status_code, 400)
+        response = client.get("/api/explore/repositories/?query=travel")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("travel fun", response.content.decode())
+        self.assertIn("fun traveling", response.content.decode())
+        self.assertNotIn("We love travel", response.content.decode())
+        self.assertNotIn("travel enjoy", response.content.decode())
+
     def test_explorePlaces(self):
         pass
     def test_feeds(self):

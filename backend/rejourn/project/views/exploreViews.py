@@ -3,7 +3,7 @@ import requests
 from django.http.response import HttpResponseBadRequest
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.db import models
 
 from project.models.models import User, Repository, Route, PlaceInRoute, Post
@@ -58,15 +58,19 @@ def exploreRepositories(request):
         return HttpResponseBadRequest()
     
     repositories_mine = Repository.objects.filter(collaborators__user_id=request.user.user_id)
-    repositories_friends = Repository.objects.filter(collaborators__in=request.user.friends)
+    repositories_mine_matching = repositories_mine.filter(repo_name__icontains=query_repository).annotate(order=models.Value(0, models.IntegerField()))
+    repositories_friends = Repository.objects.filter(collaborators__in=User.objects.filter(username=request.user.username).values('friends'))
+    repositories_friends_exclude_private = repositories_friends.filter(visibility=Scope.FRIENDS_ONLY)
+    repositories_friends_matching = repositories_friends_exclude_private.filter(repo_name__icontains=query_repository).annotate(order=models.Value(0, models.IntegerField()))
     public_repositories = Repository.objects.filter(visibility=Scope.PUBLIC)
-    possible_repositories = repositories_mine.union(repositories_friends).union(public_repositories)
+    public_repositories_matching = public_repositories.filter(repo_name__icontains=query_repository).annotate(order=models.Value(0, models.IntegerField()))
+    possible_repositories = repositories_mine_matching.union(repositories_friends_matching).union(public_repositories_matching).order_by('order')
 
     response_list = []
     temp = []
-    for repository in possible_repositories.filter(repo_name__icontains=query_repository):
-        if repository.repo_name__istartswith == query_repository:
-            places = PlaceInRoute.objects.filter(repository=repository).annotate(number_of_photos=Count("photo")).order_by('-number_of_photos')
+    for repository in possible_repositories:
+        if repository.repo_name.startswith(query_repository):
+            places = PlaceInRoute.objects.filter(route__repository=repository).annotate(number_of_photos=Count("photo")).order_by('-number_of_photos')
             response_places = []
             count = 0
             for place in places:
@@ -75,10 +79,15 @@ def exploreRepositories(request):
                     count += 1
                 else:
                     break
-            response_dict = {"repo_id": repository.repo_id, "repo_name": repository.repo_name, "region_address": repository.route.region_address, "places": response_places}
+            response_dict = {"repo_id": repository.repo_id, "repo_name": repository.repo_name}
+            try:
+                response_dict["region_address"] = repository.route.region_address
+                response_dict["places"] = response_places
+            except:
+                pass
             response_list.append(response_dict)
         else:
-            places = PlaceInRoute.objects.filter(repository=repository).annotate(number_of_photos=Count("photo")).order_by('-number_of_photos')
+            places = PlaceInRoute.objects.filter(route__repository=repository).annotate(number_of_photos=Count("photo")).order_by('-number_of_photos')
             response_places = []
             count = 0
             for place in places:
@@ -87,7 +96,13 @@ def exploreRepositories(request):
                     count += 1
                 else:
                     break
-            response_dict = {"repo_id": repository.repo_id, "repo_name": repository.repo_name, "region_address": repository.route.region_address, "places": response_places}
+            response_dict = {"repo_id": repository.repo_id, "repo_name": repository.repo_name}
+            try:
+                response_dict["region_address"] = repository.route.region_address
+                response_dict["places"] = response_places
+            except:
+                pass
+            response_list.append(response_dict)
             temp.append(response_dict)
 
     for repository in temp:
