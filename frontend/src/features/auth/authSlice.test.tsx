@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 
+import { AnyAction } from "redux";
 import Factory from "../../mocks/dataGenerator";
 
 import authReducer, {
@@ -108,6 +109,20 @@ describe("authSlice", () => {
         const response = await store.dispatch(switchCurrentUser("abc"));
         const status = response.meta.requestStatus;
         expect(status).toBe("rejected");
+    });
+    it("should switch current user to myself", async () => {
+        await authReducer({
+            isLoading: false,
+            hasError: false,
+            account: {
+                username: "a",
+                bio: "a",
+            },
+            currentUser: {
+                username: "b",
+                bio: "b",
+            },
+        }, switchCurrentUser("a"));
     });
 
     // TODO (187-192)

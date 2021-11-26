@@ -95,7 +95,7 @@ export const authInitialState: AuthState = {
     currentUser: null,
 };
 
-const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
+export const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
     name: "auth",
     initialState: authInitialState,
     reducers: {
