@@ -19,5 +19,8 @@
         "editor.defaultFormatter": "dbaeumer.vscode-eslint"
     },
     "jest.rootPath": "frontend",
-    "jest.jestCommandLine": "yarn test --watchAll=false --coverage"
+    "jest.jestCommandLine": "yarn test --watchAll=false --coverage",
+    "cSpell.words": [
+        "popperjs"
+    ]
 }

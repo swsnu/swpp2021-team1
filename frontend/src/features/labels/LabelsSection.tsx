@@ -72,24 +72,16 @@ const LabelsSection = (props: labelsSectionProps) => {
             // console.log(allPhotos);
             const filterPhoto = (photo: IPhoto) => {
                 if (photo.labels) {
-                    console.log(photo.labels);
-                    return photo.labels.some((label) => {
-                        console.log(photo);
-                        return listOfLabels.some((labelToMatch) => {
-                            console.log(photo);
-                            console.log(label);
-                            return labelToMatch === label;
-                        });
-                    });
+                    return photo.labels.some(
+                        (label) => listOfLabels.some(
+                            (labelToMatch) => labelToMatch.label_id === label.label_id,
+                        ),
+                    );
                 }
                 return false;
             };
             // console.log(allPhotos);
-            setDisplayPhotos(allPhotos.filter((photo: IPhoto) => {
-                console.log(photo);
-                if (photo.labels) console.log(photo.labels);
-                return true;
-            }));
+            setDisplayPhotos(allPhotos.filter((photo: IPhoto) => filterPhoto(photo)));
         }
     }, [selectedLabels]);
 
@@ -212,6 +204,7 @@ const LabelsSection = (props: labelsSectionProps) => {
                                 {label.label_name}
                             </Dropdown.Item>
                         ))}
+                        <Dropdown.Divider />
                         <Dropdown.Item onClick={() => setMode(!mode)}>Cancel</Dropdown.Item>
                     </DropdownButton>
                 </div>
@@ -242,7 +235,28 @@ const LabelsSection = (props: labelsSectionProps) => {
                             >
                                 {
                                     value.labels?.map((label) => (
-                                        <Badge className="label-badge">
+                                        <Badge
+                                            className="label-badge"
+                                            // onClick={
+                                            //     () => {
+                                            //         const response = window.confirm(
+                                            //             "Are you sure to remove this label from the photo?",
+                                            //         );
+                                            //         if (response) {
+                                            //             dispatch(
+                                            //                 assignLabel(
+                                            //                     {
+                                            //                         repoId,
+                                            //                         labelId: label.label_id,
+                                            //                         photos: [value],
+                                            //                     },
+                                            //                 ),
+                                            //             );
+                                            //         }
+                                            //     }
+                                            // }
+                                        >
+                                            <i className="bi-alarm" />
                                             {label.label_name}
                                         </Badge>
                                     ))

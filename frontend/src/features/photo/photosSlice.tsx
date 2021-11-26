@@ -42,6 +42,7 @@ export const assignLabel = createAsyncThunk<IPhoto[], {
         const response = await putLabelPhotos(repoId, labelId, photos);
         return response;
     },
+
 );
 
 export const photosInitialState: PhotosState = {
