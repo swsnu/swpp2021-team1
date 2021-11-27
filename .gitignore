@@ -83,6 +83,6 @@ yarn-debug.log*
 yarn-error.log*
 
 *.code-workspace
-# .vscode
+.vscode
 # __reactpreview__
 # reactpreview.config.js
