@@ -47,7 +47,7 @@ const PostList = (props: PostListProps) => {
     let content;
     if (loading === "succeeded") {
         return (
-            <div className="container mt-5">
+            <div className="mt-5">
                 <div className="row">
                     {posts.map((post) => <Post post={post} key={post.post_id} />)}
                 </div>

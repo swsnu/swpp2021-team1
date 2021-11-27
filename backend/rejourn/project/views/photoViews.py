@@ -237,7 +237,7 @@ def photoID(request, repo_id, photo_id):
 
     if photo.repository != repository:
         return HttpResponseInvalidInput()
-    
+
     try:
         req_data = json.loads(request.body.decode())
         new_tag = req_data['tag']

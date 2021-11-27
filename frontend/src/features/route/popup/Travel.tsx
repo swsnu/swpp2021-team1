@@ -37,6 +37,9 @@ export default function Travel(props : TravelProps) {
                     setRegion(response.data.region);
                     setIndex(0);
                     setPlaceIndex(0);
+                })
+                .catch(() => {
+                    setIsLoading(true);
                 });
         }
     }, [props.show]);
@@ -60,7 +63,7 @@ export default function Travel(props : TravelProps) {
         <div className="custom-modal">
             {isLoading ? <h2 className="travel-loading">Loading...</h2> : (
                 <div>
-                    <div className="travel-carousel">
+                    <div className="travel-carousel" data-testid="travel-carousel">
                         <Carousel
                             className="travel-photo"
                             activeIndex={index}

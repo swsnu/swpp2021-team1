@@ -38,16 +38,17 @@ describe("photosSlice", () => {
         });
     });
 
-    it("Should edit photos correctly", () => {
+    it("Should edit photos correctly", async () => {
         const photo : IPhoto = photoFactory();
-        mockedAPIs.putPhoto.mockResolvedValue(photo);
-        store.dispatch(editPhoto({ repo_id: 1, photo })).then(() => {
-            expect(store.getState().photos.photoList.length).toBe(0);
-        });
+        const photo2 : IPhoto = photoFactory();
+        mockedAPIs.getPhotos.mockResolvedValue([photo, photo2]);
+        await store.dispatch(fetchPhotos(1));
+        mockedAPIs.putPhoto.mockResolvedValue({ ...photo, image: "TEST" });
+        await store.dispatch(editPhoto({ repo_id: 1, photo }));
+        expect(store.getState().photos.photoList[0].image).toBe("TEST");
         mockedAPIs.putPhoto.mockRejectedValue(undefined);
-        store.dispatch(editPhoto({ repo_id: 1, photo })).then(() => {
-            expect(store.getState().photos.hasError).toEqual(true);
-        });
+        await store.dispatch(editPhoto({ repo_id: 1, photo }));
+        expect(store.getState().photos.hasError).toEqual(true);
     });
 
     it("Should add photos correctly", () => {
