@@ -185,7 +185,6 @@ def profilePicture(request, user_name):
 
         user.profile_picture = image
         user.save()
-        return HttpResponseSuccessUpdate({'image': user.profile_picture.url})
 
         return HttpResponseSuccessUpdate()
 

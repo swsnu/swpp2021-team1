@@ -7,10 +7,9 @@ from django.test import TestCase, Client, override_settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from project.enum import Scope
-from project.models.models import User, Repository, Photo, PhotoTag, Label
+from project.models.models import User, Repository, Photo, PhotoTag
 
 # from io import BytesIO
-
 
 MEDIA_ROOT = tempfile.mkdtemp()
 
@@ -127,7 +126,7 @@ class PhotoTestCase(TestCase):
         image.save(file_3)
 
         response = client_1.post('/api/repositories/1/photos/', {"image": [file_1, file_2, file_3]},
-                                  format='multipart/form-data')
+                                 format='multipart/form-data')
         self.assertEqual(response.status_code, 201)
 
         repo_1 = Repository.objects.get(repo_id=1)

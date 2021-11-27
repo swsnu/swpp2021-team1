@@ -377,13 +377,12 @@ class RouteTestCase(TestCase):
                 #"time": "2021-11-18",
                 "photos": [{"photo_id": 2}],
             },
-            {
-                "place_in_route_id": 3,
-                "place_id": "ChIJYeRTsDD0DDURrIR1mJ_N5r8",
-                "text": "EDIT_2_TEXT",
-                #"time": "2021-11-19",
-                "photos": [{"photo_id": 4}],
-            }]),
+                        {
+                            "place_in_route_id": 3,
+                            "place_id": "ChIJYeRTsDD0DDURrIR1mJ_N5r8",
+                            "text": "EDIT_2_TEXT",
+                            # "time": "2021-11-19",
+                            "photos": [{"photo_id": 4}],}]),
             content_type="application/json",
         )
         self.assertEqual(response.status_code, 201)
@@ -443,7 +442,7 @@ class RouteTestCase(TestCase):
 
         repo_b = Repository.objects.get(repo_id=2)
         route = Route(
-            region_address= "TEST_REGION_ADDRESS",
+            region_address="TEST_REGION_ADDRESS",
             place_id="TEST_PLACE_ID",
             latitude=33.4619478,
             longitude=126.3295244,
@@ -525,7 +524,7 @@ class RouteTestCase(TestCase):
         response = client_a.get("/api/repositories/2/travel/")
         # print(response.content.decode())
 
-        place_coordinates = [(35, -178), (20,-174), (30, 134), (30, 137), (31, 0),
+        place_coordinates = [(35, -178), (20, -174), (30, 134), (30, 137), (31, 0),
                              (35, -178), (20, -174), (10, 134)]
         for i in range(8):
             place_in_route = PlaceInRoute(
@@ -543,7 +542,7 @@ class RouteTestCase(TestCase):
         response = client_a.get("/api/repositories/2/travel/")
         # print(response.content.decode())
 
-        place_coordinates = [(35, -178), (20,-174), (30, 134), (30, 137), (31, 0),
+        place_coordinates = [(35, -178), (20, -174), (30, 134), (30, 137), (31, 0),
                              (35, -178), (20, -174), (10, 134), (30, 137), (31, 0), (20, 9)]
 
         for i in range(10):

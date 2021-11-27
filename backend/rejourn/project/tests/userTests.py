@@ -103,7 +103,7 @@ class UserTestCase(TestCase):
     def test_token(self):
         client = Client(enforce_csrf_checks=True)
         response = client.post('/api/signin/', json.dumps({'username': 'TEST_USER_A', 'password': 'TEST_PASSWORD_A'}),
-                            content_type='application/json')
+                               content_type='application/json')
         self.assertEqual(response.status_code, 403)
 
         response = client.get('/api/token/')
@@ -111,7 +111,7 @@ class UserTestCase(TestCase):
         csrftoken = response.cookies['csrftoken'].value
 
         response = client.post('/api/signin/', json.dumps({'username': 'TEST_USER_A', 'password': 'TEST_PASSWORD_A'}),
-                            content_type='application/json', HTTP_X_CSRFTOKEN=csrftoken)
+                               content_type='application/json', HTTP_X_CSRFTOKEN=csrftoken)
         self.assertEqual(response.status_code, 201)
 
         client.get('/api/token/')
