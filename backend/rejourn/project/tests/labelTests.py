@@ -1,7 +1,6 @@
 import json
 import tempfile
 import shutil
-from PIL import Image
 
 from django.test import TestCase, Client, override_settings
 from django.core.files.uploadedfile import SimpleUploadedFile

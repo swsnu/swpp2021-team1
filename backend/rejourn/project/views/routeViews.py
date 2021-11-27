@@ -14,7 +14,7 @@ from project.httpResponse import *
 from project.utils import have_common_user
 from project.enum import Scope
 
-api_key = settings.GOOGLE_MAPS_API_KEY
+API_KEY = settings.GOOGLE_MAPS_API_KEY
 
 
 DATE_FORMAT = "%Y-%m-%d"
@@ -35,7 +35,7 @@ def regionSearch(request):
         return HttpResponseBadRequest()
     endpoint = 'https://maps.googleapis.com/maps/api/geocode/json'
     query_string_formatted = query_string.replace(" ", "-")
-    params = {"address": query_string_formatted, "key": api_key}
+    params = {"address": query_string_formatted, "key": API_KEY}
     params_encoded = urlencode(params)
     url = f"{endpoint}?{params_encoded}"
     google_maps_response = requests.get(url)
@@ -65,9 +65,9 @@ def routeID(request, repo_id):
             return HttpResponseNotExist()
 
         if not ((request.user in repository.collaborators.all())
-            or (repository.visibility == Scope.PUBLIC)
-            or (repository.visibility == Scope.FRIENDS_ONLY
-                and have_common_user(request.user.friends.all(), repository.collaborators.all()))):
+                or (repository.visibility == Scope.PUBLIC)
+                or (repository.visibility == Scope.FRIENDS_ONLY
+                    and have_common_user(request.user.friends.all(), repository.collaborators.all()))):
             return HttpResponseNoPermission()
 
         route = Route.objects.get(repository=repository)
@@ -177,7 +177,7 @@ def routeID(request, repo_id):
 
     if request_type == 0:
         endpoint = 'https://maps.googleapis.com/maps/api/geocode/json'
-        params = {"place_id": place_id, "key": api_key}
+        params = {"place_id": place_id, "key": API_KEY}
         params_encoded = urlencode(params)
         url = f"{endpoint}?{params_encoded}"
         google_maps_response = requests.get(url)
@@ -198,8 +198,8 @@ def routeID(request, repo_id):
         except Route.DoesNotExist:
             pass
         new_route = Route(region_address=region_address, place_id=place_id,
-                        latitude=latitude, longitude=longitude, east=east, west=west,
-                        south=south, north=north, repository=repository)
+                          latitude=latitude, longitude=longitude, east=east, west=west,
+                          south=south, north=north, repository=repository)
         new_route.save()
         return HttpResponseSuccessUpdate()
     # request_type == 1
@@ -228,8 +228,8 @@ def routeID(request, repo_id):
         pass
 
     new_route = Route(region_address=region_address, place_id=place_id,
-                    latitude=latitude, longitude=longitude, east=east, west=west,
-                    south=south, north=north, repository=repository)
+                      latitude=latitude, longitude=longitude, east=east, west=west,
+                      south=south, north=north, repository=repository)
     new_route.save()
 
     fork_places = PlaceInRoute.objects.filter(route=fork_route)
@@ -242,7 +242,7 @@ def routeID(request, repo_id):
         latitude = place.latitude
         longitude = place.longitude
         new_place = PlaceInRoute(route=route, order=order, place_id=place_id, place_name=place_name,
-                                place_address=place_address, latitude=latitude, longitude=longitude)
+                                 place_address=place_address, latitude=latitude, longitude=longitude)
         new_place.save()
     return HttpResponseSuccessUpdate()
 
@@ -277,7 +277,7 @@ def placeSearch(request, repo_id):
 
     query_string_formatted = query_string.replace(" ", "%2C")
     url_for_geocoding = ("https://maps.googleapis.com/maps/api/geocode/json?address="
-                            +query_string_formatted+"&key="+api_key)
+                         +query_string_formatted+"&key="+API_KEY)
     geocoding_response = requests.get(url_for_geocoding)
 
     if geocoding_response.status_code in range(200, 299):
@@ -287,14 +287,16 @@ def placeSearch(request, repo_id):
             "place_id": place_id,
             "formatted_address": formatted_address,
         }
-        if ((-0.5<(geocoding_response.json()['results'][0]['geometry']['location']['lat']-float(route.latitude)) < 0.5)
-            and (-0.5<(geocoding_response.json()['results'][0]['geometry']['location']['lng']-float(route.longitude))
-                < 0.5)):
+        if ((-0.5 < (geocoding_response.json()['results'][0]['geometry']['location']['lat']
+                     - float(route.latitude)) < 0.5)
+                and (-0.5 < (geocoding_response.json()['results'][0]['geometry']['location']['lng']
+                             - float(route.longitude))
+                     < 0.5)):
             place_id_0 = place_id
             response.append(response_dict)
 
     url = ('https://maps.googleapis.com/maps/api/place/textsearch/json?location='
-            +str(route.latitude)+"%2C"+str(route.longitude)+"&query="+query_string_formatted+"&key="+api_key)
+           +str(route.latitude)+"%2C"+str(route.longitude)+"&query="+query_string_formatted+"&key="+API_KEY)
     google_maps_response = requests.get(url)
 
     for place in google_maps_response.json()['results']:
@@ -503,9 +505,9 @@ def placeID(request, repo_id, place_id):
         return HttpResponseNotExist()
 
     if not (((request.user in repository.collaborators.all())
-        or (repository.visibility == Scope.PUBLIC)
-        or (repository.visibility == Scope.FRIENDS_ONLY
-            and have_common_user(request.user.friends.a(), repository.collaborators.all())))):
+             or (repository.visibility == Scope.PUBLIC)
+             or (repository.visibility == Scope.FRIENDS_ONLY
+                 and have_common_user(request.user.friends.a(), repository.collaborators.all())))):
         return HttpResponseNoPermission()
 
     try:
@@ -513,7 +515,7 @@ def placeID(request, repo_id, place_id):
     except Route.DoesNotExist:
         return HttpResponseNotExist()
 
-    url = 'https://maps.googleapis.com/maps/api/place/details/json?place_id='+place_id+'&key='+api_key
+    url = 'https://maps.googleapis.com/maps/api/place/details/json?place_id='+place_id+'&key='+API_KEY
     google_maps_response = requests.get(url)
     if google_maps_response.status_code not in range(200, 299):
         return HttpResponseBadRequest()
@@ -529,7 +531,7 @@ def placeID(request, repo_id, place_id):
         return HttpResponseNotExist()
 
     new_place = PlaceInRoute(route=route, order=order, place_id=place_id, place_name=place_name,
-                            place_address=place_address, latitude=latitude, longitude=longitude)
+                             place_address=place_address, latitude=latitude, longitude=longitude)
     new_place.save()
 
     places_to_return = PlaceInRoute.objects.filter(route=route).order_by("order")
@@ -617,9 +619,8 @@ def travel(request, repo_id):
                     and have_common_user(
                         request.user.friends.all(), repository.collaborators.all()
                     )
-                )
-            ):
-            return HttpResponseNoPermission()
+                )):
+        return HttpResponseNoPermission()
 
     try:
         route = Route.objects.get(repository=repository)
@@ -648,7 +649,7 @@ def travel(request, repo_id):
     place_list = []
     photo_list = []
     order_count = 1
-    while (order_count <= place_num):
+    while order_count <= place_num:
         current_place = place_in_route_set.get(order=order_count)
         place_list.append(current_place)
         photo_set = Photo.objects.filter(place=current_place)
@@ -661,8 +662,8 @@ def travel(request, repo_id):
         photo_list.append(temp_photo_list)
 
         if (width_over_zero
-            and current_place.longitude > east_limit 
-            and current_place.longitude < west_limit):
+                and current_place.longitude > east_limit 
+                and current_place.longitude < west_limit):
             if current_place.longitude - east_limit > west_limit - current_place.longitude:
                 width_span += west_limit - current_place.longitude
                 west_limit = current_place.longitude
@@ -732,18 +733,18 @@ def travel(request, repo_id):
         route_list.append(place_dict)
 
     east_limit += width_span / 10
-    if east_limit > 180 :
+    if east_limit > 180:
         east_limit -= 360
     west_limit -= width_span / 10
-    if west_limit < -180 :
+    if west_limit < -180:
         west_limit += 360
     
     height_span = north_limit - south_limit
     north_limit += height_span / 10
-    if north_limit > 90 :
+    if north_limit > 90:
         north_limit = 90
     south_limit -= height_span / 10
-    if south_limit < -90 :
+    if south_limit < -90:
         south_limit = -90
 
     region_dict = {

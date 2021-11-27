@@ -55,9 +55,9 @@ def labels(request, repo_id):
         return HttpResponseNoPermission()
 
     if Label.objects.filter(
-        repository=repository,
-        user=request.user,
-        label_name=label_name
+            repository=repository,
+            user=request.user,
+            label_name=label_name
     ).count() != 0:
         return HttpResponseAlreadyProcessed()
 
@@ -101,7 +101,7 @@ def labelID(request, repo_id, label_id):
             return HttpResponseInvalidInput()
 
         if (request.user not in repository.collaborators.all()
-            or request.user != label.user):
+                or request.user != label.user):
             return HttpResponseNoPermission()
 
         label.label_name = new_label_name
@@ -129,7 +129,7 @@ def labelID(request, repo_id, label_id):
         return HttpResponseInvalidInput()
 
     if (request.user not in repository.collaborators.all()
-        or request.user != label.user):
+            or request.user != label.user):
         return HttpResponseNoPermission()
     
     label.delete()
@@ -161,7 +161,7 @@ def labelPhotos(request, repo_id, label_id):
             return HttpResponseInvalidInput()
 
         if (request.user not in repository.collaborators.all()
-            or request.user != label.user):
+                or request.user != label.user):
             return HttpResponseNoPermission()
         
         photo_list = []
@@ -177,7 +177,7 @@ def labelPhotos(request, repo_id, label_id):
                     'label_id' : label.label_id,
                     'label_name' : label.label_name,
                 })
-            photo_list.insert(0,{
+            photo_list.insert(0, {
                 "repo_id" : repo_id,
                 "photo_id" : photo.photo_id,
                 "image" : photo.image_file.url,
@@ -210,7 +210,7 @@ def labelPhotos(request, repo_id, label_id):
         return HttpResponseInvalidInput()
 
     if (request.user not in repository.collaborators.all()
-        or request.user != label.user):
+            or request.user != label.user):
         return HttpResponseNoPermission()
 
     try:
@@ -242,7 +242,7 @@ def labelPhotos(request, repo_id, label_id):
                 'label_name' : label.label_name,
             })
 
-        photo_list.insert(0,{
+        photo_list.insert(0, {
             "repo_id" : repo_id,
             "photo_id" : photo.photo_id,
             "image" : photo.image_file.url,

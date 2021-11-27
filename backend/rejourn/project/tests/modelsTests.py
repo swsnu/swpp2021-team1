@@ -1,7 +1,6 @@
 import tempfile
 import shutil
 from decimal import *
-from PIL import Image
 from datetime import datetime
 
 from django.utils import timezone

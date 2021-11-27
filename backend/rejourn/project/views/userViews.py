@@ -16,7 +16,7 @@ from project.enum import Scope
 @ensure_csrf_cookie
 def token(request):
     # request.method == "GET":
-    return HttpResponse(status=204)
+    return HttpResponseSuccessGetToken()
 
 
 # /api/session/
@@ -177,7 +177,9 @@ def profilePicture(request, user_name):
             return HttpResponseNoPermission()
 
         try:
-            image = request.FILES.get["image"]
+            image = request.FILES.get("image")
+            if image is None:
+                raise KeyError
         except KeyError:
             return HttpResponseBadRequest()
 
