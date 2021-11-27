@@ -7,7 +7,7 @@ from django.test import TestCase, Client, override_settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from project.enum import Scope
-from project.models.models import User, Repository, Photo, PhotoTag
+from project.models.models import User, Repository, Photo, PhotoTag, Label
 
 # from io import BytesIO
 
@@ -94,42 +94,44 @@ class PhotoTestCase(TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_photos_post(self):
-        client = Client()
-        response = client.post("/api/repositories/1/photos/")
-        self.assertEqual(response.status_code, 401)
-
-        client.post(
-            "/api/signin/",
-            json.dumps({"username": "u_3_USERNAME", "password": "u_3_PASSWORD"}),
-            content_type="application/json",
-        )
-        response = client.post("/api/repositories/5/photos/")
-        self.assertEqual(response.status_code, 404)
-
-        response = client.post("/api/repositories/1/photos/")
-        self.assertEqual(response.status_code, 403)
-
-        client.get("/api/signout/")
-        client.post(
+        client_anonymous = Client()
+        client_1 = Client()
+        client_1.post(
             "/api/signin/",
             json.dumps({"username": "u_1_USERNAME", "password": "u_1_PASSWORD"}),
             content_type="application/json",
         )
+        client_3 = Client()
+        client_3.post(
+            "/api/signin/",
+            json.dumps({"username": "u_3_USERNAME", "password": "u_3_PASSWORD"}),
+            content_type="application/json",
+        )
 
-        # image_a = SimpleUploadedFile('test.jpg', b'imageA')
-        # file = BytesIO(image_a.tobytes())
-        # file.name = 'test.png'
-        # file.seek(0)
+        response = client_anonymous.post("/api/repositories/1/photos/")
+        self.assertEqual(response.status_code, 401)
+
+        response = client_3.post("/api/repositories/5/photos/")
+        self.assertEqual(response.status_code, 404)
+        response = client_3.post("/api/repositories/1/photos/")
+        self.assertEqual(response.status_code, 403)
 
         image = Image.new("RGBA", size=(50, 50), color=(155, 0, 0))
-        file = tempfile.NamedTemporaryFile(suffix=".png")
-        image.save(file)
-        # print(image)
+        file_1 = tempfile.NamedTemporaryFile(suffix=".png")
+        image.save(file_1)
+        image = Image.new("RGBA", size=(50, 50), color=(155, 0, 0))
+        file_2 = tempfile.NamedTemporaryFile(suffix=".png")
+        image.save(file_2)
+        image = Image.new("RGBA", size=(50, 50), color=(155, 0, 0))
+        file_3 = tempfile.NamedTemporaryFile(suffix=".png")
+        image.save(file_3)
 
-        # with open(file.name, 'rb') as data:
-        # response = client.post('/api/repositories/1/photos/', {"FILES['image']": [image]})
-        # format='multipart/form-data')
-        # self.assertEqual(response.status_code, 201)
+        response = client_1.post('/api/repositories/1/photos/', {"image": [file_1, file_2, file_3]},
+                                  format='multipart/form-data')
+        self.assertEqual(response.status_code, 201)
+
+        repo_1 = Repository.objects.get(repo_id=1)
+        self.assertEqual(Photo.objects.filter(repository=repo_1).count(), 5)
 
     def test_photos_put(self):
         client = Client()

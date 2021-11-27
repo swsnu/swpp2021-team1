@@ -1,5 +1,6 @@
 import tempfile
 import json
+import shutil
 
 from django.test import TestCase, Client, override_settings
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -97,6 +98,27 @@ class UserTestCase(TestCase):
 
     def tearDown(self):
         User.objects.all().delete()
+        shutil.rmtree(MEDIA_ROOT, ignore_errors=True)
+
+    def test_token(self):
+        client = Client(enforce_csrf_checks=True)
+        response = client.post('/api/signin/', json.dumps({'username': 'TEST_USER_A', 'password': 'TEST_PASSWORD_A'}),
+                            content_type='application/json')
+        self.assertEqual(response.status_code, 403)
+
+        response = client.get('/api/token/')
+        self.assertEqual(response.status_code, 204)
+        csrftoken = response.cookies['csrftoken'].value
+
+        response = client.post('/api/signin/', json.dumps({'username': 'TEST_USER_A', 'password': 'TEST_PASSWORD_A'}),
+                            content_type='application/json', HTTP_X_CSRFTOKEN=csrftoken)
+        self.assertEqual(response.status_code, 201)
+
+        client.get('/api/token/')
+        csrftoken = response.cookies['csrftoken'].value
+
+        response = client.put('/api/token/', HTTP_X_CSRFTOKEN=csrftoken)
+        self.assertEqual(response.status_code, 405)
 
     def test_signin_siginout_session_token(self):
         client_a = Client()
@@ -175,13 +197,55 @@ class UserTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 410)
 
+    def test_profilePicture(self):
+        image_a = SimpleUploadedFile("test.jpg", b"imageA")
+        client_a = Client()
+        client_a.post(
+            "/api/signin/",
+            json.dumps({"username": "TEST_USER_A", "password": "TEST_PASSWORD_A"}),
+            content_type="application/json",
+        )
+        client_anonymous = Client()
+        user_a = User.objects.get(username="TEST_USER_A")
+        self.assertEqual(bool(user_a.profile_picture), False)
+
+        response = client_anonymous.post("/api/users/TEST_USER_A/profile-picture/")
+        self.assertEqual(response.status_code, 401)
+
+        response = client_a.post("/api/users/NO_ONE/profile-picture/")
+        self.assertEqual(response.status_code, 404)
+        response = client_a.post("/api/users/TEST_USER_B/profile-picture/")
+        self.assertEqual(response.status_code, 403)
+        response = client_a.post("/api/users/TEST_USER_A/profile-picture/")
+        self.assertEqual(response.status_code, 400)
+
+        response = client_a.post(
+            "/api/users/TEST_USER_A/profile-picture/",
+            {'image' : image_a}
+        )
+        self.assertEqual(response.status_code, 201)
+        user_a = User.objects.get(username="TEST_USER_A")
+        self.assertEqual(bool(user_a.profile_picture), True)
+        
+        response = client_anonymous.delete("/api/users/TEST_USER_A/profile-picture/")
+        self.assertEqual(response.status_code, 401)
+        response = client_a.delete("/api/users/NO_ONE/profile-picture/")
+        self.assertEqual(response.status_code, 404)
+        response = client_a.delete("/api/users/TEST_USER_B/profile-picture/")
+        self.assertEqual(response.status_code, 403)
+
+        response = client_a.delete("/api/users/TEST_USER_A/profile-picture/")
+        self.assertEqual(response.status_code, 202)
+        user_a = User.objects.get(username="TEST_USER_A")
+        self.assertEqual(bool(user_a.profile_picture), False)
+
     def test_delete_userID(self):
         client = Client()
         response = client.delete(
             "/api/users/TEST_USER_A/",
         )
         self.assertEqual(response.status_code, 401)
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "TEST_USER_A", "password": "TEST_PASSWORD_A"}),
             content_type="application/json",

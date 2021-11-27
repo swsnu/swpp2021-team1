@@ -115,10 +115,7 @@ def photos(request, repo_id):
         if request.user not in repository.collaborators.all():
             return HttpResponseNoPermission()
 
-        try:
-            image_list = request.FILES.getlist("image")
-        except KeyError:
-            return HttpResponseBadRequest()
+        image_list = request.FILES.getlist("image")
 
         for image in image_list:
             new_photo = Photo(
