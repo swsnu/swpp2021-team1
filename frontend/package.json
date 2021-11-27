@@ -30,6 +30,7 @@
     "enzyme-adapter-react-17-updated": "^1.0.2",
     "enzyme-to-json": "^3.6.2",
     "jest": "26.6.0",
+    "jest-circus": "26.6.0",
     "react": "^17.0.2",
     "react-beautiful-dnd": "^13.1.0",
     "react-bootstrap": "^2.0.0",
