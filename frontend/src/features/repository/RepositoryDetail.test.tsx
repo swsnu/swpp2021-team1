@@ -60,7 +60,7 @@ describe("RepositoryDetail", () => {
         }));
 
         jest.spyOn(React, "useEffect").mockImplementation(jest.fn);
-        jest.spyOn(Group, "default").mockImplementation(() => (<div />));
+        jest.spyOn(Group, "default").mockImplementation(() => (<div id="group" />));
         jest.spyOn(Mine, "default").mockImplementation(() => (<div />));
         jest.spyOn(RepositorySettings, "default").mockImplementation(() => (<div />));
     });
@@ -122,11 +122,10 @@ describe("RepositoryDetail", () => {
 
     it("Should render correctly", () => {
         const component = mount(makeStoredComponent());
-        component.find("Tabs button").at(1).simulate("click");
-        component.find("Tabs button").at(0).simulate("click");
+        expect(component.find("#group").length).toBe(1);
     });
 
-    it("Should be able to click settings if has authorization", () => {
+    it("Should be able to click tabs if has authorization", () => {
         const user = userFactory();
         jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
             auth: {
@@ -141,6 +140,8 @@ describe("RepositoryDetail", () => {
             },
         }));
         const component = mount(makeStoredComponent());
+        component.find("Tabs button").at(1).simulate("click");
+        component.find("Tabs button").at(0).simulate("click");
         component.find("Tabs button").at(2).simulate("click");
     });
 });
