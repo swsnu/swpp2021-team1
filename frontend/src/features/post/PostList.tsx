@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Pagination } from "react-bootstrap";
 import { useParams } from "react-router";
-import { Link } from "react-router-dom";
-import { setConstantValue } from "typescript";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import store from "../../app/store";
-import { IPost } from "../../common/Interfaces";
 import PlusButton from "../../common/plusButton/PlusButton";
 import Post from "./Post";
 import { fetchRepoPosts, fetchUserPosts, postsSelectors } from "./postsSlice";

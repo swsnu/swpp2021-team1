@@ -1,15 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Pagination, Button } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import { useHistory, useParams } from "react-router";
-import { Link } from "react-router-dom";
-import { setConstantValue } from "typescript";
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import store from "../../app/store";
 import { getRepositoryPosts } from "../../common/APIs";
 import { IPost } from "../../common/Interfaces";
-import PlusButton from "../../common/plusButton/PlusButton";
 import Post from "./Post";
-import { fetchRepoPosts, fetchUserPosts, postsSelectors } from "./postsSlice";
 
 // Post[], create-post-button
 

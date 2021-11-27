@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Form } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { IComment, IUser } from "../../common/Interfaces";
+import { IComment } from "../../common/Interfaces";
 import "./Comments.css";
 import avatar from "../../common/assets/avatar.jpg";
 
