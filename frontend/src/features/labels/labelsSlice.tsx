@@ -1,11 +1,17 @@
 import {
-    createAsyncThunk, createEntityAdapter, createSlice, Dictionary, EntityId, SliceCaseReducers,
+    createAsyncThunk,
+    createEntityAdapter,
+    createSlice,
+    Dictionary,
+    EntityId,
+    SliceCaseReducers,
 } from "@reduxjs/toolkit";
+
 import { RootState } from "../../app/store";
 import {
-    getLabels, postLabel, putLabel, deleteLabel, putLabelPhotos,
+    deleteLabel, getLabels, postLabel, putLabel,
 } from "../../common/APIs";
-import { ILabel, IPhoto } from "../../common/Interfaces";
+import { ILabel } from "../../common/Interfaces";
 
 export const labelsAdapter = createEntityAdapter<ILabel>({
     selectId: (label: ILabel) => label.label_id,

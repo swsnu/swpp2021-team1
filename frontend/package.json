@@ -99,7 +99,7 @@
       "!src/app/hooks.tsx",
       "!src/app/store.tsx",
       "!src/react-app-env.d.ts",
-      "!/src/mocks/*"
+      "!src/mocks/handlers.ts"
     ]
   },
   "msw": {

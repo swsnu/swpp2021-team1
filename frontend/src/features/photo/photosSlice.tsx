@@ -1,10 +1,11 @@
 import {
     createAsyncThunk, createSlice, PayloadAction, SliceCaseReducers,
 } from "@reduxjs/toolkit";
-import { IPhoto } from "../../common/Interfaces";
+
 import {
     deletePhotos, getPhotos, postPhotos, putLabelPhotos, putPhoto,
 } from "../../common/APIs";
+import { IPhoto } from "../../common/Interfaces";
 
 export const fetchPhotos = createAsyncThunk<IPhoto[], number>( // added
     "photos/list",
