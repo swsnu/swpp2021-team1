@@ -4,7 +4,7 @@ import {
     IPhoto, photoFactory,
 } from "../../common/Interfaces";
 import photosReducer, {
-    addPhotos, editPhoto, fetchPhotos,
+    addPhotos, assignLabel, editPhoto, fetchPhotos,
     focusPhoto, handleError, removePhotos, toBeLoaded,
 } from "./photosSlice";
 
@@ -80,5 +80,25 @@ describe("photosSlice", () => {
         // to be loaded
         store.dispatch(toBeLoaded(null));
         expect(store.getState().photos.isLoading).toEqual(true);
+    });
+    it("should assign labels to photos correctly", async () => {
+        const photo: IPhoto = photoFactory();
+        mockedAPIs.postPhotos.mockResolvedValue([photo]);
+        await store.dispatch(addPhotos({ repo_id: 1, images: new FormData() }));
+        mockedAPIs.putLabelPhotos.mockResolvedValue([photo]);
+        await store.dispatch(assignLabel({
+            repoId: 1,
+            labelId: 1,
+            photos: [],
+        }));
+    });
+    it("should handle assignLabel reject", async () => {
+        const photo : IPhoto = photoFactory();
+        mockedAPIs.putLabelPhotos.mockRejectedValue("");
+        await store.dispatch(assignLabel({
+            repoId: 1,
+            labelId: 1,
+            photos: [],
+        }));
     });
 });

@@ -1,15 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
-import configureMockStore from "redux-mock-store";
 import thunk from "redux-thunk";
-import labelsReducer, {
-    deleteOneLabel,
-    editLabel, labelsAdapter, loadLabels, newLabel,
-} from "./labelsSlice";
-import server from "../../mocks/server";
-import { getLabelsHE } from "../../mocks/handlers";
 
-const middlewares = [thunk];
-const mockStore = configureMockStore(middlewares);
+import { getLabelsHE, postLabelHE } from "../../mocks/handlers";
+import server from "../../mocks/server";
+import labelsReducer, {
+    deleteOneLabel, editLabel, loadLabels, newLabel, setLabelsIdle,
+} from "./labelsSlice";
 
 describe("labelsSlice", () => {
     beforeAll(() => server.listen());
@@ -35,6 +31,13 @@ describe("labelsSlice", () => {
         });
         await store.dispatch(newLabel({ repoId: 1, labelName: "" }));
     });
+    it("should handle newLabel rejected", async () => {
+        server.use(postLabelHE);
+        store = configureStore({
+            reducer: labelsReducer,
+        });
+        await store.dispatch(newLabel({ repoId: 1, labelName: "" }));
+    });
     it("should handle editLabel", async () => {
         store = configureStore({
             reducer: labelsReducer,
@@ -46,5 +49,9 @@ describe("labelsSlice", () => {
             reducer: labelsReducer,
         });
         await store.dispatch(deleteOneLabel({ repoId: 1, labelId: 1 }));
+    });
+    it("should handle setLabelsIdle", async () => {
+        store = configureStore({ reducer: labelsReducer });
+        await store.dispatch(setLabelsIdle(""));
     });
 });

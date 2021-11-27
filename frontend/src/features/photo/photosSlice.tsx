@@ -141,7 +141,7 @@ const photosSlice = createSlice<PhotosState, SliceCaseReducers<PhotosState>>({
             state.hasError = false;
             action.payload.forEach((photo) => {
                 const index = state.photoList.findIndex((p) => p.photo_id === photo.photo_id);
-                if (index >= 0) state.photoList[index] = photo;
+                state.photoList[index] = photo;
             });
         });
         builder.addCase(assignLabel.rejected, (state: PhotosState) => {
