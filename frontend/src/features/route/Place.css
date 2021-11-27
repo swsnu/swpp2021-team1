@@ -1,0 +1,40 @@
+.place-photos {
+    width: 100%;
+    height: 15vh;
+    justify-content: flex-start;
+}
+
+.grip-img {
+    border-left: 2px solid lightgray;
+    width: 42px;
+}
+
+.place-buttons {
+    border-radius: 3px 3px 0 0 !important;
+    background: white !important;
+}
+
+.place-card {
+    border: 0 !important;
+}
+
+.place-card-header {
+    background: var(--primary) !important;
+    border-radius: 15px 15px 0 0 !important;
+    border-left: 2px solid lightgray;
+    border-right: 2px solid lightgray;
+    border-top: 2px solid lightgray;
+}
+/*
+.place-name {
+    background: var(--primary) !important;
+    border: 1px solid var(--primary);
+    border-radius: 12px 12px 0 0;
+} */
+
+.place-wrapper {
+    border-radius: 0 0 15px 15px;
+    border-left: 2px solid lightgray;
+    border-right: 2px solid lightgray;
+    border-bottom: 2px solid lightgray;
+}

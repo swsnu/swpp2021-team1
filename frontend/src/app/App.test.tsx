@@ -1,4 +1,4 @@
-import { mount, shallow } from "enzyme";
+import { mount } from "enzyme";
 import { Provider } from "react-redux";
 import React from "react";
 import { createBrowserHistory } from "history";

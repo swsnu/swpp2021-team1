@@ -1,21 +1,16 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { Provider } from "react-redux";
 import {
-    BrowserRouter, Route, Router, useHistory,
+    Route, Router,
 } from "react-router-dom";
 import React from "react";
 import { mount } from "enzyme";
-import * as redux from "react-redux";
-import * as router from "react-router-dom";
 import axios from "axios";
 import { createBrowserHistory } from "history";
-import { waitFor } from "@testing-library/react";
 import { act } from "react-dom/test-utils";
-import SignIn from "../SignIn";
 import postsReducer from "../../../post/postsSlice";
 import reposReducer from "../../../repository/reposSlice";
 import authReducer from "../../authSlice";
-import * as actionCreator from "../../authSlice";
 import { userFactory } from "../../../../common/Interfaces";
 import SignUp from "./SignUp";
 import * as APIs from "../../../../common/APIs";
@@ -48,8 +43,8 @@ describe("SignUp", () => {
 
     it("Should be able to write form", async () => {
         const spySlice = jest.spyOn(APIs, "postSignIn").mockResolvedValue(userFactory());
-        const spySlice2 = jest.spyOn(APIs, "postUsers").mockResolvedValue(userFactory());
-        const spyAxios = jest.spyOn(axios, "get").mockRejectedValue(undefined);
+        jest.spyOn(APIs, "postUsers").mockResolvedValue(userFactory());
+        jest.spyOn(axios, "get").mockRejectedValue(undefined);
         const component = mount(makeStoredComponent());
         component.find("FormControl").at(0).simulate("change", { target: { name: "email", value: "asdf@gmail.com" } });
         component.find("FormControl").at(1).simulate("change", { target: { name: "username", value: "abc" } });

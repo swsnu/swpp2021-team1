@@ -6,6 +6,9 @@ from project.views import (
     discussionViews,
     postViews,
     photoViews,
+    routeViews,
+    labelViews,
+    exploreViews,
 )
 
 
@@ -28,6 +31,7 @@ urlpatterns = [
         userViews.userFriendID,
         name="userFriendID",
     ),
+
     ## repositoryAPI
     path("repositories/", repositoryViews.repositories, name="repositories"),
     path(
@@ -43,6 +47,7 @@ urlpatterns = [
         repositoryViews.repositoryCollaboratorID,
         name="repositoryCollaboratorID",
     ),
+
     ## discussionAPI
     path(
         "repositories/<int:repo_id>/discussions/",
@@ -64,6 +69,7 @@ urlpatterns = [
         discussionViews.discussionCommentID,
         name="discussionCommentID",
     ),
+
     ## postAPI
     path("users/<str:user_name>/posts/", postViews.userPosts, name="userPosts"),
     path("repositories/<int:repo_id>/posts/", postViews.repoPosts, name="repoPosts"),
@@ -74,6 +80,38 @@ urlpatterns = [
         postViews.postCommentID,
         name="postCommentID",
     ),
+
     ## photoAPI
     path("repositories/<int:repo_id>/photos/", photoViews.photos, name="photos"),
+    path("repositories/<int:repo_id>/photos/<int:photo_id>/", photoViews.photoID, name="photoID"),
+
+    ## labelAPI
+    path("repositories/<int:repo_id>/labels/", labelViews.labels, name="labels"),
+    path(
+        "repositories/<int:repo_id>/labels/<int:label_id>/",
+        labelViews.labelID,
+        name="labelID"
+    ),
+    path(
+        "repositories/<int:repo_id>/labels/<int:label_id>/photos/",
+        labelViews.labelPhotos,
+        name="labelPhotos"
+    ),
+
+    ## routeAPI
+    path("region-search/", routeViews.regionSearch, name="regionSearch"),
+    path("repositories/<int:repo_id>/route/", routeViews.routeID, name="routeID"),
+
+    path("repositories/<int:repo_id>/route/places-search/", routeViews.placeSearch, name="placeSearch"),
+    path("repositories/<int:repo_id>/route/places/", routeViews.places, name="places"),
+    path("repositories/<int:repo_id>/route/places/<str:place_id>/", routeViews.placeID, name="placeID"),
+
+    path("repositories/<int:repo_id>/travel/", routeViews.travel, name="travel"),
+
+    ## exploreAPI
+    path("explore/users/", exploreViews.exploreUsers, name="exploreUsers"),
+    path("explore/repositories/", exploreViews.exploreRepositories, name="exploreRespositories"),
+    path("explore/places/", exploreViews.explorePlaces, name="explorePlaces"),
+
+    path("users/<str:username>/feed/", exploreViews.feeds, name="feeds"),
 ]

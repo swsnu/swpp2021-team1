@@ -1,4 +1,5 @@
 import React from "react";
+import { PlaceQueryResult } from "../features/route/routeSlice";
 
 enum Visibility {
     ALL,
@@ -78,8 +79,8 @@ interface IPhoto {
     post_time? : string;
     tag? : string;
     local_tag? : string;
-    label? : ILabel[];
-    place? : IPlace;
+    /* label? : ILabel[];
+    place? : IPlace; */
     uploader? : string; // sure?
 }
 
@@ -133,19 +134,92 @@ export function commentFactory() {
 }
 
 interface ILabel {
-
+    label_id : number,
+    label_name : string,
 }
 
 interface IPlace {
-
+    place_in_route_id: number,
+    place_id : string,
+    place_name : string,
+    place_address : string,
+    text? : string, // optional implementation
+    latitude : number,
+    longitude : number,
+    time? : string, // optional implementation
+    thumbnail? : string, // thumbnail image 원하면 string 대신 photo_id로 줘도 됨.
+    photos : IPhoto[],
 }
 
-// TODO: IRoute must be added
+export function placeFactory() {
+    return {
+        place_in_route_id: randomInt(),
+        place_id: randomString(),
+        place_name: randomString(),
+        place_address: randomString(),
+        text: randomString(),
+        latitude: randomInt(),
+        longitude: randomInt(),
+        time: randomString(),
+        thumbnail: randomString(),
+        photos: [photoFactory()],
+    } as IPlace;
+}
+
+interface IRoute {
+    route_id : number,
+    repo_id : number,
+    not_assigned : IPhoto[],
+    places : IPlace[], // sorted list
+    region : IRegion,
+}
+
+export function routeFactory() {
+    return {
+        route_id: randomInt(),
+        repo_id: randomInt(),
+        not_assigned: [photoFactory()],
+        places: [placeFactory()],
+        region: regionFactory(),
+    } as IRoute;
+}
+
+interface IRegion {
+    region_address : string,
+    place_id : number,
+    latitude : number,
+    longitude : number,
+    north : number,
+    south : number,
+    west : number,
+    east : number,
+}
+
+export function regionFactory() {
+    return {
+        region_address: randomString(),
+        place_id: randomInt(),
+        latitude: randomInt(),
+        longitude: randomInt(),
+        north: randomInt(),
+        south: randomInt(),
+        west: randomInt(),
+        east: randomInt(),
+    } as IRegion;
+}
+
+export function placeQueryFactory() {
+    return {
+        place_id: randomString(),
+        name: randomString(),
+        formatted_address: randomString(),
+    } as PlaceQueryResult;
+}
 
 export type SetStateAction<T> = React.Dispatch<React.SetStateAction<T>>
 
 export type {
-    IUser, IRepository, IPost, IPhoto, IDiscussion, IComment, ILabel, IPlace,
+    IUser, IRepository, IPost, IPhoto, IDiscussion, IComment, ILabel, IPlace, IRoute, IRegion,
 };
 
 export { Visibility };

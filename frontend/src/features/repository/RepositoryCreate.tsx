@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Redirect, useHistory } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import {
     Badge, Button, Form, FormControl, InputGroup,
 } from "react-bootstrap";
+import { useLocation } from "react-router";
 import { AppDispatch, RootState } from "../../app/store";
 import { IRepository, IUser, Visibility } from "../../common/Interfaces";
 import * as actionCreator from "./reposSlice";
 import AddCollaborators from "./popup/AddCollaborators";
-import { signIn } from "../auth/authSlice"; // 테스트용 임시 처리
+import { clearResult, PlaceQueryResult, searchRegion } from "../route/routeSlice";
+import SearchPlace from "../route/popup/SearchPlace";
 
 interface RepositoryCreateProps {
 
@@ -24,16 +26,19 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
         [state.repos.isLoading, state.repos.hasError]);
     const [user, repo] = useSelector<RootState, [IUser|null, IRepository|null]>((state) =>
         [state.auth.account, state.repos.currentRepo]);
+    const [isQueryLoading, queryResult] = useSelector<RootState, [boolean, PlaceQueryResult[]]>((state) =>
+        [state.route.isQueryLoading, state.route.queryResult]);
     const [repoName, setRepoName] = useState<string>("");
     const [travelStartDate, setTravelStartDate] = useState<string>("");
     const [travelEndDate, setTravelEndDate] = useState<string>("");
     const [collaborators, setCollaborators] = useState<IUser[]>(user ? [user] : []);
     const [show, setShow] = useState<boolean>(false);
+    const [searchShow, setSearchShow] = useState<boolean>(false);
     const [valid, setValid] = useState<(boolean|null)[]>([null, null, null]);
     const [visibility, setVisibility] = useState<Visibility>(Visibility.ALL);
     const [flag, setFlag] = useState<boolean>(!!user);
-    const history = useHistory();
-
+    const [region, setRegion] = useState<PlaceQueryResult|null>(null);
+    const location = useLocation<{repo_id : number, region_name : string}|undefined>();
     useEffect(() => {
         if (!flag && user) {
             if (collaborators.filter((value) => value.username === user.username).length === 0) {
@@ -42,6 +47,23 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
             setFlag(true);
         }
     }, [dispatch, user]);
+
+    useEffect(() => {
+        if (repo && region) {
+            if (location.state) {
+                dispatch(actionCreator.forkRoute({
+                    repo_id: repo.repo_id,
+                    forked_repo_id: location.state.repo_id,
+                }));
+            }
+            else {
+                dispatch(actionCreator.editRegion({
+                    repo_id: repo.repo_id,
+                    place_id: region.place_id,
+                }));
+            }
+        }
+    }, [dispatch, repo]);
 
     function addCollaborators() {
         setShow(true);
@@ -111,6 +133,21 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
                     Please choose your repository name.
                 </Form.Control.Feedback>
             </InputGroup>
+            <InputGroup className="mt-4">
+                <InputGroup.Text>You are traveling to...</InputGroup.Text>
+                <Form.Control
+                    id="repo-region-input"
+                    name="repo-region"
+                    type="text"
+                    value={location.state ?
+                        location.state.region_name : region ?
+                            region.formatted_address : ""}
+                    readOnly
+                />
+                <Button id="search-region-button" onClick={() => setSearchShow(true)} disabled={!!location.state}>
+                    {location.state ? "Forked" : "Search"}
+                </Button>
+            </InputGroup>
             <InputGroup className="mt-4" hasValidation>
                 <InputGroup.Text>Start Date of Your Travel</InputGroup.Text>
                 <Form.Control
@@ -151,21 +188,21 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
                         label="Anyone"
                         type="checkbox"
                         checked={visibility === Visibility.ALL}
-                        onChange={(e) => setVisibility(Visibility.ALL)}
+                        onChange={() => setVisibility(Visibility.ALL)}
                     />
                     <Form.Check
                         inline
                         label="Members' Friends"
                         type="checkbox"
                         checked={visibility === Visibility.MEMBER_AND_FRIENDS}
-                        onChange={(e) => setVisibility(Visibility.MEMBER_AND_FRIENDS)}
+                        onChange={() => setVisibility(Visibility.MEMBER_AND_FRIENDS)}
                     />
                     <Form.Check
                         inline
                         label="Only Members"
                         type="checkbox"
                         checked={visibility === Visibility.ONLY_MEMBERS}
-                        onChange={(e) => setVisibility(Visibility.ONLY_MEMBERS)}
+                        onChange={() => setVisibility(Visibility.ONLY_MEMBERS)}
                     />
                 </div>
             </Form>
@@ -188,7 +225,7 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
                     className="m-2"
                     id="create-repo-button"
                     onClick={createRepos}
-                    disabled={!(valid[0] && valid[1] && valid[2])}
+                    disabled={!(valid[0] && valid[1] && valid[2]) || (!region && !location.state)}
                 >
                     Create Repository
                 </Button>
@@ -204,6 +241,16 @@ export default function RepositoryCreate(props : RepositoryCreateProps) {
                        setCollaborators={setCollaborators}
                    />
                )}
+
+            <SearchPlace
+                queryResult={queryResult}
+                isLoading={isQueryLoading}
+                onConfirm={(result) => setRegion(result)}
+                onSearch={(query) => dispatch(searchRegion(query))}
+                onClear={() => dispatch(clearResult(null))}
+                show={searchShow}
+                setShow={setSearchShow}
+            />
         </div>
     );
 }

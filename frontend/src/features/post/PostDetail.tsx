@@ -1,21 +1,17 @@
 import React, {
-    FormEvent, MouseEventHandler, useEffect, useState,
+    useEffect, useState,
 } from "react";
 import { useParams } from "react-router";
 import { Link } from "react-router-dom";
 import { Carousel, Image, Modal } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { getUser } from "../../common/APIs";
-import { IPhoto, IUser } from "../../common/Interfaces";
+import { IUser } from "../../common/Interfaces";
 import {
     fetchSinglePost, newPostComment, postCommentDeleted, postCommentEdited,
 } from "./postsSlice";
 import "./Posts.css";
 import Comment from "../comments/Comment";
-import Photo from "../photo/Photo";
 import avatar from "../../common/assets/avatar.jpg";
-import FocusedPhoto from "../photo/popup/FocusedPhoto";
-import { editPhotos } from "../photo/photosSlice";
 
 interface PostDetailProps {
 }

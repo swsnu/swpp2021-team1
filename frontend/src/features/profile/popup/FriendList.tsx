@@ -1,9 +1,6 @@
-import { createAsyncThunk } from "@reduxjs/toolkit";
 import React, { useEffect, useState } from "react";
 import { ListGroup, Modal } from "react-bootstrap";
-import { Link } from "react-router-dom";
 import { useAppSelector } from "../../../app/hooks";
-import { getFriends } from "../../../common/APIs";
 import { IUser } from "../../../common/Interfaces";
 import Friend from "../Friend";
 

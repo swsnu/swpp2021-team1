@@ -3,19 +3,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { Button, ListGroup } from "react-bootstrap";
 import { AppDispatch, RootState } from "../../app/store";
-import { IRepository, IUser, Visibility } from "../../common/Interfaces";
+import { IRepository, IUser } from "../../common/Interfaces";
 import * as actionCreator from "./reposSlice";
 import Repository from "./Repository";
-import Profile from "../profile/Profile";
-import { fetchSession, signIn } from "../auth/authSlice";
 
 interface RepositoryListProps {
 
 }
 
 export default function RepositoryList(props : RepositoryListProps) {
-    // assume : repolist로 진입 전에 authSlice의 toBeLoaded가 실행되어 user를 loading해야함.
-
     const dispatch = useDispatch<AppDispatch>();
     const [userIsLoading, userHasError] = useSelector<RootState, [boolean, boolean]>((state) =>
         [state.auth.isLoading, state.auth.hasError]);
@@ -43,7 +39,11 @@ export default function RepositoryList(props : RepositoryListProps) {
                 !isLoading && !hasError && (
                     <>
                         <ListGroup>
-                            {repoList.map((value) => <Repository repository={value} />)}
+                            {repoList.map((value) => (
+                                <React.Fragment key={value.repo_id.toString()}>
+                                    <Repository repository={value} />
+                                </React.Fragment>
+                            ))}
                         </ListGroup>
                         { account && user && account.username === user.username &&
                             (

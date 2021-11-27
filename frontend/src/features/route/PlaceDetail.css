@@ -1,0 +1,19 @@
+.not-assigned-list {
+    height: 13.5vh;
+    justify-content: flex-start;
+}
+
+.not-assigned-wrapper {
+    margin-top: -2rem;
+    margin-bottom: -1rem;
+}
+
+.place-off-canvas {
+    box-shadow: 0 10px 5px rgba(0, 0, 0, .2);
+}
+
+.place-edit-confirm {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
