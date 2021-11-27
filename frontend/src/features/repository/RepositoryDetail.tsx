@@ -37,19 +37,19 @@ export default function RepositoryDetail(props : RepositoryDetailProps) {
     const hasAuth = user && currentRepo.collaborators.filter((value) => user.username === value.username).length > 0;
     return (
         <div>
-            <Tabs defaultActiveKey="group" className="mt-4">
-                <Tab eventKey="group" title="Group">
-                    <Group />
-                </Tab>
-                <Tab eventKey="mine" title="Mine">
-                    <Mine />
-                </Tab>
-                { hasAuth && (
+            {hasAuth ? (
+                <Tabs defaultActiveKey="group" className="mt-4">
+                    <Tab eventKey="group" title="Group">
+                        <Group />
+                    </Tab>
+                    <Tab eventKey="mine" title="Mine">
+                        <Mine />
+                    </Tab>
                     <Tab eventKey="setting" title="Setting">
                         <RepositorySettings />
                     </Tab>
-                )}
-            </Tabs>
+                </Tabs>
+            ) : <Group />}
         </div>
     );
 }
