@@ -1,10 +1,29 @@
 // src/mocks/handlers.js
-import faker from "faker";
+
 import { rest } from "msw";
+import { ILabel, IPhoto } from "../common/Interfaces";
 import Factory from "./dataGenerator";
+import mockData from "./mockData.json";
 
 const fact = new Factory();
 
+const dummyLabels: ILabel[] = [];
+for (let i = 0; i < 5; i++) {
+    const label = fact.labelGen();
+    dummyLabels.push(label);
+}
+const dummyPhotos: IPhoto[] = [];
+for (let i = 0; i < 8; i++) {
+    const photo = {
+        photo_id: i,
+        repo_id: 1,
+        image: mockData.photoUrls[i],
+        post_time: "2021-10-11",
+        tag: "abc",
+        uploader: "abc",
+    };
+    dummyPhotos.push(photo);
+}
 export default [
     rest.get("/api/session/", (req, res, ctx) => {
         const user = fact.userGen();
@@ -83,7 +102,7 @@ export default [
 
     rest.get("/api/users/:username/friends/", (req, res, ctx) => {
         const friends = [];
-        const n = faker.datatype.number({ min: 1, max: 10 });
+        const n = 5;
         for (let i = 0; i < n; i += 1) {
             const {
                 username, profile_picture, bio,
@@ -189,42 +208,10 @@ export default [
         return res(ctx.json(friends));
     }),
 
-    rest.get("/api/repositories/:repo_id/photos/", (req, res, ctx) => {
-        const photos = [];
-        const n = 10;
-        for (let i = 0; i < n; i++) {
-            const photo = fact.photoGen();
-            photos.push(photo);
-        }
-        return res(ctx.json(photos));
-    }),
-    rest.post("/api/repositories/:repo_id/photos/", (req, res, ctx) => {
-        const photos = [];
-        const n = 10;
-        for (let i = 0; i < n; i++) {
-            const photo = fact.photoGen();
-            photos.push(photo);
-        }
-        return res(ctx.json(photos));
-    }),
-    rest.put("/api/repositories/:repo_id/photos/", (req, res, ctx) => {
-        const photos = [];
-        const n = 10;
-        for (let i = 0; i < n; i++) {
-            const photo = fact.photoGen();
-            photos.push(photo);
-        }
-        return res(ctx.json(photos));
-    }),
-    rest.delete("/api/repositories/:repo_id/photos/", (req, res, ctx) => {
-        const photos = [];
-        const n = 10;
-        for (let i = 0; i < n; i++) {
-            const photo = fact.photoGen();
-            photos.push(photo);
-        }
-        return res(ctx.json(photos));
-    }),
+    rest.get("/api/repositories/:repo_id/photos/", (req, res, ctx) => res(ctx.json(dummyPhotos))),
+    rest.post("/api/repositories/:repo_id/photos/", (req, res, ctx) => res(ctx.json(dummyPhotos))),
+    rest.put("/api/repositories/:repo_id/photos/", (req, res, ctx) => res(ctx.json(dummyPhotos))),
+    rest.delete("/api/repositories/:repo_id/photos/", (req, res, ctx) => res(ctx.json(dummyPhotos))),
 
     rest.get("/api/repositories/:repo_id/discussions/", (req, res, ctx) => {
         const discussions = [];
@@ -386,10 +373,16 @@ export default [
         }
         return res(ctx.json(comments));
     }),
+    rest.get("/api/repositories/:repo_id/labels/", (req, res, ctx) => res(ctx.json(dummyLabels))),
+    rest.post("/api/repositories/:repo_id/labels/", (req, res, ctx) => res(ctx.json(dummyLabels))),
+    rest.put("/api/repositories/:repo_id/labels/:label_id/", (req, res, ctx) => res(ctx.json(dummyLabels))),
+    rest.delete("/api/repositories/:repo_id/labels/:label_id/", (req, res, ctx) => res(ctx.json(dummyLabels))),
+    rest.get("/api/repositories/:repo_id/labels/:label_id/photos/", (req, res, ctx) => res(ctx.json(dummyPhotos))),
+    rest.put("/api/repositories/:repo_id/labels/:label_id/photos/", (req, res, ctx) => res(ctx.json(dummyPhotos))),
 ];
 
 export const handlerException = (
-    path, method,
+    path: string, method: string,
 ) => {
     let returnValue;
     switch (method) {
@@ -432,3 +425,13 @@ export const postPostCommentHE = handlerException("/api/posts/:post_id/comments/
 export const getPostCommentHE = handlerException("/api/posts/:post_id/comments/:post_comment_id/", "GET");
 export const putPostCommentHE = handlerException("/api/posts/:post_id/comments/:post_comment_id/", "PUT");
 export const deletePostCommentHE = handlerException("/api/posts/:post_id/comments/:post_comment_id/", "DELETE");
+
+export const getLabelsHE = handlerException("/api/repositories/:repo_id/labels/", "GET");
+export const postLabelHE = handlerException("/api/repositories/:repo_id/labels/", "POST");
+
+export const putLabelHE = handlerException("/api/repositories/:repo_id/labels/:label_id/", "PUT");
+
+export const deleteLabelHE = handlerException("/api/repositories/:repo_id/labels/:label_id/", "DELETE");
+
+export const getLabelPhotosHE = handlerException("/api/repositories/:repo_id/labels/:label_id/photos/", "GET");
+export const putLabelPhotosHE = handlerException("/api/repositories/:repo_id/labels/:label_id/photos/", "PUT");

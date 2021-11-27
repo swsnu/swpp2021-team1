@@ -73,6 +73,8 @@ def photos(request, repo_id):
             temp2_photo_set = photo_set.filter(place_address__icontains=place_query)
             photo_set = temp1_photo_set.union(temp2_photo_set)
 
+        photo_set = photo_set.order_by('-photo_id')
+
         photo_list = []
         for photo in photo_set:
             if PhotoTag.objects.filter(photo=photo, user=request.user).exists():
@@ -81,8 +83,14 @@ def photos(request, repo_id):
             else:
                 photo_tag_text = ""
 
-            photo_list.insert(
-                0,
+            label_list = []
+            for label in photo.labels.all():
+                label_list.append({
+                    'label_id' : label.label_id,
+                    'label_name' : label.label_name,
+                })
+
+            photo_list.append(
                 {
                     "photo_id": photo.photo_id,
                     "repo_id": photo.repository.repo_id,
@@ -90,40 +98,10 @@ def photos(request, repo_id):
                     "post_time": photo.post_time.strftime(UPLOADED_TIME_FORMAT),
                     "tag": photo_tag_text,
                     "uploader": photo.uploader.username,
+                    "labels" : label_list,
                 },
             )
         return HttpResponseSuccessGet(photo_list)
-
-# classify by date
-
-###
-        if len(photo_list) == 0:
-            response_list = []
-        elif criteria is not None:
-            response_list = []
-            one_day = []
-            current_day = photo_list[0].post_time.strftime(DATE_FORMAT)
-            photo_count = 0
-            while photo_count < len(photo_list):
-                next_day = photo_list[photo_count].post_time.strftime(DATE_FORMAT)
-                if current_day != next_day:
-                    response_list.append(one_day)
-                    one_day = [photo_list[photo_count]]
-                    current_day = next_day
-                else:
-                    one_day.insert(0, photo_list[photo_count])
-                photo_count += 1
-            response_list.append(one_day)
-        elif raw_post_time is not None:
-            response_list = filter(
-                lambda photo: photo.post_time.year == post_time.year
-                and photo.post_time.month == post_time.month
-                and photo.post_time.day == post_time.day,
-                photo_list,
-            )
-        else:
-            response_list = photo_list
-###
 
     if request.method == "POST":
         if not request.user.is_authenticated:
@@ -157,6 +135,13 @@ def photos(request, repo_id):
             except PhotoTag.DoesNotExist:
                 photo_tag_text = ""
 
+            label_list = []
+            for label in photo.labels.all():
+                label_list.append({
+                    'label_id' : label.label_id,
+                    'label_name' : label.label_name,
+                })
+
             photo_list.append(
                 {
                     "photo_id": photo.photo_id,
@@ -165,6 +150,7 @@ def photos(request, repo_id):
                     "post_time": photo.post_time.strftime(UPLOADED_TIME_FORMAT),
                     "tag": photo_tag_text,
                     "uploader": photo.uploader.username,
+                    "labels" : label_list,
                 }
             )
 
@@ -210,6 +196,13 @@ def photos(request, repo_id):
         except PhotoTag.DoesNotExist:
             photo_tag_text = ""
 
+        label_list = []
+        for label in photo.labels.all():
+            label_list.append({
+                'label_id' : label.label_id,
+                'label_name' : label.label_name,
+            })
+
         photo_list.append(
             {
                 "photo_id": photo.photo_id,
@@ -218,6 +211,7 @@ def photos(request, repo_id):
                 "post_time": photo.post_time.strftime(UPLOADED_TIME_FORMAT),
                 "tag": photo_tag_text,
                 "uploader": photo.uploader.username,
+                "labels" : label_list,
             }
         )
 
@@ -243,7 +237,7 @@ def photoID(request, repo_id, photo_id):
 
     if photo.repository != repository:
         return HttpResponseInvalidInput()
-    
+
     try:
         req_data = json.loads(request.body.decode())
         new_tag = req_data['tag']

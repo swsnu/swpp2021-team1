@@ -106,3 +106,8 @@ hr {
 
 .fw-semibold { font-weight: 600; }
 .lh-tight { line-height: 1.25; }
+
+.nav-link {
+  font-weight: bold;
+  font-family: "Gmarket Sans OTF", sans-serif;
+}
