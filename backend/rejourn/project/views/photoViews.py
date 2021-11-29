@@ -69,8 +69,8 @@ def photos(request, repo_id):
             photo_set = photo_set.filter(post_time__lte=end_date)
 
         if place_query is not None:
-            temp1_photo_set = photo_set.filter(place_name__icontains=place_query)
-            temp2_photo_set = photo_set.filter(place_address__icontains=place_query)
+            temp1_photo_set = photo_set.filter(place__place_name__icontains=place_query)
+            temp2_photo_set = photo_set.filter(place__place_address__icontains=place_query)
             photo_set = temp1_photo_set.union(temp2_photo_set)
 
         photo_set = photo_set.order_by('-photo_id')
@@ -95,7 +95,7 @@ def photos(request, repo_id):
                     "photo_id": photo.photo_id,
                     "repo_id": photo.repository.repo_id,
                     "image": photo.image_file.url,
-                    "post_time": photo.post_time.strftime(UPLOADED_TIME_FORMAT),
+                    "post_time": timezone.make_naive(photo.post_time).strftime(UPLOADED_TIME_FORMAT),
                     "tag": photo_tag_text,
                     "uploader": photo.uploader.username,
                     "labels" : label_list,
@@ -144,7 +144,7 @@ def photos(request, repo_id):
                     "photo_id": photo.photo_id,
                     "repo_id": photo.repository.repo_id,
                     "image": photo.image_file.url,
-                    "post_time": photo.post_time.strftime(UPLOADED_TIME_FORMAT),
+                    "post_time": timezone.make_naive(photo.post_time).strftime(UPLOADED_TIME_FORMAT),
                     "tag": photo_tag_text,
                     "uploader": photo.uploader.username,
                     "labels" : label_list,
@@ -205,7 +205,7 @@ def photos(request, repo_id):
                 "photo_id": photo.photo_id,
                 "repo_id": photo.repository.repo_id,
                 "image": photo.image_file.url,
-                "post_time": photo.post_time.strftime(UPLOADED_TIME_FORMAT),
+                "post_time": timezone.make_naive(photo.post_time).strftime(UPLOADED_TIME_FORMAT),
                 "tag": photo_tag_text,
                 "uploader": photo.uploader.username,
                 "labels" : label_list,
@@ -265,7 +265,7 @@ def photoID(request, repo_id, photo_id):
         "photo_id": photo.photo_id,
         "repo_id": photo.repository.repo_id,
         "image": photo.image_file.url,
-        "post_time": photo.post_time.strftime(UPLOADED_TIME_FORMAT),
+        "post_time": timezone.make_naive(photo.post_time).strftime(UPLOADED_TIME_FORMAT),
         "tag": new_tag,
         "uploader": photo.uploader.username,
     }

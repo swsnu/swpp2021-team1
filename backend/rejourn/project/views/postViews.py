@@ -1,6 +1,7 @@
 import json
 from json.decoder import JSONDecodeError
 
+from django.utils import timezone
 from django.http.response import HttpResponseBadRequest
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
@@ -69,7 +70,7 @@ def userPosts(request, user_name):
                     "repo_id": post.repository.repo_id,
                     "author": author_info,
                     "title": post.title,
-                    "post_time": post.post_time.strftime(UPLOADED_TIME_FORMAT),
+                    "post_time": timezone.make_naive(post.post_time).strftime(UPLOADED_TIME_FORMAT),
                     "photos": photo_list,
                 },
             )
@@ -163,7 +164,7 @@ def repoPosts(request, repo_id):
             "author": author_info,
             "title": new_post.title,
             "text": new_post.text,
-            "post_time": new_post.post_time.strftime(UPLOADED_TIME_FORMAT),
+            "post_time": timezone.make_naive(new_post.post_time).strftime(UPLOADED_TIME_FORMAT),
             "photos": photos,
             "comments": [],
         }
@@ -215,7 +216,7 @@ def repoPosts(request, repo_id):
                 "repo_id": post.repository.repo_id,
                 "author": author_info,
                 "title": post.title,
-                "post_time": post.post_time.strftime(UPLOADED_TIME_FORMAT),
+                "post_time": timezone.make_naive(post.post_time).strftime(UPLOADED_TIME_FORMAT),
                 "photos": photo_list,
             },
         )
@@ -277,7 +278,7 @@ def postID(request, post_id):
                     "author": author_info,
                     "text": comment.text,
                     "parent_id": comment.post.post_id,
-                    "post_time": comment.post_time.strftime(UPLOADED_TIME_FORMAT),
+                    "post_time": timezone.make_naive(comment.post_time).strftime(UPLOADED_TIME_FORMAT),
                 }
             )
 
@@ -287,7 +288,7 @@ def postID(request, post_id):
             "author": author_info,
             "title": post.title,
             "text": post.text,
-            "post_time": post.post_time.strftime(UPLOADED_TIME_FORMAT),
+            "post_time": timezone.make_naive(post.post_time).strftime(UPLOADED_TIME_FORMAT),
             "photos": photo_list,
             "comments": comment_list,
         }
@@ -406,7 +407,7 @@ def postID(request, post_id):
                 "author": author_info,
                 "text": comment.text,
                 "parent_id": comment.post.post_id,
-                "post_time": comment.post_time.strftime(UPLOADED_TIME_FORMAT),
+                "post_time": timezone.make_naive(comment.post_time).strftime(UPLOADED_TIME_FORMAT),
             }
         )
 
@@ -416,7 +417,7 @@ def postID(request, post_id):
         "author": author_info,
         "title": post.title,
         "text": post.text,
-        "post_time": post.post_time.strftime(UPLOADED_TIME_FORMAT),
+        "post_time": timezone.make_naive(post.post_time).strftime(UPLOADED_TIME_FORMAT),
         "photos": photo_list,
         "comments": comment_list,
     }
@@ -473,7 +474,7 @@ def postComments(request, post_id):
                     "author": author_info,
                     "text": comment.text,
                     "parent_id": comment.post.post_id,
-                    "post_time": comment.post_time.strftime(UPLOADED_TIME_FORMAT),
+                    "post_time": timezone.make_naive(comment.post_time).strftime(UPLOADED_TIME_FORMAT),
                 }
             )
         return HttpResponseSuccessUpdate(comment_list)
@@ -512,7 +513,7 @@ def postComments(request, post_id):
                 "author": author_info,
                 "text": comment.text,
                 "parent_id": comment.post.post_id,
-                "post_time": comment.post_time.strftime(UPLOADED_TIME_FORMAT),
+                "post_time": timezone.make_naive(comment.post_time).strftime(UPLOADED_TIME_FORMAT),
             }
         )
     return HttpResponseSuccessGet(comment_list)
@@ -561,7 +562,7 @@ def postCommentID(request, post_id, post_comment_id):
             "author": author_info,
             "text": comment.text,
             "parent_id": comment.post.post_id,
-            "post_time": comment.post_time.strftime(UPLOADED_TIME_FORMAT),
+            "post_time": timezone.make_naive(comment.post_time).strftime(UPLOADED_TIME_FORMAT),
         }
         return HttpResponseSuccessGet(response_dict)
 
@@ -601,7 +602,7 @@ def postCommentID(request, post_id, post_comment_id):
                     "author": author_info,
                     "text": comment.text,
                     "parent_id": comment.post.post_id,
-                    "post_time": comment.post_time.strftime(UPLOADED_TIME_FORMAT),
+                    "post_time": timezone.make_naive(comment.post_time).strftime(UPLOADED_TIME_FORMAT),
                 }
             )
         return HttpResponseSuccessDelete(comment_list)
@@ -651,7 +652,7 @@ def postCommentID(request, post_id, post_comment_id):
                 "author": author_info,
                 "text": comment.text,
                 "parent_id": comment.post.post_id,
-                "post_time": comment.post_time.strftime(UPLOADED_TIME_FORMAT),
+                "post_time": timezone.make_naive(comment.post_time).strftime(UPLOADED_TIME_FORMAT),
             }
         )
     return HttpResponseSuccessUpdate(comment_list)

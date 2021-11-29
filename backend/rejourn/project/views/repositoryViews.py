@@ -55,9 +55,7 @@ def repositories(request):
 
         try:
             travel_start_date = datetime.strptime(raw_travel_start_date, DATE_FORMAT)
-            travel_start_date = timezone.make_aware(travel_start_date)
             travel_end_date = datetime.strptime(raw_travel_end_date, DATE_FORMAT)
-            travel_end_date = timezone.make_aware(travel_end_date)
         except ValueError:
             return HttpResponseInvalidInput()
 
@@ -322,9 +320,7 @@ def repositoryID(request, repo_id):
 
     try:
         travel_start_date = datetime.strptime(raw_travel_start_date, DATE_FORMAT)
-        travel_start_date = timezone.make_aware(travel_start_date)
         travel_end_date = datetime.strptime(raw_travel_end_date, DATE_FORMAT)
-        travel_end_date = timezone.make_aware(travel_end_date)
     except ValueError:
         return HttpResponseInvalidInput()
 

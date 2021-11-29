@@ -1,6 +1,7 @@
 import json
 from json.decoder import JSONDecodeError
 
+from django.utils import timezone
 from django.http.response import HttpResponseBadRequest
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
@@ -50,7 +51,7 @@ def labels(request, repo_id):
         repository = Repository.objects.get(repo_id=repo_id)
     except Repository.DoesNotExist:
         return HttpResponseNotExist()
-    
+
     if request.user not in repository.collaborators.all():
         return HttpResponseNoPermission()
 
@@ -131,7 +132,7 @@ def labelID(request, repo_id, label_id):
     if (request.user not in repository.collaborators.all()
             or request.user != label.user):
         return HttpResponseNoPermission()
-    
+
     label.delete()
 
     label_list = []
@@ -163,14 +164,14 @@ def labelPhotos(request, repo_id, label_id):
         if (request.user not in repository.collaborators.all()
                 or request.user != label.user):
             return HttpResponseNoPermission()
-        
+
         photo_list = []
         for photo in label.photos.all():
             if PhotoTag.objects.filter(user=request.user, photo=photo).count() != 0:
                 photo_tag = PhotoTag.objects.get(user=request.user, photo=photo).text
             else:
                 photo_tag = ""
-            
+
             label_list = []
             for label in photo.labels.all():
                 label_list.append({
@@ -181,11 +182,11 @@ def labelPhotos(request, repo_id, label_id):
                 "repo_id" : repo_id,
                 "photo_id" : photo.photo_id,
                 "image" : photo.image_file.url,
-                "post_time" : photo.post_time.strftime(UPLOADED_TIME_FORMAT),
+                "post_time" : timezone.make_naive(photo.post_time).strftime(UPLOADED_TIME_FORMAT),
                 "uploader" : photo.uploader.username,
                 "tag" : photo_tag,
                 "labels" : label_list,
-            }) 
+            })
         return HttpResponseSuccessGet(photo_list)
 
     # request.method == 'PUT'
@@ -224,7 +225,7 @@ def labelPhotos(request, repo_id, label_id):
     for photo in photo_list:
         if photo.repository != repository:
             return HttpResponseNoPermission()
-    
+
     label.photos.set(photo_list)
     label.save()
 
@@ -234,7 +235,7 @@ def labelPhotos(request, repo_id, label_id):
             photo_tag = PhotoTag.objects.get(user=request.user, photo=photo).text
         else:
             photo_tag = ""
-        
+
         label_list = []
         for label in photo.labels.all():
             label_list.append({
@@ -246,9 +247,9 @@ def labelPhotos(request, repo_id, label_id):
             "repo_id" : repo_id,
             "photo_id" : photo.photo_id,
             "image" : photo.image_file.url,
-            "post_time" : photo.post_time.strftime(UPLOADED_TIME_FORMAT),
+            "post_time" : timezone.make_naive(photo.post_time).strftime(UPLOADED_TIME_FORMAT),
             "uploader" : photo.uploader.username,
-            "tag" : photo_tag, 
+            "tag" : photo_tag,
             "labels" : label_list,
         })
     return HttpResponseSuccessUpdate(photo_list)

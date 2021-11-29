@@ -172,11 +172,11 @@ class RouteTestCase(TestCase):
         )
         response = client.get("/api/region-search/")
         self.assertEqual(response.status_code, 400)
-        
+
         #response = client.get("/api/region-search/?query=jeju 애월")
         #self.assertEqual(response.status_code, 200)
         #self.assertIn('Aewol-eup, Jeju-si, Jeju-do, South Korea', response.content.decode())
-        
+
 
     def test_routeID_get(self):
         client = Client()
@@ -429,7 +429,7 @@ class RouteTestCase(TestCase):
             content_type="application/json",
         )
 
-        
+
         response = client_a.post("/api/repositories/2/travel/")
         self.assertEqual(response.status_code, 405)
 

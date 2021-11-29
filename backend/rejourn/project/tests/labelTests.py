@@ -60,13 +60,13 @@ class LabelTestCase(TestCase):
         label_a = Label(
             label_name="TEST_LABEL_A",
             repository=repo_a,
-            user=user_a,    
+            user=user_a,
         )
         label_a.save()
         label_b = Label(
             label_name="TEST_LABEL_B",
             repository=repo_b,
-            user=user_a,    
+            user=user_a,
         )
         label_b.save()
 
@@ -101,14 +101,14 @@ class LabelTestCase(TestCase):
         self.assertEqual(response.status_code, 404)
         response = client_b.get("/api/repositories/2/labels/")
         self.assertEqual(response.status_code, 403)
-        
+
         response = client_a.get("/api/repositories/1/labels/")
         self.assertEqual(response.status_code, 200)
         self.assertIn("TEST_LABEL_A", response.content.decode())
         response = client_b.get("/api/repositories/1/labels/")
         self.assertEqual(response.status_code, 200)
         self.assertNotIn("TEST_LABEL_A", response.content.decode())
-        
+
         response = client_anonymous.post("/api/repositories/1/labels/")
         self.assertEqual(response.status_code, 401)
         response = client_b.post("/api/repositories/1/labels/")
@@ -125,7 +125,7 @@ class LabelTestCase(TestCase):
             content_type="application/json"
         )
         self.assertEqual(response.status_code, 403)
-        
+
         response = client_a.post(
             "/api/repositories/1/labels/",
             json.dumps({'label_name' : "NEW_LABEL"}),
@@ -243,7 +243,7 @@ class LabelTestCase(TestCase):
         response = client_a.put(
             "/api/repositories/1/labels/1/photos/",
             json.dumps([{}]),
-            content_type="application/json"   
+            content_type="application/json"
         )
         self.assertEqual(response.status_code, 400)
         response = client_a.put(
@@ -321,4 +321,4 @@ class LabelTestCase(TestCase):
         response = client_a.get("/api/repositories/1/labels/1/photos/")
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('"photo_id": 1', response.content.decode())
-        self.assertIn('"photo_id": 2', response.content.decode())      
+        self.assertIn('"photo_id": 2', response.content.decode())
