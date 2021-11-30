@@ -11,6 +11,50 @@ from project.httpResponse import *
 
 UPLOADED_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
+def get_discussion_comment_list(discussion):
+    comment_list = []
+    for comment in DiscussionComment.objects.filter(discussion=discussion):
+        author_info = {
+            "username": comment.author.username,
+            "bio": comment.author.bio,
+        }
+        if bool(comment.author.profile_picture):
+            author_info["profile_picture"] = comment.author.profile_picture.url
+        comment_list.append(
+            {
+                "comment_id": comment.discussion_comment_id,
+                "author": author_info,
+                "text": comment.text,
+                "parent_id": comment.discussion.discussion_id,
+                "post_time": timezone.make_naive(comment.post_time).strftime(UPLOADED_TIME_FORMAT),
+            }
+        )
+    return comment_list
+
+def get_discussion_dict(discussion, comment_blank=False):
+    author_info = {
+        "username": discussion.author.username,
+        "bio": discussion.author.bio,
+    }
+    if bool(discussion.author.profile_picture):
+        author_info["profile_picture"] = discussion.author.profile_picture.url
+    
+    if comment_blank:
+        comment_list = []
+    else:
+        comment_list = get_discussion_comment_list(discussion)
+
+    discussion_dict = {
+        "discussion_id": discussion.discussion_id,
+        "repo_id": discussion.repository.repo_id,
+        "author": author_info,
+        "title": discussion.title,
+        "text": discussion.text,
+        "post_time": timezone.make_naive(discussion.post_time).strftime(UPLOADED_TIME_FORMAT),
+        "comments": comment_list,
+    }
+    return discussion_dict
+
 # /api/repositories/<int:repo_id>/discussions/
 @require_http_methods(["POST", "GET"])
 @ensure_csrf_cookie
@@ -39,21 +83,7 @@ def discussions(request, repo_id):
         )
         new_discussion.save()
 
-        author_info = {
-            "username": new_discussion.author.username,
-            "bio": new_discussion.author.bio,
-        }
-        if bool(new_discussion.author.profile_picture):
-            author_info["profile_picture"] = new_discussion.author.profile_picture.url
-        response_dict = {
-            "discussion_id": new_discussion.discussion_id,
-            "repo_id": new_discussion.repository.repo_id,
-            "author": author_info,
-            "title": new_discussion.title,
-            "text": new_discussion.text,
-            "post_time": timezone.make_naive(new_discussion.post_time).strftime(UPLOADED_TIME_FORMAT),
-            "comments": [],
-        }
+        response_dict = get_discussion_dict(new_discussion, comment_blank=True)
         return HttpResponseSuccessUpdate(response_dict)
 
     # request.method == "GET":
@@ -108,39 +138,7 @@ def discussionID(request, discussion_id):
         if not request.user in repository.collaborators.all():
             return HttpResponseNoPermission()
 
-        comment_list = []
-        for comment in DiscussionComment.objects.filter(discussion=discussion):
-            author_info = {
-                "username": comment.author.username,
-                "bio": comment.author.bio,
-            }
-            if bool(comment.author.profile_picture):
-                author_info["profile_picture"] = comment.author.profile_picture.url
-            comment_list.append(
-                {
-                    "comment_id": comment.discussion_comment_id,
-                    "author": author_info,
-                    "text": comment.text,
-                    "parent_id": comment.discussion.discussion_id,
-                    "post_time": timezone.make_naive(comment.post_time).strftime(UPLOADED_TIME_FORMAT),
-                }
-            )
-
-        author_info = {
-            "username": discussion.author.username,
-            "bio": discussion.author.bio,
-        }
-        if bool(discussion.author.profile_picture):
-            author_info["profile_picture"] = discussion.author.profile_picture.url
-        response_dict = {
-            "discussion_id": discussion.discussion_id,
-            "repo_id": discussion.repository.repo_id,
-            "author": author_info,
-            "title": discussion.title,
-            "text": discussion.text,
-            "post_time": timezone.make_naive(discussion.post_time).strftime(UPLOADED_TIME_FORMAT),
-            "comments": comment_list,
-        }
+        response_dict = get_discussion_dict(discussion)
         return HttpResponseSuccessGet(response_dict)
 
     if request.method == "DELETE":
@@ -184,39 +182,7 @@ def discussionID(request, discussion_id):
     discussion.text = text
     discussion.save()
 
-    comment_list = []
-    for comment in DiscussionComment.objects.filter(discussion=discussion):
-        author_info = {
-            "username": comment.author.username,
-            "bio": comment.author.bio,
-        }
-        if bool(comment.author.profile_picture):
-            author_info["profile_picture"] = comment.author.profile_picture.url
-        comment_list.append(
-            {
-                "comment_id": comment.discussion_comment_id,
-                "author": author_info,
-                "text": comment.text,
-                "parent_id": comment.discussion.discussion_id,
-                "post_time": timezone.make_naive(comment.post_time).strftime(UPLOADED_TIME_FORMAT),
-            }
-        )
-
-    author_info = {
-        "username": discussion.author.username,
-        "bio": discussion.author.bio,
-    }
-    if bool(discussion.author.profile_picture):
-        author_info["profile_picture"] = discussion.author.profile_picture.url
-    response_dict = {
-        "discussion_id": discussion.discussion_id,
-        "repo_id": discussion.repository.repo_id,
-        "author": author_info,
-        "title": discussion.title,
-        "text": discussion.text,
-        "post_time": timezone.make_naive(discussion.post_time).strftime(UPLOADED_TIME_FORMAT),
-        "comments": comment_list,
-    }
+    response_dict = get_discussion_dict(discussion)
     return HttpResponseSuccessUpdate(response_dict)
 
 
@@ -249,24 +215,7 @@ def discussionComments(request, discussion_id):
         )
         new_comment.save()
 
-        comment_list = []
-        for comment in DiscussionComment.objects.filter(discussion=discussion):
-            author_info = {
-                "username": comment.author.username,
-                "bio": comment.author.bio,
-            }
-            if bool(comment.author.profile_picture):
-                author_info["profile_picture"] = comment.author.profile_picture.url
-            comment_list.append(
-                {
-                    "comment_id": comment.discussion_comment_id,
-                    "author": author_info,
-                    "text": comment.text,
-                    "parent_id": comment.discussion.discussion_id,
-                    "post_time": timezone.make_naive(comment.post_time).strftime(UPLOADED_TIME_FORMAT),
-                }
-            )
-
+        comment_list = get_discussion_comment_list(discussion)
         return HttpResponseSuccessUpdate(comment_list)
 
     # request.method == "GET":
@@ -281,24 +230,7 @@ def discussionComments(request, discussion_id):
     if not request.user in repository.collaborators.all():
         return HttpResponseNoPermission()
 
-    comment_list = []
-    for comment in DiscussionComment.objects.filter(discussion=discussion):
-        author_info = {
-            "username": comment.author.username,
-            "bio": comment.author.bio,
-        }
-        if bool(comment.author.profile_picture):
-            author_info["profile_picture"] = comment.author.profile_picture.url
-        comment_list.append(
-            {
-                "comment_id": comment.discussion_comment_id,
-                "author": author_info,
-                "text": comment.text,
-                "parent_id": comment.discussion.discussion_id,
-                "post_time": timezone.make_naive(comment.post_time).strftime(UPLOADED_TIME_FORMAT),
-            }
-        )
-
+    comment_list = get_discussion_comment_list(discussion)
     return HttpResponseSuccessGet(comment_list)
 
 
@@ -369,24 +301,7 @@ def discussionCommentID(request, discussion_id, discussion_comment_id):
 
         comment.delete()
 
-        comment_list = []
-        for comment in DiscussionComment.objects.filter(discussion=discussion):
-            author_info = {
-                "username": comment.author.username,
-                "bio": comment.author.bio,
-            }
-            if bool(comment.author.profile_picture):
-                author_info["profile_picture"] = comment.author.profile_picture.url
-            comment_list.append(
-                {
-                    "comment_id": comment.discussion_comment_id,
-                    "author": author_info,
-                    "text": comment.text,
-                    "parent_id": comment.discussion.discussion_id,
-                    "post_time": timezone.make_naive(comment.post_time).strftime(UPLOADED_TIME_FORMAT),
-                }
-            )
-
+        comment_list = get_discussion_comment_list(discussion)
         return HttpResponseSuccessDelete(comment_list)
 
     # request.method == "PUT":
@@ -422,22 +337,5 @@ def discussionCommentID(request, discussion_id, discussion_comment_id):
     comment.text = text
     comment.save()
 
-    comment_list = []
-    for comment in DiscussionComment.objects.filter(discussion=discussion):
-        author_info = {
-            "username": comment.author.username,
-            "bio": comment.author.bio,
-        }
-        if bool(comment.author.profile_picture):
-            author_info["profile_picture"] = comment.author.profile_picture.url
-        comment_list.append(
-            {
-                "comment_id": comment.discussion_comment_id,
-                "author": author_info,
-                "text": comment.text,
-                "parent_id": comment.discussion.discussion_id,
-                "post_time": timezone.make_naive(comment.post_time).strftime(UPLOADED_TIME_FORMAT),
-            }
-        )
-
+    comment_list = get_discussion_comment_list(discussion)
     return HttpResponseSuccessUpdate(comment_list)

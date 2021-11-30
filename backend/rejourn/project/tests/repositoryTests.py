@@ -315,10 +315,6 @@ class RepositoryTestCase(TestCase):
 
         response = client_a.get("/api/repositories/")
         self.assertEqual(response.status_code, 400)
-        response = client_a.get(
-            "/api/repositories/?owner=TEST_USER_A&username=TEST_USER_A"
-        )
-        self.assertEqual(response.status_code, 400)
         response = client_a.get("/api/repositories/?owner=unknown")
         self.assertEqual(response.status_code, 410)
         response = client_a.get("/api/repositories/?username=unknown")

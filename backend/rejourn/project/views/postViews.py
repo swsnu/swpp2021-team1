@@ -1,5 +1,7 @@
 import json
 from json.decoder import JSONDecodeError
+from typing import OrderedDict
+from django.http import response
 
 from django.utils import timezone
 from django.http.response import HttpResponseBadRequest
@@ -16,11 +18,68 @@ from project.models.models import (
 )
 from project.httpResponse import *
 from project.enum import Scope
-from project.utils import have_common_user
+from project.utils import repo_visible
 
 
 UPLOADED_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
+def get_post_comment_list(post):
+    comment_list = []
+    for comment in PostComment.objects.filter(post=post):
+        author_info = {
+            "username": comment.author.username,
+            "bio": comment.author.bio,
+        }
+        if bool(comment.author.profile_picture):
+            author_info["profile_picture"] = comment.author.profile_picture.url
+        comment_list.append(
+            {
+                "comment_id": comment.post_comment_id,
+                "author": author_info,
+                "text": comment.text,
+                "parent_id": comment.post.post_id,
+                "post_time": timezone.make_naive(comment.post_time).strftime(UPLOADED_TIME_FORMAT),
+            }
+        )
+    return comment_list
+
+def get_post_photo_list(post):
+    photo_list = []
+    for photo_order in PhotoInPost.objects.filter(post=post).order_by('order'):
+        photo_list.append(
+            {
+                "photo_id": photo_order.photo.photo_id,
+                "local_tag": photo_order.local_tag,
+                "image": photo_order.photo.image_file.url,
+            }
+        )
+    return photo_list
+
+def get_post_dict(post, comment_blank=False):
+    photo_list = get_post_photo_list(post)
+
+    if comment_blank:
+        comment_list = []
+    else:
+        comment_list = get_post_comment_list(post)
+
+    author_info = {
+        "username": post.author.username,
+        "bio": post.author.bio,
+    }
+    if bool(post.author.profile_picture):
+        author_info["profile_picture"] = post.author.profile_picture.url
+    post_dict = {
+        "post_id": post.post_id,
+        "repo_id": post.repository.repo_id,
+        "author": author_info,
+        "title": post.title,
+        "text": post.text,
+        "post_time": timezone.make_naive(post.post_time).strftime(UPLOADED_TIME_FORMAT),
+        "photos": photo_list,
+        "comments": comment_list,
+    }
+    return post_dict
 
 # /api/users/<str:user_name>/posts/
 @require_http_methods(["GET"])
@@ -35,26 +94,8 @@ def userPosts(request, user_name):
     post_list = []
     for post in Post.objects.filter(author=user):
         repository = post.repository
-        if (
-                (repository.visibility == Scope.PUBLIC)
-                or (request.user in repository.collaborators.all())
-                or (
-                    repository.visibility == Scope.FRIENDS_ONLY
-                    and have_common_user(
-                        request.user.friends.all(), repository.collaborators.all()
-                    )
-                )
-            ):
-
-            photo_list = []
-            for photo_order in PhotoInPost.objects.filter(post=post):
-                photo_list.append(
-                    {
-                        "photo_id": photo_order.photo.photo_id,
-                        "local_tag": photo_order.local_tag,
-                        "image": photo_order.photo.image_file.url,
-                    }
-                )
+        if repo_visible(request.user, repository):
+            photo_list = get_post_photo_list(post)
 
             author_info = {
                 "username": post.author.username,
@@ -143,31 +184,7 @@ def repoPosts(request, repo_id):
             new_photo_in_post.save()
             order_count += 1
 
-        photos = []
-        for photo_order in PhotoInPost.objects.filter(post=new_post):
-            photos.append(
-                {
-                    "photo_id": photo_order.photo.photo_id,
-                    "local_tag": photo_order.local_tag,
-                    "image": photo_order.photo.image_file.url,
-                }
-            )
-        author_info = {
-            "username": new_post.author.username,
-            "bio": new_post.author.bio,
-        }
-        if bool(new_post.author.profile_picture):
-            author_info["profile_picture"] = new_post.author.profile_picture.url
-        response_dict = {
-            "post_id": new_post.post_id,
-            "repo_id": new_post.repository.repo_id,
-            "author": author_info,
-            "title": new_post.title,
-            "text": new_post.text,
-            "post_time": timezone.make_naive(new_post.post_time).strftime(UPLOADED_TIME_FORMAT),
-            "photos": photos,
-            "comments": [],
-        }
+        response_dict = get_post_dict(new_post, comment_blank=True)
         return HttpResponseSuccessUpdate(response_dict)
 
     # request.method == "GET":
@@ -176,31 +193,14 @@ def repoPosts(request, repo_id):
     except Repository.DoesNotExist:
         return HttpResponseNotExist()
 
-    if not (
-            (repository.visibility == Scope.PUBLIC)
-            or (request.user in repository.collaborators.all())
-            or (
-                repository.visibility == Scope.FRIENDS_ONLY
-                and have_common_user(
-                    request.user.friends.all(), repository.collaborators.all()
-                )
-            )
-        ):
+    if not repo_visible(request.user, repository):
         return HttpResponseNoPermission()
 
     post_list = []
 
     for post in Post.objects.filter(repository=repository):
 
-        photo_list = []
-        for photo_order in PhotoInPost.objects.filter(post=post):
-            photo_list.append(
-                {
-                    "photo_id": photo_order.photo.photo_id,
-                    "local_tag": photo_order.local_tag,
-                    "image": photo_order.photo.image_file.url,
-                }
-            )
+        photo_list = get_post_photo_list(post)
 
         author_info = {
             "username": post.author.username,
@@ -235,63 +235,10 @@ def postID(request, post_id):
 
         repository = post.repository
 
-        if not (
-                (repository.visibility == Scope.PUBLIC)
-                or (request.user in repository.collaborators.all())
-                or (
-                    repository.visibility == Scope.FRIENDS_ONLY
-                    and have_common_user(
-                        request.user.friends.all(), repository.collaborators.all()
-                    )
-                )
-            ):
+        if not repo_visible(request.user, repository):
             return HttpResponseNoPermission()
 
-        photo_list = []
-        for photo_order in PhotoInPost.objects.filter(post=post):
-            photo_list.append(
-                {
-                    "photo_id": photo_order.photo.photo_id,
-                    "local_tag": photo_order.local_tag,
-                    "image": photo_order.photo.image_file.url,
-                }
-            )
-
-        author_info = {
-            "username": post.author.username,
-            "bio": post.author.bio,
-        }
-        if bool(post.author.profile_picture):
-            author_info["profile_picture"] = post.author.profile_picture.url
-
-        comment_list = []
-        for comment in PostComment.objects.filter(post=post):
-            author_info = {
-                "username": comment.author.username,
-                "bio": comment.author.bio,
-            }
-            if bool(comment.author.profile_picture):
-                author_info["profile_picture"] = comment.author.profile_picture.url
-            comment_list.append(
-                {
-                    "comment_id": comment.post_comment_id,
-                    "author": author_info,
-                    "text": comment.text,
-                    "parent_id": comment.post.post_id,
-                    "post_time": timezone.make_naive(comment.post_time).strftime(UPLOADED_TIME_FORMAT),
-                }
-            )
-
-        response_dict = {
-            "post_id": post.post_id,
-            "repo_id": post.repository.repo_id,
-            "author": author_info,
-            "title": post.title,
-            "text": post.text,
-            "post_time": timezone.make_naive(post.post_time).strftime(UPLOADED_TIME_FORMAT),
-            "photos": photo_list,
-            "comments": comment_list,
-        }
+        response_dict = get_post_dict(post)
         return HttpResponseSuccessGet(response_dict)
 
     if request.method == "DELETE":
@@ -376,51 +323,7 @@ def postID(request, post_id):
         photo_in_post.save()
         order_count += 1
 
-    photo_list = []
-    for photo_order in PhotoInPost.objects.filter(post=post):
-        photo_list.append(
-            {
-                "photo_id": photo_order.photo.photo_id,
-                "local_tag": photo_order.local_tag,
-                "image": photo_order.photo.image_file.url,
-            }
-        )
-
-    author_info = {
-        "username": post.author.username,
-        "bio": post.author.bio,
-    }
-    if bool(post.author.profile_picture):
-        author_info["profile_picture"] = post.author.profile_picture.url
-
-    comment_list = []
-    for comment in PostComment.objects.filter(post=post):
-        author_info = {
-            "username": comment.author.username,
-            "bio": comment.author.bio,
-        }
-        if bool(comment.author.profile_picture):
-            author_info["profile_picture"] = comment.author.profile_picture.url
-        comment_list.append(
-            {
-                "comment_id": comment.post_comment_id,
-                "author": author_info,
-                "text": comment.text,
-                "parent_id": comment.post.post_id,
-                "post_time": timezone.make_naive(comment.post_time).strftime(UPLOADED_TIME_FORMAT),
-            }
-        )
-
-    response_dict = {
-        "post_id": post.post_id,
-        "repo_id": post.repository.repo_id,
-        "author": author_info,
-        "title": post.title,
-        "text": post.text,
-        "post_time": timezone.make_naive(post.post_time).strftime(UPLOADED_TIME_FORMAT),
-        "photos": photo_list,
-        "comments": comment_list,
-    }
+    response_dict = get_post_dict(post)
     return HttpResponseSuccessUpdate(response_dict)
 
 
@@ -439,16 +342,7 @@ def postComments(request, post_id):
 
         repository = post.repository
 
-        if not (
-                (repository.visibility == Scope.PUBLIC)
-                or (request.user in repository.collaborators.all())
-                or (
-                    repository.visibility == Scope.FRIENDS_ONLY
-                    and have_common_user(
-                        request.user.friends.all(), repository.collaborators.all()
-                    )
-                )
-            ):
+        if not repo_visible(request.user, repository):
             return HttpResponseNoPermission()
 
         try:
@@ -460,23 +354,7 @@ def postComments(request, post_id):
         new_comment = PostComment(author=request.user, text=text, post=post)
         new_comment.save()
 
-        comment_list = []
-        for comment in PostComment.objects.filter(post=post):
-            author_info = {
-                "username": comment.author.username,
-                "bio": comment.author.bio,
-            }
-            if bool(comment.author.profile_picture):
-                author_info["profile_picture"] = comment.author.profile_picture.url
-            comment_list.append(
-                {
-                    "comment_id": comment.post_comment_id,
-                    "author": author_info,
-                    "text": comment.text,
-                    "parent_id": comment.post.post_id,
-                    "post_time": timezone.make_naive(comment.post_time).strftime(UPLOADED_TIME_FORMAT),
-                }
-            )
+        comment_list = get_post_comment_list(post)
         return HttpResponseSuccessUpdate(comment_list)
 
     # request.method == "GET":
@@ -487,35 +365,10 @@ def postComments(request, post_id):
 
     repository = post.repository
 
-    if not (
-            (repository.visibility == Scope.PUBLIC)
-            or (request.user in repository.collaborators.all())
-            or (
-                repository.visibility == Scope.FRIENDS_ONLY
-                and have_common_user(
-                    request.user.friends.all(), repository.collaborators.all()
-                )
-            )
-        ):
+    if not repo_visible(request.user, repository):
         return HttpResponseNoPermission()
 
-    comment_list = []
-    for comment in PostComment.objects.filter(post=post):
-        author_info = {
-            "username": comment.author.username,
-            "bio": comment.author.bio,
-        }
-        if bool(comment.author.profile_picture):
-            author_info["profile_picture"] = comment.author.profile_picture.url
-        comment_list.append(
-            {
-                "comment_id": comment.post_comment_id,
-                "author": author_info,
-                "text": comment.text,
-                "parent_id": comment.post.post_id,
-                "post_time": timezone.make_naive(comment.post_time).strftime(UPLOADED_TIME_FORMAT),
-            }
-        )
+    comment_list = get_post_comment_list(post)
     return HttpResponseSuccessGet(comment_list)
 
 
@@ -539,16 +392,7 @@ def postCommentID(request, post_id, post_comment_id):
 
         repository = post.repository
 
-        if not (
-                (repository.visibility == Scope.PUBLIC)
-                or (request.user in repository.collaborators.all())
-                or (
-                    repository.visibility == Scope.FRIENDS_ONLY
-                    and have_common_user(
-                        request.user.friends.all(), repository.collaborators.all()
-                    )
-                )
-            ):
+        if not repo_visible(request.user, repository):
             return HttpResponseNoPermission()
 
         author_info = {
@@ -588,23 +432,7 @@ def postCommentID(request, post_id, post_comment_id):
 
         comment.delete()
 
-        comment_list = []
-        for comment in PostComment.objects.filter(post=post):
-            author_info = {
-                "username": comment.author.username,
-                "bio": comment.author.bio,
-            }
-            if bool(comment.author.profile_picture):
-                author_info["profile_picture"] = comment.author.profile_picture.url
-            comment_list.append(
-                {
-                    "comment_id": comment.post_comment_id,
-                    "author": author_info,
-                    "text": comment.text,
-                    "parent_id": comment.post.post_id,
-                    "post_time": timezone.make_naive(comment.post_time).strftime(UPLOADED_TIME_FORMAT),
-                }
-            )
+        comment_list = get_post_comment_list(post)
         return HttpResponseSuccessDelete(comment_list)
 
     # request.method == "PUT":
@@ -638,21 +466,5 @@ def postCommentID(request, post_id, post_comment_id):
     comment.text = text
     comment.save()
 
-    comment_list = []
-    for comment in PostComment.objects.filter(post=post):
-        author_info = {
-            "username": comment.author.username,
-            "bio": comment.author.bio,
-        }
-        if bool(comment.author.profile_picture):
-            author_info["profile_picture"] = comment.author.profile_picture.url
-        comment_list.append(
-            {
-                "comment_id": comment.post_comment_id,
-                "author": author_info,
-                "text": comment.text,
-                "parent_id": comment.post.post_id,
-                "post_time": timezone.make_naive(comment.post_time).strftime(UPLOADED_TIME_FORMAT),
-            }
-        )
+    comment_list = get_post_comment_list(post)
     return HttpResponseSuccessUpdate(comment_list)
