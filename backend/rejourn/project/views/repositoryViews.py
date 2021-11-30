@@ -1,7 +1,6 @@
 import json
 from json.decoder import JSONDecodeError
 from datetime import datetime
-from django.http import response
 
 from django.http.response import HttpResponseBadRequest
 from django.views.decorators.csrf import ensure_csrf_cookie

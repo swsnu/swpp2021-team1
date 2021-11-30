@@ -1,7 +1,5 @@
 import json
 from json.decoder import JSONDecodeError
-from typing import OrderedDict
-from django.http import response
 
 from django.utils import timezone
 from django.http.response import HttpResponseBadRequest
@@ -17,7 +15,6 @@ from project.models.models import (
     Photo,
 )
 from project.httpResponse import *
-from project.enum import Scope
 from project.utils import repo_visible
 
 

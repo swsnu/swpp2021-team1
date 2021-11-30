@@ -13,19 +13,10 @@ def have_common_user(group_a, group_b):
 
 
 def repo_visible(user, repository):
-    if (
-            (user in repository.collaborators.all())
+    return (user in repository.collaborators.all()
             or (repository.visibility == Scope.PUBLIC)
-            or (
-                repository.visibility == Scope.FRIENDS_ONLY
-                and have_common_user(
-                    user.friends.all(), repository.collaborators.all()
-                )
-            )
-        ):
-        return True
-    else:
-        return False
+            or (repository.visibility == Scope.FRIENDS_ONLY
+                and have_common_user(user.friends.all(), repository.collaborators.all())))
 
 
 def profile_upload_to_func(instance, filename):

@@ -22,11 +22,11 @@ def get_label_list(repository, user):
         })
     return label_list
 
-def get_photo_list(label):
-    repository = label.repository
-    user = label.user
+def get_photo_list(query_label):
+    repository = query_label.repository
+    user = query_label.user
     photo_list = []
-    for photo in label.photos.all():
+    for photo in query_label.photos.all():
         if PhotoTag.objects.filter(user=user, photo=photo).count() != 0:
             photo_tag = PhotoTag.objects.get(user=user, photo=photo).text
         else:

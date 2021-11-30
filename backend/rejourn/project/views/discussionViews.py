@@ -38,7 +38,7 @@ def get_discussion_dict(discussion, comment_blank=False):
     }
     if bool(discussion.author.profile_picture):
         author_info["profile_picture"] = discussion.author.profile_picture.url
-    
+
     if comment_blank:
         comment_list = []
     else:

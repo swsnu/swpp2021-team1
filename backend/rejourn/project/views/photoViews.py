@@ -10,7 +10,6 @@ from django.views.decorators.http import require_http_methods
 from project.models.models import Repository, Photo, Label, PhotoTag
 from project.httpResponse import *
 from project.utils import repo_visible
-from project.enum import Scope
 
 
 DATE_FORMAT = "%Y-%m-%d"
