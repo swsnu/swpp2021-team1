@@ -1,15 +1,18 @@
 import json
 import tempfile
 import shutil
+from datetime import datetime
 from PIL import Image
 
 from django.test import TestCase, Client, override_settings
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.utils import timezone
 
 from project.enum import Scope
-from project.models.models import User, Repository, Photo, PhotoTag
+from project.models.models import User, Repository, Photo, PhotoTag, Label, Route, PlaceInRoute
 
 # from io import BytesIO
+
 
 MEDIA_ROOT = tempfile.mkdtemp()
 
@@ -85,12 +88,169 @@ class PhotoTestCase(TestCase):
         shutil.rmtree(MEDIA_ROOT, ignore_errors=True)  # delete the temp dir
 
     def test_photos_get(self):
-        client = Client()
-        response = client.get("/api/repositories/5/photos/")
+        Photo.objects.all().delete()
+        image_a = SimpleUploadedFile("test.jpg", b"imageA")
+        repo_1 = Repository.objects.get(repo_name="r_1_REPONAME")
+        user_1 = User.objects.get(username="u_1_USERNAME")
+        label_1 = Label(
+            label_name="HELLO",
+            repository=repo_1,
+            user=user_1
+        )
+        label_1.save()
+        label_2 = Label(
+            label_name="hello world",
+            repository=repo_1,
+            user=user_1
+        )
+        label_2.save()
+        label_3 = Label(
+            label_name="BYE BYE",
+            repository=repo_1,
+            user=user_1
+        )
+        label_3.save()
+        route = Route(
+            region_address="REGION_ADDRESS",
+            place_id="PLACE_ID",
+            latitude=25,
+            longitude=25,
+            east=25,
+            west=25,
+            south=25,
+            north=25,
+            repository=repo_1
+        )
+        route.save()
+        place_1 = PlaceInRoute(
+            route=route,
+            order=1,
+            place_id="PLACE_ID",
+            place_name="우리집",
+            place_address="능동로 16길",
+            latitude=25,
+            longitude=25
+        )
+        place_1.save()
+        place_2 = PlaceInRoute(
+            route=route,
+            order=2,
+            place_id="PLACE_ID",
+            place_name="개미집",
+            place_address="한우리 3번지",
+            latitude=25,
+            longitude=25
+        )
+        place_2.save()
+        place_3 = PlaceInRoute(
+            route=route,
+            order=3,
+            place_id="PLACE_ID",
+            place_name="서울대학교",
+            place_address="관악로 1",
+            latitude=25,
+            longitude=25
+        )
+        place_3.save()
+        date = datetime(2021, 1, 1)
+        for i in range(15):
+            photo = Photo(
+                repository=repo_1,
+                image_file=image_a,
+                uploader=user_1,
+            )
+            photo.save()
+            photo.post_time = timezone.make_aware(date)
+            if i%4 == 0:
+                photo.labels.add(label_1)
+            elif i%4 == 3:
+                photo.labels.add(label_3)
+            else:
+                photo.labels.add(label_2)
+            if i < 4:
+                photo.place = place_1
+            elif i < 8:
+                photo.place = place_2
+            elif i < 12:
+                photo.place = place_3
+            photo.save()
+            date = date.replace(day=date.day+1)
+
+        client_anonymous = Client()
+        client_1 = Client()
+        client_1.post(
+            "/api/signin/",
+            json.dumps({"username": "u_1_USERNAME", "password": "u_1_PASSWORD"}),
+            content_type="application/json",
+        )
+
+        response = client_anonymous.get("/api/repositories/5/photos/")
         self.assertEqual(response.status_code, 404)
 
-        response = client.get("/api/repositories/1/photos/")
+        response = client_anonymous.get("/api/repositories/1/photos/")
         self.assertEqual(response.status_code, 403)
+
+        response = client_1.get("/api/repositories/1/photos/")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('"photo_id": 17', response.content.decode())
+        self.assertIn('"photo_id": 3', response.content.decode())
+
+        response = client_1.get("/api/repositories/1/photos/?label=e")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('HELLO', response.content.decode())
+        self.assertIn('hello world', response.content.decode())
+        self.assertIn('BYE BYE', response.content.decode())
+
+        response = client_1.get("/api/repositories/1/photos/?label=Hello")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('HELLO', response.content.decode())
+        self.assertIn('hello world', response.content.decode())
+        self.assertNotIn('BYE BYE', response.content.decode())
+
+        response = client_1.get("/api/repositories/1/photos/?label=Hello World")
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('HELLO', response.content.decode())
+        self.assertIn('hello world', response.content.decode())
+        self.assertNotIn('BYE BYE', response.content.decode())
+
+        response = client_1.get("/api/repositories/1/photos/?start_date=2021+1+8")
+        self.assertEqual(response.status_code, 410)
+        response = client_1.get("/api/repositories/1/photos/?end_date=2021+1+8")
+        self.assertEqual(response.status_code, 410)
+
+        response = client_1.get("/api/repositories/1/photos/?start_date=2021-1-8")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('"photo_id": 10', response.content.decode())
+        self.assertIn('"photo_id": 17', response.content.decode())
+
+        response = client_1.get("/api/repositories/1/photos/?end_date=2021-1-12")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('"photo_id": 3', response.content.decode())
+        self.assertIn('"photo_id": 14', response.content.decode())
+
+        response = client_1.get("/api/repositories/1/photos/?start_date=2021-1-8&end_date=2021-1-12")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('"photo_id": 10', response.content.decode())
+        self.assertIn('"photo_id": 14', response.content.decode())
+
+        response = client_1.get("/api/repositories/1/photos/?place=서울대")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('"photo_id": 11', response.content.decode())
+        self.assertIn('"photo_id": 14', response.content.decode())
+
+        response = client_1.get("/api/repositories/1/photos/?place=집")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('"photo_id": 3', response.content.decode())
+        self.assertIn('"photo_id": 10', response.content.decode())
+
+        response = client_1.get("/api/repositories/1/photos/?place=리")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('"photo_id": 3', response.content.decode())
+        self.assertIn('"photo_id": 10', response.content.decode())
+
+        response = client_1.get("/api/repositories/1/photos/?place=리&label=hello&start_date=2021-1-4&end_date=2021-1-5")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('"photo_id": 7', response.content.decode())
 
     def test_photos_post(self):
         client_anonymous = Client()

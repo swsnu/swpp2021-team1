@@ -3,6 +3,7 @@ from json.decoder import JSONDecodeError
 import random
 from urllib.parse import urlencode
 
+from django.utils import timezone
 from django.http.response import HttpResponseBadRequest
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
@@ -86,7 +87,7 @@ def routeID(request, repo_id):
                     "photo_id": photo.photo_id,
                     "repo_id": photo.repository.repo_id,
                     "image": photo.image_file.url,
-                    "post_time": photo.post_time.strftime(DATE_FORMAT),
+                    "post_time": timezone.make_naive(photo.post_time).strftime(DATE_FORMAT),
                     "tag": photo_tag_text,
                     "uploader": photo.uploader.username,
                 }
@@ -104,7 +105,7 @@ def routeID(request, repo_id):
             if place.text is not None:
                 response_place["text"] = place.text
             if place.time is not None:
-                response_place["time"] = place.time.strftime(DATE_FORMAT)
+                response_place["time"] = timezone.make_naive(place.time).strftime(DATE_FORMAT)
             try:
                 response_place["thumbnail"] = Photo.objects.get(thumbnail_of=place).image_file.url
             except Photo.DoesNotExist:
@@ -124,7 +125,7 @@ def routeID(request, repo_id):
                     "photo_id": photo.photo_id,
                     "repo_id": photo.repository.repo_id,
                     "image": photo.image_file.url,
-                    "post_time": photo.post_time.strftime(DATE_FORMAT),
+                    "post_time": timezone.make_naive(photo.post_time).strftime(DATE_FORMAT),
                     "tag": photo_tag_text,
                     "uploader": photo.uploader.username,
                 }
@@ -352,7 +353,7 @@ def places(request, repo_id):
             place_in_route_id = place["place_in_route_id"]
         except (KeyError, JSONDecodeError):
             return HttpResponseBadRequest()
-        still_existing_place_in_route_id.append(place_in_route_id)  
+        still_existing_place_in_route_id.append(place_in_route_id)
         try:
             place_to_edit = PlaceInRoute.objects.get(place_in_route_id=place_in_route_id)
         except PlaceInRoute.DoesNotExist:
@@ -440,7 +441,7 @@ def places(request, repo_id):
                 "photo_id": photo.photo_id,
                 "repo_id": photo.repository.repo_id,
                 "image": photo.image_file.url,
-                "post_time": photo.post_time.strftime(DATE_FORMAT),
+                "post_time": timezone.make_naive(photo.post_time).strftime(DATE_FORMAT),
                 "tag": photo_tag_text,
                 "uploader": photo.uploader.username,
             }
@@ -459,7 +460,7 @@ def places(request, repo_id):
         if place.text is not None:
             response_place["text"] = place.text
         if place.time is not None:
-            response_place["time"] = place.time.strftime(DATE_FORMAT)
+            response_place["time"] = timezone.make_naive(place.time).strftime(DATE_FORMAT)
         try:
             response_place["thumbnail"] = Photo.objects.get(thumbnail_of=place).image_file.url
         except Photo.DoesNotExist:
@@ -479,7 +480,7 @@ def places(request, repo_id):
                 "photo_id": photo.photo_id,
                 "repo_id": photo.repository.repo_id,
                 "image": photo.image_file.url,
-                "post_time": photo.post_time.strftime(DATE_FORMAT),
+                "post_time": timezone.make_naive(photo.post_time).strftime(DATE_FORMAT),
                 "tag": photo_tag_text,
                 "uploader": photo.uploader.username,
             }
@@ -549,7 +550,7 @@ def placeID(request, repo_id, place_id):
                 "photo_id": photo.photo_id,
                 "repo_id": photo.repository.repo_id,
                 "image": photo.image_file.url,
-                "post_time": photo.post_time.strftime(DATE_FORMAT),
+                "post_time": timezone.make_naive(photo.post_time).strftime(DATE_FORMAT),
                 "tag": photo_tag_text,
                 "uploader": photo.uploader.username,
             }
@@ -567,7 +568,7 @@ def placeID(request, repo_id, place_id):
         if place.text is not None:
             response_place["text"] = place.text
         if place.time is not None:
-            response_place["time"] = place.time.strftime(DATE_FORMAT)
+            response_place["time"] = timezone.make_naive(place.time).strftime(DATE_FORMAT)
         try:
             response_place["thumbnail"] = Photo.objects.get(thumbnail_of=place).image_file.url
         except Photo.DoesNotExist:
@@ -587,7 +588,7 @@ def placeID(request, repo_id, place_id):
                 "photo_id": photo.photo_id,
                 "repo_id": photo.repository.repo_id,
                 "image": photo.image_file.url,
-                "post_time": photo.post_time.strftime(DATE_FORMAT),
+                "post_time": timezone.make_naive(photo.post_time).strftime(DATE_FORMAT),
                 "tag": photo_tag_text,
                 "uploader": photo.uploader.username,
             }
@@ -609,7 +610,7 @@ def travel(request, repo_id):
         repository = Repository.objects.get(repo_id=repo_id)
     except Repository.DoesNotExist:
         return HttpResponseNotExist()
-    
+
     if not (
                 (repository.visibility == Scope.PUBLIC)
                 or (request.user in repository.collaborators.all())
@@ -662,7 +663,7 @@ def travel(request, repo_id):
         photo_list.append(temp_photo_list)
 
         if (width_over_zero
-                and current_place.longitude > east_limit 
+                and current_place.longitude > east_limit
                 and current_place.longitude < west_limit):
             if current_place.longitude - east_limit > west_limit - current_place.longitude:
                 width_span += west_limit - current_place.longitude
@@ -713,7 +714,7 @@ def travel(request, repo_id):
             photo_dict = {
                 'photo_id' : photo.photo_id,
                 'image' : photo.image_file.url,
-                'post_time' : photo.post_time.strftime(UPLOADED_TIME_FORMAT),
+                'post_time' : timezone.make_naive(photo.post_time).strftime(UPLOADED_TIME_FORMAT),
                 'uploader' : photo.uploader.username
             }
             if PhotoTag.objects.filter(user=request.user, photo=photo).exists():
@@ -738,7 +739,7 @@ def travel(request, repo_id):
     west_limit -= width_span / 10
     if west_limit < -180:
         west_limit += 360
-    
+
     height_span = north_limit - south_limit
     north_limit += height_span / 10
     if north_limit > 90:

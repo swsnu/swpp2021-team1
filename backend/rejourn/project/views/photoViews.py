@@ -9,13 +9,41 @@ from django.views.decorators.http import require_http_methods
 
 from project.models.models import Repository, Photo, Label, PhotoTag
 from project.httpResponse import *
-from project.utils import have_common_user
-from project.enum import Scope
+from project.utils import repo_visible
 
 
 DATE_FORMAT = "%Y-%m-%d"
 UPLOADED_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
+def get_photo_list(repository, user):
+    photo_list = []
+    for photo in Photo.objects.filter(repository=repository):
+
+        try:
+            photo_tag = PhotoTag.objects.get(photo=photo, user=user)
+            photo_tag_text = photo_tag.text
+        except PhotoTag.DoesNotExist:
+            photo_tag_text = ""
+
+        label_list = []
+        for label in photo.labels.all():
+            label_list.append({
+                'label_id' : label.label_id,
+                'label_name' : label.label_name,
+            })
+
+        photo_list.append(
+            {
+                "photo_id": photo.photo_id,
+                "repo_id": photo.repository.repo_id,
+                "image": photo.image_file.url,
+                "post_time": timezone.make_naive(photo.post_time).strftime(UPLOADED_TIME_FORMAT),
+                "tag": photo_tag_text,
+                "uploader": photo.uploader.username,
+                "labels" : label_list,
+            }
+        )
+    return photo_list
 
 # /api/repositories/<int:repo_id>/photos/
 @require_http_methods(['POST', 'GET', 'DELETE'])
@@ -27,16 +55,7 @@ def photos(request, repo_id):
         except Repository.DoesNotExist:
             return HttpResponseNotExist()
 
-        if not (
-                (repository.visibility == Scope.PUBLIC)
-                or (request.user in repository.collaborators.all())
-                or (
-                    repository.visibility == Scope.FRIENDS_ONLY
-                    and have_common_user(
-                        request.user.friends.all(), repository.collaborators.all()
-                    )
-                )
-            ):
+        if not repo_visible(request.user, repository):
             return HttpResponseNoPermission()
 
         raw_start_date = request.GET.get("start_date", None)
@@ -69,8 +88,8 @@ def photos(request, repo_id):
             photo_set = photo_set.filter(post_time__lte=end_date)
 
         if place_query is not None:
-            temp1_photo_set = photo_set.filter(place_name__icontains=place_query)
-            temp2_photo_set = photo_set.filter(place_address__icontains=place_query)
+            temp1_photo_set = photo_set.filter(place__place_name__icontains=place_query)
+            temp2_photo_set = photo_set.filter(place__place_address__icontains=place_query)
             photo_set = temp1_photo_set.union(temp2_photo_set)
 
         photo_set = photo_set.order_by('-photo_id')
@@ -95,7 +114,7 @@ def photos(request, repo_id):
                     "photo_id": photo.photo_id,
                     "repo_id": photo.repository.repo_id,
                     "image": photo.image_file.url,
-                    "post_time": photo.post_time.strftime(UPLOADED_TIME_FORMAT),
+                    "post_time": timezone.make_naive(photo.post_time).strftime(UPLOADED_TIME_FORMAT),
                     "tag": photo_tag_text,
                     "uploader": photo.uploader.username,
                     "labels" : label_list,
@@ -123,34 +142,7 @@ def photos(request, repo_id):
             )
             new_photo.save()
 
-        photo_list = []
-        for photo in Photo.objects.filter(repository=repository):
-
-            try:
-                photo_tag = PhotoTag.objects.get(photo=photo, user=request.user)
-                photo_tag_text = photo_tag.text
-            except PhotoTag.DoesNotExist:
-                photo_tag_text = ""
-
-            label_list = []
-            for label in photo.labels.all():
-                label_list.append({
-                    'label_id' : label.label_id,
-                    'label_name' : label.label_name,
-                })
-
-            photo_list.append(
-                {
-                    "photo_id": photo.photo_id,
-                    "repo_id": photo.repository.repo_id,
-                    "image": photo.image_file.url,
-                    "post_time": photo.post_time.strftime(UPLOADED_TIME_FORMAT),
-                    "tag": photo_tag_text,
-                    "uploader": photo.uploader.username,
-                    "labels" : label_list,
-                }
-            )
-
+        photo_list = get_photo_list(repository, request.user)
         return HttpResponseSuccessUpdate(photo_list)
 
     # request.method == 'DELETE':
@@ -184,34 +176,7 @@ def photos(request, repo_id):
     for photo in deleted_photo_list:
         photo.delete()
 
-    photo_list = []
-    for photo in Photo.objects.filter(repository=repository):
-
-        try:
-            photo_tag = PhotoTag.objects.get(photo=photo, user=request.user)
-            photo_tag_text = photo_tag.text
-        except PhotoTag.DoesNotExist:
-            photo_tag_text = ""
-
-        label_list = []
-        for label in photo.labels.all():
-            label_list.append({
-                'label_id' : label.label_id,
-                'label_name' : label.label_name,
-            })
-
-        photo_list.append(
-            {
-                "photo_id": photo.photo_id,
-                "repo_id": photo.repository.repo_id,
-                "image": photo.image_file.url,
-                "post_time": photo.post_time.strftime(UPLOADED_TIME_FORMAT),
-                "tag": photo_tag_text,
-                "uploader": photo.uploader.username,
-                "labels" : label_list,
-            }
-        )
-
+    photo_list = get_photo_list(repository, request.user)
     return HttpResponseSuccessDelete(photo_list)
 
 
@@ -265,7 +230,7 @@ def photoID(request, repo_id, photo_id):
         "photo_id": photo.photo_id,
         "repo_id": photo.repository.repo_id,
         "image": photo.image_file.url,
-        "post_time": photo.post_time.strftime(UPLOADED_TIME_FORMAT),
+        "post_time": timezone.make_naive(photo.post_time).strftime(UPLOADED_TIME_FORMAT),
         "tag": new_tag,
         "uploader": photo.uploader.username,
     }

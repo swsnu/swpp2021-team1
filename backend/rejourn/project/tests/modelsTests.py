@@ -136,7 +136,7 @@ class ModelsTestCase(TestCase):
     def test_user_model(self):
         self.makeUsers()
         self.assertEqual(User.objects.all().count(), 3)
-        
+
         user_a = User.objects.get(user_id=1)
         self.assertEqual(user_a.username, "TEST_USER_A")
 
@@ -221,7 +221,7 @@ class ModelsTestCase(TestCase):
     def test_placeInRoute_model(self):
         self.makeRoute()
         route = Route.objects.get(route_id=1)
-        
+
         self.makePlaceInRoute(route)
         place_in_route = PlaceInRoute.objects.get(place_in_route_id=1)
 
@@ -232,7 +232,7 @@ class ModelsTestCase(TestCase):
         self.assertEqual(place_in_route.time, None)
         self.assertEqual(place_in_route.text, None)
 
-        time = timezone.now()        
+        time = timezone.now()
         place_in_route.time = time
         place_in_route.text = "TEST_TEXT"
         place_in_route.save()
@@ -249,7 +249,7 @@ class ModelsTestCase(TestCase):
 
         self.makeRoute()
         route = Route.objects.get(route_id=1)
-        
+
         self.makePlaceInRoute(route)
         place_in_route = PlaceInRoute.objects.get(place_in_route_id=1)
 

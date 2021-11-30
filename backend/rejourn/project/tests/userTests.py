@@ -226,7 +226,7 @@ class UserTestCase(TestCase):
         self.assertEqual(response.status_code, 201)
         user_a = User.objects.get(username="TEST_USER_A")
         self.assertEqual(bool(user_a.profile_picture), True)
-        
+
         response = client_anonymous.delete("/api/users/TEST_USER_A/profile-picture/")
         self.assertEqual(response.status_code, 401)
         response = client_a.delete("/api/users/NO_ONE/profile-picture/")
