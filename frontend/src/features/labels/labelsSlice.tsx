@@ -1,9 +1,17 @@
-import { createAsyncThunk, createEntityAdapter, createSlice } from "@reduxjs/toolkit";
+import {
+    createAsyncThunk,
+    createEntityAdapter,
+    createSlice,
+    Dictionary,
+    EntityId,
+    SliceCaseReducers,
+} from "@reduxjs/toolkit";
+
 import { RootState } from "../../app/store";
 import {
-    getLabels, postLabel, putLabel, deleteLabel, putLabelPhotos,
+    deleteLabel, getLabels, postLabel, putLabel,
 } from "../../common/APIs";
-import { ILabel, IPhoto } from "../../common/Interfaces";
+import { ILabel } from "../../common/Interfaces";
 
 export const labelsAdapter = createEntityAdapter<ILabel>({
     selectId: (label: ILabel) => label.label_id,
@@ -14,6 +22,7 @@ export const loadLabels = createAsyncThunk<ILabel[], { repoId: number}>(
     "labels/load",
     async ({ repoId }) => {
         const labels = await getLabels(repoId);
+        console.log(labels);
         return labels;
     },
 );
@@ -41,7 +50,13 @@ export const deleteOneLabel = createAsyncThunk<ILabel[], { repoId: number, label
     },
 );
 
-export const labelsSlice = createSlice({
+interface LabelsState {
+    loading: "idle" | "pending" | "succeeded" | "failed",
+    ids: EntityId[],
+    entities: Dictionary<ILabel>
+}
+
+export const labelsSlice = createSlice<LabelsState, SliceCaseReducers<LabelsState>>({
     name: "labels",
     initialState: labelsAdapter.getInitialState<{
         loading: "idle" | "pending" | "succeeded" | "failed",

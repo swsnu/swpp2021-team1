@@ -1,28 +1,22 @@
+import "./LabelsSection.css";
+
 import React, { useEffect, useState } from "react";
+import { Badge, Dropdown, DropdownButton } from "react-bootstrap";
+import { useSelector } from "react-redux";
 import { useParams } from "react-router";
 import Select from "react-select";
 
-import { useSelector } from "react-redux";
-import {
-    Badge, Button, Dropdown, DropdownButton,
-} from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import store, { RootState } from "../../app/store";
 import {
     ILabel, IPhoto, IRepository, IUser,
 } from "../../common/Interfaces";
 import Photo from "../photo/Photo";
-import {
-    assignLabel, editPhoto, fetchPhotos, focusPhoto,
-} from "../photo/photosSlice";
-import {
-    deleteOneLabel,
-    editLabel,
-    labelsSelectors, loadLabels, newLabel, setLabelsIdle,
-} from "./labelsSlice";
-import "./LabelsSection.css";
+import { assignLabel, editPhoto, focusPhoto } from "../photo/photosSlice";
 import FocusedPhoto from "../photo/popup/FocusedPhoto";
-import { deleteLabel } from "../../common/APIs";
+import {
+    deleteOneLabel, editLabel, labelsSelectors, loadLabels, newLabel,
+} from "./labelsSlice";
 
 interface labelsSectionProps
 {
@@ -127,11 +121,14 @@ const LabelsSection = (props: labelsSectionProps) => {
 
     let content;
 
-    if (labelsLoading === "failed" || photosHasError) content = <div>Error!</div>;
-    else if (!labels || labelsLoading === "idle" || labelsLoading === "pending" || photosIsLoading) content = <div />;
+    if (labelsLoading === "failed" || photosHasError) content = <div data-testid="error-content">Error!</div>;
+    else if (!labels ||
+        labelsLoading === "idle" ||
+        labelsLoading === "pending" ||
+        photosIsLoading) content = <div data-testid="loading-content" />;
     else {
         content = (
-            <div className="mt-3">
+            <div data-testid="content" className="mt-3">
                 <div className="d-flex justify-content-between">
                     <Select
                         defaultValue={[]}

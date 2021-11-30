@@ -98,7 +98,8 @@
       "!src/common/APIs.tsx",
       "!src/app/hooks.tsx",
       "!src/app/store.tsx",
-      "!src/react-app-env.d.ts"
+      "!src/react-app-env.d.ts",
+      "!src/mocks/handlers.ts"
     ]
   },
   "msw": {

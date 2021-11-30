@@ -1,10 +1,11 @@
 import {
     createAsyncThunk, createSlice, PayloadAction, SliceCaseReducers,
 } from "@reduxjs/toolkit";
-import { IPhoto } from "../../common/Interfaces";
+
 import {
     deletePhotos, getPhotos, postPhotos, putLabelPhotos, putPhoto,
 } from "../../common/APIs";
+import { IPhoto } from "../../common/Interfaces";
 
 export const fetchPhotos = createAsyncThunk<IPhoto[], number>( // added
     "photos/list",
@@ -141,7 +142,7 @@ const photosSlice = createSlice<PhotosState, SliceCaseReducers<PhotosState>>({
             state.hasError = false;
             action.payload.forEach((photo) => {
                 const index = state.photoList.findIndex((p) => p.photo_id === photo.photo_id);
-                if (index >= 0) state.photoList[index] = photo;
+                state.photoList[index] = photo;
             });
         });
         builder.addCase(assignLabel.rejected, (state: PhotosState) => {
