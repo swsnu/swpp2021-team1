@@ -15,7 +15,8 @@ def have_common_user(group_a, group_b):
 def repo_visible(user, repository):
     return (user in repository.collaborators.all()
             or (repository.visibility == Scope.PUBLIC)
-            or (repository.visibility == Scope.FRIENDS_ONLY
+            or (user.is_authenticated
+                and repository.visibility == Scope.FRIENDS_ONLY
                 and have_common_user(user.friends.all(), repository.collaborators.all())))
 
 
