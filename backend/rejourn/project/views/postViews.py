@@ -78,20 +78,14 @@ def get_post_dict(post, comment_blank=False):
     }
     return post_dict
 
-# /api/users/<str:user_name>/posts/
-@require_http_methods(["GET"])
-@ensure_csrf_cookie
-def userPosts(request, user_name):
-    # request.method == "GET":
-    try:
-        user = User.objects.get(username=user_name)
-    except User.DoesNotExist:
-        return HttpResponseNotExist()
-
+def get_post_list(repository=None, author=None, user=None):
     post_list = []
-    for post in Post.objects.filter(author=user):
-        repository = post.repository
-        if repo_visible(request.user, repository):
+    if repository is not None:
+        filtered_set = Post.objects.filter(repository=repository)
+    if author is not None:
+        filtered_set = Post.objects.filter(author=author)
+    for post in filtered_set:
+        if (repository is not None) or (repo_visible(user, post.repository)):
             photo_list = get_post_photo_list(post)
 
             author_info = {
@@ -112,7 +106,19 @@ def userPosts(request, user_name):
                     "photos": photo_list,
                 },
             )
+    return post_list
 
+# /api/users/<str:user_name>/posts/
+@require_http_methods(["GET"])
+@ensure_csrf_cookie
+def userPosts(request, user_name):
+    # request.method == "GET":
+    try:
+        user = User.objects.get(username=user_name)
+    except User.DoesNotExist:
+        return HttpResponseNotExist()
+
+    post_list = get_post_list(author=user, user=request.user)
     return HttpResponseSuccessGet(post_list)
 
 
@@ -193,30 +199,7 @@ def repoPosts(request, repo_id):
     if not repo_visible(request.user, repository):
         return HttpResponseNoPermission()
 
-    post_list = []
-
-    for post in Post.objects.filter(repository=repository):
-
-        photo_list = get_post_photo_list(post)
-
-        author_info = {
-            "username": post.author.username,
-            "bio": post.author.bio,
-        }
-        if bool(post.author.profile_picture):
-            author_info["profile_picture"] = post.author.profile_picture.url
-
-        post_list.insert(
-            0,
-            {
-                "post_id": post.post_id,
-                "repo_id": post.repository.repo_id,
-                "author": author_info,
-                "title": post.title,
-                "post_time": timezone.make_naive(post.post_time).strftime(UPLOADED_TIME_FORMAT),
-                "photos": photo_list,
-            },
-        )
+    post_list = get_post_list(repository=repository)
     return HttpResponseSuccessGet(post_list)
 
 
