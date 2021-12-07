@@ -8,6 +8,7 @@ from project.views import (
     photoViews,
     routeViews,
     labelViews,
+    exploreViews,
 )
 
 
@@ -80,6 +81,7 @@ urlpatterns = [
         name="postCommentID",
     ),
 
+
     ## photoAPI
     path("repositories/<int:repo_id>/photos/", photoViews.photos, name="photos"),
     path("repositories/<int:repo_id>/photos/<int:photo_id>/", photoViews.photoID, name="photoID"),
@@ -106,4 +108,11 @@ urlpatterns = [
     path("repositories/<int:repo_id>/route/places/<str:place_id>/", routeViews.placeID, name="placeID"),
 
     path("repositories/<int:repo_id>/travel/", routeViews.travel, name="travel"),
+
+    ## exploreAPI
+    path("explore/users/", exploreViews.exploreUsers, name="exploreUsers"),
+    path("explore/repositories/", exploreViews.exploreRepositories, name="exploreRespositories"),
+    path("explore/places/", exploreViews.explorePlaces, name="explorePlaces"),
+
+    path("users/<str:username>/feeds/", exploreViews.feeds, name="feeds"),
 ]

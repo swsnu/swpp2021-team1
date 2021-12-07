@@ -16,6 +16,7 @@ from project.models.models import (
 )
 from project.httpResponse import *
 from project.utils import repo_visible
+from project.enum import PostType, RepoTravel
 
 
 UPLOADED_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
@@ -69,7 +70,7 @@ def get_post_dict(post, comment_blank=False):
     post_dict = {
         "post_id": post.post_id,
         "repo_id": post.repository.repo_id,
-        "author": author_info,
+        "author": [author_info],
         "title": post.title,
         "text": post.text,
         "post_time": timezone.make_naive(post.post_time).strftime(UPLOADED_TIME_FORMAT),
@@ -84,7 +85,7 @@ def get_post_list(repository=None, author=None, user=None):
         filtered_set = Post.objects.filter(repository=repository)
     if author is not None:
         filtered_set = Post.objects.filter(author=author)
-    for post in filtered_set:
+    for post in filtered_set.filter(post_type=PostType.PERSONAL):
         if (repository is not None) or (repo_visible(user, post.repository)):
             photo_list = get_post_photo_list(post)
 
@@ -100,7 +101,7 @@ def get_post_list(repository=None, author=None, user=None):
                 {
                     "post_id": post.post_id,
                     "repo_id": post.repository.repo_id,
-                    "author": author_info,
+                    "author": [author_info],
                     "title": post.title,
                     "post_time": timezone.make_naive(post.post_time).strftime(UPLOADED_TIME_FORMAT),
                     "photos": photo_list,
@@ -137,6 +138,39 @@ def repoPosts(request, repo_id):
         if request.user not in repository.collaborators.all():
             return HttpResponseNoPermission()
 
+        try:
+            req_data = json.loads(request.body.decode())
+            post_type = req_data["post_type"]
+            if post_type == PostType.REPO:
+                text = ""
+                new_post = Post(repository=repository, author=request.user, title=repository.repo_name, text=text, post_type=post_type)
+                repository.travel = RepoTravel.TRAVEL_ON
+                new_post.save()
+                author_list = []
+                for collaborator in repository.collaborators:
+                    author_info = {
+                        "username": collaborator.username,
+                        "bio": collaborator.bio,
+                    }
+                    if bool(collaborator.profile_picture):
+                        author_info["profile_picture"] = collaborator.profile_picture.url
+                    author_list.append(author_info)
+
+                response_dict = {
+                    "post_id": new_post.post_id,
+                    "repo_id": new_post.repository.repo_id,
+                    "author": author_list,
+                    "title": new_post.title,
+                    "text": new_post.text,
+                    "post_time": new_post.post_time.strftime(UPLOADED_TIME_FORMAT),
+                    "photos": [],
+                    "comments": [],
+                    "post_type": new_post.post_type,
+                }
+                return HttpResponseSuccessUpdate(response_dict)
+
+        except (KeyError, JSONDecodeError):
+            pass
         try:
             req_data = json.loads(request.body.decode())
             title = req_data["title"]
@@ -189,6 +223,28 @@ def repoPosts(request, repo_id):
 
         response_dict = get_post_dict(new_post, comment_blank=True)
         return HttpResponseSuccessUpdate(response_dict)
+
+    elif request.method == "PUT":
+        if not request.user.is_authenticated:
+            return HttpResponseNotLoggedIn()
+        try:
+            repository = Repository.objects.get(repo_id=repo_id)
+        except Repository.DoesNotExist:
+            return HttpResponseNotExist()
+
+        if request.user not in repository.collaborators.all():
+            return HttpResponseNoPermission()
+
+        try:
+            req_data = json.loads(request.body.decode())
+            post_type = req_data["post_type"]
+            travel = req_data["travel"]
+            if post_type != PostType.REPO:
+                return HttpResponseBadRequest()
+            repository.travel = travel
+            repository.save()
+        except (KeyError, JSONDecodeError):
+            return HttpResponseBadRequest()
 
     # request.method == "GET":
     try:
