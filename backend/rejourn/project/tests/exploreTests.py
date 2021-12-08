@@ -254,4 +254,17 @@ class ExploreTestCase(TestCase):
     def test_explorePlaces(self):
         pass
     def test_feeds(self):
-        pass
+        client = Client()
+        response = client.delete("/api/users/MAIN_USER/feeds/")
+        self.assertEqual(response.status_code, 405)
+
+        response = client.get("/api/users/MAIN_USER/feeds/")
+        self.assertEqual(response.status_code, 401)
+
+        client.post(
+            "/api/signin/",
+            json.dumps({"username": "MAIN_USER", "password": "MAIN_PW"}),
+            content_type="application/json",
+        )
+        response = client.get("/api/users/none/feeds/")
+        self.assertEqual(response.status_code, 404)

@@ -5,11 +5,17 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 from django.db.models import Count, Q
 from django.db import models
+from django.conf import settings
 
-from project.models.models import User, Repository, Route, PlaceInRoute, Post
+from project.models.models import User, Repository, Route, PlaceInRoute, Post, PhotoInPost
 from project.httpResponse import *
 
-from project.enum import Scope
+from project.enum import Scope, PostType, RepoTravel
+
+from datetime import datetime, timedelta
+
+API_KEY = settings.GOOGLE_MAPS_API_KEY
+UPLOADED_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 @require_http_methods(["GET"])
 @ensure_csrf_cookie
@@ -26,8 +32,6 @@ def exploreUsers(request):
     public_users = User.objects.filter(visibility=Scope.PUBLIC)
     public_users_matching = public_users.filter(username__icontains=query_user).annotate(order=models.Value(1, models.IntegerField()))
     possible_users_matching = friends_matching.union(public_users_matching).order_by('order')
-    print(possible_users_matching)
-    ###order 맞추기. https://stackoverflow.com/questions/18235419/how-to-chain-django-querysets-preserving-individual-order
 
     response_list = []
     temp = []
@@ -112,54 +116,37 @@ def exploreRepositories(request):
 
 @require_http_methods(["GET"])
 @ensure_csrf_cookie
-def explorePlaces(request):
+def exploreRegions(request):
     if not request.user.is_authenticated:
         return HttpResponseNotLoggedIn()
 
-    query_place = request.GET.get("query", None)
-    if query_place is None:
+    query_region = request.GET.get("query", None)
+    if query_region is None:
         return HttpResponseBadRequest()
 
-    place_id_list = []
-    place_id_0 = ""
-
-    query_place_formatted = query_place.replace(" ", "%2C")
-    url_for_geocoding = "https://maps.googleapis.com/maps/api/geocode/json?address="+query_place_formatted+"&key="+api_key
+    query_region_formatted = query_region.replace(" ", "%2C")
+    url_for_geocoding = "https://maps.googleapis.com/maps/api/geocode/json?address="+query_region_formatted+"&key="+API_KEY
     geocoding_response = requests.get(url_for_geocoding)
 
     if geocoding_response.status_code in range(200, 299):
-        place_id = geocoding_response.json()['results'][0]['place_id']
-        place_id_0 = place_id
-        place_id_list.append(place_id)
+        return HttpResponseBadRequest()
 
-    url = "https://maps.googleapis.com/maps/api/place/textsearch/json?query="+query_place_formatted+"&key="+api_key
-    google_maps_response = requests.get(url)
+    place_id = geocoding_response.json()['results'][0]['place_id']
 
-    for place in google_maps_response.json()['results']:
-        if google_maps_response.status_code in range(200, 299):
-            place_id = place['place_id']
-            if place_id != place_id_0:
-                place_id_list.append(place_id)
+    #route_to_contain = Route.objects.filter(place_id=place_id)
 
     repositories_mine = Repository.objects.filter(collaborators__user_id=request.user.user_id)
-    repositories_friends = Repository.objects.filter(collaborators__in=request.user.friends)
-    public_repositories = Repository.objects.filter(visibility=Scope.PUBLIC)
-    possible_repositories = repositories_mine.union(repositories_friends).union(public_repositories)
+    repositories_mine_matching = repositories_mine.filter(route__place_id=place_id).annotate(order=models.Value(0, models.IntegerField()))
+    repositories_friends = Repository.objects.filter(collaborators__in=User.objects.filter(username=request.user.username).values('friends'))
+    repositories_friends_exclude_private = repositories_friends.filter(visibility=Scope.FRIENDS_ONLY)
+    repositories_friends_matching = repositories_friends_exclude_private.filter(route__place_id=place_id).annotate(order=models.Value(0, models.IntegerField()))
+    public_repositories = Repository.objects.filter(visibility=Scope.PUBLIC).exclude(collaborators__user_id=request.user.user_id).exclude(collaborators__in=User.objects.filter(username=request.user.username).values('friends'))
+    public_repositories_matching = public_repositories.filter(route__place_id=place_id).annotate(order=models.Value(0, models.IntegerField()))
+    possible_repositories = repositories_mine_matching.union(repositories_friends_matching).union(public_repositories_matching).order_by('order')
 
-    for p in place_id_list:
-        route_to_contain = Route.objects.filter(place_id=p)
-        place_to_contain = PlaceInRoute.objects.filter(place_id=p)
-
-    containing_repositories = []
-    for route in route_to_contain:
-        containing_repositories.append(route.repository)
-    for place in place_to_contain:
-        containing_repositories.append(place.route.repository)
-
-    intersect_repositories = possible_repositories.intersection(containing_repositories)
     
     response_list = []
-    for repository in intersect_repositories:
+    for repository in possible_repositories:
         places = PlaceInRoute.objects.filter(repository=repository).annotate(number_of_photos=Count("photo")).order_by('-number_of_photos')
         response_places = []
         count = 0
@@ -174,7 +161,78 @@ def explorePlaces(request):
 
     return HttpResponseSuccessGet(response_list)
 
+
 @require_http_methods(["GET"])
 @ensure_csrf_cookie
 def feeds(request, username):
-    return HttpResponseSuccessGet()
+    if not request.user.is_authenticated:
+        return HttpResponseNotLoggedIn()
+
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return HttpResponseNotExist()
+
+    request_date = datetime.now()
+    before_two_work = request_date - timedelta(weeks=2)
+
+    personal_feed_list = Post.objects.filter(author=user, post_type=PostType.PERSONAL, post_time__range=[request_date, before_two_work])
+    repo_feed_list = Post.objects.filter(repository__collaborators__user=user, post_type=PostType.REPO, post_time__range=[request_date, before_two_work])
+
+    feed_list = personal_feed_list.union(repo_feed_list).order_by('-post_time')
+
+    response_list = []
+    for post in feed_list:
+        if (post.post_type == PostType.REPO and post.repository.travel == RepoTravel.TRAVEL_ON) or post.post_type == PostType.PERSONAL:
+            author_list = []
+            temp = []
+            if post.post_type == PostType.REPO:
+                for collaborator in post.repository.collaborators:
+                    author_info = {
+                        "username": collaborator.username,
+                        "bio": collaborator.bio,
+                    }
+                    if bool(collaborator.profile_picture):
+                        author_info["profile_picture"] = collaborator.profile_picture.url
+                    
+                    if collaborator in request.user.friends.all():
+                        author_list.append(author_info)
+                    else:
+                        temp.append(author_info)
+                
+                for collaborator in temp:
+                    author_list.append(collaborator)
+            else:
+                author_info = {
+                    "username": post.author.username,
+                    "bio": post.author.bio,
+                }
+                if bool(post.author.profile_picture):
+                    author_info["profile_picture"] = post.author.profile_picture.url
+                author_list.append()
+
+            photo_list = []
+            for photo_order in PhotoInPost.objects.filter(post=post):
+                photo_list.append(
+                    {
+                        "photo_id": photo_order.photo.photo_id,
+                        "local_tag": photo_order.local_tag,
+                        "image": photo_order.photo.image_file.url,
+                    }
+                )
+
+            response_dict = {
+                "post_id": post.post_id,
+                "repo_id": post.repository.repo_id,
+                "author": author_list,
+                "title": post.title,
+                "text": post.text,
+                "post_time": post.post_time.strftime(UPLOADED_TIME_FORMAT),
+                "photos": photo_list,
+                "region": post.repository.route.region_address,
+                "post_type": post.post_type,
+            }
+
+            response_list.append(response_dict)
+
+    return HttpResponseSuccessGet(response_list)
