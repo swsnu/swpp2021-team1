@@ -1,16 +1,17 @@
-import React from "react";
-import { Container } from "react-bootstrap";
-import { Link } from "react-router-dom";
-import { IPost } from "../../common/Interfaces";
-import Profile from "../profile/Profile";
 import "./Posts.css";
+
+import React from "react";
+import { Link } from "react-router-dom";
+
+import { IPost } from "../../common/Interfaces";
 
 interface PostProps {
     post: IPost
 }
 
+// PostList에 보여지는 Post 미리보기 엔트리
 export default function Post(props : PostProps) {
-    const { post } = props;
+    const { post } = props; // Post object
     return (
         <div className=" post col-lg-4 col-xs-12 mb-4">
             <Link to={`/posts/${post.post_id}`} className="text-decoration-none text-dark">

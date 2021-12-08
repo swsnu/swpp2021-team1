@@ -1,20 +1,26 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+
+import { useAppDispatch } from "../../app/hooks";
 import { IPhoto } from "../../common/Interfaces";
 import Photo from "../photo/Photo";
 import { focusPhoto } from "../photo/photosSlice";
-import { useAppDispatch } from "../../app/hooks";
 
 interface PCPhotoSelectProps {
-    photos: IPhoto[]
+    photos: IPhoto[] // 선택 가능한 사진 목록
     setSelectedPhotos: (photos: IPhoto[]) => void
+    checked: {[id: number]: boolean}
 }
 
+// PCPhotoSelect : PostCreate PhotoSelect라는 뜻. PostCreate 페이지에서 사용하는 특수한(?) PhotoSelect 컴포넌트
 export default function PCPhotoSelect(props : PCPhotoSelectProps) {
-    const { photos, setSelectedPhotos } = props;
     const dispatch = useAppDispatch();
+
+    const { photos, setSelectedPhotos } = props;
+
     const [photoShow, setPhotoShow] = useState<boolean>(false);
     const [currentPhoto, setCurrentPhoto] = useState<IPhoto | null>(null);
-    const [checked, setChecked] = useState<{[id : number] : boolean}>({});
+    const [checked, setChecked] = useState<{ [ id: number ]: boolean }>({});
+    const firstUpdate = useRef(true);
 
     function onPhotoClick(photo_id : number) {
         dispatch(focusPhoto(photo_id));
@@ -29,6 +35,15 @@ export default function PCPhotoSelect(props : PCPhotoSelectProps) {
     }
 
     useEffect(() => {
+        setChecked(props.checked);
+        // console.log("abc");
+    }, [dispatch]);
+
+    useEffect(() => {
+        if (firstUpdate.current) {
+            firstUpdate.current = false;
+            return;
+        }
         const checkedPhotos: IPhoto[] = [];
         Object.entries(checked).forEach(
             ([photoId, isChecked]) => {
