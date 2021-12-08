@@ -9,6 +9,7 @@ from project.views import (
     routeViews,
     labelViews,
     exploreViews,
+    notificationViews,
 )
 
 
@@ -115,4 +116,10 @@ urlpatterns = [
     path("explore/places/", exploreViews.explorePlaces, name="explorePlaces"),
 
     path("users/<str:username>/feeds/", exploreViews.feeds, name="feeds"),
+
+    ## notificationAPI
+    path("notifications/", notificationViews.notifications, name="notifications"),
+    path("notifications/<int:notification_id>/", notificationViews.notificationID, name="notificationID"),
+
+    path("session/notifications/", notificationViews.sessionNotifications, name="sessionNotification"),
 ]

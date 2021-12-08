@@ -53,30 +53,51 @@ def get_post_photo_list(post):
         )
     return photo_list
 
-def get_post_dict(post, comment_blank=False):
-    photo_list = get_post_photo_list(post)
+def get_post_dict(post, comment_blank=False, preview=False):
 
-    if comment_blank:
-        comment_list = []
-    else:
-        comment_list = get_post_comment_list(post)
-
-    author_info = {
-        "username": post.author.username,
-        "bio": post.author.bio,
-    }
-    if bool(post.author.profile_picture):
-        author_info["profile_picture"] = post.author.profile_picture.url
     post_dict = {
         "post_id": post.post_id,
         "repo_id": post.repository.repo_id,
-        "author": [author_info],
-        "title": post.title,
-        "text": post.text,
         "post_time": timezone.make_naive(post.post_time).strftime(UPLOADED_TIME_FORMAT),
-        "photos": photo_list,
-        "comments": comment_list,
+        "post_type": post.post_type,
     }
+
+    if post.post_type == PostType.REPO:
+        author_list = []
+        for collaborator in post.repository.collaborators:
+            author_info = {
+                "username": collaborator.username,
+                "bio": collaborator.bio,
+            }
+            if bool(collaborator.profile_picture):
+                author_info["profile_picture"] = collaborator.profile_picture.url
+            author_list.append(author_info)
+        post_dict['author'] = author_list
+        post_dict['photos'] = []
+        post_dict['title'] = post.repository.repo_name
+        post_text = ""
+    else:
+        author_info = {
+            "username": post.author.username,
+            "bio": post.author.bio,
+        }
+        if bool(post.author.profile_picture):
+            author_info["profile_picture"] = post.author.profile_picture.url
+        post_dict['author'] = [author_info]
+        photo_list = get_post_photo_list(post)
+        post_dict['photos'] = photo_list
+        post_dict['title'] = post.title
+        post_text = post.text
+
+    if not preview:
+        post_dict['text'] = post_text
+        if comment_blank:
+            comment_list = []
+            post_dict['comments'] = comment_list
+        else:
+            comment_list = get_post_comment_list(post)
+            post_dict['comments'] = comment_list
+
     return post_dict
 
 def get_post_list(repository=None, author=None, user=None):
@@ -87,25 +108,9 @@ def get_post_list(repository=None, author=None, user=None):
         filtered_set = Post.objects.filter(author=author)
     for post in filtered_set.filter(post_type=PostType.PERSONAL):
         if (repository is not None) or (repo_visible(user, post.repository)):
-            photo_list = get_post_photo_list(post)
-
-            author_info = {
-                "username": post.author.username,
-                "bio": post.author.bio,
-            }
-            if bool(post.author.profile_picture):
-                author_info["profile_picture"] = post.author.profile_picture.url
-
             post_list.insert(
                 0,
-                {
-                    "post_id": post.post_id,
-                    "repo_id": post.repository.repo_id,
-                    "author": [author_info],
-                    "title": post.title,
-                    "post_time": timezone.make_naive(post.post_time).strftime(UPLOADED_TIME_FORMAT),
-                    "photos": photo_list,
-                },
+                get_post_dict(post, preview=True),
             )
     return post_list
 
@@ -124,7 +129,7 @@ def userPosts(request, user_name):
 
 
 # /api/repositories/<int:repo_id>/posts/
-@require_http_methods(["POST", "GET"])
+@require_http_methods(["POST", "PUT", "GET"])
 @ensure_csrf_cookie
 def repoPosts(request, repo_id):
     if request.method == "POST":
@@ -146,31 +151,13 @@ def repoPosts(request, repo_id):
                 new_post = Post(repository=repository, author=request.user, title=repository.repo_name, text=text, post_type=post_type)
                 repository.travel = RepoTravel.TRAVEL_ON
                 new_post.save()
-                author_list = []
-                for collaborator in repository.collaborators:
-                    author_info = {
-                        "username": collaborator.username,
-                        "bio": collaborator.bio,
-                    }
-                    if bool(collaborator.profile_picture):
-                        author_info["profile_picture"] = collaborator.profile_picture.url
-                    author_list.append(author_info)
 
-                response_dict = {
-                    "post_id": new_post.post_id,
-                    "repo_id": new_post.repository.repo_id,
-                    "author": author_list,
-                    "title": new_post.title,
-                    "text": new_post.text,
-                    "post_time": new_post.post_time.strftime(UPLOADED_TIME_FORMAT),
-                    "photos": [],
-                    "comments": [],
-                    "post_type": new_post.post_type,
-                }
+                response_dict = get_post_dict(new_post, comment_blank=True)
+
                 return HttpResponseSuccessUpdate(response_dict)
-
         except (KeyError, JSONDecodeError):
             pass
+
         try:
             req_data = json.loads(request.body.decode())
             title = req_data["title"]

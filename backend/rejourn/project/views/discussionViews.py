@@ -31,7 +31,7 @@ def get_discussion_comment_list(discussion):
         )
     return comment_list
 
-def get_discussion_dict(discussion, comment_blank=False):
+def get_discussion_dict(discussion, comment_blank=False, preview=False):
     author_info = {
         "username": discussion.author.username,
         "bio": discussion.author.bio,
@@ -39,21 +39,31 @@ def get_discussion_dict(discussion, comment_blank=False):
     if bool(discussion.author.profile_picture):
         author_info["profile_picture"] = discussion.author.profile_picture.url
 
-    if comment_blank:
-        comment_list = []
-    else:
-        comment_list = get_discussion_comment_list(discussion)
-
     discussion_dict = {
         "discussion_id": discussion.discussion_id,
         "repo_id": discussion.repository.repo_id,
         "author": author_info,
         "title": discussion.title,
-        "text": discussion.text,
         "post_time": timezone.make_naive(discussion.post_time).strftime(UPLOADED_TIME_FORMAT),
-        "comments": comment_list,
     }
+
+    if not preview:
+        discussion_dict['text'] = discussion.text
+        if comment_blank:
+            comment_list = []
+        else:
+            comment_list = get_discussion_comment_list(discussion)
+        discussion_dict['comments'] = comment_list
     return discussion_dict
+
+def get_discussion_list(repository=None):
+    discussion_list = []
+    for discussion in Discussion.objects.filter(repository=repository):
+        discussion_list.insert(
+            0,
+            get_discussion_dict(discussion, preview=True),
+        )
+    return discussion_list
 
 # /api/repositories/<int:repo_id>/discussions/
 @require_http_methods(["POST", "GET"])
@@ -98,25 +108,8 @@ def discussions(request, repo_id):
     if request.user not in repository.collaborators.all():
         return HttpResponseNoPermission()
 
-    discussion_list = []
+    discussion_list = get_discussion_list(repository)
 
-    for discussion in Discussion.objects.filter(repository=repository):
-        author_info = {
-            "username": discussion.author.username,
-            "bio": discussion.author.bio,
-        }
-        if bool(discussion.author.profile_picture):
-            author_info["profile_picture"] = discussion.author.profile_picture.url
-        discussion_list.insert(
-            0,
-            {
-                "discussion_id": discussion.discussion_id,
-                "repo_id": discussion.repository.repo_id,
-                "author": author_info,
-                "title": discussion.title,
-                "post_time": timezone.make_naive(discussion.post_time).strftime(UPLOADED_TIME_FORMAT),
-            },
-        )
     return HttpResponseSuccessGet(discussion_list)
 
 
