@@ -27,9 +27,9 @@ def exploreUsers(request):
         return HttpResponseBadRequest()
     
     friends = User.objects.filter(friends__user_id=request.user.user_id)
-    friends_not_private = friends.filter(visibility=(Scope.PUBLIC or Scope.FRIENDS_ONLY))
+    friends_not_private = friends.exclude(visibility=Scope.PRIVATE)
     friends_matching = friends_not_private.filter(username__icontains=query_user).annotate(order=models.Value(0, models.IntegerField()))
-    public_users = User.objects.filter(visibility=Scope.PUBLIC)
+    public_users = User.objects.filter(visibility=Scope.PUBLIC).exclude(friends__user_id=request.user.user_id)
     public_users_matching = public_users.filter(username__icontains=query_user).annotate(order=models.Value(1, models.IntegerField()))
     possible_users_matching = friends_matching.union(public_users_matching).order_by('order')
 
@@ -66,7 +66,7 @@ def exploreRepositories(request):
     repositories_friends = Repository.objects.filter(collaborators__in=User.objects.filter(username=request.user.username).values('friends'))
     repositories_friends_exclude_private = repositories_friends.filter(visibility=Scope.FRIENDS_ONLY)
     repositories_friends_matching = repositories_friends_exclude_private.filter(repo_name__icontains=query_repository).annotate(order=models.Value(0, models.IntegerField()))
-    public_repositories = Repository.objects.filter(visibility=Scope.PUBLIC)
+    public_repositories = Repository.objects.filter(visibility=Scope.PUBLIC).exclude(collaborators__user_id=request.user.user_id).exclude(collaborators__in=User.objects.filter(username=request.user.username).values('friends'))
     public_repositories_matching = public_repositories.filter(repo_name__icontains=query_repository).annotate(order=models.Value(0, models.IntegerField()))
     possible_repositories = repositories_mine_matching.union(repositories_friends_matching).union(public_repositories_matching).order_by('order')
 
@@ -128,6 +128,7 @@ def exploreRegions(request):
     url_for_geocoding = "https://maps.googleapis.com/maps/api/geocode/json?address="+query_region_formatted+"&key="+API_KEY
     geocoding_response = requests.get(url_for_geocoding)
 
+    
     if geocoding_response.status_code in range(200, 299):
         return HttpResponseBadRequest()
 
@@ -147,7 +148,7 @@ def exploreRegions(request):
     
     response_list = []
     for repository in possible_repositories:
-        places = PlaceInRoute.objects.filter(repository=repository).annotate(number_of_photos=Count("photo")).order_by('-number_of_photos')
+        places = PlaceInRoute.objects.filter(route__repository=repository).annotate(number_of_photos=Count("photo")).order_by('-number_of_photos')
         response_places = []
         count = 0
         for place in places:
@@ -158,6 +159,7 @@ def exploreRegions(request):
                 break
         response_dict = {"repo_id": repository.repo_id, "repo_name": repository.repo_name, "region_address": repository.route.region_address, "places": response_places}
         response_list.append(response_dict)
+
 
     return HttpResponseSuccessGet(response_list)
 
@@ -174,10 +176,10 @@ def feeds(request, username):
         return HttpResponseNotExist()
 
     request_date = datetime.now()
-    before_two_work = request_date - timedelta(weeks=2)
+    before_two_week = request_date - timedelta(weeks=2)
 
-    personal_feed_list = Post.objects.filter(author=user, post_type=PostType.PERSONAL, post_time__range=[request_date, before_two_work])
-    repo_feed_list = Post.objects.filter(repository__collaborators__user=user, post_type=PostType.REPO, post_time__range=[request_date, before_two_work])
+    personal_feed_list = Post.objects.filter(author=user, post_type=PostType.PERSONAL, post_time__range=[before_two_week, request_date])
+    repo_feed_list = Post.objects.filter(repository__collaborators__in=User.objects.filter(username=request.user.username).values('friends'), post_type=PostType.REPO, post_time__range=[before_two_week, request_date])
 
     feed_list = personal_feed_list.union(repo_feed_list).order_by('-post_time')
 
@@ -187,7 +189,7 @@ def feeds(request, username):
             author_list = []
             temp = []
             if post.post_type == PostType.REPO:
-                for collaborator in post.repository.collaborators:
+                for collaborator in post.repository.collaborators.all():
                     author_info = {
                         "username": collaborator.username,
                         "bio": collaborator.bio,
@@ -209,7 +211,7 @@ def feeds(request, username):
                 }
                 if bool(post.author.profile_picture):
                     author_info["profile_picture"] = post.author.profile_picture.url
-                author_list.append()
+                author_list.append(author_info)
 
             photo_list = []
             for photo_order in PhotoInPost.objects.filter(post=post):
@@ -227,7 +229,6 @@ def feeds(request, username):
                 "author": author_list,
                 "title": post.title,
                 "text": post.text,
-                "post_time": post.post_time.strftime(UPLOADED_TIME_FORMAT),
                 "photos": photo_list,
                 "region": post.repository.route.region_address,
                 "post_type": post.post_type,
