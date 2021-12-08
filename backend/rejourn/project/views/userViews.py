@@ -399,8 +399,14 @@ def userFriendID(request, user_name, friend_name):
         except User.DoesNotExist:
             return HttpResponseNotExist()
 
-        from_user.friends.add(to_user)
-        from_user.save()
+        if Notification.objects.filter(user=from_user, from_user=to_user, classification=NoticeType.FRIEND_REQUEST).count()!=0:
+            friend_request = Notification.objects.get(user=from_user, from_user=to_user, classification=NoticeType.FRIEND_REQUEST)
+            friend_request.delete()
+            from_user.friends.add(to_user)
+            from_user.save()
+        else:
+            friend_request = Notification(user=to_user, from_user=from_user, classification=NoticeType.FRIEND_REQUEST)
+            friend_request.save()
 
         friends_list = []
         for friend in from_user.friends.all():

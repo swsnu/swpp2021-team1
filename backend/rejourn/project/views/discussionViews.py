@@ -6,8 +6,9 @@ from django.http.response import HttpResponseBadRequest
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 
-from project.models.models import Discussion, DiscussionComment, Repository
+from project.models.models import Discussion, DiscussionComment, Repository, Notification
 from project.httpResponse import *
+from project.enum import NoticeType
 
 UPLOADED_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
@@ -92,6 +93,16 @@ def discussions(request, repo_id):
             repository=repository, author=request.user, title=title, text=text
         )
         new_discussion.save()
+
+        for collaborator in repository.collaborators.all():
+            discussion_notice = Notification(
+                user=collaborator,
+                from_user=request.user,
+                classification=NoticeType.NEW_DISCUSSION,
+                discussion=new_discussion,
+                repository=repository
+            )
+            discussion_notice.save()
 
         response_dict = get_discussion_dict(new_discussion, comment_blank=True)
         return HttpResponseSuccessUpdate(response_dict)
@@ -207,6 +218,14 @@ def discussionComments(request, discussion_id):
             author=request.user, text=text, discussion=discussion
         )
         new_comment.save()
+
+        comment_notice = Notification(
+            user=discussion.author,
+            classification=NoticeType.COMMENT,
+            from_user=request.user,
+            discussion=discussion
+        )
+        comment_notice.save()
 
         comment_list = get_discussion_comment_list(discussion)
         return HttpResponseSuccessUpdate(comment_list)
