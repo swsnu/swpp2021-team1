@@ -66,7 +66,7 @@ const PostDetail = (props: PostDetailProps) => {
     }, [currentPost]); */
 
     return (
-        <div className="container mt-5">
+        <div className="mt-5">
             <section className="border-bottom mb-5" style={{ maxWidth: 700 }}>
                 <div className="row align-items-center mb-4 mx-auto">
                     <div

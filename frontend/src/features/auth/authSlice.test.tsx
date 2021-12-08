@@ -1,21 +1,27 @@
 import { configureStore } from "@reduxjs/toolkit";
 
 import Factory from "../../mocks/dataGenerator";
-
-import authReducer, {
-    signIn, signUp, signOut, addFriend, switchCurrentUser, fetchSession, updateProfile, toBeLoaded, handleError,
-} from "./authSlice";
-import server from "../../mocks/server";
-
 import {
-    getSessionHE, getSignOutHE, getUserHE, postSignInHE, postUserFriendHE, postUserHE, putUserHE,
+    getSessionHE, getSignOutHE, getUserHE, postSignInHE, postUserFriendHE, postUserHE,
 } from "../../mocks/handlers";
+import server from "../../mocks/server";
+import authReducer, {
+    addFriend,
+    fetchSession,
+    handleError,
+    signIn,
+    signOut,
+    signUp,
+    switchCurrentUser,
+    toBeLoaded,
+} from "./authSlice";
 
 const fact = new Factory();
 
 describe("authSlice", () => {
     beforeAll(() => server.listen());
     afterEach(() => server.resetHandlers);
+    afterEach(() => jest.clearAllMocks());
     afterAll(() => server.close());
 
     let store = configureStore({
@@ -26,15 +32,14 @@ describe("authSlice", () => {
 
     beforeEach(() => {
         store = configureStore({
-            reducer: {
-                auth: authReducer,
-            },
+            reducer: { auth: authReducer },
         });
     });
 
     it("should fetch session correctly", async () => {
         await store.dispatch(fetchSession());
         expect(store.getState().auth.account).toBeTruthy();
+        await store.dispatch(fetchSession());
     });
     it("should handle error on session fetch rejected", async () => {
         server.use(getSessionHE);
@@ -73,6 +78,7 @@ describe("authSlice", () => {
         expect(status).toBe("rejected");
     });
     it("should add friend correctly", async () => {
+        await store.dispatch(fetchSession());
         const response = await store.dispatch(
             addFriend({ username: "username", fusername: "fusername" }),
         );
@@ -80,7 +86,6 @@ describe("authSlice", () => {
         expect(status).toBe("fulfilled");
     });
 
-    // TODO (178-179)
     it("should add friend correctly when currentUser is the new friend", async () => {
         await store.dispatch(switchCurrentUser("username"));
         const currentUsername = store.getState().auth.currentUser?.username as string;
@@ -110,30 +115,36 @@ describe("authSlice", () => {
         const status = response.meta.requestStatus;
         expect(status).toBe("rejected");
     });
-
-    // TODO (187-192)
-    // it("should handle update profile", async () => {
-    //     await store.dispatch(fetchSession());
-    //     const response = await store.dispatch(updateProfile({
-    //         account: fact.userGen(),
-    //         form: {
-    //             email: "a", real_name: "a", bio: "a", password: "a",
+    it("should switch current user to myself", async () => {
+        await store.dispatch(fetchSession());
+        const user1 = store.getState().auth.account;
+        await store.dispatch(switchCurrentUser("abc"));
+        await store.dispatch(switchCurrentUser(user1?.username as string));
+    });
+    // it("should handle updateProfile properly", async () => {
+    //     store = configureStore({
+    //         reducer: {
+    //             auth: authReducer,
+    //             repos: reposReducer,
+    //             posts: postsReducer,
+    //             photos: photosReducer,
+    //             discussions: discussionsReducer,
+    //             route: routeReducer,
+    //             labels: labelsReducer,
     //         },
+    //     });
+    //     await store.dispatch(fetchSession());
+    //     await store.dispatch(updateProfile({
+    //         email: "dd@dd.com",
+    //         real_name: "abc",
+    //         bio: "d",
+    //         password: "d",
     //     }));
-    //     const status = response.meta.requestStatus;
-    //     expect(status).toBe("fulfilled");
     // });
-    // it("should handle update profile error", async () => {
-    //     server.use(putUserHE);
+    // it("should handle AddFriend", async () => {
     //     await store.dispatch(fetchSession());
-    //     const response = await store.dispatch(updateProfile({
-    //         account: fact.userGen(),
-    //         form: {
-    //             email: "a", real_name: "a", bio: "a", password: "a",
-    //         },
-    //     }));
-    //     const status = response.meta.requestStatus;
-    //     expect(status).toBe("rejected");
+    //     console.log(store.getState().auth);
+    //     await store.dispatch(addFriend({ username: "abc", fusername: "def" }));
     // });
 
     it("should handle toBeLoaded", () => {

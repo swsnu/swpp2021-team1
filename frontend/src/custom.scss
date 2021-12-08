@@ -1,4 +1,12 @@
+// Include any default variable overrides here (though functions won't be available)
 
 $primary: #f69d72;
+$font-family-sans-serif: NanumBarunGothic, sans-serif;
+$headings-font-weight: bold;
+$headings-font-family: "Gmarket Sans OTF", sans-serif;
+// $font-family-base: "NanumBarunGothic";
+
 
 @import "../node_modules/bootstrap/scss/bootstrap";
+
+// Then add additional custom code here

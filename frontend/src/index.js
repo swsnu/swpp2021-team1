@@ -9,7 +9,7 @@ import store from "./app/store";
 import "./custom.scss";
 import worker from "./mocks/browser";
 
-if (process.env.REACT_APP_USE_MSW_MOCK_API === "yes") {
+if (process.env.REACT_APP_USE_MOCK_API === "yes") {
     worker.start();
 }
 ReactDOM.render(

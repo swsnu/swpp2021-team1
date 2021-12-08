@@ -5,16 +5,47 @@ from datetime import datetime
 from django.http.response import HttpResponseBadRequest
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
-from django.utils import timezone
 
 from project.models.models import User, Repository
 from project.httpResponse import *
-from project.utils import have_common_user
+from project.utils import repo_visible
 from project.enum import Scope
 
 
 DATE_FORMAT = "%Y-%m-%d"
 
+def get_collaborator_list(repository):
+    collaborator_list = []
+    for user in repository.collaborators.all():
+        if not bool(user.profile_picture):
+            collaborator_list.append(
+                {
+                    "username": user.username,
+                    "bio": user.bio,
+                }
+            )
+        else:
+            collaborator_list.append(
+                {
+                    "username": user.username,
+                    "profile_picture": user.profile_picture.url,
+                    "bio": user.bio,
+                }
+            )
+    return collaborator_list
+
+def get_repository_dict(repository):
+    collaborator_list = get_collaborator_list(repository)
+    repository_dict = {
+        "repo_id": repository.repo_id,
+        "repo_name": repository.repo_name,
+        "owner": repository.owner.username,
+        "travel_start_date": repository.travel_start_date.strftime(DATE_FORMAT),
+        "travel_end_date": repository.travel_end_date.strftime(DATE_FORMAT),
+        "visibility": repository.visibility,
+        "collaborators": collaborator_list,
+    }
+    return repository_dict
 
 # /api/repositories/
 @require_http_methods(["POST", "GET"])
@@ -55,9 +86,7 @@ def repositories(request):
 
         try:
             travel_start_date = datetime.strptime(raw_travel_start_date, DATE_FORMAT)
-            travel_start_date = timezone.make_aware(travel_start_date)
             travel_end_date = datetime.strptime(raw_travel_end_date, DATE_FORMAT)
-            travel_end_date = timezone.make_aware(travel_end_date)
         except ValueError:
             return HttpResponseInvalidInput()
 
@@ -73,33 +102,7 @@ def repositories(request):
             new_repo.collaborators.add(user)
         new_repo.save()
 
-        collaborators_censored = []
-        for user in new_repo.collaborators.all():
-            if not bool(user.profile_picture):
-                collaborators_censored.append(
-                    {
-                        "username": user.username,
-                        "bio": user.bio,
-                    }
-                )
-            else:
-                collaborators_censored.append(
-                    {
-                        "username": user.username,
-                        "profile_picture": user.profile_picture.url,
-                        "bio": user.bio,
-                    }
-                )
-
-        response_dict = {
-            "repo_id": new_repo.repo_id,
-            "repo_name": new_repo.repo_name,
-            "owner": new_repo.owner.username,
-            "travel_start_date": new_repo.travel_start_date.strftime(DATE_FORMAT),
-            "travel_end_date": new_repo.travel_end_date.strftime(DATE_FORMAT),
-            "visibility": new_repo.visibility,
-            "collaborators": collaborators_censored,
-        }
+        response_dict = get_repository_dict(new_repo)
         return HttpResponseSuccessUpdate(response_dict)
 
     # request.method == "GET":
@@ -110,120 +113,32 @@ def repositories(request):
     if collaborator_name is None and owner_name is None:
         return HttpResponseBadRequest()
 
-    if collaborator_name is not None and owner_name is None:
+    if collaborator_name is not None:
         try:
             collaborator = User.objects.get(username=collaborator_name)
         except User.DoesNotExist:
             return HttpResponseInvalidInput()
 
-        repository_list = []
+        repository_set = collaborator.repositories.all()
+    else:
+        repository_set = Repository.objects.all()
 
-        for repository in collaborator.repositories.all():
-            if (
-                    (current_user in repository.collaborators.all())
-                    or (repository.visibility == Scope.PUBLIC)
-                    or (
-                        repository.visibility == Scope.FRIENDS_ONLY
-                        and have_common_user(
-                            current_user.friends.all(), repository.collaborators.all()
-                        )
-                    )
-                ):
-                collaborator_list = []
-                for user in repository.collaborators.all():
-                    if not bool(user.profile_picture):
-                        collaborator_list.append(
-                            {
-                                "username": user.username,
-                                "bio": user.bio,
-                            }
-                        )
-                    else:
-                        collaborator_list.append(
-                            {
-                                "username": user.username,
-                                "profile_picture": user.profile_picture.url,
-                                "bio": user.bio,
-                            }
-                        )
-                repository_list.insert(
-                    0,
-                    {
-                        "repo_id": repository.repo_id,
-                        "repo_name": repository.repo_name,
-                        "owner": repository.owner.username,
-                        "travel_start_date": repository.travel_start_date.strftime(
-                            DATE_FORMAT
-                        ),
-                        "travel_end_date": repository.travel_end_date.strftime(
-                            DATE_FORMAT
-                        ),
-                        "visibility": repository.visibility,
-                        "collaborators": collaborator_list,
-                    },
-                )
-
-        return HttpResponseSuccessGet(repository_list)
-
-    if collaborator_name is None and owner_name is not None:
+    if owner_name is not None:
         try:
             owner = User.objects.get(username=owner_name)
         except User.DoesNotExist:
             return HttpResponseInvalidInput()
 
-        repository_list = []
+        repository_set = repository_set.filter(owner=owner)
 
-        for repository in owner.repositories.all():
-            if repository.owner != owner:
-                continue
-            if (
-                    (current_user in repository.collaborators.all())
-                    or (repository.visibility == Scope.PUBLIC)
-                    or (
-                        repository.visibility == Scope.FRIENDS_ONLY
-                        and have_common_user(
-                            current_user.friends.all(), repository.collaborators.all()
-                        )
-                    )
-                ):
-                collaborator_list = []
-                for user in repository.collaborators.all():
-                    if not bool(user.profile_picture):
-                        collaborator_list.append(
-                            {
-                                "username": user.username,
-                                "bio": user.bio,
-                            }
-                        )
-                    else:
-                        collaborator_list.append(
-                            {
-                                "username": user.username,
-                                "profile_picture": user.profile_picture.url,
-                                "bio": user.bio,
-                            }
-                        )
-                repository_list.insert(
-                    0,
-                    {
-                        "repo_id": repository.repo_id,
-                        "repo_name": repository.repo_name,
-                        "owner": repository.owner.username,
-                        "travel_start_date": repository.travel_start_date.strftime(
-                            DATE_FORMAT
-                        ),
-                        "travel_end_date": repository.travel_end_date.strftime(
-                            DATE_FORMAT
-                        ),
-                        "visibility": repository.visibility,
-                        "collaborators": collaborator_list,
-                    },
-                )
+    repository_list = []
+    for repository in repository_set:
+        if repo_visible(current_user, repository):
+            repository_list.insert(
+                0, get_repository_dict(repository)
+            )
 
-        return HttpResponseSuccessGet(repository_list)
-
-    # collaborator_name is not None and owner_name is not None
-    return HttpResponseBadRequest()
+    return HttpResponseSuccessGet(repository_list)
 
 
 # /api/repositories/<int:repo_id>/
@@ -241,45 +156,10 @@ def repositoryID(request, repo_id):
         ):
             return HttpResponseNoPermission()
 
-        if not (
-                (repository.visibility == Scope.PUBLIC)
-                or (request.user in repository.collaborators.all())
-                or (
-                    repository.visibility == Scope.FRIENDS_ONLY
-                    and have_common_user(
-                        request.user.friends.all(), repository.collaborators.all()
-                    )
-                )
-            ):
+        if not repo_visible(request.user, repository):
             return HttpResponseNoPermission()
 
-        collaborator_list = []
-        for user in repository.collaborators.all():
-            if not bool(user.profile_picture):
-                collaborator_list.append(
-                    {
-                        "username": user.username,
-                        "bio": user.bio,
-                    }
-                )
-            else:
-                collaborator_list.append(
-                    {
-                        "username": user.username,
-                        "profile_picture": user.profile_picture.url,
-                        "bio": user.bio,
-                    }
-                )
-
-        response_dict = {
-            "repo_id": repository.repo_id,
-            "repo_name": repository.repo_name,
-            "owner": repository.owner.username,
-            "travel_start_date": repository.travel_start_date.strftime(DATE_FORMAT),
-            "travel_end_date": repository.travel_end_date.strftime(DATE_FORMAT),
-            "visibility": repository.visibility,
-            "collaborators": collaborator_list,
-        }
+        response_dict = get_repository_dict(repository)
         return HttpResponseSuccessGet(response_dict)
 
     if request.method == "DELETE":
@@ -322,9 +202,7 @@ def repositoryID(request, repo_id):
 
     try:
         travel_start_date = datetime.strptime(raw_travel_start_date, DATE_FORMAT)
-        travel_start_date = timezone.make_aware(travel_start_date)
         travel_end_date = datetime.strptime(raw_travel_end_date, DATE_FORMAT)
-        travel_end_date = timezone.make_aware(travel_end_date)
     except ValueError:
         return HttpResponseInvalidInput()
 
@@ -345,32 +223,7 @@ def repositoryID(request, repo_id):
     repository.visibility = visibility
     repository.save()
 
-    collaborators = []
-    for user in repository.collaborators.all():
-        if not bool(user.profile_picture):
-            collaborators.append(
-                {
-                    "username": user.username,
-                    "bio": user.bio,
-                }
-            )
-        else:
-            collaborators.append(
-                {
-                    "username": user.username,
-                    "profile_picture": user.profile_picture.url,
-                    "bio": user.bio,
-                }
-            )
-    response_dict = {
-        "repo_id": repository.repo_id,
-        "repo_name": repository.repo_name,
-        "owner": repository.owner.username,
-        "travel_start_date": repository.travel_start_date.strftime(DATE_FORMAT),
-        "travel_end_date": repository.travel_end_date.strftime(DATE_FORMAT),
-        "visibility": repository.visibility,
-        "collaborators": collaborators,
-    }
+    response_dict = get_repository_dict(repository)
     return HttpResponseSuccessUpdate(response_dict)
 
 
@@ -390,35 +243,10 @@ def repositoryCollaborators(request, repo_id):
         ):
             return HttpResponseNoPermission()
 
-        if not (
-                (repository.visibility == Scope.PUBLIC)
-                or (request.user in repository.collaborators.all())
-                or (
-                    repository.visibility == Scope.FRIENDS_ONLY
-                    and have_common_user(
-                        request.user.friends.all(), repository.collaborators.all()
-                    )
-                )
-            ):
+        if not repo_visible(request.user, repository):
             return HttpResponseNoPermission()
 
-        collaborator_list = []
-        for user in repository.collaborators.all():
-            if not bool(user.profile_picture):
-                collaborator_list.append(
-                    {
-                        "username": user.username,
-                        "bio": user.bio,
-                    }
-                )
-            else:
-                collaborator_list.append(
-                    {
-                        "username": user.username,
-                        "profile_picture": user.profile_picture.url,
-                        "bio": user.bio,
-                    }
-                )
+        collaborator_list = get_collaborator_list(repository)
         return HttpResponseSuccessGet(collaborator_list)
 
     # request.method == "POST":
@@ -449,24 +277,7 @@ def repositoryCollaborators(request, repo_id):
         repository.collaborators.add(user)
     repository.save()
 
-    collaborator_list = []
-    for user in repository.collaborators.all():
-        if not bool(user.profile_picture):
-            collaborator_list.append(
-                {
-                    "username": user.username,
-                    "bio": user.bio,
-                }
-            )
-        else:
-            collaborator_list.append(
-                {
-                    "username": user.username,
-                    "profile_picture": user.profile_picture.url,
-                    "bio": user.bio,
-                }
-            )
-
+    collaborator_list = get_collaborator_list(repository)
     return HttpResponseSuccessUpdate(collaborator_list)
 
 
@@ -491,22 +302,5 @@ def repositoryCollaboratorID(request, repo_id, collaborator_name):
 
     repository.collaborators.remove(deleted)
 
-    collaborator_list = []
-    for user in repository.collaborators.all():
-        if not bool(user.profile_picture):
-            collaborator_list.append(
-                {
-                    "username": user.username,
-                    "bio": user.bio,
-                }
-            )
-        else:
-            collaborator_list.append(
-                {
-                    "username": user.username,
-                    "profile_picture": user.profile_picture.url,
-                    "bio": user.bio,
-                }
-            )
-
+    collaborator_list = get_collaborator_list(repository)
     return HttpResponseSuccessDelete(collaborator_list)

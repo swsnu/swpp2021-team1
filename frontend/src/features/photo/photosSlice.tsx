@@ -1,10 +1,11 @@
 import {
     createAsyncThunk, createSlice, PayloadAction, SliceCaseReducers,
 } from "@reduxjs/toolkit";
-import { IPhoto } from "../../common/Interfaces";
+
 import {
-    deletePhotos, getPhotos, postPhotos, putPhoto,
+    deletePhotos, getPhotos, postPhotos, putLabelPhotos, putPhoto,
 } from "../../common/APIs";
+import { IPhoto } from "../../common/Interfaces";
 
 export const fetchPhotos = createAsyncThunk<IPhoto[], number>( // added
     "photos/list",
@@ -31,6 +32,17 @@ export const removePhotos = createAsyncThunk<IPhoto[], {repo_id : number, photos
     "photos/remove",
     async ({ repo_id, photos_id }) => // payload creator
         await deletePhotos(repo_id, photos_id),
+
+);
+
+export const assignLabel = createAsyncThunk<IPhoto[], {
+    repoId: number, labelId: number, photos: { photo_id: number }[]
+}>(
+    "photos/assignLabel",
+    async ({ repoId, labelId, photos }) => {
+        const response = await putLabelPhotos(repoId, labelId, photos);
+        return response;
+    },
 
 );
 
@@ -121,6 +133,19 @@ const photosSlice = createSlice<PhotosState, SliceCaseReducers<PhotosState>>({
         });
         builder.addCase(removePhotos.rejected, (state: PhotosState) => {
             // state.isLoading = false;
+            state.hasError = true;
+        });
+        builder.addCase(assignLabel.pending, (state: PhotosState) => {
+            state.hasError = false;
+        });
+        builder.addCase(assignLabel.fulfilled, (state: PhotosState, action: PayloadAction<IPhoto[]>) => {
+            state.hasError = false;
+            action.payload.forEach((photo) => {
+                const index = state.photoList.findIndex((p) => p.photo_id === photo.photo_id);
+                state.photoList[index] = photo;
+            });
+        });
+        builder.addCase(assignLabel.rejected, (state: PhotosState) => {
             state.hasError = true;
         });
     },

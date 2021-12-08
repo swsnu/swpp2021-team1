@@ -52,15 +52,6 @@ const PostPreview = (props: PostPreviewProps) => {
                         >
                             View More
                         </Button>
-                        <Button
-                            className="m-2"
-                            id="post-create-button"
-                            onClick={() => {
-                                history.push(`/repos/${repoId}/posts/create`);
-                            }}
-                        >
-                            +
-                        </Button>
 
                     </div>
                 </div>

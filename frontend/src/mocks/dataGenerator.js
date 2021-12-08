@@ -72,7 +72,8 @@ class Factory {
     });
 
     label = () => ({
-        name: faker.lorem.word(),
+        label_id: faker.datatype.number(),
+        label_name: faker.lorem.word(),
     });
 
     place = () => ({
