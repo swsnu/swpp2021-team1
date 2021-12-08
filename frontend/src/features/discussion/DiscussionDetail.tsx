@@ -1,7 +1,7 @@
 import { Button, FloatingLabel, Form } from "react-bootstrap";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useHistory } from "react-router";
 import { AppDispatch, RootState } from "../../app/store";
 import * as actionCreators from "./discussionsSlice";
@@ -109,9 +109,26 @@ export default function DiscussionDetail(props : DiscussionDetailProps) {
                     )}
                 </div>
                 {!mode && (
-                    <h6 style={{ color: "gray" }}>
-                        {`${currentDiscussion?.author?.username}, ${currentDiscussion?.post_time}`}
-                    </h6>
+                    <div className="text-muted" style={{ fontSize: "0.85rem" }}>
+                        <Link
+                            to={`/main/${currentDiscussion?.author?.username}`}
+                            id="author-username"
+                            className="text-decoration-none text-dark"
+                        >
+                            <img
+                                src={currentDiscussion?.author?.profile_picture ?
+                                    currentDiscussion.author.profile_picture : avatar}
+                                className="rounded-circle shadow-1-strong me-1"
+                                height="25"
+                                alt=""
+                                loading="lazy"
+                            />
+                            <strong className="text-muted">
+                                {currentDiscussion?.author?.username}
+                            </strong>
+                        </Link>
+                        {`, ${currentDiscussion?.post_time}`}
+                    </div>
                 )}
                 <div className="mt-4">
                     {mode ? (

@@ -20,6 +20,7 @@ import "./App.css";
 import PostDetail from "../features/post/PostDetail";
 import PostCreate from "../features/post/PostCreate";
 import PlaceDetail from "../features/route/PlaceDetail";
+import NotificationList from "../features/notification/NotificationList";
 
 export default function App() {
     return (
@@ -61,6 +62,7 @@ export default function App() {
                                                 </>
                                             )}
                                         />
+                                        <Route path="/main/:user/notification" exact component={NotificationList} />
                                         <Route path="/main/:user/setting" exact component={ProfileSetting} />
                                         <Route path="/repos/create" exact component={RepositoryCreate} />
                                         <Route path="/repos/:id" exact component={RepositoryDetail} />

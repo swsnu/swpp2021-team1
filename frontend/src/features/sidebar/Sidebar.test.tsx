@@ -9,6 +9,7 @@ import authReducer from "../auth/authSlice";
 import { userFactory } from "../../common/Interfaces";
 import Sidebar from "./Sidebar";
 import * as actionCreators from "../auth/authSlice";
+import * as Session from "../notification/noticesSlice";
 import * as redux from "../../app/hooks";
 
 const history = createBrowserHistory();
@@ -41,6 +42,8 @@ describe("Sidebar", () => {
             ({ type: "" } as { payload: any; type: string; }));
         jest.spyOn(redux, "useAppSelector").mockImplementation(() =>
             [false, false, userFactory()]);
+        jest.spyOn(Session, "fetchSession").mockImplementation(() =>
+            (jest.fn()));
     });
 
     afterEach(() => {
