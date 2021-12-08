@@ -1,9 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Button, ListGroup } from "react-bootstrap";
-import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
-import FocusedPhoto from "../photo/popup/FocusedPhoto";
-import { AppDispatch, RootState } from "../../app/store";
 import { IPhoto } from "../../common/Interfaces";
 import Photo from "../photo/Photo";
 import { focusPhoto } from "../photo/photosSlice";

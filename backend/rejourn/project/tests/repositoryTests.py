@@ -1,5 +1,7 @@
 import json
+from datetime import datetime
 
+from django.utils import timezone
 from django.test import TestCase, Client
 
 from project.models.models import User, Repository
@@ -66,8 +68,8 @@ class RepositoryTestCase(TestCase):
         "repo_name": "TEST_REPO_A",
         "visibility": Scope.PUBLIC,
         "owner": "TEST_USER_A",
-        "travel_start_date": "2021-11-09",
-        "travel_end_date": "2021-11-10",
+        "travel_start_date": timezone.make_aware(datetime(2021, 11, 9)),
+        "travel_end_date": timezone.make_aware(datetime(2021, 11, 10)),
         "collaborators": ["TEST_USER_A"],
     }
 
@@ -75,8 +77,8 @@ class RepositoryTestCase(TestCase):
         "repo_name": "TEST_REPO_B",
         "visibility": Scope.FRIENDS_ONLY,
         "owner": "TEST_USER_B",
-        "travel_start_date": "2021-11-11",
-        "travel_end_date": "2021-11-12",
+        "travel_start_date": timezone.make_aware(datetime(2021, 11, 11)),
+        "travel_end_date": timezone.make_aware(datetime(2021, 11, 12)),
         "collaborators": ["TEST_USER_B", "TEST_USER_C"],
     }
 
@@ -84,8 +86,8 @@ class RepositoryTestCase(TestCase):
         "repo_name": "TEST_REPO_C",
         "visibility": Scope.PRIVATE,
         "owner": "TEST_USER_C",
-        "travel_start_date": "2021-11-13",
-        "travel_end_date": "2021-11-14",
+        "travel_start_date": timezone.make_aware(datetime(2021, 11, 13)),
+        "travel_end_date": timezone.make_aware(datetime(2021, 11, 14)),
         "collaborators": ["TEST_USER_C", "TEST_USER_D"],
     }
 
@@ -312,10 +314,6 @@ class RepositoryTestCase(TestCase):
         self.assertIn('"TEST_REPO"', response.content.decode())
 
         response = client_a.get("/api/repositories/")
-        self.assertEqual(response.status_code, 400)
-        response = client_a.get(
-            "/api/repositories/?owner=TEST_USER_A&username=TEST_USER_A"
-        )
         self.assertEqual(response.status_code, 400)
         response = client_a.get("/api/repositories/?owner=unknown")
         self.assertEqual(response.status_code, 410)

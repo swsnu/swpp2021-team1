@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Pagination } from "react-bootstrap";
 import { useParams } from "react-router";
-import { Link } from "react-router-dom";
-import { setConstantValue } from "typescript";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import store from "../../app/store";
-import { IPost } from "../../common/Interfaces";
 import PlusButton from "../../common/plusButton/PlusButton";
 import Post from "./Post";
 import { fetchRepoPosts, fetchUserPosts, postsSelectors } from "./postsSlice";
@@ -51,7 +47,7 @@ const PostList = (props: PostListProps) => {
     let content;
     if (loading === "succeeded") {
         return (
-            <div className="container mt-5">
+            <div className="mt-5">
                 <div className="row">
                     {posts.map((post) => <Post post={post} key={post.post_id} />)}
                 </div>

@@ -1,14 +1,12 @@
 import {
-    createAsyncThunk,
-    createSlice,
-    PayloadAction,
-    SliceCaseReducers,
+    createAsyncThunk, createSlice, PayloadAction, SliceCaseReducers,
 } from "@reduxjs/toolkit";
-import { IUser } from "../../common/Interfaces";
+
+import { RootState } from "../../app/store";
 import {
     getSession, getSignOut, getUser, postFriends, postSignIn, postUsers, putUser,
 } from "../../common/APIs";
-import { RootState } from "../../app/store";
+import { IUser } from "../../common/Interfaces";
 
 export const signIn = createAsyncThunk<IUser, {username : string, password : string}>(
     "auth/signin", // action type
@@ -95,7 +93,7 @@ export const authInitialState: AuthState = {
     currentUser: null,
 };
 
-const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
+export const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
     name: "auth",
     initialState: authInitialState,
     reducers: {
@@ -174,9 +172,7 @@ const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
             state.hasError = true;
         });
         builder.addCase(addFriend.fulfilled, (state: AuthState, action) => {
-            // console.log("def");
             if (state.account) {
-                // console.log("abc");
                 const { fusername, myFriendList } = action.payload;
                 if (state.currentUser) {
                     if (state.currentUser.username === state.account.username) {
