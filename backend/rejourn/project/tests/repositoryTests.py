@@ -584,6 +584,16 @@ class RepositoryTestCase(TestCase):
             from_user=user_a
         )
         self.assertEqual(notice_set.count(), 1)
+        notice_set = Notification.objects.filter(
+            user=user_b,
+            new=True
+        )
+        self.assertEqual(notice_set.count(), 1)
+        notice_set = Notification.objects.filter(
+            user=user_a,
+            new=True
+        )
+        self.assertEqual(notice_set.count(), 0)
 
 
     def test_respositoryCollaboratorID(self):

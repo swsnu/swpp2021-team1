@@ -99,7 +99,16 @@ def repositories(request):
         )
         new_repo.save()
         for user in collaborators:
-            new_repo.collaborators.add(user)
+            if user == owner:
+                new_repo.collaborators.add(user)
+            else:
+                invitation = Notification(
+                    user=user,
+                    classification=NoticeType.INVITATION,
+                    from_user=request.user,
+                    repository=new_repo
+                )
+                invitation.save()
         new_repo.save()
 
         response_dict = get_repository_dict(new_repo)
@@ -274,13 +283,16 @@ def repositoryCollaborators(request, repo_id):
         return HttpResponseInvalidInput()
 
     for user in new_collaborators:
-        invitation = Notification(
-            user=user,
-            classification=NoticeType.INVITATION,
-            from_user=request.user,
-            repository=repository
-        )
-        invitation.save()
+        if user == repository.owner:
+            repository.collaborators.add(user)
+        else:
+            invitation = Notification(
+                user=user,
+                classification=NoticeType.INVITATION,
+                from_user=request.user,
+                repository=repository
+            )
+            invitation.save()
 
     collaborator_list = get_collaborator_list(repository)
     return HttpResponseSuccessUpdate(collaborator_list)
