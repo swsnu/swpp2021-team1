@@ -20,11 +20,11 @@ UPLOADED_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 def get_notification_dict(notification):
     from_user_info = {
-        'username' : notification.user.username,
-        'bio' : notification.user.bio,
+        'username' : notification.from_user.username,
+        'bio' : notification.from_user.bio,
     }
     if bool(notification.user.profile_picture):
-        from_user_info['profile_picture'] = notification.user.profile_picture.url
+        from_user_info['profile_picture'] = notification.from_user.profile_picture.url
 
     notification_dict = {
         'notification_id' : notification.notification_id,
@@ -75,7 +75,7 @@ def get_notification_list(user, notice_type=None):
             notification_dict = get_notification_dict(notification)
             if notification.classification == NoticeType.FRIEND_REQUEST:
                 friend_request_list.append(notification_dict)
-            elif notification.classfication == NoticeType.INVITATION:
+            elif notification.classification == NoticeType.INVITATION:
                 invitaion_list.append(notification_dict)
             else:
                 if notification.classification == NoticeType.COMMENT:
