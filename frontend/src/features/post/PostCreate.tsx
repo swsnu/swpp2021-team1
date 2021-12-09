@@ -136,7 +136,7 @@ export default function Postcreate(props : PostcreateProps) {
     if (loading === "succeeded") {
         return (
             <div>
-                <h3 className="mt-4">Create Post</h3>
+                <h3 className="mt-4">{props.mode !== "edit" ? "Create Post" : "Edit Post"}</h3>
                 {props.mode !== "edit" ? (
                     <Form.Select
                         value={selectedRepoId}

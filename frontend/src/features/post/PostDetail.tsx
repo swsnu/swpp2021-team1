@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import {
     Carousel, Image, Modal, Button,
 } from "react-bootstrap";
+import { InputSpecificProps } from "react-select/dist/declarations/src/components/Input";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { IUser } from "../../common/Interfaces";
 import {
@@ -27,6 +28,7 @@ const PostDetail = () => {
     const account = useAppSelector((state) => state.auth.account);
     const [comment, setComment] = useState("");
     const currentPhoto = currentPost?.photos[index];
+    const author = currentPost?.author ? currentPost?.author[0] : undefined;
     const loading = useAppSelector((state) => state.posts.loading);
     const history = useHistory();
 
@@ -62,12 +64,12 @@ const PostDetail = () => {
                         style={{ width: "100%" }}
                     >
                         <Link
-                            to={`/main/${currentPost?.author?.username}`}
+                            to={`/main/${author?.username}`}
                             id="author-username"
                             className="text-decoration-none text-dark"
                         >
                             <img
-                                src={currentPost?.author?.profile_picture ? currentPost.author.profile_picture : avatar}
+                                src={author?.profile_picture ? author?.profile_picture : avatar}
                                 className="rounded-circle shadow-1-strong me-3"
                                 height="40"
                                 alt=""
@@ -76,7 +78,7 @@ const PostDetail = () => {
 
                             <strong>
 
-                                {currentPost?.author?.username}
+                                {author?.username}
 
                             </strong>
                         </Link>

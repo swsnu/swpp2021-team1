@@ -224,6 +224,7 @@ const LabelsSection = (props: labelsSectionProps) => {
                                 onClick={onPhotoClick}
                                 checked={checked[value.photo_id]}
                                 mode={mode}
+                                focusable={!mode}
                                 onCheck={onCheck}
                             />
                             <div
@@ -271,6 +272,7 @@ const LabelsSection = (props: labelsSectionProps) => {
                             show={photoFocused}
                             setShow={setPhotoFocused}
                             canEdit={!mode}
+                            localTagMode={false}
                         />
                     )
                 }

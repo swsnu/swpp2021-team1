@@ -216,6 +216,7 @@ export default function PlaceDetail(props : PlaceDetailProps) {
                                         onClick={onPhotoClick}
                                         checked={checked[value.photo_id]}
                                         mode={mode}
+                                        focusable={!mode}
                                         onCheck={onCheck}
                                     />
                                 </React.Fragment>
@@ -237,6 +238,7 @@ export default function PlaceDetail(props : PlaceDetailProps) {
                     show={photoShow}
                     setShow={setPhotoShow}
                     canEdit={auth}
+                    localTagMode={false}
                 />
             )}
             <SearchPlace

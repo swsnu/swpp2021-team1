@@ -63,7 +63,7 @@ export function repositoryFactory() {
 interface IPost {
     post_id : number;
     repo_id? : number;
-    author? : IUser;
+    author? : IUser[];
     title : string;
     text? : string; // Post List에서는 필요 없음
     post_time? : string;

@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 
-import { useAppDispatch } from "../../app/hooks";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { IPhoto } from "../../common/Interfaces";
 import Photo from "../photo/Photo";
 import { focusPhoto } from "../photo/photosSlice";
+import FocusedPhoto from "../photo/popup/FocusedPhoto";
 
 interface PCPhotoSelectProps {
     photos: IPhoto[] // 선택 가능한 사진 목록
@@ -18,15 +19,17 @@ export default function PCPhotoSelect(props : PCPhotoSelectProps) {
     const { photos, setSelectedPhotos } = props;
 
     const [photoShow, setPhotoShow] = useState<boolean>(false);
-    const [currentPhoto, setCurrentPhoto] = useState<IPhoto | null>(null);
     const [checked, setChecked] = useState<{ [ id: number ]: boolean }>({});
     const firstUpdate = useRef(true);
+    const currentPhoto = useAppSelector((state) => state.photos.currentPhoto);
 
-    function onPhotoClick(photo_id : number) {
+    // 사진을 클릭했을때 그 사진을 focus함
+    function onPhotoClick(photo_id: number) {
         dispatch(focusPhoto(photo_id));
         setPhotoShow(true);
     }
 
+    // 체크박스를 체크했을 때 checked 상태를 세팅함
     function onCheck(event : React.ChangeEvent<HTMLInputElement>) {
         const id = parseInt(event.target.name) as number;
         const temp = { ...checked };
@@ -34,12 +37,17 @@ export default function PCPhotoSelect(props : PCPhotoSelectProps) {
         setChecked(temp);
     }
 
+    const onEdit = () => 1;
+
+    // 초기화: props로 들어온 기존 value로 checked 설정 (edit mode에만 해당)
     useEffect(() => {
         setChecked(props.checked);
         // console.log("abc");
     }, [dispatch]);
 
+    // checked가 변하면, selectedPhotos를 그에 맞게 세팅함
     useEffect(() => {
+        // 초기화시에는 실행 x.
         if (firstUpdate.current) {
             firstUpdate.current = false;
             return;
@@ -63,16 +71,27 @@ export default function PCPhotoSelect(props : PCPhotoSelectProps) {
                 style={{ height: "20vh" }}
             >
                 {photos.map((value: IPhoto) => (
-                    <React.Fragment key={value.photo_id.toString()}>
+                    <div key={value.photo_id.toString()}>
                         <Photo
                             photo={value}
                             mode
+                            focusable={checked[value.photo_id]}
                             onClick={onPhotoClick}
                             checked={checked[value.photo_id]}
                             onCheck={onCheck}
                         />
-                    </React.Fragment>
+                    </div>
                 ))}
+                {currentPhoto && (
+                    <FocusedPhoto
+                        photo={currentPhoto}
+                        onEdit={onEdit}
+                        show={photoShow}
+                        setShow={setPhotoShow}
+                        canEdit
+                        localTagMode
+                    />
+                )}
             </div>
         </div>
     );
