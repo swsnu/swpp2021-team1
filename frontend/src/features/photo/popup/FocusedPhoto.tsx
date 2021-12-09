@@ -10,12 +10,12 @@ interface FocusedPhotoProps {
     show : boolean;
     setShow : SetStateAction<boolean>;
     canEdit: boolean;
-    localTagMode: boolean;
+    postCreateMode: "new" | "edit" | false;
 }
 
 export default function FocusedPhoto(props : FocusedPhotoProps) {
     const [tag, setTag] = useState<string>(
-        props.localTagMode ? props.photo.local_tag as string : props.photo.tag as string,
+        props.postCreateMode === "edit" ? props.photo.local_tag as string : props.photo.tag as string,
     );
 
     function onClose() {

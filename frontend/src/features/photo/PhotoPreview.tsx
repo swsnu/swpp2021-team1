@@ -142,7 +142,7 @@ export default function PhotoPreview(props : PhotoPreviewProps) {
                     show={photoShow}
                     setShow={setPhotoShow}
                     canEdit={auth}
-                    localTagMode={false}
+                    postCreateMode={false}
                 />
             )}
         </div>

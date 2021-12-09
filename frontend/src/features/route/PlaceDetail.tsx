@@ -238,7 +238,7 @@ export default function PlaceDetail(props : PlaceDetailProps) {
                     show={photoShow}
                     setShow={setPhotoShow}
                     canEdit={auth}
-                    localTagMode={false}
+                    postCreateMode={false}
                 />
             )}
             <SearchPlace

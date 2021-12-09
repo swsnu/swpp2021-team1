@@ -3,24 +3,26 @@ import React, { useEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { IPhoto } from "../../common/Interfaces";
 import Photo from "../photo/Photo";
-import { focusPhoto } from "../photo/photosSlice";
+import { focusPhoto, updateLocalTag } from "../photo/photosSlice";
 import FocusedPhoto from "../photo/popup/FocusedPhoto";
 
 interface PCPhotoSelectProps {
     photos: IPhoto[] // 선택 가능한 사진 목록
-    setSelectedPhotos: (photos: IPhoto[]) => void
-    checked: {[id: number]: boolean}
+    // setSelectedPhotos: (photos: IPhoto[]) => void
+    checked: { [ id: number ]: boolean }
+    setChecked: React.Dispatch<React.SetStateAction<{
+    [id: number]: boolean;}>>
+    mode: "new" | "edit"
 }
 
 // PCPhotoSelect : PostCreate PhotoSelect라는 뜻. PostCreate 페이지에서 사용하는 특수한(?) PhotoSelect 컴포넌트
-export default function PCPhotoSelect(props : PCPhotoSelectProps) {
+export default function PCPhotoSelect(props: PCPhotoSelectProps) {
     const dispatch = useAppDispatch();
 
-    const { photos, setSelectedPhotos } = props;
+    const { photos, checked, setChecked } = props;
 
     const [photoShow, setPhotoShow] = useState<boolean>(false);
-    const [checked, setChecked] = useState<{ [ id: number ]: boolean }>({});
-    const firstUpdate = useRef(true);
+    // const [checked, setChecked] = useState<{ [ id: number ]: boolean }>({});
     const currentPhoto = useAppSelector((state) => state.photos.currentPhoto);
 
     // 사진을 클릭했을때 그 사진을 focus함
@@ -30,39 +32,23 @@ export default function PCPhotoSelect(props : PCPhotoSelectProps) {
     }
 
     // 체크박스를 체크했을 때 checked 상태를 세팅함
-    function onCheck(event : React.ChangeEvent<HTMLInputElement>) {
+    function onCheck(event: React.ChangeEvent<HTMLInputElement>) {
         const id = parseInt(event.target.name) as number;
         const temp = { ...checked };
         temp[id] = !checked[id];
         setChecked(temp);
     }
 
-    const onEdit = () => 1;
+    const onEdit = (localTag: string) => {
+        const photoId = currentPhoto?.photo_id;
+        dispatch(updateLocalTag({ photoId, content: localTag }));
+    };
 
     // 초기화: props로 들어온 기존 value로 checked 설정 (edit mode에만 해당)
     useEffect(() => {
         setChecked(props.checked);
         // console.log("abc");
     }, [dispatch]);
-
-    // checked가 변하면, selectedPhotos를 그에 맞게 세팅함
-    useEffect(() => {
-        // 초기화시에는 실행 x.
-        if (firstUpdate.current) {
-            firstUpdate.current = false;
-            return;
-        }
-        const checkedPhotos: IPhoto[] = [];
-        Object.entries(checked).forEach(
-            ([photoId, isChecked]) => {
-                if (isChecked) {
-                    const foundPhoto = photos.find((photo) => photo.photo_id === parseInt(photoId));
-                    if (foundPhoto) checkedPhotos.push(foundPhoto);
-                }
-            },
-        );
-        setSelectedPhotos(checkedPhotos);
-    }, [checked]);
 
     return (
         <div id="post-create-photo-select">
@@ -89,7 +75,7 @@ export default function PCPhotoSelect(props : PCPhotoSelectProps) {
                         show={photoShow}
                         setShow={setPhotoShow}
                         canEdit
-                        localTagMode
+                        postCreateMode={props.mode}
                     />
                 )}
             </div>

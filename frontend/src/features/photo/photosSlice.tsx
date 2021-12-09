@@ -9,8 +9,10 @@ import { IPhoto } from "../../common/Interfaces";
 
 export const fetchPhotos = createAsyncThunk<IPhoto[], number>( // added
     "photos/list",
-    async (repo_id) => // payload creator
-        await getPhotos(repo_id),
+    async (repo_id) => {
+        if (repo_id === -1) return []; // PostCreate에서, 아무 repo도 선택하지 않았을 때에는 PostList를 []로 세팅함.
+        return await getPhotos(repo_id);
+    },
 
 );
 
@@ -64,15 +66,20 @@ const photosSlice = createSlice<PhotosState, SliceCaseReducers<PhotosState>>({
     name: "photos",
     initialState: photosInitialState,
     reducers: {
-        toBeLoaded: (state : PhotosState, action: PayloadAction<null>) => {
+        toBeLoaded: (state: PhotosState, action: PayloadAction<null>) => {
             state.isLoading = true;
         },
-        handleError: (state : PhotosState, action: PayloadAction<null>) => {
+        handleError: (state: PhotosState, action: PayloadAction<null>) => {
             state.hasError = false;
         },
-        focusPhoto: (state : PhotosState, action: PayloadAction<number>) => {
+        focusPhoto: (state: PhotosState, action: PayloadAction<number>) => {
             const [photo] = state.photoList.filter((value) => value.photo_id === action.payload);
             state.currentPhoto = photo;
+        },
+        updateLocalTag: (state: PhotosState, action) => {
+            const { photoId, content } = action.payload;
+            const [photo] = state.photoList.filter((value) => value.photo_id === photoId);
+            photo.local_tag = content;
         },
     },
     extraReducers: (builder) => {
@@ -152,5 +159,7 @@ const photosSlice = createSlice<PhotosState, SliceCaseReducers<PhotosState>>({
 });
 
 export type { PhotosState };
-export const { toBeLoaded, handleError, focusPhoto } = photosSlice.actions;
+export const {
+    toBeLoaded, handleError, focusPhoto, updateLocalTag,
+} = photosSlice.actions;
 export default photosSlice.reducer;

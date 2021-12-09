@@ -9,7 +9,7 @@ describe("FocusedPhoto", () => {
     it("Should display image and tag", async () => {
         const photo = photoFactory();
         const component = mount(
-            <FocusedPhoto show setShow={mockShow} onEdit={mockFunction} photo={photo} canEdit />,
+            <FocusedPhoto show setShow={mockShow} onEdit={mockFunction} photo={photo} canEdit postCreateMode={false} />,
         );
         expect(component.find("Image").length).toBe(1);
         expect(component.find("InputGroup").length).toBe(1);
@@ -18,7 +18,7 @@ describe("FocusedPhoto", () => {
     it("Should change photo tags", async () => {
         const photo = photoFactory();
         const component = mount(
-            <FocusedPhoto show setShow={mockShow} onEdit={mockFunction} photo={photo} canEdit />,
+            <FocusedPhoto show setShow={mockShow} onEdit={mockFunction} photo={photo} canEdit postCreateMode={false} />,
         );
         component.find("InputGroup FormControl input").simulate("change", { target: { value: "hello" } });
         component.find("ModalHeader CloseButton button").simulate("click");
@@ -28,7 +28,14 @@ describe("FocusedPhoto", () => {
     it("Cannot find input if canEdit flag is false", async () => {
         const photo = photoFactory();
         const component = mount(
-            <FocusedPhoto show setShow={mockShow} onEdit={mockFunction} photo={photo} canEdit={false} />,
+            <FocusedPhoto
+                show
+                setShow={mockShow}
+                onEdit={mockFunction}
+                photo={photo}
+                canEdit={false}
+                postCreateMode={false}
+            />,
         );
         expect(component.find("InputGroup FormControl input").length).toBe(0);
         component.find("ModalHeader CloseButton button").simulate("click");

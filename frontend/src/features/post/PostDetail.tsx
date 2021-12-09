@@ -4,11 +4,11 @@ import React, {
 import { useHistory, useParams } from "react-router";
 import { Link } from "react-router-dom";
 import {
-    Carousel, Image, Modal, Button,
+    Carousel, Image, Modal, Button, Figure,
 } from "react-bootstrap";
 import { InputSpecificProps } from "react-select/dist/declarations/src/components/Input";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { IUser } from "../../common/Interfaces";
+import { IPhoto, IUser } from "../../common/Interfaces";
 import {
     fetchSinglePost, newPostComment, postCommentDeleted, postCommentEdited, postDeleted,
 } from "./postsSlice";
@@ -102,30 +102,35 @@ const PostDetail = () => {
                         </div>
                     </div>
                 </div>
-                <Carousel
-                    activeIndex={index}
-                    onSelect={handleSelect}
-                    className="shadow-2-strong rounded-5 mb-4 mx-auto w-100"
-                    style={{ maxWidth: 700 }}
-                    interval={null}
-                >
-                    {currentPost?.photos.map((photo) => (
-                        <Carousel.Item
-                            key={photo.photo_id}
-                            className="w-100"
-                            onClick={(e) => {
-                                setPhotoShow(true);
-                            }}
-                        >
-                            <img
-                                className="d-block w-100"
-                                src={photo.image}
-                                alt={`id ${photo.photo_id}`}
-                                style={{ verticalAlign: "auto !important" }}
-                            />
-                        </Carousel.Item>
-                    ))}
-                </Carousel>
+                <Figure>
+                    <Carousel
+                        activeIndex={index}
+                        onSelect={handleSelect}
+                        className="shadow-2-strong rounded-5 mb-4 mx-auto w-100"
+                        style={{ maxWidth: 700 }}
+                        interval={null}
+                    >
+                        {currentPost?.photos.map((photo) => (
+                            <Carousel.Item
+                                key={photo.photo_id}
+                                className="w-100"
+                                onClick={(e) => {
+                                    setPhotoShow(true);
+                                }}
+                            >
+                                <img
+                                    className="d-block w-100"
+                                    src={photo.image}
+                                    alt={`id ${photo.photo_id}`}
+                                    style={{ verticalAlign: "auto !important" }}
+                                />
+                            </Carousel.Item>
+                        ))}
+                    </Carousel>
+                    <Figure.Caption className="text-center">
+                        {currentPhoto?.local_tag}
+                    </Figure.Caption>
+                </Figure>
                 <Modal
                     show={photoShow}
                     onHide={() => {

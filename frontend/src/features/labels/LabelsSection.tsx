@@ -272,7 +272,7 @@ const LabelsSection = (props: labelsSectionProps) => {
                             show={photoFocused}
                             setShow={setPhotoFocused}
                             canEdit={!mode}
-                            localTagMode={false}
+                            postCreateMode={false}
                         />
                     )
                 }
