@@ -154,14 +154,15 @@ def repoPosts(request, repo_id):
                 new_post.save()
 
                 for collaborator in repository.collaborators.all():
-                    post_notice = Notification(
-                        user=collaborator,
-                        from_user=request.user,
-                        classification=NoticeType.NEW_POST,
-                        post=new_post,
-                        repository=repository,
-                    )
-                    post_notice.save()
+                    if collaborator != request.user:
+                        post_notice = Notification(
+                            user=collaborator,
+                            from_user=request.user,
+                            classification=NoticeType.NEW_POST,
+                            post=new_post,
+                            repository=repository,
+                        )
+                        post_notice.save()
 
                 response_dict = get_post_dict(new_post, comment_blank=True)
                 return HttpResponseSuccessUpdate(response_dict)
@@ -223,14 +224,15 @@ def repoPosts(request, repo_id):
             order_count += 1
 
         for collaborator in repository.collaborators.all():
-            post_notice = Notification(
-                user=collaborator,
-                from_user=request.user,
-                classification=NoticeType.NEW_POST,
-                post=new_post,
-                repository=repository,
-            )
-            post_notice.save()
+            if collaborator != request.user:
+                post_notice = Notification(
+                    user=collaborator,
+                    from_user=request.user,
+                    classification=NoticeType.NEW_POST,
+                    post=new_post,
+                    repository=repository,
+                )
+                post_notice.save()
 
         response_dict = get_post_dict(new_post, comment_blank=True)
         return HttpResponseSuccessUpdate(response_dict)
@@ -400,14 +402,14 @@ def postComments(request, post_id):
 
         new_comment = PostComment(author=request.user, text=text, post=post)
         new_comment.save()
-
-        comment_notice = Notification(
-            user=post.author,
-            classification=NoticeType.COMMENT,
-            from_user=request.user,
-            post=post
-        )
-        comment_notice.save()
+        if post.author != request.user:
+            comment_notice = Notification(
+                user=post.author,
+                classification=NoticeType.COMMENT,
+                from_user=request.user,
+                post=post
+            )
+            comment_notice.save()
 
         comment_list = get_post_comment_list(post)
         return HttpResponseSuccessUpdate(comment_list)

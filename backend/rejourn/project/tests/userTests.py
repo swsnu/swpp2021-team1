@@ -5,8 +5,8 @@ import shutil
 from django.test import TestCase, Client, override_settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-from project.enum import Scope
-from project.models.models import User
+from project.enum import Scope, NoticeType
+from project.models.models import User, Notification
 
 
 MEDIA_ROOT = tempfile.mkdtemp()
@@ -508,8 +508,14 @@ class UserFriendTestCase(TestCase):
 
         response = client.post("/api/users/TEST_C_USER/friends/TEST_B_USER/")
         self.assertEqual(response.status_code, 201)
-        u_2 = User.objects.get(user_id=2)
-        self.assertIn(u_2.profile_picture.url, response.content.decode())
+        user_b = User.objects.get(username="TEST_B_USER")
+        user_c = User.objects.get(username="TEST_C_USER")
+        notice_set = Notification.objects.filter(
+            classification=NoticeType.FRIEND_REQUEST,
+            user=user_b,
+            from_user=user_c,
+        )
+        self.assertEqual(notice_set.count(), 1)
 
         client.get("/api/signout")
         client.post(
@@ -519,6 +525,20 @@ class UserFriendTestCase(TestCase):
         )
         response = client.post("/api/users/TEST_B_USER/friends/TEST_C_USER/")
         self.assertEqual(response.status_code, 201)
+        self.assertTrue(user_b in user_c.friends.all())
+        self.assertTrue(user_c in user_b.friends.all())
+        notice_set = Notification.objects.filter(
+            classification=NoticeType.FRIEND_REQUEST,
+            user=user_c,
+            from_user=user_b,
+        )
+        self.assertEqual(notice_set.count(), 0)
+        notice_set = Notification.objects.filter(
+            classification=NoticeType.FRIEND_REQUEST,
+            user=user_b,
+            from_user=user_c,
+        )
+        self.assertEqual(notice_set.count(), 0)
 
     def test_userFriendID_delete(self):
         client = Client()

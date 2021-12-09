@@ -95,14 +95,15 @@ def discussions(request, repo_id):
         new_discussion.save()
 
         for collaborator in repository.collaborators.all():
-            discussion_notice = Notification(
-                user=collaborator,
-                from_user=request.user,
-                classification=NoticeType.NEW_DISCUSSION,
-                discussion=new_discussion,
-                repository=repository
-            )
-            discussion_notice.save()
+            if collaborator != request.user:
+                discussion_notice = Notification(
+                    user=collaborator,
+                    from_user=request.user,
+                    classification=NoticeType.NEW_DISCUSSION,
+                    discussion=new_discussion,
+                    repository=repository
+                )
+                discussion_notice.save()
 
         response_dict = get_discussion_dict(new_discussion, comment_blank=True)
         return HttpResponseSuccessUpdate(response_dict)
@@ -218,14 +219,14 @@ def discussionComments(request, discussion_id):
             author=request.user, text=text, discussion=discussion
         )
         new_comment.save()
-
-        comment_notice = Notification(
-            user=discussion.author,
-            classification=NoticeType.COMMENT,
-            from_user=request.user,
-            discussion=discussion
-        )
-        comment_notice.save()
+        if discussion.author != request.user:
+            comment_notice = Notification(
+                user=discussion.author,
+                classification=NoticeType.COMMENT,
+                from_user=request.user,
+                discussion=discussion
+            )
+            comment_notice.save()
 
         comment_list = get_discussion_comment_list(discussion)
         return HttpResponseSuccessUpdate(comment_list)
