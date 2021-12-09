@@ -9,11 +9,8 @@ import { IRepository, IUser, Visibility } from "../../../common/Interfaces";
 import * as actionCreator from "../reposSlice";
 import { AppDispatch, RootState } from "../../../app/store";
 
-interface RepositorySettingProps {
-
-}
-
-export default function RepositorySettings(props : RepositorySettingProps) {
+// suppress tsx-no-component-props
+export default function RepositorySettings() {
     const dispatch = useDispatch<AppDispatch>();
     const [user, repo] = useSelector<RootState, [IUser, IRepository]>((state) =>
         [state.auth.account as IUser, state.repos.currentRepo as IRepository]);
@@ -25,6 +22,14 @@ export default function RepositorySettings(props : RepositorySettingProps) {
     const [visibility, setVisibility] = useState<Visibility>(repo.visibility);
     const history = useHistory();
 
+    function checkValid(date : string) {
+        const check = new Date(date);
+        const [y, m, d] = date.split("-");
+        return !(check.getFullYear() !== parseInt(y) ||
+            check.getMonth() !== parseInt(m) - 1 ||
+            check.getDate() !== parseInt(d));
+    }
+
     function onChange(event : React.ChangeEvent<HTMLInputElement>) {
         switch (event.target.name) {
         case "repo-name":
@@ -34,7 +39,8 @@ export default function RepositorySettings(props : RepositorySettingProps) {
             break;
         case "start-date":
             setTravelStartDate(event.target.value);
-            if (/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.test(event.target.value)) {
+            if (/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.test(event.target.value) &&
+                checkValid(event.target.value)) {
                 setValid([valid[0], true, valid[2]]);
             }
             else {
@@ -43,7 +49,8 @@ export default function RepositorySettings(props : RepositorySettingProps) {
             break;
         case "end-date":
             setTravelEndDate(event.target.value);
-            if (/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.test(event.target.value)) {
+            if (/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.test(event.target.value) &&
+                checkValid(event.target.value)) {
                 setValid([valid[0], valid[1], true]);
             }
             else {

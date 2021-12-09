@@ -3,7 +3,7 @@ import {
 } from "@react-google-maps/api";
 import { useDispatch, useSelector } from "react-redux";
 import {
-    Button, Image,
+    Button, Image, OverlayTrigger, Tooltip,
 } from "react-bootstrap";
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
@@ -19,11 +19,8 @@ import Travel from "./popup/Travel";
 
 env.config();
 
-interface RoutePreviewProps {
-
-}
-
-export default function RoutePreview(props : RoutePreviewProps) {
+// suppress tsx-component-no-props
+export default function RoutePreview() {
     const isMapLoaded = useJsApiLoader({
         id: "google-map-script",
         googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY as string,
@@ -77,16 +74,42 @@ export default function RoutePreview(props : RoutePreviewProps) {
                     >
                         View Detail
                     </Button>
-                    <Button
-                        className="m-2"
-                        id="travel-button"
-                        onClick={() => setShow(true)}
-                        disabled={route && route.places.length > 0 &&
-                        route.places.reduce((a, b) =>
-                            ({ ...a, photos: [...a.photos, ...b.photos] })).photos.length <= 5}
+                    <OverlayTrigger
+                        placement="top"
+                        delay={{ show: 150, hide: 250 }}
+                        overlay={(
+                            <Tooltip style={{ maxLines: 2 }}>
+                                6 or more photos must be assigned to the travel places
+                            </Tooltip>
+                        )}
                     >
-                        Travel
-                    </Button>
+                        {({ ref, ...triggerHandler }) => (
+                            <div
+                                ref={ref}
+                                {...(
+                                    route &&
+                                    route.places.length > 0 &&
+                                    route.places.reduce((a, b) =>
+                                        ({ ...a, photos: [...a.photos, ...b.photos] })).photos.length <= 5 ?
+                                        triggerHandler : undefined
+                                )}
+                                className="m-2 d-inline-block"
+                            >
+                                <Button
+                                    id="travel-button"
+                                    onClick={() => setShow(true)}
+                                    disabled={
+                                        route &&
+                                        route.places.length > 0 &&
+                                        route.places.reduce((a, b) =>
+                                            ({ ...a, photos: [...a.photos, ...b.photos] })).photos.length <= 5
+                                    }
+                                >
+                                    Travel
+                                </Button>
+                            </div>
+                        )}
+                    </OverlayTrigger>
                 </div>
             </div>
             <div className="m-2">
