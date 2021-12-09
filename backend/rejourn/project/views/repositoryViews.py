@@ -283,9 +283,7 @@ def repositoryCollaborators(request, repo_id):
         return HttpResponseInvalidInput()
 
     for user in new_collaborators:
-        if user == repository.owner:
-            repository.collaborators.add(user)
-        else:
+        if user not in repository.collaborators.all():
             invitation = Notification(
                 user=user,
                 classification=NoticeType.INVITATION,

@@ -79,23 +79,23 @@ def get_notification_list(user, notice_type=None):
                 invitaion_list.append(notification_dict)
             else:
                 if notification.classification == NoticeType.COMMENT:
-                    if comment_count_dict.get(notification.id) is None:
-                        comment_count_dict[notification.id] = 1
+                    if comment_count_dict.get(notification.notification_id) is None:
+                        comment_count_dict[notification.notification_id] = 1
                         others_list.append(notification_dict)
                     else:
-                        comment_count_dict[notification.id] += 1
+                        comment_count_dict[notification.notification_id] += 1
                 elif notification.classification == NoticeType.LIKE:
-                    if like_count_dict.get(notification.id) is None:
-                        like_count_dict[notification.id] = 1
+                    if like_count_dict.get(notification.notification_id) is None:
+                        like_count_dict[notification.notification_id] = 1
                         others_list.append(notification_dict)
                     else:
-                        like_count_dict[notification.id] += 1
+                        like_count_dict[notification.notification_id] += 1
                 elif notification.classification == NoticeType.FORK:
-                    if fork_count_dict.get(notification.id) is None:
-                        fork_count_dict[notification.id] = 1
+                    if fork_count_dict.get(notification.notification_id) is None:
+                        fork_count_dict[notification.notification_id] = 1
                         others_list.append(notification_dict)
                     else:
-                        fork_count_dict[notification.id] += 1
+                        fork_count_dict[notification.notification_id] += 1
                 else:
                     others_list.append(notification_dict)
         else:
@@ -115,11 +115,11 @@ def get_notification_list(user, notice_type=None):
 
     for notification_dict in others_list:
         notification_id = notification_dict['notification_id']
-        if comment_count_dict.get(notification.id) is not None:
+        if comment_count_dict.get(notification.notification_id) is not None:
             notification_dict['count'] = comment_count_dict[notification_id]
-        elif like_count_dict.get(notification.id) is not None:
+        elif like_count_dict.get(notification.notification_id) is not None:
             notification_dict['count'] = like_count_dict[notification_id]
-        elif fork_count_dict.get(notification.id) is not None:
+        elif fork_count_dict.get(notification.notification_id) is not None:
             notification_dict['count'] = fork_count_dict[notification_id]
     notification_list = friend_request_list + invitaion_list + others_list
 
