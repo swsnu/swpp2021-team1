@@ -27,12 +27,25 @@ export default function NotificationList() {
         <div>
             <h4 className="mb-3 mt-5">Notifications</h4>
             <ListGroup>
-                {notifications.map((value) => {
-                    if (value.classification <= NoticeType.INVITATION) {
-                        return <NotificationResponse notification={value} response={response} />;
-                    }
-                    return <Notification notification={value} />;
-                })}
+                { notifications.length > 0 ?
+                    (
+                        notifications.map((value) => {
+                            if (value.classification <= NoticeType.INVITATION) {
+                                return (
+                                    <NotificationResponse
+                                        notification={value}
+                                        response={response}
+                                    />
+                                );
+                            }
+                            return <Notification notification={value} />;
+                        })
+                    ) :
+                    (
+                        <ListGroup.Item className="text-muted">
+                            There are no notifications.
+                        </ListGroup.Item>
+                    )}
             </ListGroup>
         </div>
     );

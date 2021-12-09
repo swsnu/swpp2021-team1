@@ -61,7 +61,7 @@ def get_notification_list(user, notice_type=None):
     notification_set = Notification.objects.filter(user=user)
     if notice_type is not None:
         notification_set = notification_set.filter(classification=notice_type)
-    notification_set = notification_set.order_by('-id')
+    notification_set = notification_set.order_by('-notification_id')
 
     delete_list = []
     friend_request_list = []
@@ -226,6 +226,7 @@ def notificationID(request, notification_id):
     return HttpResponseSuccessDelete(notification_list)
 
 
+# /api/session/notifications/
 @require_http_methods(['GET'])
 @ensure_csrf_cookie
 def sessionNotifications(request):

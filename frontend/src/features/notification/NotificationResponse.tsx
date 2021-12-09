@@ -3,6 +3,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { INotification, NoticeAnswerType, NoticeType } from "../../common/Interfaces";
 import avatar from "../../common/assets/avatar.jpg";
+import "./Notification.css";
 
 interface NotificationInviteProps {
     notification : INotification;
@@ -14,7 +15,7 @@ export default function NotificationResponse(props : NotificationInviteProps) {
         switch (props.notification.classification) {
         case NoticeType.FRIEND_REQUEST:
             return (
-                <div>
+                <h5 className="m-2 notice-text-overflow">
                     <Link className="noti_friend" to={`/main/${props.notification.from_user.username}`}>
                         <img
                             src={props.notification.from_user.profile_picture ?
@@ -24,23 +25,31 @@ export default function NotificationResponse(props : NotificationInviteProps) {
                             alt=""
                             loading="lazy"
                         />
-                        <strong>
-                            @
-                            {props.notification.from_user.username}
-                        </strong>
+                        {props.notification.from_user.username}
                     </Link>
-                    sends friend request.
-                </div>
+                    {" sends friend request. "}
+                </h5>
             );
         case NoticeType.INVITATION:
             return (
-                <div>
+                <h5 className="m-2 notice-text-overflow">
+                    <img
+                        src={props.notification.from_user.profile_picture ?
+                            props.notification.from_user.profile_picture : avatar}
+                        className="rounded-circle shadow-1-strong me-3"
+                        height="40"
+                        alt=""
+                        loading="lazy"
+                    />
                     {props.notification.from_user.username}
-                    invite you to repository
-                    <Link className="noti_invite" to={`/repos/${props.notification.repository?.repo_id}`}>
+                    {" invites you to repository "}
+                    <Link
+                        className="noti_invite text-decoration-none"
+                        to={`/repos/${props.notification.repository?.repo_id}`}
+                    >
                         {props.notification.repository?.repo_name}
                     </Link>
-                </div>
+                </h5>
             );
         default:
             return <div>Error</div>;
@@ -49,15 +58,22 @@ export default function NotificationResponse(props : NotificationInviteProps) {
     return (
         <ListGroup.Item
             className="d-flex justify-content-between align-items-start"
-            variant="primary"
         >
             {buildContent()}
-            <Button onClick={() => props.response(props.notification.notification_id, NoticeAnswerType.YES)}>
-                Accept
-            </Button>
-            <Button onClick={() => props.response(props.notification.notification_id, NoticeAnswerType.NO)}>
-                Decline
-            </Button>
+            <div>
+                <Button
+                    className="m-2"
+                    onClick={() => props.response(props.notification.notification_id, NoticeAnswerType.YES)}
+                >
+                    Accept
+                </Button>
+                <Button
+                    className="m-2"
+                    onClick={() => props.response(props.notification.notification_id, NoticeAnswerType.NO)}
+                >
+                    Decline
+                </Button>
+            </div>
         </ListGroup.Item>
     );
 }
