@@ -43,7 +43,9 @@ export default function NotificationList() {
                     ) :
                     (
                         <ListGroup.Item className="text-muted">
-                            There are no notifications.
+                            <h5 className="m-2 fst-italic">
+                                There are no notifications.
+                            </h5>
                         </ListGroup.Item>
                     )}
             </ListGroup>

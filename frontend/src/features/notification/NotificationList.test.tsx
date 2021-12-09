@@ -9,8 +9,6 @@ import noticesReducer from "./noticesSlice";
 import {
     NoticeAnswerType, NoticeType,
     notificationFactory,
-    repositoryFactory,
-    userFactory,
 } from "../../common/Interfaces";
 import NotificationList from "./NotificationList";
 import * as actionCreator from "./noticesSlice";
@@ -37,7 +35,6 @@ function makeStoredComponent() {
 }
 
 describe("NotificationList", () => {
-    let fetchMock : any;
     let responseMock : any;
 
     beforeEach(() => {

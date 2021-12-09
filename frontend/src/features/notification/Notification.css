@@ -6,7 +6,7 @@
 }
 
 .notice-text-overflow-long {
-    max-width: 800px;
+    max-width: 750px;
     overflow:hidden;
     text-overflow:ellipsis !important;
     white-space:nowrap !important;

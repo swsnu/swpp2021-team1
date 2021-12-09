@@ -3,7 +3,7 @@ import { ListGroup } from "react-bootstrap";
 import { useHistory } from "react-router";
 import {
     INotification,
-    IPost, IUser,
+    IPost,
     NoticeType,
     PostType,
 } from "../../common/Interfaces";

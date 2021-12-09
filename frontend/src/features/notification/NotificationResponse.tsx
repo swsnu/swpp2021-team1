@@ -16,7 +16,10 @@ export default function NotificationResponse(props : NotificationInviteProps) {
         case NoticeType.FRIEND_REQUEST:
             return (
                 <h5 className="m-2 notice-text-overflow">
-                    <Link className="noti_friend" to={`/main/${props.notification.from_user.username}`}>
+                    <Link
+                        className="noti_friend text-decoration-none"
+                        to={`/main/${props.notification.from_user.username}`}
+                    >
                         <img
                             src={props.notification.from_user.profile_picture ?
                                 props.notification.from_user.profile_picture : avatar}
