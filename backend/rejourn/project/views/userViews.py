@@ -6,10 +6,25 @@ from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 
-from project.models.models import User
+from project.models.models import User, Notification
 from project.httpResponse import *
-from project.enum import Scope
+from project.enum import Scope, NoticeType, UserProfileType
 
+
+def get_friend_status(subject_user, object_user):
+    if not subject_user.is_authenticated:
+        return UserProfileType.NOT_LOGGED_IN
+    if subject_user == object_user:
+        return UserProfileType.MYSELF
+    if object_user in subject_user.friends.all():
+        return UserProfileType.FRIEND
+    if Notification.objects.filter(user=object_user, from_user=subject_user,
+                                   classification=NoticeType.FRIEND_REQUEST).count() != 0:
+        return UserProfileType.REQUEST_SENDED
+    if Notification.objects.filter(user=subject_user, from_user=object_user,
+                                   classification=NoticeType.FRIEND_REQUEST).count() != 0:
+        return UserProfileType.REQUEST_PENDING
+    return UserProfileType.OTHER
 
 # /api/token/
 @require_http_methods(['GET'])
@@ -302,6 +317,7 @@ def userID(request, user_name):
         "real_name": user.real_name,
         "email": user.email,
         "friends": friends_list,
+        "friend_status": get_friend_status(request.user, user),
     }
     if bool(user.profile_picture):
         response_dict_original["profile_picture"] = user.profile_picture.url
@@ -310,6 +326,7 @@ def userID(request, user_name):
         "username": user.username,
         "bio": user.bio,
         "visibility": user.visibility,
+        "friend_status": get_friend_status(request.user, user),
     }
     if bool(user.profile_picture):
         response_dict_censored["profile_picture"] = user.profile_picture.url
@@ -382,8 +399,14 @@ def userFriendID(request, user_name, friend_name):
         except User.DoesNotExist:
             return HttpResponseNotExist()
 
-        from_user.friends.add(to_user)
-        from_user.save()
+        if Notification.objects.filter(user=from_user, from_user=to_user, classification=NoticeType.FRIEND_REQUEST).count()!=0:
+            friend_request = Notification.objects.get(user=from_user, from_user=to_user, classification=NoticeType.FRIEND_REQUEST)
+            friend_request.delete()
+            from_user.friends.add(to_user)
+            from_user.save()
+        else:
+            friend_request = Notification(user=to_user, from_user=from_user, classification=NoticeType.FRIEND_REQUEST)
+            friend_request.save()
 
         friends_list = []
         for friend in from_user.friends.all():

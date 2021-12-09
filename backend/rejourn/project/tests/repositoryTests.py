@@ -4,8 +4,8 @@ from datetime import datetime
 from django.utils import timezone
 from django.test import TestCase, Client
 
-from project.models.models import User, Repository
-from project.enum import Scope
+from project.models.models import User, Repository, Notification
+from project.enum import Scope, NoticeType
 
 
 class RepositoryTestCase(TestCase):
@@ -574,7 +574,17 @@ class RepositoryTestCase(TestCase):
             content_type="application/json",
         )
         self.assertEqual(response.status_code, 201)
-        self.assertIn('"TEST_USER_B"', response.content.decode())
+        user_a = User.objects.get(username="TEST_USER_A")
+        user_b = User.objects.get(username="TEST_USER_B")
+        repo_1 = Repository.objects.get(repo_id=1)
+        notice_set = Notification.objects.filter(
+            classification=NoticeType.INVITATION,
+            user=user_b,
+            repository=repo_1,
+            from_user=user_a
+        )
+        self.assertEqual(notice_set.count(), 1)
+
 
     def test_respositoryCollaboratorID(self):
         client_a = Client()

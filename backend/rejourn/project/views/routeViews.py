@@ -10,9 +10,10 @@ from django.views.decorators.http import require_http_methods
 from django.conf import settings
 
 import requests
-from project.models.models import Repository, Route, PlaceInRoute, Photo, PhotoTag
+from project.models.models import Repository, Route, PlaceInRoute, Photo, PhotoTag, Notification
 from project.httpResponse import *
 from project.utils import repo_visible
+from project.enum import NoticeType
 
 API_KEY = settings.GOOGLE_MAPS_API_KEY
 
@@ -234,6 +235,15 @@ def routeID(request, repo_id):
                       latitude=latitude, longitude=longitude, east=east, west=west,
                       south=south, north=north, repository=repository)
     new_route.save()
+
+    for collaborator in fork_repository.collaborators.all():
+        fork_notice = Notification(
+            user=collaborator,
+            classification=NoticeType.FORK,
+            from_user=request.user,
+            repository=fork_repository
+        )
+        fork_notice.save()
 
     fork_places = PlaceInRoute.objects.filter(route=fork_route)
     for place in fork_places:

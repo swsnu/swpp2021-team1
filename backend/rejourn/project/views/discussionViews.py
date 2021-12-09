@@ -6,8 +6,9 @@ from django.http.response import HttpResponseBadRequest
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 
-from project.models.models import Discussion, DiscussionComment, Repository
+from project.models.models import Discussion, DiscussionComment, Repository, Notification
 from project.httpResponse import *
+from project.enum import NoticeType
 
 UPLOADED_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
@@ -31,7 +32,7 @@ def get_discussion_comment_list(discussion):
         )
     return comment_list
 
-def get_discussion_dict(discussion, comment_blank=False):
+def get_discussion_dict(discussion, comment_blank=False, preview=False):
     author_info = {
         "username": discussion.author.username,
         "bio": discussion.author.bio,
@@ -39,21 +40,31 @@ def get_discussion_dict(discussion, comment_blank=False):
     if bool(discussion.author.profile_picture):
         author_info["profile_picture"] = discussion.author.profile_picture.url
 
-    if comment_blank:
-        comment_list = []
-    else:
-        comment_list = get_discussion_comment_list(discussion)
-
     discussion_dict = {
         "discussion_id": discussion.discussion_id,
         "repo_id": discussion.repository.repo_id,
         "author": author_info,
         "title": discussion.title,
-        "text": discussion.text,
         "post_time": timezone.make_naive(discussion.post_time).strftime(UPLOADED_TIME_FORMAT),
-        "comments": comment_list,
     }
+
+    if not preview:
+        discussion_dict['text'] = discussion.text
+        if comment_blank:
+            comment_list = []
+        else:
+            comment_list = get_discussion_comment_list(discussion)
+        discussion_dict['comments'] = comment_list
     return discussion_dict
+
+def get_discussion_list(repository=None):
+    discussion_list = []
+    for discussion in Discussion.objects.filter(repository=repository):
+        discussion_list.insert(
+            0,
+            get_discussion_dict(discussion, preview=True),
+        )
+    return discussion_list
 
 # /api/repositories/<int:repo_id>/discussions/
 @require_http_methods(["POST", "GET"])
@@ -83,6 +94,17 @@ def discussions(request, repo_id):
         )
         new_discussion.save()
 
+        for collaborator in repository.collaborators.all():
+            if collaborator != request.user:
+                discussion_notice = Notification(
+                    user=collaborator,
+                    from_user=request.user,
+                    classification=NoticeType.NEW_DISCUSSION,
+                    discussion=new_discussion,
+                    repository=repository
+                )
+                discussion_notice.save()
+
         response_dict = get_discussion_dict(new_discussion, comment_blank=True)
         return HttpResponseSuccessUpdate(response_dict)
 
@@ -98,25 +120,8 @@ def discussions(request, repo_id):
     if request.user not in repository.collaborators.all():
         return HttpResponseNoPermission()
 
-    discussion_list = []
+    discussion_list = get_discussion_list(repository)
 
-    for discussion in Discussion.objects.filter(repository=repository):
-        author_info = {
-            "username": discussion.author.username,
-            "bio": discussion.author.bio,
-        }
-        if bool(discussion.author.profile_picture):
-            author_info["profile_picture"] = discussion.author.profile_picture.url
-        discussion_list.insert(
-            0,
-            {
-                "discussion_id": discussion.discussion_id,
-                "repo_id": discussion.repository.repo_id,
-                "author": author_info,
-                "title": discussion.title,
-                "post_time": timezone.make_naive(discussion.post_time).strftime(UPLOADED_TIME_FORMAT),
-            },
-        )
     return HttpResponseSuccessGet(discussion_list)
 
 
@@ -214,6 +219,14 @@ def discussionComments(request, discussion_id):
             author=request.user, text=text, discussion=discussion
         )
         new_comment.save()
+        if discussion.author != request.user:
+            comment_notice = Notification(
+                user=discussion.author,
+                classification=NoticeType.COMMENT,
+                from_user=request.user,
+                discussion=discussion
+            )
+            comment_notice.save()
 
         comment_list = get_discussion_comment_list(discussion)
         return HttpResponseSuccessUpdate(comment_list)

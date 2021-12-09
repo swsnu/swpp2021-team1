@@ -6,10 +6,10 @@ from django.http.response import HttpResponseBadRequest
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 
-from project.models.models import User, Repository
+from project.models.models import User, Repository, Notification
 from project.httpResponse import *
 from project.utils import repo_visible
-from project.enum import Scope
+from project.enum import Scope, NoticeType
 
 
 DATE_FORMAT = "%Y-%m-%d"
@@ -274,8 +274,13 @@ def repositoryCollaborators(request, repo_id):
         return HttpResponseInvalidInput()
 
     for user in new_collaborators:
-        repository.collaborators.add(user)
-    repository.save()
+        invitation = Notification(
+            user=user,
+            classification=NoticeType.INVITATION,
+            from_user=request.user,
+            repository=repository
+        )
+        invitation.save()
 
     collaborator_list = get_collaborator_list(repository)
     return HttpResponseSuccessUpdate(collaborator_list)
