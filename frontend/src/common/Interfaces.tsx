@@ -64,6 +64,13 @@ interface IRepository {
     travel? : RepoTravel;
 }
 
+interface IRepositorySearch {
+    repo_id : number;
+    repo_name : string;
+    region_address : string;
+    places : {place_name : string}[];
+}
+
 export function repositoryFactory() {
     return {
         repo_id: randomInt(),
@@ -74,6 +81,15 @@ export function repositoryFactory() {
         collaborators: [],
         visibility: Visibility.ALL,
     } as IRepository;
+}
+
+export function repositorySearchFactory() {
+    return {
+        repo_id: randomInt(),
+        repo_name: randomString(),
+        region_address: randomString(),
+        places: [{ place_name: randomString() }],
+    } as IRepositorySearch;
 }
 
 interface IPost {
@@ -294,7 +310,7 @@ export function placeQueryFactory() {
 export type SetStateAction<T> = React.Dispatch<React.SetStateAction<T>>
 
 export type {
-    IUser, IRepository, IPost,
+    IUser, IRepository, IPost, IRepositorySearch,
     IPhoto, IDiscussion, IComment,
     ILabel, IPlace, IRoute, IRegion, INotification,
 };

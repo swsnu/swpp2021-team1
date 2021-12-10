@@ -9,11 +9,8 @@ import "./RepositoryHeader.css";
 import megaphone from "../../common/assets/megaphone.svg";
 import help from "../../common/assets/help.svg";
 
-interface RepositoryHeaderProps {
-
-}
-
-export default function RepositoryHeader(props : RepositoryHeaderProps) {
+// suppress tsx-no-component-props
+export default function RepositoryHeader() {
     const dispatch = useDispatch<AppDispatch>();
     const [isLoading, hasError] = useSelector<RootState, [boolean, boolean]>((state) =>
         [state.repos.isLoading, state.repos.hasError]);

@@ -11,11 +11,7 @@ import RepositorySettings from "./tab/RepositorySettings";
 import Group from "./tab/Group";
 import Mine from "./tab/Mine";
 
-interface RepositoryDetailProps {
-
-}
-
-export default function RepositoryDetail(props : RepositoryDetailProps) {
+export default function RepositoryDetail() {
     const dispatch = useDispatch<AppDispatch>();
     const [userIsLoading, userHasError] = useSelector<RootState, [boolean, boolean]>((state) =>
         [state.auth.isLoading, state.auth.hasError]);
