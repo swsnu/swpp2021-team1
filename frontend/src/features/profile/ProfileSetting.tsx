@@ -4,23 +4,22 @@ import {
 } from "react-bootstrap";
 import { useHistory } from "react-router";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { updateProfile } from "../auth/authSlice";
+import { removeProfilePicture, updateProfile, updateProfilePicture } from "../auth/authSlice";
 
 import avatar from "../../common/assets/avatar.jpg";
+import { Visibility } from "../../common/Interfaces";
 
-interface ProfileSettingProps {
+// suppress no-tsx-component-props
 
-}
-
-export default function ProfileSetting(props : ProfileSettingProps) {
+export default function ProfileSetting() {
     const account = useAppSelector((state) => state.auth.account);
-    const [profileImage, setProfileImage] = useState<string>("");
+    const profileImage = useAppSelector((state) => state.auth.account?.profile_picture);
     const [email, setEmail] = useState<string>("");
     const [real_name, setreal_name] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [bio, setBio] = useState<string>("");
+    const [visibility, setVisibility] = useState<Visibility>(Visibility.ALL);
     const dispatch = useAppDispatch();
-    const history = useHistory();
 
     useEffect(() => {
         if (account) {
@@ -28,13 +27,29 @@ export default function ProfileSetting(props : ProfileSettingProps) {
             if (account.real_name) setreal_name(account.real_name);
             if (account.bio) setBio(account.bio);
             if (account.password) setPassword(account.password);
+            if (account.visibility) setVisibility(account.visibility);
         }
     }, [dispatch]);
+
+    const onAddProfileImage = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const temp = new FormData();
+        if (!event.target.files) return;
+        Array.from(event.target.files).forEach((value) => {
+            temp.append("image", value);
+            const fileReader = new FileReader();
+            fileReader.readAsDataURL(value);
+        });
+        dispatch(updateProfilePicture(temp));
+    };
 
     const onSubmit = () => {
         const submit = async () => {
             await dispatch(updateProfile({
-                email, real_name, bio, password: password || account?.password as string,
+                email,
+                real_name,
+                bio,
+                password: password || undefined,
+                visibility,
             }));
             alert("Changes saved");
         };
@@ -47,23 +62,32 @@ export default function ProfileSetting(props : ProfileSettingProps) {
     // TODO: Form validaaaaaation
 
     return (
-        // Todo: Photo upload
         <Container style={{ maxWidth: 500 }} className="mt-3">
-            <h4 className="mb-3 mt-5">Profile Settings</h4>
+            <h4 className="mb-3 mt-5">Account Settings</h4>
             <Form>
                 <Form.Group>
                     <Form.Label className="d-block">Profile Image</Form.Label>
                     <div className="d-flex align-items-center">
-                        <Form.Control
-                            id="change-profile-image-input"
-                            type="file"
-                            accept=".jpg, .jpeg, .png"
-                            // onChange={({ target }) => setProfileImage(target.)}
+                        <div
                             className="mx-4"
-                        />
+                        >
+                            <Form.Control
+                                id="change-profile-image-input"
+                                type="file"
+                                accept=".jpg, .jpeg, .png"
+                                onChange={onAddProfileImage}
+                            />
+                            <Button
+                                variant="link"
+                                onClick={() => dispatch(removeProfilePicture())}
+                            >
+                                Delete profile image
+
+                            </Button>
+                        </div>
                         <Image
                             roundedCircle
-                            src={account.profile_picture ? account.profile_picture : avatar}
+                            src={profileImage ?? avatar}
                             width="150px"
                             className="mx-3 mb-2"
                         />
@@ -103,6 +127,32 @@ export default function ProfileSetting(props : ProfileSettingProps) {
                         value={bio}
                         onChange={({ target }) => setBio(target.value)}
                     />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                    <h6>Account visibility</h6>
+                    <div className="mt-3">
+                        <Form.Check
+                            inline
+                            label="Anyone"
+                            type="checkbox"
+                            checked={visibility === Visibility.ALL}
+                            onChange={() => setVisibility(Visibility.ALL)}
+                        />
+                        <Form.Check
+                            inline
+                            label="Friends"
+                            type="checkbox"
+                            checked={visibility === Visibility.MEMBER_AND_FRIENDS}
+                            onChange={() => setVisibility(Visibility.MEMBER_AND_FRIENDS)}
+                        />
+                        <Form.Check
+                            inline
+                            label="No One"
+                            type="checkbox"
+                            checked={visibility === Visibility.ONLY_MEMBERS}
+                            onChange={() => setVisibility(Visibility.ONLY_MEMBERS)}
+                        />
+                    </div>
                 </Form.Group>
                 <Button id="submit-button" onClick={onSubmit}>Save changes</Button>
             </Form>

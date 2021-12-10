@@ -43,7 +43,7 @@ export default function SignUp(props : SignUpProps) {
             username,
             password,
             bio,
-            visibility: Visibility.ALL,
+            visibility,
         })).then(() => {
             dispatch(actionCreators.signIn({ username, password }));
         });
