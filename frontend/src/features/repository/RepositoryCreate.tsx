@@ -6,7 +6,9 @@ import {
 } from "react-bootstrap";
 import { useLocation } from "react-router";
 import { AppDispatch, RootState } from "../../app/store";
-import { IRepository, IUser, Visibility } from "../../common/Interfaces";
+import {
+    IRepository, IUser, SetStateAction, Visibility,
+} from "../../common/Interfaces";
 import * as actionCreator from "./reposSlice";
 import AddCollaborators from "./popup/AddCollaborators";
 import { clearResult, PlaceQueryResult, searchRegion } from "../route/routeSlice";
@@ -78,46 +80,6 @@ export default function RepositoryCreate() {
         }));
     }
 
-    function checkValid(date : string) {
-        const check = new Date(date);
-        const [y, m, d] = date.split("-");
-        return !(check.getFullYear() !== parseInt(y) ||
-            check.getMonth() !== parseInt(m) - 1 ||
-            check.getDate() !== parseInt(d));
-    }
-
-    function onChange(event : React.ChangeEvent<HTMLInputElement>) {
-        switch (event.target.name) {
-        case "repo-name":
-            setRepoName(event.target.value);
-            if (event.target.value !== "") setValid([true, valid[1], valid[2]]);
-            else setValid([false, valid[1], valid[2]]);
-            break;
-        case "start-date":
-            setTravelStartDate(event.target.value);
-            if (/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.test(event.target.value) &&
-                checkValid(event.target.value)) {
-                setValid([valid[0], true, valid[2]]);
-            }
-            else {
-                setValid([valid[0], false, valid[2]]);
-            }
-            break;
-        case "end-date":
-            setTravelEndDate(event.target.value);
-            if (/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.test(event.target.value) &&
-                checkValid(event.target.value)) {
-                setValid([valid[0], valid[1], true]);
-            }
-            else {
-                setValid([valid[0], valid[1], false]);
-            }
-            break;
-        default:
-            break;
-        }
-    }
-
     if (userIsLoading) return null;
     // if (hasError) return (<div>Fatal Error!!!</div>);
     return (
@@ -134,7 +96,15 @@ export default function RepositoryCreate() {
                     placeholder="Type Name Here"
                     isValid={valid[0] !== null && valid[0]}
                     isInvalid={valid[0] !== null && !valid[0]}
-                    onChange={onChange}
+                    onChange={(event) =>
+                        onChange(
+                            event as React.ChangeEvent<HTMLInputElement>,
+                            setRepoName,
+                            setTravelStartDate,
+                            setTravelEndDate,
+                            setValid,
+                            valid,
+                        )}
                 />
                 <Form.Control.Feedback type="invalid">
                     Please choose your repository name.
@@ -165,7 +135,15 @@ export default function RepositoryCreate() {
                     placeholder="2020-09-30"
                     isValid={valid[1] !== null && valid[1]}
                     isInvalid={valid[1] !== null && !valid[1]}
-                    onChange={onChange}
+                    onChange={(event) =>
+                        onChange(
+                            event as React.ChangeEvent<HTMLInputElement>,
+                            setRepoName,
+                            setTravelStartDate,
+                            setTravelEndDate,
+                            setValid,
+                            valid,
+                        )}
                 />
                 <Form.Control.Feedback type="invalid">
                     Please choose valid date.
@@ -181,7 +159,15 @@ export default function RepositoryCreate() {
                     placeholder="2020-09-30"
                     isValid={valid[2] !== null && valid[2]}
                     isInvalid={valid[2] !== null && !valid[2]}
-                    onChange={onChange}
+                    onChange={(event) =>
+                        onChange(
+                            event as React.ChangeEvent<HTMLInputElement>,
+                            setRepoName,
+                            setTravelStartDate,
+                            setTravelEndDate,
+                            setValid,
+                            valid,
+                        )}
                 />
                 <Form.Control.Feedback type="invalid">
                     Please choose valid date.
@@ -260,4 +246,49 @@ export default function RepositoryCreate() {
             />
         </div>
     );
+}
+
+function checkValid(date : string) {
+    const check = new Date(date);
+    const [y, m, d] = date.split("-");
+    return !(check.getFullYear() !== parseInt(y) ||
+        check.getMonth() !== parseInt(m) - 1 ||
+        check.getDate() !== parseInt(d));
+}
+
+export function onChange(event : React.ChangeEvent<HTMLInputElement>,
+    setRepoName : SetStateAction<string>,
+    setTravelStartDate : SetStateAction<string>,
+    setTravelEndDate : SetStateAction<string>,
+    setValid : SetStateAction<any[]>,
+    valid : (boolean|null)[]) {
+    switch (event.target.name) {
+    case "repo-name":
+        setRepoName(event.target.value);
+        if (event.target.value !== "") setValid([true, valid[1], valid[2]]);
+        else setValid([false, valid[1], valid[2]]);
+        break;
+    case "start-date":
+        setTravelStartDate(event.target.value);
+        if (/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.test(event.target.value) &&
+                checkValid(event.target.value)) {
+            setValid([valid[0], true, valid[2]]);
+        }
+        else {
+            setValid([valid[0], false, valid[2]]);
+        }
+        break;
+    case "end-date":
+        setTravelEndDate(event.target.value);
+        if (/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.test(event.target.value) &&
+                checkValid(event.target.value)) {
+            setValid([valid[0], valid[1], true]);
+        }
+        else {
+            setValid([valid[0], valid[1], false]);
+        }
+        break;
+    default:
+        break;
+    }
 }
