@@ -15,7 +15,7 @@ interface PhotoProps {
 export default function Photo(props : PhotoProps) {
     return (
         <button
-            className="h-100 photo-wrapper-button m-1"
+            className="photo-wrapper-button m-1"
             disabled={!props.focusable}
             onClick={() => props.onClick(props.photo.photo_id)}
             type="button"
