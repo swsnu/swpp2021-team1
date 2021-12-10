@@ -279,6 +279,7 @@ def repoPosts(request, repo_id):
                     text=text,
                     post_type=post_type
                 )
+                new_post.save()
                 for collaborator in repository.collaborators.all():
                     if collaborator != request.user:
                         post_notice = Notification(
