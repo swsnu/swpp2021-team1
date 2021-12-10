@@ -20,6 +20,15 @@ function randomInt() {
     return Math.floor(Math.random() * 10);
 }
 
+export enum UserProfileType {
+    NOT_LOGGED_IN = 0,
+    MYSELF = 1,
+    FRIEND = 2,
+    REQUEST_SENDED = 3,
+    REQUEST_PENDING = 4,
+    OTHER = 5,
+}
+
 interface IUser {
     username : string;
     bio : string;
@@ -28,7 +37,8 @@ interface IUser {
     real_name? : string;
     email? : string;
     password? : string;
-    friends? : IUser[];
+    friends?: IUser[];
+    friend_status?: UserProfileType;
 }
 
 export function userFactory() {
