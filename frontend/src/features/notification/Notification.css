@@ -1,0 +1,13 @@
+.notice-text-overflow {
+    max-width: 650px;
+    overflow:hidden;
+    text-overflow:ellipsis !important;
+    white-space:nowrap !important;
+}
+
+.notice-text-overflow-long {
+    max-width: 750px;
+    overflow:hidden;
+    text-overflow:ellipsis !important;
+    white-space:nowrap !important;
+}

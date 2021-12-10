@@ -15,6 +15,15 @@ function randomInt() {
     return Math.floor(Math.random() * 10);
 }
 
+export enum UserProfileType {
+    NOT_LOGGED_IN = 0,
+    MYSELF = 1,
+    FRIEND = 2,
+    REQUEST_SENDED = 3,
+    REQUEST_PENDING = 4,
+    OTHER = 5,
+}
+
 interface IUser {
     username : string;
     bio : string;
@@ -23,7 +32,8 @@ interface IUser {
     real_name? : string;
     email? : string;
     password? : string;
-    friends? : IUser[];
+    friends?: IUser[];
+    friend_status?: UserProfileType;
 }
 
 export function userFactory() {
@@ -62,6 +72,7 @@ export function repositoryFactory() {
 
 interface IPost {
     post_id : number;
+    post_type? : PostType;
     repo_id? : number;
     author? : IUser;
     title : string;
@@ -70,6 +81,20 @@ interface IPost {
     photos : IPhoto[];
     comments? : IComment[]; // Post List에서는 필요 없음
     // 좋아요는 일단 나중에 생각...
+}
+
+export function postFactory() {
+    return {
+        post_id: randomInt(),
+        post_type: randomInt() % 2,
+        repo_id: randomInt(),
+        author: userFactory(),
+        title: randomString(),
+        text: randomString(),
+        post_time: randomString(),
+        photos: [],
+        comments: [],
+    } as IPost;
 }
 
 interface IPhoto {
@@ -195,6 +220,50 @@ interface IRegion {
     east : number,
 }
 
+enum NoticeType {
+    FRIEND_REQUEST = 0,
+    INVITATION = 1,
+    NEW_POST = 2,
+    NEW_DISCUSSION = 3,
+    LIKE = 4,
+    COMMENT = 5,
+    FORK = 6,
+}
+
+enum PostType {
+    PERSONAL = 0,
+    REPO = 1,
+}
+
+enum NoticeAnswerType {
+    NO = 0,
+    YES = 1,
+}
+
+interface INotification {
+    notification_id : number,
+    time : string,
+    classification : NoticeType,
+    from_user : IUser,
+    repository? : IRepository,
+    post? : IPost,
+    discussion? : IDiscussion,
+    count? : number,
+}
+
+export function notificationFactory() {
+    return {
+        notification_id: randomInt(),
+        time: randomString(),
+        classification: randomInt() % 7,
+        from_user: userFactory(),
+        repository: repositoryFactory(),
+        post: postFactory(),
+        discussion: discussionFactory(),
+        count: randomInt(),
+    } as INotification;
+}
+
 export function regionFactory() {
     return {
         region_address: randomString(),
@@ -219,7 +288,11 @@ export function placeQueryFactory() {
 export type SetStateAction<T> = React.Dispatch<React.SetStateAction<T>>
 
 export type {
-    IUser, IRepository, IPost, IPhoto, IDiscussion, IComment, ILabel, IPlace, IRoute, IRegion,
+    IUser, IRepository, IPost,
+    IPhoto, IDiscussion, IComment,
+    ILabel, IPlace, IRoute, IRegion, INotification,
 };
 
-export { Visibility };
+export {
+    Visibility, NoticeType, PostType, NoticeAnswerType,
+};

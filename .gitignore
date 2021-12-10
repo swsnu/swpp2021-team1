@@ -56,6 +56,7 @@ MANIFEST
 # Environments
 .idea
 .env
+.env.development
 .venv
 env/
 venv/

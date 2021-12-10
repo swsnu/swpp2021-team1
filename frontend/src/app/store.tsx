@@ -6,6 +6,7 @@ import photosReducer from "../features/photo/photosSlice";
 import discussionsReducer from "../features/discussion/discussionsSlice";
 import routeReducer from "../features/route/routeSlice";
 import labelsReducer from "../features/labels/labelsSlice";
+import noticesReducer from "../features/notification/noticesSlice";
 
 const store = configureStore({
     reducer: {
@@ -16,6 +17,7 @@ const store = configureStore({
         discussions: discussionsReducer,
         route: routeReducer,
         labels: labelsReducer,
+        notices: noticesReducer,
     /*
         repositories : filtersReducer,
         posts :
