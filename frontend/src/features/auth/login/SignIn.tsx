@@ -8,11 +8,8 @@ import * as actionCreator from "../authSlice";
 import SignUp from "./popup/SignUp";
 import "./SignIn.css";
 
-interface SignInProps {
-
-}
-
-export default function SignIn(props: SignInProps) {
+// suppress tsx-no-component-props
+export default function SignIn() {
     const [username, setUsername] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [signupModalShow, setSignupModalShow] = useState<boolean>(false);
@@ -41,7 +38,7 @@ export default function SignIn(props: SignInProps) {
                 <Form.Group className="mb-3">
                     <Form.Control
                         value={username}
-                        type="email"
+                        type="text"
                         onChange={(event) => setUsername(event.target.value)}
                         placeholder="Username"
                         isInvalid={loginClicked && hasError}

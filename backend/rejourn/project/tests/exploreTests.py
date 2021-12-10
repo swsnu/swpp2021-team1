@@ -7,15 +7,15 @@ from django.test import TestCase, Client, override_settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils import timezone
 
-from project.models.models import User, Repository, Route, PlaceInRoute, Photo
-from project.enum import Scope
+from project.models.models import User, Repository, Route, PlaceInRoute, Photo, Post, PhotoInPost
+from project.enum import Scope, RepoTravel, PostType
 
 MEDIA_ROOT = tempfile.mkdtemp()
 
 @override_settings(MEDIA_ROOT=MEDIA_ROOT)
 class ExploreTestCase(TestCase):
     def setUp(self):
-        
+
         User.objects.create_user(
             username="MAIN_USER",
             email="MAIN_EMAIL",
@@ -85,9 +85,12 @@ class ExploreTestCase(TestCase):
             repo_name="fun traveling",
             visibility=Scope.FRIENDS_ONLY,
             owner=user_a,
+            travel=RepoTravel.TRAVEL_ON,
         )
         repo_b.save()
         repo_b.collaborators.add(user_a)
+        repo_b.collaborators.add(user_d)
+        repo_b.collaborators.add(user_f)
         repo_c = Repository(
             repo_name="We love travel",
             visibility=Scope.FRIENDS_ONLY,
@@ -117,18 +120,18 @@ class ExploreTestCase(TestCase):
         route_a.save()
 
         route_b = Route(
-            region_address="대한민국 제주특별자치도 제주시 애월읍",
-            place_id="ChIJb5-d7KL3DDURuO6p2BOUdOw",
-            latitude=33.4619478,
-            longitude=126.3295244,
-            east=126.518352,
-            west=126.2953071,
-            south=33.341656,
-            north=33.5032356,
+            region_address="일본 도쿄도 도쿄",
+            place_id="ChIJXSModoWLGGARILWiCfeu2M0",
+            latitude=35.6803997,
+            longitude=139.7690174,
+            east=139.9188743,
+            west=139.5628611,
+            south=35.519042,
+            north=35.8174453,
             repository=repo_b,
         )
         route_b.save()
-        
+
         place_a_1 = PlaceInRoute(
             route=route_a,
             order=1,
@@ -161,6 +164,16 @@ class ExploreTestCase(TestCase):
             longitude=126.3340838,
         )
         place_a_3.save()
+        place_a_4 = PlaceInRoute(
+            route=route_a,
+            order=4,
+            place_id="ChIJYeRTsDD0DDURrIR1mJ_N5r8",
+            place_name="카페인디고",
+            place_address="대한민국 제주특별자치도 제주시 애월읍 고내리 1218-1",
+            latitude=33.4663593,
+            longitude=126.3340838,
+        )
+        place_a_4.save()
 
         place_b_1 = PlaceInRoute(
             route=route_b,
@@ -195,7 +208,38 @@ class ExploreTestCase(TestCase):
         )
         place_b_3.save()
 
+        post_a_b_1 = Post(
+            repository=repo_b,
+            author=user_a,
+            title="user_a_repo_b",
+            text="",
+            post_type=PostType.PERSONAL
+        )
+        post_a_b_1.save()
+        post_a_b_1.post_time = datetime.datetime.now(tz=timezone.utc)-datetime.timedelta(weeks=1)
+        post_a_b_1.save()
+        post_repo_b_1 = Post(
+            repository=repo_b,
+            author=user_a,
+            title="fun traveling",
+            text="",
+        )
 
+        post_repo_b_1.save()
+        post_repo_b_1.post_time = datetime.datetime.now(tz=timezone.utc)-datetime.timedelta(weeks=1)
+        post_repo_b_1.post_type = PostType.REPO
+        post_repo_b_1.save()
+
+        profile_image_post = SimpleUploadedFile("profile_image_post.jpg", b"profile_image_post")
+        photo_1 = Photo(repository=repo_b, image_file=profile_image_post, uploader=user_a)
+        photo_1.save()
+        photo_in_post = PhotoInPost(
+            post=post_a_b_1,
+            photo=photo_1,
+            order=1,
+            local_tag=""
+        )
+        photo_in_post.save()
 
     def tearDown(self):
         User.objects.all().delete()
@@ -203,7 +247,7 @@ class ExploreTestCase(TestCase):
         Route.objects.all().delete()
         PlaceInRoute.objects.all().delete()
         shutil.rmtree(MEDIA_ROOT, ignore_errors=True)
-    
+
     def test_exploreUsers(self):
         client = Client()
         response = client.delete("/api/explore/users/")
@@ -227,7 +271,6 @@ class ExploreTestCase(TestCase):
         self.assertIn("ghiabc", response.content.decode())
         self.assertNotIn("abcjkl", response.content.decode())
         self.assertNotIn("jklabc", response.content.decode())
-        print(response.content.decode())
 
     def test_exploreRepositories(self):
         client = Client()
@@ -251,7 +294,39 @@ class ExploreTestCase(TestCase):
         self.assertNotIn("We love travel", response.content.decode())
         self.assertNotIn("travel enjoy", response.content.decode())
 
-    def test_explorePlaces(self):
-        pass
+    def test_exploreRegions(self):
+        client = Client()
+        response = client.delete("/api/explore/regions/")
+        self.assertEqual(response.status_code, 405)
+        response = client.get("/api/explore/regions/")
+        self.assertEqual(response.status_code, 401)
+        client.post(
+            "/api/signin/",
+            json.dumps({"username": "MAIN_USER", "password": "MAIN_PW"}),
+            content_type="application/json",
+        )
+        response = client.get("/api/explore/regions/")
+        self.assertEqual(response.status_code, 400)
+
+        #response = client.get("/api/explore/regions/?query=제주")
+        #self.assertEqual(response.status_code, 200)
+
+
+
     def test_feeds(self):
-        pass
+        client = Client()
+        response = client.delete("/api/feeds/")
+        self.assertEqual(response.status_code, 405)
+
+        response = client.get("/api/feeds/")
+        self.assertEqual(response.status_code, 401)
+
+        client.post(
+            "/api/signin/",
+            json.dumps({"username": "abcdef", "password": "TEST_A_PW"}),
+            content_type="application/json",
+        )
+
+        response = client.get("/api/feeds/")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("user_a_repo_b", response.content.decode())

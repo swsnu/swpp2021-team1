@@ -1,5 +1,5 @@
 import {
-    GoogleMap, LoadScript, Marker, Polyline, useJsApiLoader,
+    GoogleMap, Marker, Polyline, useJsApiLoader,
 } from "@react-google-maps/api";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -53,8 +53,6 @@ export default function RoutePreview() {
         );
     }
 
-    console.log(process.env.REACT_APP_GOOGLE_MAPS_API_KEY as string);
-
     if (isLoading || !isMapLoaded || hasError) return null;
     if (!route) return <div>Fatal Error!</div>;
     return (
@@ -89,11 +87,12 @@ export default function RoutePreview() {
                             <div
                                 ref={ref}
                                 {...(
-                                    route &&
-                                    route.places.length > 0 &&
+                                    route && (
+                                        route.places.length === 0 || (
+                                            route.places.length > 0 &&
                                     route.places.reduce((a, b) =>
-                                        ({ ...a, photos: [...a.photos, ...b.photos] })).photos.length <= 5 ?
-                                        triggerHandler : undefined
+                                        ({ ...a, photos: [...a.photos, ...b.photos] })).photos.length <= 5
+                                        )) ? triggerHandler : undefined
                                 )}
                                 className="m-2 d-inline-block"
                             >
@@ -101,10 +100,12 @@ export default function RoutePreview() {
                                     id="travel-button"
                                     onClick={() => setShow(true)}
                                     disabled={
-                                        route &&
-                                        route.places.length > 0 &&
+                                        route && (
+                                            route.places.length === 0 || (
+                                                route.places.length > 0 &&
                                         route.places.reduce((a, b) =>
                                             ({ ...a, photos: [...a.photos, ...b.photos] })).photos.length <= 5
+                                            ))
                                     }
                                 >
                                     Travel

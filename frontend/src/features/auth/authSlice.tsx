@@ -5,15 +5,10 @@ import {
 import { RootState } from "../../app/store";
 import {
     deleteFriends,
-    getSession,
-    getSignOut,
-    getUser,
-    postFriends,
-    postSignIn,
-    postUsers,
-    putUser,
+    deleteProfilePicture,
+    getSession, getSignOut, getUser, postFriends, postProfilePicture, postSignIn, postUsers, putUser,
 } from "../../common/APIs";
-import { IUser } from "../../common/Interfaces";
+import { IUser, UserProfileType, Visibility } from "../../common/Interfaces";
 
 export const signIn = createAsyncThunk<IUser, {username : string, password : string}>(
     "auth/signin", // action type
@@ -35,24 +30,20 @@ export const signOut = createAsyncThunk<void, void>(
 );
 
 export const addFriend = createAsyncThunk<
-{fusername: string, myFriendList: IUser[]},
+void,
 {username: string, fusername: string}>(
     "auth/addfriend",
-    async ({ username, fusername }) => ({
-        fusername,
-        myFriendList: await postFriends(username, fusername),
-    }),
+    async ({ username, fusername }) => {
+        await postFriends(username, fusername);
+    },
 );
 
-export const unfriend = createAsyncThunk<
-    string,
-    { username: string, fusername: string }>(
-        "auth/unfriend",
-        async ({ username, fusername }) => {
-            await deleteFriends(username, fusername);
-            return fusername;
-        },
-    );
+export const unfriend = createAsyncThunk<void, { username: string, fusername: string }>(
+    "auth/unfriend",
+    async ({ username, fusername }) => {
+        await deleteFriends(username, fusername);
+    },
+);
 
 export const switchCurrentUser = createAsyncThunk<IUser,
 string, {state: {auth: AuthState}}>(
@@ -70,11 +61,11 @@ export const fetchSession = createAsyncThunk<IUser, void>(
 );
 
 interface IProfileForm {
-    // TODO: profile picture, visibility
-    email: string,
-    real_name: string,
-    bio: string,
-    password: string
+    email: string
+    real_name: string
+    bio: string
+    password?: string
+    visibility: Visibility
 }
 
 export const updateProfile = createAsyncThunk<IProfileForm, IProfileForm, {state: RootState}>(
@@ -83,16 +74,26 @@ export const updateProfile = createAsyncThunk<IProfileForm, IProfileForm, {state
         const { auth }: {auth: AuthState} = thunkAPI.getState();
         const { account } = auth;
         if (account) {
-            await putUser({
-                username: account.username,
-                visibility: account.visibility,
-                email: form.email,
-                real_name: form.real_name,
-                bio: form.bio,
-                password: form.password,
-            });
+            await putUser({ ...form, username: account.username });
         }
         return form;
+    },
+);
+
+export const updateProfilePicture = createAsyncThunk<string, FormData, { state: RootState }>(
+    "auth/updateProfilePicture",
+    async (formData, thunkAPI) => {
+        const { profile_picture } =
+            await postProfilePicture(thunkAPI.getState().auth.account?.username as string, formData);
+        return profile_picture;
+    },
+
+);
+
+export const removeProfilePicture = createAsyncThunk<void, void, {state: RootState}>(
+    "auth/removeProfilePicture",
+    async (data, thunkAPI) => {
+        await deleteProfilePicture(thunkAPI.getState().auth.account?.username as string);
     },
 );
 
@@ -188,49 +189,46 @@ export const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
             state.isLoading = false;
             state.hasError = true;
         });
-        builder.addCase(addFriend.fulfilled, (state: AuthState, action) => {
-            if (state.account) {
-                const { fusername, myFriendList } = action.payload;
-                if (state.currentUser) {
-                    if (state.currentUser.username === state.account.username) {
-                        state.currentUser.friends = myFriendList;
-                    }
-                    else if (state.currentUser.username === fusername) {
-                        if (state.currentUser.friends) state.currentUser.friends.push(state.account);
-                    }
-                }
-            }
+        builder.addCase(addFriend.fulfilled, (state: AuthState) => {
+            if (!state.currentUser) return;
+            state.currentUser.friend_status = UserProfileType.REQUEST_SENDED;
         });
-        builder.addCase(unfriend.fulfilled, (state: AuthState, action) => {
-            if (state.currentUser) {
-                const usernameToDelete =
-                    state.currentUser.username === state.account?.username ?
-                        action.payload :
-                        state.account?.username;
-                console.log(usernameToDelete);
-                const indexToDelete = state.currentUser.friends?.findIndex(
-                    (friend) => friend.username === usernameToDelete,
-                );
-                console.log(indexToDelete);
-                if (indexToDelete) state.currentUser.friends?.splice(indexToDelete, 1);
-            }
+        builder.addCase(unfriend.fulfilled, (state: AuthState) => {
+            if (!state.currentUser) return;
+            if (!state.currentUser.friends) return;
+            state.currentUser.friend_status = UserProfileType.OTHER;
+            const index = state.currentUser.friends.findIndex((friend) => friend.username === state.account?.username);
+            if (index < 0) return;
+            state.currentUser.friends.splice(index, 1);
         });
         builder.addCase(updateProfile.fulfilled, (state: AuthState, action: PayloadAction<IProfileForm>) => {
             const {
-                email, bio, real_name, password,
+                email, bio, real_name, password, visibility,
             } = action.payload;
             if (state.account) {
                 state.account = {
-                    ...state.account, email, bio, real_name, password,
+                    ...state.account, email, bio, real_name, password, visibility,
                 };
                 if (state.currentUser) {
                     if (state.account.username === state.currentUser.username) {
                         state.currentUser = {
-                            ...state.currentUser, email, bio, real_name, password,
+                            ...state.currentUser, email, bio, real_name, password, visibility,
                         };
                     }
                 }
             }
+        });
+        builder.addCase(updateProfilePicture.fulfilled, (state: AuthState, action: PayloadAction<string>) => {
+            if (!state.account) return;
+            state.account.profile_picture = action.payload;
+            if (!state.currentUser) return;
+            if (state.currentUser.username === state.account.username) {
+                state.currentUser.profile_picture = action.payload;
+            }
+        });
+        builder.addCase(removeProfilePicture.fulfilled, (state: AuthState) => {
+            if (!state.account) return;
+            state.account.profile_picture = undefined;
         });
     },
 });

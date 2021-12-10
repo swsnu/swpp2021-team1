@@ -7,11 +7,8 @@ import { IRepository, IUser } from "../../common/Interfaces";
 import * as actionCreator from "./reposSlice";
 import Repository from "./Repository";
 
-interface RepositoryListProps {
-
-}
-
-export default function RepositoryList(props : RepositoryListProps) {
+// suppress tsx-no-component-props
+export default function RepositoryList() {
     const dispatch = useDispatch<AppDispatch>();
     const [userIsLoading, userHasError] = useSelector<RootState, [boolean, boolean]>((state) =>
         [state.auth.isLoading, state.auth.hasError]);

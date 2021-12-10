@@ -32,13 +32,19 @@ export default function NotificationList() {
                         notifications.map((value) => {
                             if (value.classification <= NoticeType.INVITATION) {
                                 return (
-                                    <NotificationResponse
-                                        notification={value}
-                                        response={response}
-                                    />
+                                    <React.Fragment key={value.notification_id}>
+                                        <NotificationResponse
+                                            notification={value}
+                                            response={response}
+                                        />
+                                    </React.Fragment>
                                 );
                             }
-                            return <Notification notification={value} />;
+                            return (
+                                <React.Fragment key={value.notification_id}>
+                                    <Notification notification={value} />
+                                </React.Fragment>
+                            );
                         })
                     ) :
                     (

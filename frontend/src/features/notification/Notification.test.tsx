@@ -29,7 +29,7 @@ describe("Notification", () => {
     });
 
     it("Should render correctly - personal_post ", () => {
-        const component = mount(
+        let component = mount(
             <Router history={historyMock}>
                 <Notification notification={{
                     ...notification,
@@ -42,6 +42,18 @@ describe("Notification", () => {
         expect(component.find(".noti_personal_post").length).toBe(2);
         component.find(".noti_personal_post").at(0).simulate("click");
         expect(mockPush).toHaveBeenCalledTimes(1);
+        component = mount(
+            <Router history={historyMock}>
+                <Notification notification={{
+                    ...notification,
+                    classification: NoticeType.NEW_POST,
+                    post: { ...notification.post as IPost, post_type: PostType.PERSONAL },
+                    from_user: { ...notification.from_user, profile_picture: undefined },
+                }}
+                />
+            </Router>,
+        );
+        expect(component.find(".noti_personal_post").length).toBe(2);
     });
 
     it("Should render correctly - noti_discussion ", () => {

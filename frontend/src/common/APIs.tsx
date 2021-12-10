@@ -9,7 +9,7 @@ import {
     IPhoto,
     IPlace,
     IPost,
-    IRepository,
+    IRepository, IRepositorySearch,
     IRoute,
     IUser,
     NoticeAnswerType, PostType, RepoTravel,
@@ -44,6 +44,20 @@ export async function getUser(username : string) {
 
 export async function putUser(user : IUser) {
     return (await axios.put<any, AxiosResponse<IUser>>(`/api/users/${user.username}/`, user)).data;
+}
+
+interface profilePictureForm {
+    profile_picture: string
+}
+
+export async function postProfilePicture(username: string, formData: FormData) {
+    return (await axios.post<any, AxiosResponse<profilePictureForm>>(
+        `/api/users/${username}/profile-picture/`, formData,
+    )).data;
+}
+
+export async function deleteProfilePicture(username: string) {
+    await axios.delete(`/api/users/${username}/profile-picture/`);
 }
 
 export async function deleteUser(username : string) {
@@ -367,4 +381,20 @@ export async function deleteNotification(id : number) {
 
 export async function getNoticeSession() {
     return (await axios.get<any, AxiosResponse<{count : number}>>("/api/session/notifications/")).data;
+}
+
+/**
+ * for searchSlice
+ */
+
+export async function getUserSearch(query : string) {
+    return (await axios.get<any, AxiosResponse<IUser[]>>(`/api/explore/users/?query=${query}`)).data;
+}
+
+export async function getRepositorySearch(query : string) {
+    return (await axios.get<any, AxiosResponse<IRepositorySearch[]>>(`/api/explore/repositories/?query=${query}`)).data;
+}
+
+export async function getRegionSearch(query : string) {
+    return (await axios.get<any, AxiosResponse<IRepositorySearch[]>>(`/api/explore/regions/?query=${query}`)).data;
 }
