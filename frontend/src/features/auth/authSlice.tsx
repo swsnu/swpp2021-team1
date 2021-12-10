@@ -190,6 +190,20 @@ export const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
             if (index < 0) return;
             state.currentUser.friends.splice(index, 1);
         });
+        builder.addCase(unfriend.fulfilled, (state: AuthState, action) => {
+            if (state.currentUser) {
+                const usernameToDelete =
+                    state.currentUser.username === state.account?.username ?
+                        action.payload :
+                        state.account?.username;
+                console.log(usernameToDelete);
+                const indexToDelete = state.currentUser.friends?.findIndex(
+                    (friend) => friend.username === usernameToDelete,
+                );
+                console.log(indexToDelete);
+                if (indexToDelete) state.currentUser.friends?.splice(indexToDelete, 1);
+            }
+        });
         builder.addCase(updateProfile.fulfilled, (state: AuthState, action: PayloadAction<IProfileForm>) => {
             const {
                 email, bio, real_name, password,

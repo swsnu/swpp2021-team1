@@ -96,6 +96,7 @@ export default function Place(props : PlaceProps) {
                                             onClick={props.onPhotoClick}
                                             checked={checked[value.photo_id]}
                                             mode={props.draggable}
+                                            focusable={!props.draggable}
                                             onCheck={onCheck}
                                         />
                                     </React.Fragment>

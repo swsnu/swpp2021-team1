@@ -1,26 +1,34 @@
 import {
-    createAsyncThunk, createEntityAdapter, createSlice, EntityState,
+    createAsyncThunk, createEntityAdapter, createSlice, PayloadAction,
 } from "@reduxjs/toolkit";
+
 import { RootState } from "../../app/store";
-import { IComment, IPhoto, IPost } from "../../common/Interfaces";
 import {
-    getPostComments, postPostComment, putPostComment, deletePostComment,
-    getUserPosts, getRepositoryPosts, postPost, getPost, putPost, deletePost,
+    deletePost,
+    deletePostComment,
+    getPost,
+    getPostComments,
+    getRepositoryPosts,
+    getUserPosts,
+    postPost,
+    postPostComment,
+    putPost,
+    putPostComment,
 } from "../../common/APIs";
+import { IComment, IPhoto, IPost } from "../../common/Interfaces";
 
 const postsAdapter = createEntityAdapter<IPost>({
     selectId: (post: IPost) => post.post_id,
     //  sortComparer: (a, b) => a
 });
 
-export const fetchPostComments = createAsyncThunk<{postId: number, comments: IComment[]}, {
-    postId: number}>(
-        "post/fetchPostComments",
-        async ({ postId }) => {
-            const comments = await getPostComments(postId);
-            return { postId, comments };
-        },
-    );
+export const fetchPostComments = createAsyncThunk<{postId: number, comments: IComment[]}, number>(
+    "post/fetchPostComments",
+    async (postId: number) => {
+        const comments = await getPostComments(postId);
+        return { postId, comments };
+    },
+);
 
 export const newPostComment = createAsyncThunk<{postId: number, comments: IComment[]}, {
     postId: number, content: string}>(
@@ -127,7 +135,7 @@ export const postsSlice = createSlice({
         builder.addCase(postEdited.fulfilled, (state, action) => {
             postsAdapter.setOne(state, action.payload);
         });
-        builder.addCase(postDeleted.fulfilled, (state, action) => {
+        builder.addCase(postDeleted.fulfilled, (state, action: PayloadAction<number>) => {
             postsAdapter.removeOne(state, action.payload);
         });
         builder.addCase(fetchPostComments.fulfilled, (state, action) => {
@@ -157,6 +165,10 @@ export const postsSlice = createSlice({
         });
         builder.addCase(fetchSinglePost.fulfilled, (state, action) => {
             state.currentPost = action.payload;
+            state.loading = "succeeded";
+        });
+        builder.addCase(fetchSinglePost.rejected, (state, action) => {
+            state.loading = "failed";
         });
     },
 });

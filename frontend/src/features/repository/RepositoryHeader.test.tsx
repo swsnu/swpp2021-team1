@@ -39,7 +39,7 @@ describe("RepositoryDetail", () => {
         const repo = repositoryFactory();
 
         jest.spyOn(redux, "useDispatch").mockImplementation((() =>
-            (e: any) => ({
+            () => ({
                 then: (e: () => any) => e(),
             })) as typeof jest.fn);
 

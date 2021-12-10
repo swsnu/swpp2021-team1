@@ -9,11 +9,14 @@ interface FocusedPhotoProps {
     onEdit : (str : string) => void;
     show : boolean;
     setShow : SetStateAction<boolean>;
-    canEdit : boolean;
+    canEdit: boolean;
+    postCreateMode: "new" | "edit" | false;
 }
 
 export default function FocusedPhoto(props : FocusedPhotoProps) {
-    const [tag, setTag] = useState<string>(props.photo.tag as string);
+    const [tag, setTag] = useState<string>(
+        props.postCreateMode === "edit" ? props.photo.local_tag as string : props.photo.tag as string,
+    );
 
     function onClose() {
         if (props.canEdit) props.onEdit(tag);
@@ -21,7 +24,7 @@ export default function FocusedPhoto(props : FocusedPhotoProps) {
     }
 
     return (
-        <Modal show={props.show} onHide={onClose}>
+        <Modal show={props.show} onHide={onClose} style={{ zIndex: 20000 }}>
             <Modal.Header closeButton />
             <Image src={props.photo.image} alt={props.photo.image} rounded />
             <Modal.Footer>

@@ -1,45 +1,54 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { IPhoto } from "../../common/Interfaces";
 import Photo from "../photo/Photo";
-import { focusPhoto } from "../photo/photosSlice";
-import { useAppDispatch } from "../../app/hooks";
+import { focusPhoto, updateLocalTag } from "../photo/photosSlice";
+import FocusedPhoto from "../photo/popup/FocusedPhoto";
 
 interface PCPhotoSelectProps {
-    photos: IPhoto[]
-    setSelectedPhotos: (photos: IPhoto[]) => void
+    photos: IPhoto[] // 선택 가능한 사진 목록
+    // setSelectedPhotos: (photos: IPhoto[]) => void
+    checked: { [ id: number ]: boolean }
+    setChecked: React.Dispatch<React.SetStateAction<{
+    [id: number]: boolean;}>>
+    mode: "new" | "edit"
 }
 
-export default function PCPhotoSelect(props : PCPhotoSelectProps) {
-    const { photos, setSelectedPhotos } = props;
+// PCPhotoSelect : PostCreate PhotoSelect라는 뜻. PostCreate 페이지에서 사용하는 특수한(?) PhotoSelect 컴포넌트
+export default function PCPhotoSelect(props: PCPhotoSelectProps) {
     const dispatch = useAppDispatch();
-    const [photoShow, setPhotoShow] = useState<boolean>(false);
-    const [currentPhoto, setCurrentPhoto] = useState<IPhoto | null>(null);
-    const [checked, setChecked] = useState<{[id : number] : boolean}>({});
 
-    function onPhotoClick(photo_id : number) {
+    const { photos, checked, setChecked } = props;
+
+    const [photoShow, setPhotoShow] = useState<boolean>(false);
+    // const [checked, setChecked] = useState<{ [ id: number ]: boolean }>({});
+    const currentPhoto = useAppSelector((state) => state.photos.currentPhoto);
+
+    // 사진을 클릭했을때 그 사진을 focus함
+    function onPhotoClick(photo_id: number) {
         dispatch(focusPhoto(photo_id));
         setPhotoShow(true);
     }
 
-    function onCheck(event : React.ChangeEvent<HTMLInputElement>) {
+    // 체크박스를 체크했을 때 checked 상태를 세팅함
+    function onCheck(event: React.ChangeEvent<HTMLInputElement>) {
         const id = parseInt(event.target.name) as number;
         const temp = { ...checked };
         temp[id] = !checked[id];
         setChecked(temp);
     }
 
+    const onEdit = (localTag: string) => {
+        const photoId = currentPhoto?.photo_id;
+        dispatch(updateLocalTag({ photoId, content: localTag }));
+    };
+
+    // 초기화: props로 들어온 기존 value로 checked 설정 (edit mode에만 해당)
     useEffect(() => {
-        const checkedPhotos: IPhoto[] = [];
-        Object.entries(checked).forEach(
-            ([photoId, isChecked]) => {
-                if (isChecked) {
-                    const foundPhoto = photos.find((photo) => photo.photo_id === parseInt(photoId));
-                    if (foundPhoto) checkedPhotos.push(foundPhoto);
-                }
-            },
-        );
-        setSelectedPhotos(checkedPhotos);
-    }, [checked]);
+        setChecked(props.checked);
+        // console.log("abc");
+    }, [dispatch]);
 
     return (
         <div id="post-create-photo-select">
@@ -48,16 +57,27 @@ export default function PCPhotoSelect(props : PCPhotoSelectProps) {
                 style={{ height: "20vh" }}
             >
                 {photos.map((value: IPhoto) => (
-                    <React.Fragment key={value.photo_id.toString()}>
+                    <div key={value.photo_id.toString()}>
                         <Photo
                             photo={value}
                             mode
+                            focusable={checked[value.photo_id]}
                             onClick={onPhotoClick}
                             checked={checked[value.photo_id]}
                             onCheck={onCheck}
                         />
-                    </React.Fragment>
+                    </div>
                 ))}
+                {currentPhoto && (
+                    <FocusedPhoto
+                        photo={currentPhoto}
+                        onEdit={onEdit}
+                        show={photoShow}
+                        setShow={setPhotoShow}
+                        canEdit
+                        postCreateMode={props.mode}
+                    />
+                )}
             </div>
         </div>
     );

@@ -14,9 +14,9 @@ import "./Profile.css";
 import { addFriend, switchCurrentUser, unfriend } from "../auth/authSlice";
 import avatar from "../../common/assets/avatar.jpg";
 
-interface ProfileProps {}
+// suppress tsx-component-no-props
 
-export default function Profile(props: ProfileProps) {
+export default function Profile() {
     const dispatch = useAppDispatch();
     const currentUser = useAppSelector((state) => state.auth.currentUser);
     const account = useAppSelector((state) => state.auth.account);
