@@ -89,7 +89,11 @@ export default function App() {
                                             exact
                                             render={() => <PostCreate mode="create/user" />}
                                         />
-                                        {/* <Route path="/posts/:post_id/edit" */}
+                                        <Route
+                                            path="/posts/:post_id/edit"
+                                            exact
+                                            render={() => <PostCreate mode="edit" />}
+                                        />
                                         <Route path="/posts/:post_id" exact component={PostDetail} />
                                         <Redirect from="/" to="/login" />
                                     </Switch>

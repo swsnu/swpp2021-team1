@@ -41,7 +41,7 @@ export default function SignIn(props: SignInProps) {
                 <Form.Group className="mb-3">
                     <Form.Control
                         value={username}
-                        type="email"
+                        type="text"
                         onChange={(event) => setUsername(event.target.value)}
                         placeholder="Username"
                         isInvalid={loginClicked && hasError}

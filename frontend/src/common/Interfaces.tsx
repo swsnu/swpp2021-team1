@@ -7,6 +7,11 @@ enum Visibility {
     ONLY_MEMBERS,
 }
 
+enum RepoTravel {
+    TRAVEL_OFF,
+    TRAVEL_ON,
+}
+
 function randomString() {
     return Math.random().toString(36).substr(2, 11);
 }
@@ -56,6 +61,7 @@ interface IRepository {
     travel_end_date : string;
     collaborators : IUser[];
     visibility : Visibility;
+    travel? : RepoTravel;
 }
 
 export function repositoryFactory() {
@@ -74,7 +80,7 @@ interface IPost {
     post_id : number;
     post_type? : PostType;
     repo_id? : number;
-    author? : IUser;
+    author? : IUser[];
     title : string;
     text? : string; // Post List에서는 필요 없음
     post_time? : string;
@@ -88,7 +94,7 @@ export function postFactory() {
         post_id: randomInt(),
         post_type: randomInt() % 2,
         repo_id: randomInt(),
-        author: userFactory(),
+        author: [userFactory()],
         title: randomString(),
         text: randomString(),
         post_time: randomString(),
@@ -294,5 +300,5 @@ export type {
 };
 
 export {
-    Visibility, NoticeType, PostType, NoticeAnswerType,
+    Visibility, NoticeType, PostType, NoticeAnswerType, RepoTravel,
 };

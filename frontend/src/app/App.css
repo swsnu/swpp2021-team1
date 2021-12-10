@@ -42,11 +42,11 @@
   height: 100vh;
   overflow-y: auto !important;
   overflow-x: hidden;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  /* -ms-overflow-style: none;
+  scrollbar-width: none; */
 }
 
 
-.main-section::-webkit-scrollbar {
+/* .main-section::-webkit-scrollbar {
   display: none;
-}
+} */

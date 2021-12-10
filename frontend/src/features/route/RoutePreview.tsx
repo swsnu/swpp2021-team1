@@ -80,7 +80,7 @@ export default function RoutePreview() {
                         placement="top"
                         delay={{ show: 150, hide: 250 }}
                         overlay={(
-                            <Tooltip style={{ maxLines: 2 }}>
+                            <Tooltip>
                                 6 or more photos must be assigned to the travel places
                             </Tooltip>
                         )}

@@ -5,13 +5,9 @@ import { getRepositoryPosts } from "../../common/APIs";
 import { IPost } from "../../common/Interfaces";
 import Post from "./Post";
 
-// Post[], create-post-button
+// suppress no-tsx-component-props
 
-interface PostPreviewProps {
-
-}
-
-const PostPreview = (props: PostPreviewProps) => {
+const PostPreview = () => {
     const history = useHistory();
     const repoId = parseInt(useParams<{id: string}>().id);
     const [loading, setLoading] = useState<"idle" | "pending" | "succeeded" | "failed">("idle");

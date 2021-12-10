@@ -43,7 +43,7 @@ export default function SignUp(props : SignUpProps) {
             username,
             password,
             bio,
-            visibility: Visibility.ALL,
+            visibility,
         })).then(() => {
             dispatch(actionCreators.signIn({ username, password }));
         });
@@ -152,7 +152,7 @@ export default function SignUp(props : SignUpProps) {
                             isInvalid={valid[2] !== null && !valid[2]}
                         />
                         <Form.Control.Feedback type="invalid">
-                            Please write your name.
+                            Please write your name in english.
                         </Form.Control.Feedback>
                     </Form.Group>
                     <Form.Group className="mb-3">
