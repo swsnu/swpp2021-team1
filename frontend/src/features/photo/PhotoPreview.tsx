@@ -128,6 +128,7 @@ export default function PhotoPreview(props : PhotoPreviewProps) {
                             onClick={onPhotoClick}
                             checked={checked[value.photo_id]}
                             mode={deleteMode}
+                            focusable={!deleteMode}
                             onCheck={onCheck}
                         />
                     </React.Fragment>
@@ -141,6 +142,7 @@ export default function PhotoPreview(props : PhotoPreviewProps) {
                     show={photoShow}
                     setShow={setPhotoShow}
                     canEdit={auth}
+                    postCreateMode={false}
                 />
             )}
         </div>

@@ -1,33 +1,36 @@
 import React, {
     useEffect, useState,
 } from "react";
-import { useParams } from "react-router";
+import { useHistory, useParams } from "react-router";
 import { Link } from "react-router-dom";
-import { Carousel, Image, Modal } from "react-bootstrap";
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { IUser } from "../../common/Interfaces";
 import {
-    fetchSinglePost, newPostComment, postCommentDeleted, postCommentEdited,
+    Carousel, Image, Modal, Button, Figure,
+} from "react-bootstrap";
+import { InputSpecificProps } from "react-select/dist/declarations/src/components/Input";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { IPhoto, IUser } from "../../common/Interfaces";
+import {
+    fetchSinglePost, newPostComment, postCommentDeleted, postCommentEdited, postDeleted,
 } from "./postsSlice";
 import "./Posts.css";
 import Comment from "../comments/Comment";
 import avatar from "../../common/assets/avatar.jpg";
 
-interface PostDetailProps {
-}
+// suppress no-tsx-component-props
 
-const PostDetail = (props: PostDetailProps) => {
+const PostDetail = () => {
     const dispatch = useAppDispatch();
-    const { post_id } = useParams<{post_id: string}>();
+    const { post_id } = useParams<{ post_id: string }>();
     const currentPost = useAppSelector((state) => state.posts.currentPost);
-    const [authorLoading, setAuthorLoading] = useState<"idle" | "pending" | "succeeded" | "failed">("idle");
     const [postLoading, setPostLoading] = useState<"idle" | "pending" | "succeeded" | "failed">("idle");
-    const [author, setAuthor] = useState<IUser | null>(null);
     const [index, setIndex] = useState<number>(0);
     const [photoShow, setPhotoShow] = useState<boolean>(false);
     const account = useAppSelector((state) => state.auth.account);
     const [comment, setComment] = useState("");
     const currentPhoto = currentPost?.photos[index];
+    const author = currentPost?.author ? currentPost?.author[0] : undefined;
+    const loading = useAppSelector((state) => state.posts.loading);
+    const history = useHistory();
 
     const handleSelect = (selectedIndex: number, e: Record<string, unknown> | null) => {
         setIndex(selectedIndex);
@@ -48,23 +51,9 @@ const PostDetail = (props: PostDetailProps) => {
             loadPost();
         }
     }, [dispatch]);
-    /* useEffect(() => {
-        const getAuthorInfo = async (username: string) => {
-            try {
-                setAuthorLoading("pending");
-                const user = await getUser(username);
-                setAuthor(user);
-                setAuthorLoading("succeeded");
-            }
-            catch (e) {
-                setAuthorLoading("failed");
-            }
-        };
-        if (authorLoading === "idle" && currentPost && currentPost.author) {
-            getAuthorInfo(currentPost.author);
-        }
-    }, [currentPost]); */
 
+    if (loading === "failed") return <div>Error</div>;
+    if (loading === "pending" || loading === "idle") return <div />;
     return (
         <div className="mt-5">
             <section className="border-bottom mb-5" style={{ maxWidth: 700 }}>
@@ -75,12 +64,12 @@ const PostDetail = (props: PostDetailProps) => {
                         style={{ width: "100%" }}
                     >
                         <Link
-                            to={`/main/${currentPost?.author?.username}`}
+                            to={`/main/${author?.username}`}
                             id="author-username"
                             className="text-decoration-none text-dark"
                         >
                             <img
-                                src={currentPost?.author?.profile_picture ? currentPost.author.profile_picture : avatar}
+                                src={author?.profile_picture ? author?.profile_picture : avatar}
                                 className="rounded-circle shadow-1-strong me-3"
                                 height="40"
                                 alt=""
@@ -88,38 +77,60 @@ const PostDetail = (props: PostDetailProps) => {
                             />
 
                             <strong>
-                                @
-                                {currentPost?.author?.username}
+
+                                {author?.username}
 
                             </strong>
                         </Link>
                         <span className="text-muted ms-1">{currentPost?.post_time}</span>
                     </div>
+                    <div className="w-100 d-flex justify-content-between">
+                        <h1 className="fs-4">{currentPost?.title}</h1>
+                        <div>
+                            <Link to={`/posts/${post_id}/edit`}>Edit</Link>
+                            <Button
+                                onClick={() => {
+                                    dispatch(postDeleted(parseInt(post_id)));
+                                    window.alert("Delete successful");
+                                    history.push(`/main/${account?.username}`);
+                                }}
+                                variant="link"
+                            >
+                                Delete
+
+                            </Button>
+                        </div>
+                    </div>
                 </div>
-                <Carousel
-                    activeIndex={index}
-                    onSelect={handleSelect}
-                    className="shadow-2-strong rounded-5 mb-4 mx-auto w-100"
-                    style={{ maxWidth: 700 }}
-                    interval={null}
-                >
-                    {currentPost?.photos.map((photo) => (
-                        <Carousel.Item
-                            key={photo.photo_id}
-                            className="w-100"
-                            onClick={(e) => {
-                                setPhotoShow(true);
-                            }}
-                        >
-                            <img
-                                className="d-block w-100"
-                                src={photo.image}
-                                alt={`id ${photo.photo_id}`}
-                                style={{ verticalAlign: "auto !important" }}
-                            />
-                        </Carousel.Item>
-                    ))}
-                </Carousel>
+                <Figure>
+                    <Carousel
+                        activeIndex={index}
+                        onSelect={handleSelect}
+                        className="shadow-2-strong rounded-5 mb-4 mx-auto w-100"
+                        style={{ maxWidth: 700 }}
+                        interval={null}
+                    >
+                        {currentPost?.photos.map((photo) => (
+                            <Carousel.Item
+                                key={photo.photo_id}
+                                className="w-100"
+                                onClick={(e) => {
+                                    setPhotoShow(true);
+                                }}
+                            >
+                                <img
+                                    className="d-block w-100"
+                                    src={photo.image}
+                                    alt={`id ${photo.photo_id}`}
+                                    style={{ verticalAlign: "auto !important" }}
+                                />
+                            </Carousel.Item>
+                        ))}
+                    </Carousel>
+                    <Figure.Caption className="text-center">
+                        {currentPhoto?.local_tag}
+                    </Figure.Caption>
+                </Figure>
                 <Modal
                     show={photoShow}
                     onHide={() => {
