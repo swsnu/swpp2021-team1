@@ -24,13 +24,12 @@ function Sidebar() {
     useEffect(() => {
         dispatch(actionCreators.fetchSession());
         dispatch(fetchSession());
-        const id = setInterval(() => {
-            dispatch(actionCreators.fetchSession());
-            dispatch(fetchSession());
-        }, 3500);
-
-        return () => clearInterval(id);
     }, [dispatch]);
+
+    useEffect(() => history.listen(() => {
+        dispatch(actionCreators.fetchSession());
+        dispatch(fetchSession());
+    }), [history]);
 
     if (isLoading) return null;
     if (hasError) {
