@@ -272,7 +272,13 @@ def repoPosts(request, repo_id):
             existing_post = Post.objects.filter(repository=repository, post_type=PostType.REPO_POST)
             if existing_post.count() == 1:
                 text = ""
-                new_post = Post(repository=repository, author=request.user, title=repository.repo_name, text=text, post_type=post_type)
+                new_post = Post(
+                    repository=repository,
+                    author=request.user,
+                    title=repository.repo_name,
+                    text=text,
+                    post_type=post_type
+                )
                 for collaborator in repository.collaborators.all():
                     if collaborator != request.user:
                         post_notice = Notification(
@@ -285,7 +291,7 @@ def repoPosts(request, repo_id):
                         post_notice.save()
         else: # travel has weird value
             return HttpResponseInvalidInput()
-        
+
         return HttpResponseSuccessUpdate()
 
     # request.method == "GET":

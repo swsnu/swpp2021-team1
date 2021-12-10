@@ -201,7 +201,7 @@ def profilePicture(request, user_name):
         user.profile_picture = image
         user.save()
 
-        response_dict = { 'profile_picture' : user.profile_picture.url }
+        response_dict = {'profile_picture' : user.profile_picture.url}
         return HttpResponseSuccessUpdate(response_dict)
 
     # request.method == "DELETE":
@@ -265,7 +265,7 @@ def userID(request, user_name):
             return HttpResponseBadRequest()
 
         if (user.username != username
-            and User.objects.filter(username=username).count() != 0):
+                and User.objects.filter(username=username).count() != 0):
             return HttpResponseInvalidInput()
 
         user.username = username
@@ -401,8 +401,15 @@ def userFriendID(request, user_name, friend_name):
         except User.DoesNotExist:
             return HttpResponseNotExist()
 
-        if Notification.objects.filter(user=from_user, from_user=to_user, classification=NoticeType.FRIEND_REQUEST).count()!=0:
-            friend_request = Notification.objects.get(user=from_user, from_user=to_user, classification=NoticeType.FRIEND_REQUEST)
+        if Notification.objects.filter(
+                user=from_user,
+                from_user=to_user,
+                classification=NoticeType.FRIEND_REQUEST).count() != 0:
+            friend_request = Notification.objects.get(
+                user=from_user,
+                from_user=to_user,
+                classification=NoticeType.FRIEND_REQUEST
+            )
             friend_request.delete()
             from_user.friends.add(to_user)
             from_user.save()
