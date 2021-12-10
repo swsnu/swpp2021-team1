@@ -37,9 +37,6 @@ export default function Search() {
 
     return (
         <div>
-            <h2 className="mt-4 mb-3">
-                Search
-            </h2>
             <InputGroup className="m-auto">
                 <DropdownButton title={mode}>
                     <Dropdown.Item onClick={() => setMode("User")}>
