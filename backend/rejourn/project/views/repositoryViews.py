@@ -44,6 +44,7 @@ def get_repository_dict(repository):
         "travel_end_date": repository.travel_end_date.strftime(DATE_FORMAT),
         "visibility": repository.visibility,
         "collaborators": collaborator_list,
+        "travel": repository.travel,
     }
     return repository_dict
 
