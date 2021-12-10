@@ -46,6 +46,20 @@ export async function putUser(user : IUser) {
     return (await axios.put<any, AxiosResponse<IUser>>(`/api/users/${user.username}/`, user)).data;
 }
 
+interface profilePictureForm {
+    profile_picture: string
+}
+
+export async function postProfilePicture(username: string, formData: FormData) {
+    return (await axios.post<any, AxiosResponse<profilePictureForm>>(
+        `/api/users/${username}/profile-picture/`, formData,
+    )).data;
+}
+
+export async function deleteProfilePicture(username: string) {
+    await axios.delete(`/api/users/${username}/profile-picture/`);
+}
+
 export async function deleteUser(username : string) {
     await axios.delete(`/api/users/${username}/`);
 }
