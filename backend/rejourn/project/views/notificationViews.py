@@ -1,6 +1,6 @@
 import json
 from json.decoder import JSONDecodeError
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.http.response import HttpResponseBadRequest
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -74,8 +74,8 @@ def get_notification_list(user, notice_type=None):
     fork_count_dict = {}
     for notification in notification_set:
         if (notification.time + timedelta(days=14) >= timezone.now()
-            or notification.classification == NoticeType.FRIEND_REQUEST
-            or notification.classification == NoticeType.INVITATION):
+                or notification.classification == NoticeType.FRIEND_REQUEST
+                or notification.classification == NoticeType.INVITATION):
             notification_dict = get_notification_dict(notification)
             if notification.classification == NoticeType.FRIEND_REQUEST:
                 friend_request_list.append(notification_dict)
@@ -84,7 +84,7 @@ def get_notification_list(user, notice_type=None):
             else:
                 if notification.classification == NoticeType.COMMENT:
                     if (notification.discussion is not None
-                        and discussion_comment_count_dict.get(notification.discussion.discussion_id) is not None):
+                            and discussion_comment_count_dict.get(notification.discussion.discussion_id) is not None):
                         discussion_comment_count_dict[notification.discussion.discussion_id] += 1
                     elif notification.discussion is not None:
                         discussion_comment_count_dict[notification.discussion.discussion_id] = 1
@@ -96,7 +96,7 @@ def get_notification_list(user, notice_type=None):
                         others_list.append(notification_dict)
                 elif notification.classification == NoticeType.LIKE:
                     if (notification.discussion is not None
-                        and discussion_like_count_dict.get(notification.discussion.discussion_id) is not None):
+                            and discussion_like_count_dict.get(notification.discussion.discussion_id) is not None):
                         discussion_like_count_dict[notification.discussion.discussion_id] += 1
                     elif notification.discussion is not None:
                         discussion_like_count_dict[notification.discussion.discussion_id] = 1
@@ -117,16 +117,16 @@ def get_notification_list(user, notice_type=None):
         else:
             delete_list.append(notification)
 
-        if notification.new == True:
+        if notification.new:
             notification.new = False
             notification.save()
 
     left_size = len(delete_list)
-    while(left_size != 0):
+    while left_size != 0:
         notification = delete_list.pop()
         left_size -= 1
         if (notification.classification != NoticeType.FRIEND_REQUEST
-            and notification.classification != NoticeType.INVITATION):
+                and notification.classification != NoticeType.INVITATION):
             notification.delete()
 
     for notification_dict in others_list:
@@ -171,14 +171,14 @@ def notifications(request):
     # request.method == 'DELETE'
     if not request.user.is_authenticated:
         return HttpResponseNotLoggedIn()
-    
+
     notification_list = list(Notification.objects.filter(user=request.user))
     left_size = len(notification_list)
-    while(left_size != 0):
+    while left_size != 0:
         notification = notification_list.pop()
         left_size -= 1
         if (notification.classification != NoticeType.FRIEND_REQUEST
-            and notification.classification != NoticeType.INVITATION):
+                and notification.classification != NoticeType.INVITATION):
             notification.delete()
 
     notification_list = get_notification_list(request.user)
@@ -208,7 +208,7 @@ def notificationID(request, notification_id):
             return HttpResponseBadRequest()
 
         if (notification.classification != NoticeType.FRIEND_REQUEST
-            and notification.classification != NoticeType.INVITATION):
+                and notification.classification != NoticeType.INVITATION):
             return HttpResponseInvalidInput()
 
         if answer == NoticeAnswerType.YES:
@@ -233,7 +233,7 @@ def notificationID(request, notification_id):
 
     # request.method == 'DELETE'
     if not request.user.is_authenticated:
-            return HttpResponseNotLoggedIn()
+        return HttpResponseNotLoggedIn()
 
     try:
         notification = Notification.objects.get(notification_id=notification_id)
@@ -242,7 +242,7 @@ def notificationID(request, notification_id):
 
     if notification.user != request.user:
         return HttpResponseNoPermission()
-    
+
     notification.delete()
 
     notification_list = get_notification_list(request.user)
@@ -259,7 +259,9 @@ def sessionNotifications(request):
 
     new_notification_set = Notification.objects.filter(user=request.user, new=True)
     not_old_notification_set = new_notification_set.filter(time__gte=timezone.now()-timedelta(days=14))
-    request_notification_set = new_notification_set.filter(classification=NoticeType.FRIEND_REQUEST).union(new_notification_set.filter(classification=NoticeType.INVITATION))
+    request_notification_set_1 = new_notification_set.filter(classification=NoticeType.FRIEND_REQUEST)
+    request_notification_set_2 = new_notification_set.filter(classification=NoticeType.INVITATION)
+    request_notification_set = request_notification_set_1.union(request_notification_set_2)
     notification_set = not_old_notification_set.union(request_notification_set)
 
     response_dict = {

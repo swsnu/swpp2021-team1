@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 import requests
 
 from django.http.response import HttpResponseBadRequest
@@ -13,7 +15,6 @@ from project.httpResponse import *
 
 from project.enum import Scope, PostType, RepoTravel
 
-from datetime import timedelta
 
 API_KEY = settings.GOOGLE_MAPS_API_KEY
 UPLOADED_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
@@ -32,9 +33,16 @@ def exploreUsers(request):
 
     friends = User.objects.filter(friends__user_id=request.user.user_id)
     friends_not_private = friends.exclude(visibility=Scope.PRIVATE)
-    friends_matching = friends_not_private.filter(username__icontains=query_user).annotate(order=models.Value(0, models.IntegerField()))
-    public_users = User.objects.filter(visibility=Scope.PUBLIC).exclude(friends__user_id=request.user.user_id)
-    public_users_matching = public_users.filter(username__icontains=query_user).annotate(order=models.Value(1, models.IntegerField()))
+
+    friends_matching = friends_not_private.filter(username__icontains=query_user)
+    friends_matching = friends_matching.annotate(order=models.Value(0, models.IntegerField()))
+
+    public_users = User.objects.filter(visibility=Scope.PUBLIC)
+    public_users = public_users.exclude(friends__user_id=request.user.user_id)
+
+    public_users_matching = public_users.filter(username__icontains=query_user)
+    public_users_matching = public_users_matching.annotate(order=models.Value(1, models.IntegerField()))
+
     possible_users_matching = friends_matching.union(public_users_matching).order_by('order')
 
     response_list = []
@@ -42,7 +50,11 @@ def exploreUsers(request):
     for user in possible_users_matching:
         if user.username.startswith(query_user):
             if bool(user.profile_picture):
-                response_list.append({"username": user.username, "bio": user.bio, "profile_picture": user.profile_picture.url})
+                response_list.append({
+                    "username": user.username,
+                    "bio": user.bio,
+                    "profile_picture": user.profile_picture.url
+                })
             else:
                 response_list.append({"username": user.username, "bio": user.bio})
         else:
@@ -50,7 +62,11 @@ def exploreUsers(request):
 
     for user in temp:
         if bool(user.profile_picture):
-            response_list.append({"username": user.username, "bio": user.bio, "profile_picture": user.profile_picture.url})
+            response_list.append({
+                "username": user.username,
+                "bio": user.bio,
+                "profile_picture": user.profile_picture.url
+            })
         else:
             response_list.append({"username": user.username, "bio": user.bio})
 
@@ -67,24 +83,48 @@ def exploreRepositories(request):
         return HttpResponseBadRequest()
 
     repositories_mine = Repository.objects.filter(collaborators__user_id=request.user.user_id)
-    repositories_mine_matching = repositories_mine.filter(repo_name__icontains=query_repository).annotate(order=models.Value(0, models.IntegerField()))
-    repositories_friends = Repository.objects.filter(collaborators__in=User.objects.filter(username=request.user.username).values('friends'))
+
+    repositories_mine_matching = repositories_mine.filter(repo_name__icontains=query_repository)
+    repositories_mine_matching = repositories_mine_matching.annotate(order=models.Value(0, models.IntegerField()))
+
+    repositories_friends = Repository.objects.filter(
+        collaborators__in=User.objects.filter(username=request.user.username).values('friends')
+    )
     repositories_friends_exclude_private = repositories_friends.filter(visibility=Scope.FRIENDS_ONLY)
-    repositories_friends_matching = repositories_friends_exclude_private.filter(repo_name__icontains=query_repository).annotate(order=models.Value(0, models.IntegerField()))
-    public_repositories = Repository.objects.filter(visibility=Scope.PUBLIC).exclude(collaborators__user_id=request.user.user_id).exclude(collaborators__in=User.objects.filter(username=request.user.username).values('friends'))
-    public_repositories_matching = public_repositories.filter(repo_name__icontains=query_repository).annotate(order=models.Value(0, models.IntegerField()))
-    possible_repositories = repositories_mine_matching.union(repositories_friends_matching).union(public_repositories_matching).order_by('order')
+
+    repositories_friends_matching = repositories_friends_exclude_private.filter(repo_name__icontains=query_repository)
+    repositories_friends_matching = repositories_friends_matching.annotate(order=models.Value(0, models.IntegerField()))
+
+    public_repositories = Repository.objects.filter(visibility=Scope.PUBLIC)
+    public_repositories = public_repositories.exclude(collaborators__user_id=request.user.user_id)
+    public_repositories = public_repositories.exclude(
+        collaborators__in=User.objects.filter(username=request.user.username).values('friends')
+    )
+
+    public_repositories_matching = public_repositories.filter(repo_name__icontains=query_repository)
+    public_repositories_matching = public_repositories_matching.annotate(order=models.Value(0, models.IntegerField()))
+
+    possible_repositories = repositories_mine_matching.union(repositories_friends_matching)
+    possible_repositories = possible_repositories.union(public_repositories_matching)
+    possible_repositories = possible_repositories.order_by('order')
 
     response_list = []
     temp = []
     for repository in possible_repositories:
         if repository.repo_name.startswith(query_repository):
-            places = PlaceInRoute.objects.filter(route__repository=repository).annotate(number_of_photos=Count("photo")).order_by('-number_of_photos')
+            places = PlaceInRoute.objects.filter(route__repository=repository)
+            places = places.annotate(number_of_photos=Count("photo"))
+            places = places.order_by('-number_of_photos')
+
             response_places = []
             count = 0
             for place in places:
                 if count < 3:
-                    response_places.append({"place_id": place.place_id, "place_name": place.place_name, "place_address": place.place_address})
+                    response_places.append({
+                        "place_id": place.place_id,
+                        "place_name": place.place_name,
+                        "place_address": place.place_address
+                    })
                     count += 1
                 else:
                     break
@@ -93,12 +133,19 @@ def exploreRepositories(request):
             response_dict["places"] = response_places
             response_list.append(response_dict)
         else:
-            places = PlaceInRoute.objects.filter(route__repository=repository).annotate(number_of_photos=Count("photo")).order_by('-number_of_photos')
+            places = PlaceInRoute.objects.filter(route__repository=repository)
+            places = places.annotate(number_of_photos=Count("photo"))
+            places = places.order_by('-number_of_photos')
+
             response_places = []
             count = 0
             for place in places:
                 if count < 3:
-                    response_places.append({"place_id": place.place_id, "place_name": place.place_name, "place_address": place.place_address})
+                    response_places.append({
+                        "place_id": place.place_id,
+                        "place_name": place.place_name,
+                        "place_address": place.place_address
+                    })
                     count += 1
                 else:
                     break
@@ -125,9 +172,10 @@ def exploreRegions(request):
         return HttpResponseBadRequest()
 
     query_region_formatted = query_region.replace(" ", "%2C")
-    url_for_geocoding = "https://maps.googleapis.com/maps/api/geocode/json?address="+query_region_formatted+"&key="+API_KEY
-    geocoding_response = requests.get(url_for_geocoding)
 
+    url_header_for_geocoding_header = "https://maps.googleapis.com/maps/api/geocode/json?address="
+    url_for_geocoding = url_header_for_geocoding_header + query_region_formatted + "&key=" + API_KEY
+    geocoding_response = requests.get(url_for_geocoding)
 
     if geocoding_response.status_code in range(200, 299):
         return HttpResponseBadRequest()
@@ -137,27 +185,55 @@ def exploreRegions(request):
     #route_to_contain = Route.objects.filter(place_id=place_id)
 
     repositories_mine = Repository.objects.filter(collaborators__user_id=request.user.user_id)
-    repositories_mine_matching = repositories_mine.filter(route__place_id=place_id).annotate(order=models.Value(0, models.IntegerField()))
-    repositories_friends = Repository.objects.filter(collaborators__in=User.objects.filter(username=request.user.username).values('friends'))
-    repositories_friends_exclude_private = repositories_friends.filter(visibility=Scope.FRIENDS_ONLY)
-    repositories_friends_matching = repositories_friends_exclude_private.filter(route__place_id=place_id).annotate(order=models.Value(0, models.IntegerField()))
-    public_repositories = Repository.objects.filter(visibility=Scope.PUBLIC).exclude(collaborators__user_id=request.user.user_id).exclude(collaborators__in=User.objects.filter(username=request.user.username).values('friends'))
-    public_repositories_matching = public_repositories.filter(route__place_id=place_id).annotate(order=models.Value(0, models.IntegerField()))
-    possible_repositories = repositories_mine_matching.union(repositories_friends_matching).union(public_repositories_matching).order_by('order')
 
+    repositories_mine_matching = repositories_mine.filter(route__place_id=place_id)
+    repositories_mine_matching = repositories_mine_matching.annotate(order=models.Value(0, models.IntegerField()))
+
+    repositories_friends = Repository.objects.filter(
+        collaborators__in=User.objects.filter(username=request.user.username).values('friends')
+    )
+    repositories_friends_exclude_private = repositories_friends.filter(visibility=Scope.FRIENDS_ONLY)
+
+    repositories_friends_matching = repositories_friends_exclude_private.filter(route__place_id=place_id)
+    repositories_friends_matching = repositories_friends_matching.annotate(order=models.Value(0, models.IntegerField()))
+
+    public_repositories = Repository.objects.filter(visibility=Scope.PUBLIC)
+    public_repositories = public_repositories.exclude(collaborators__user_id=request.user.user_id)
+    public_repositories = public_repositories.exclude(
+        collaborators__in=User.objects.filter(username=request.user.username).values('friends')
+    )
+
+    public_repositories_matching = public_repositories.filter(route__place_id=place_id)
+    public_repositories_matching = public_repositories_matching.annotate(order=models.Value(0, models.IntegerField()))
+
+    possible_repositories = repositories_mine_matching.union(repositories_friends_matching)
+    possible_repositories = possible_repositories.union(public_repositories_matching)
+    possible_repositories = possible_repositories.order_by('order')
 
     response_list = []
     for repository in possible_repositories:
-        places = PlaceInRoute.objects.filter(route__repository=repository).annotate(number_of_photos=Count("photo")).order_by('-number_of_photos')
+        places = PlaceInRoute.objects.filter(route__repository=repository)
+        places = places.annotate(number_of_photos=Count("photo"))
+        places = places.order_by('-number_of_photos')
+
         response_places = []
         count = 0
         for place in places:
             if count < 3:
-                response_places.append({"place_id": place.place_id, "place_name": place.place_name, "place_address": place.place_address})
+                response_places.append({
+                    "place_id": place.place_id,
+                    "place_name": place.place_name,
+                    "place_address": place.place_address
+                })
                 count += 1
             else:
                 break
-        response_dict = {"repo_id": repository.repo_id, "repo_name": repository.repo_name, "region_address": repository.route.region_address, "places": response_places}
+        response_dict = {
+            "repo_id": repository.repo_id,
+            "repo_name": repository.repo_name,
+            "region_address": repository.route.region_address,
+            "places": response_places
+        }
         response_list.append(response_dict)
 
 
@@ -175,14 +251,23 @@ def feeds(request):
     request_date = timezone.now()
     before_two_week = request_date - timedelta(weeks=2)
 
-    personal_feed_list = Post.objects.filter(author=user, post_type=PostType.PERSONAL, post_time__range=[before_two_week, request_date])
-    repo_feed_list = Post.objects.filter(repository__collaborators__in=User.objects.filter(username=request.user.username).values('friends'), post_type=PostType.REPO, post_time__range=[before_two_week, request_date])
+    personal_feed_list = Post.objects.filter(
+        author=user,
+        post_type=PostType.PERSONAL,
+        post_time__range=[before_two_week, request_date]
+    )
+    repo_feed_list = Post.objects.filter(
+        repository__collaborators__in=User.objects.filter(username=request.user.username).values('friends'),
+        post_type=PostType.REPO,
+        post_time__range=[before_two_week, request_date]
+    )
 
     feed_list = personal_feed_list.union(repo_feed_list).order_by('-post_time')
 
     response_list = []
     for post in feed_list:
-        if (post.post_type == PostType.REPO and post.repository.travel == RepoTravel.TRAVEL_ON) or post.post_type == PostType.PERSONAL:
+        if ((post.post_type == PostType.REPO and post.repository.travel == RepoTravel.TRAVEL_ON)
+                or post.post_type == PostType.PERSONAL):
             author_list = []
             temp = []
             if post.post_type == PostType.REPO:
