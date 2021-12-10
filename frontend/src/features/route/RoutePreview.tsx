@@ -1,5 +1,5 @@
 import {
-    GoogleMap, Marker, Polyline, useJsApiLoader,
+    GoogleMap, LoadScript, Marker, Polyline, useJsApiLoader,
 } from "@react-google-maps/api";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -23,7 +23,7 @@ env.config();
 export default function RoutePreview() {
     const isMapLoaded = useJsApiLoader({
         id: "google-map-script",
-        googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY as string,
+        googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY as string,
     }).isLoaded;
 
     const [isLoading, hasError, route] = useSelector<RootState, [boolean, boolean, IRoute|null]>((state) =>
@@ -52,6 +52,8 @@ export default function RoutePreview() {
             },
         );
     }
+
+    console.log(process.env.REACT_APP_GOOGLE_MAPS_API_KEY as string);
 
     if (isLoading || !isMapLoaded || hasError) return null;
     if (!route) return <div>Fatal Error!</div>;
@@ -130,6 +132,8 @@ export default function RoutePreview() {
                     options={{
                         fullscreenControl: false,
                         mapId: "257d559a76ad5fe6",
+                        streetViewControl: false,
+                        mapTypeControl: false,
                     }}
                 >
                     {map && route.places.map((value) => (
@@ -138,8 +142,8 @@ export default function RoutePreview() {
                                 icon={marker}
                                 position={{
                                     lat: value.latitude -
-                                        (map.getBounds()?.getNorthEast().lat() -
-                                            map.getBounds()?.getSouthWest().lat()) / 15,
+                                            (map.getBounds()?.getNorthEast().lat() -
+                                                map.getBounds()?.getSouthWest().lat()) / 15,
                                     lng: value.longitude,
                                 }}
                                 onMouseOver={() => setOverPlace(value.place_id)}
@@ -155,13 +159,13 @@ export default function RoutePreview() {
                                             zIndex: 10000,
                                             position: "absolute",
                                             top: `${100 *
-                                            ((value.latitude - map.getBounds()?.getNorthEast().lat()) /
-                                            (map.getBounds()?.getSouthWest().lat() -
-                                            map.getBounds()?.getNorthEast().lat()))}%`,
+                                                ((value.latitude - map.getBounds()?.getNorthEast().lat()) /
+                                                (map.getBounds()?.getSouthWest().lat() -
+                                                map.getBounds()?.getNorthEast().lat()))}%`,
                                             left: `${100 *
-                                            ((value.longitude - map.getBounds()?.getSouthWest().lng()) /
-                                            (map.getBounds()?.getNorthEast().lng() -
-                                            map.getBounds()?.getSouthWest().lng()))}%`,
+                                                ((value.longitude - map.getBounds()?.getSouthWest().lng()) /
+                                                (map.getBounds()?.getNorthEast().lng() -
+                                                map.getBounds()?.getSouthWest().lng()))}%`,
                                             transform: value.thumbnail ?
                                                 "translate(-50%, -135%)" : "translate(-50%, -250%)",
                                         }}
@@ -188,7 +192,8 @@ export default function RoutePreview() {
                         </React.Fragment>
                     ))}
                     <Polyline
-                        path={(route as IRoute).places.map((value) => ({ lat: value.latitude, lng: value.longitude }))}
+                        path={(route as IRoute).places.map((value) =>
+                            ({ lat: value.latitude, lng: value.longitude }))}
                         options={{
                             strokeColor: "#991D83",
                             strokeOpacity: 1,
