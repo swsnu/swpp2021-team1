@@ -6,7 +6,8 @@ import "./Photo.css";
 interface PhotoProps {
     photo : IPhoto;
     onClick : (photo_id : number) => void;
-    mode : boolean;
+    mode: boolean;
+    focusable: boolean;
     checked : boolean;
     onCheck : (e : React.ChangeEvent<HTMLInputElement>) => void;
 }
@@ -14,8 +15,8 @@ interface PhotoProps {
 export default function Photo(props : PhotoProps) {
     return (
         <button
-            className="h-100 photo-wrapper-button m-1"
-            disabled={props.mode}
+            className="photo-wrapper-button m-1"
+            disabled={!props.focusable}
             onClick={() => props.onClick(props.photo.photo_id)}
             type="button"
         >
@@ -27,6 +28,7 @@ export default function Photo(props : PhotoProps) {
                     checked={props.checked}
                     name={props.photo.photo_id.toString()}
                     onChange={(e) => props.onCheck(e)}
+                    onClick={(e) => e.stopPropagation()}
                 />
             )}
         </button>

@@ -4,7 +4,14 @@ import {
 
 import { RootState } from "../../app/store";
 import {
-    getSession, getSignOut, getUser, postFriends, postSignIn, postUsers, putUser,
+    deleteFriends,
+    getSession,
+    getSignOut,
+    getUser,
+    postFriends,
+    postSignIn,
+    postUsers,
+    putUser,
 } from "../../common/APIs";
 import { IUser } from "../../common/Interfaces";
 
@@ -31,11 +38,21 @@ export const addFriend = createAsyncThunk<
 {fusername: string, myFriendList: IUser[]},
 {username: string, fusername: string}>(
     "auth/addfriend",
-    async ({ username, fusername }, thunkAPI) => ({
+    async ({ username, fusername }) => ({
         fusername,
         myFriendList: await postFriends(username, fusername),
     }),
 );
+
+export const unfriend = createAsyncThunk<
+    string,
+    { username: string, fusername: string }>(
+        "auth/unfriend",
+        async ({ username, fusername }) => {
+            await deleteFriends(username, fusername);
+            return fusername;
+        },
+    );
 
 export const switchCurrentUser = createAsyncThunk<IUser,
 string, {state: {auth: AuthState}}>(
@@ -182,6 +199,20 @@ export const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
                         if (state.currentUser.friends) state.currentUser.friends.push(state.account);
                     }
                 }
+            }
+        });
+        builder.addCase(unfriend.fulfilled, (state: AuthState, action) => {
+            if (state.currentUser) {
+                const usernameToDelete =
+                    state.currentUser.username === state.account?.username ?
+                        action.payload :
+                        state.account?.username;
+                console.log(usernameToDelete);
+                const indexToDelete = state.currentUser.friends?.findIndex(
+                    (friend) => friend.username === usernameToDelete,
+                );
+                console.log(indexToDelete);
+                if (indexToDelete) state.currentUser.friends?.splice(indexToDelete, 1);
             }
         });
         builder.addCase(updateProfile.fulfilled, (state: AuthState, action: PayloadAction<IProfileForm>) => {

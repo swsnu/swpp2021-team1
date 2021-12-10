@@ -107,6 +107,9 @@ export default function Travel(props : TravelProps) {
                                     gestureHandling: "none",
                                     zoomControl: false,
                                     mapId: "257d559a76ad5fe6",
+                                    streetViewControl: false,
+                                    scaleControl: false,
+                                    mapTypeControl: false,
                                 }}
                             >
                                 {map && (

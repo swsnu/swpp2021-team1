@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import "./Sidebar.css";
-import { Dropdown } from "react-bootstrap";
+import { Badge, Dropdown } from "react-bootstrap";
 import { useHistory } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -11,21 +11,22 @@ import * as actionCreators from "../auth/authSlice";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 
 import avatar from "../../common/assets/avatar.jpg";
+import { fetchSession } from "../notification/noticesSlice";
 
-interface SidebarProps {
-
-}
-
-function Sidebar(props: SidebarProps) {
+// suppress no-tsx-component-props
+function Sidebar() {
     const dispatch = useAppDispatch();
     const [isLoading, hasError, account] = useAppSelector((state) =>
-        [state.auth.isLoading, state.auth.hasError, state.auth.account]);
+        [state.auth.isLoading, state.auth.hasError, state.auth.account]); // TODO
+    const noticeCount = useAppSelector((state) => state.notices.count);
     const history = useHistory();
 
     useEffect(() => {
         dispatch(actionCreators.fetchSession());
+        dispatch(fetchSession());
         const id = setInterval(() => {
             dispatch(actionCreators.fetchSession());
+            dispatch(fetchSession());
         }, 3500);
 
         return () => clearInterval(id);
@@ -72,11 +73,24 @@ function Sidebar(props: SidebarProps) {
                     </Link>
                     <Link
                         id="noti-menu"
-                        to="#"
-                        className="nav-link link-dark mb-4 fs-5"
+                        to={`/main/${account?.username}/notification`}
+                        className="nav-link link-dark mb-2 mt-2 fs-5"
                     >
-                        <FontAwesomeIcon className="me-3" icon={faBell} color="#f69d72" />
+                        <FontAwesomeIcon className="mt-2 me-3" icon={faBell} color="#f69d72" />
                         Notifications
+                        {noticeCount > 0 && (
+                            <Badge
+                                bg="primary"
+                                pill
+                                style={{
+                                    fontSize: "0.75rem",
+                                    margin: "0 -2rem 0 0.5rem",
+                                    verticalAlign: "middle",
+                                }}
+                            >
+                                {noticeCount}
+                            </Badge>
+                        )}
                     </Link>
                 </li>
             </ul>

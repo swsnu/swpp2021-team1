@@ -5,8 +5,8 @@ import tempfile
 from django.test import TestCase, Client, override_settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-from project.models.models import Discussion, DiscussionComment, Repository, User
-from project.enum import Scope
+from project.models.models import Discussion, DiscussionComment, Repository, User, Notification
+from project.enum import Scope, NoticeType
 
 
 MEDIA_ROOT = tempfile.mkdtemp()
@@ -41,12 +41,22 @@ class DiscussionTestCase(TestCase):
             visibility=Scope.PUBLIC,
             bio="TEST_C_BIO",
         )
+        User.objects.create_user(
+            username="TEST_D_USER",
+            real_name="TEST_D_REAL",
+            email="TEST_D_EMAIL",
+            password="TEST_D_PW",
+            visibility=Scope.PUBLIC,
+            bio="TEST_D_BIO",
+        )
         user_a = User.objects.get(user_id=1)
+        user_d = User.objects.get(user_id=4)
         repo_a = Repository(
             repo_name="REPO_A_NAME", visibility=Scope.PUBLIC, owner=user_a
         )
         repo_a.save()
         repo_a.collaborators.add(user_a)
+        repo_a.collaborators.add(user_d)
         diss_b = Discussion(
             repository=repo_a, author=user_a, title="DISS_B_TITLE", text="DISS_B_TEXT"
         )
@@ -118,6 +128,16 @@ class DiscussionTestCase(TestCase):
         user_a = User.objects.get(user_id=1)
         user_a_profile_picture = user_a.profile_picture.url
         self.assertIn(user_a.profile_picture.url, response.content.decode())
+
+        discussion_a = Discussion.objects.get(title="DISS_A_TITLE")
+        user_d = User.objects.get(user_id=4)
+        notice_set = Notification.objects.filter(
+            classification=NoticeType.NEW_DISCUSSION,
+            user=user_d,
+            from_user=user_a,
+            discussion=discussion_a
+        )
+        self.assertEqual(notice_set.count(), 1)
 
         user_a.profile_picture = []
         user_a.save()
@@ -330,6 +350,7 @@ class DiscussionCommentTestCase(TestCase):
         )
         repo_a.save()
         repo_a.collaborators.add(user_a)
+        repo_a.collaborators.add(user_b)
         diss_a = Discussion(
             repository=repo_a, author=user_a, title="DISS_A_TITLE", text="DISS_A_TEXT"
         )
@@ -395,6 +416,24 @@ class DiscussionCommentTestCase(TestCase):
         self.assertIn("COM_C_TEXT", response.content.decode())
         user_a = User.objects.get(user_id=1)
         self.assertIn(user_a.profile_picture.url, response.content.decode())
+
+        response = client.post(
+            "/api/discussions/2/comments/",
+            json.dumps({"text": "COM_D_TEXT"}),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertIn("COM_D_TEXT", response.content.decode())
+        discussion_b = Discussion.objects.get(discussion_id=2)
+        user_b = User.objects.get(user_id=2)
+        notice_set = Notification.objects.filter(
+            classification=NoticeType.COMMENT,
+            discussion=discussion_b,
+            user=user_b,
+            from_user=user_a
+        )
+        self.assertEqual(notice_set.count(), 1)
+
 
     def test_discussionComments_get(self):
         client = Client()

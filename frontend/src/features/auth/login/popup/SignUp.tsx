@@ -53,7 +53,7 @@ export default function SignUp(props : SignUpProps) {
         switch (event.target.name) {
         case "email":
             setEmail(event.target.value);
-            if (/^[^.@\s]+@[A-Za-z\d.]+$/.test(event.target.value)) {
+            if (/^[^@\s]+@[A-Za-z\d.]+$/.test(event.target.value)) {
                 setValid([true, valid[1], valid[2], valid[3]]);
             }
             else {

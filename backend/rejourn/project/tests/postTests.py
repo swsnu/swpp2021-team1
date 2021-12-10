@@ -5,8 +5,8 @@ import tempfile
 from django.test import TestCase, Client, override_settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-from project.models.models import Post, PostComment, Repository, User
-from project.enum import Scope
+from project.models.models import Post, PostComment, Repository, User, Notification
+from project.enum import Scope, NoticeType
 
 
 MEDIA_ROOT = tempfile.mkdtemp()
@@ -162,6 +162,17 @@ class PostTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 201)
         self.assertIn("P3_TITLE", response.content.decode())
+
+        user_1 = User.objects.get(username="u_1_USERNAME")
+        user_2 = User.objects.get(username='u_2_USERNAME')
+        post_3 = Post.objects.get(title='P3_TITLE')
+        notice_set = Notification.objects.filter(
+            classification=NoticeType.NEW_POST,
+            user=user_2,
+            from_user=user_1,
+            post=post_3,
+        )
+        self.assertEqual(notice_set.count(), 1)
 
     def test_repoPosts_get(self):
         client = Client()
@@ -350,6 +361,7 @@ class PostCommentTestCase(TestCase):
         )
         repo_a.save()
         repo_a.collaborators.add(user_a)
+        repo_a.collaborators.add(user_b)
         post_a = Post(
             repository=repo_a, author=user_a, title="DISS_A_TITLE", text="DISS_A_TEXT"
         )
@@ -415,6 +427,25 @@ class PostCommentTestCase(TestCase):
         self.assertIn("COM_C_TEXT", response.content.decode())
         user_a = User.objects.get(user_id=1)
         self.assertIn(user_a.profile_picture.url, response.content.decode())
+
+        response = client.post(
+            "/api/posts/2/comments/",
+            json.dumps({"text": "COM_D_TEXT"}),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertIn("COM_D_TEXT", response.content.decode())
+
+        user_b = User.objects.get(username="TEST_B_USER")
+        post_2 = Post.objects.get(post_id=2)
+        notice_set = Notification.objects.filter(
+            classification=NoticeType.COMMENT,
+            user=user_b,
+            from_user=user_a,
+            post=post_2
+        )
+        self.assertEqual(notice_set.count(), 1)
+
 
     def test_postComments_get(self):
         client = Client()

@@ -4,12 +4,14 @@ import {
     PayloadAction,
     SliceCaseReducers,
 } from "@reduxjs/toolkit";
-import { IRepository, IUser } from "../../common/Interfaces";
+import {
+    IRepository, IUser, RepoTravel,
+} from "../../common/Interfaces";
 import {
     deleteCollaborators,
     deleteRepository,
-    getRepositories, getRepository, postCollaborators,
-    postRepositories, postRoute,
+    getRepositories, getRepository, postCollaborators, postRepoPost,
+    postRepositories, postRoute, putRepoPost,
     putRepository,
 } from "../../common/APIs";
 
@@ -66,6 +68,20 @@ export const forkRoute = createAsyncThunk<void, {repo_id : number, forked_repo_i
     async ({ repo_id, forked_repo_id }) => // payload creator
         await postRoute(repo_id, forked_repo_id, "fork"),
 
+);
+
+export const createRepoPost = createAsyncThunk<void, number>( // added
+    "repos/post",
+    async (repo_id) => // payload creator
+        await postRepoPost(repo_id),
+
+);
+
+export const changeRepoPost = createAsyncThunk<void, {repo_id : number, travel : RepoTravel}>(
+    "repos/post",
+    async ({ repo_id, travel }) => { // payload creator
+        await putRepoPost(repo_id, travel);
+    },
 );
 
 interface ReposState {

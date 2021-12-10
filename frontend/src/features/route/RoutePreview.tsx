@@ -1,9 +1,9 @@
 import {
-    GoogleMap, Marker, Polyline, useJsApiLoader,
+    GoogleMap, LoadScript, Marker, Polyline, useJsApiLoader,
 } from "@react-google-maps/api";
 import { useDispatch, useSelector } from "react-redux";
 import {
-    Button, Image,
+    Button, Image, OverlayTrigger, Tooltip,
 } from "react-bootstrap";
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
@@ -19,14 +19,11 @@ import Travel from "./popup/Travel";
 
 env.config();
 
-interface RoutePreviewProps {
-
-}
-
-export default function RoutePreview(props : RoutePreviewProps) {
+// suppress tsx-component-no-props
+export default function RoutePreview() {
     const isMapLoaded = useJsApiLoader({
         id: "google-map-script",
-        googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY as string,
+        googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY as string,
     }).isLoaded;
 
     const [isLoading, hasError, route] = useSelector<RootState, [boolean, boolean, IRoute|null]>((state) =>
@@ -56,6 +53,8 @@ export default function RoutePreview(props : RoutePreviewProps) {
         );
     }
 
+    console.log(process.env.REACT_APP_GOOGLE_MAPS_API_KEY as string);
+
     if (isLoading || !isMapLoaded || hasError) return null;
     if (!route) return <div>Fatal Error!</div>;
     return (
@@ -77,16 +76,42 @@ export default function RoutePreview(props : RoutePreviewProps) {
                     >
                         View Detail
                     </Button>
-                    <Button
-                        className="m-2"
-                        id="travel-button"
-                        onClick={() => setShow(true)}
-                        disabled={route && route.places.length > 0 &&
-                        route.places.reduce((a, b) =>
-                            ({ ...a, photos: [...a.photos, ...b.photos] })).photos.length <= 5}
+                    <OverlayTrigger
+                        placement="top"
+                        delay={{ show: 150, hide: 250 }}
+                        overlay={(
+                            <Tooltip>
+                                6 or more photos must be assigned to the travel places
+                            </Tooltip>
+                        )}
                     >
-                        Travel
-                    </Button>
+                        {({ ref, ...triggerHandler }) => (
+                            <div
+                                ref={ref}
+                                {...(
+                                    route &&
+                                    route.places.length > 0 &&
+                                    route.places.reduce((a, b) =>
+                                        ({ ...a, photos: [...a.photos, ...b.photos] })).photos.length <= 5 ?
+                                        triggerHandler : undefined
+                                )}
+                                className="m-2 d-inline-block"
+                            >
+                                <Button
+                                    id="travel-button"
+                                    onClick={() => setShow(true)}
+                                    disabled={
+                                        route &&
+                                        route.places.length > 0 &&
+                                        route.places.reduce((a, b) =>
+                                            ({ ...a, photos: [...a.photos, ...b.photos] })).photos.length <= 5
+                                    }
+                                >
+                                    Travel
+                                </Button>
+                            </div>
+                        )}
+                    </OverlayTrigger>
                 </div>
             </div>
             <div className="m-2">
@@ -107,6 +132,8 @@ export default function RoutePreview(props : RoutePreviewProps) {
                     options={{
                         fullscreenControl: false,
                         mapId: "257d559a76ad5fe6",
+                        streetViewControl: false,
+                        mapTypeControl: false,
                     }}
                 >
                     {map && route.places.map((value) => (
@@ -115,8 +142,8 @@ export default function RoutePreview(props : RoutePreviewProps) {
                                 icon={marker}
                                 position={{
                                     lat: value.latitude -
-                                        (map.getBounds()?.getNorthEast().lat() -
-                                            map.getBounds()?.getSouthWest().lat()) / 15,
+                                            (map.getBounds()?.getNorthEast().lat() -
+                                                map.getBounds()?.getSouthWest().lat()) / 15,
                                     lng: value.longitude,
                                 }}
                                 onMouseOver={() => setOverPlace(value.place_id)}
@@ -132,13 +159,13 @@ export default function RoutePreview(props : RoutePreviewProps) {
                                             zIndex: 10000,
                                             position: "absolute",
                                             top: `${100 *
-                                            ((value.latitude - map.getBounds()?.getNorthEast().lat()) /
-                                            (map.getBounds()?.getSouthWest().lat() -
-                                            map.getBounds()?.getNorthEast().lat()))}%`,
+                                                ((value.latitude - map.getBounds()?.getNorthEast().lat()) /
+                                                (map.getBounds()?.getSouthWest().lat() -
+                                                map.getBounds()?.getNorthEast().lat()))}%`,
                                             left: `${100 *
-                                            ((value.longitude - map.getBounds()?.getSouthWest().lng()) /
-                                            (map.getBounds()?.getNorthEast().lng() -
-                                            map.getBounds()?.getSouthWest().lng()))}%`,
+                                                ((value.longitude - map.getBounds()?.getSouthWest().lng()) /
+                                                (map.getBounds()?.getNorthEast().lng() -
+                                                map.getBounds()?.getSouthWest().lng()))}%`,
                                             transform: value.thumbnail ?
                                                 "translate(-50%, -135%)" : "translate(-50%, -250%)",
                                         }}
@@ -165,7 +192,8 @@ export default function RoutePreview(props : RoutePreviewProps) {
                         </React.Fragment>
                     ))}
                     <Polyline
-                        path={(route as IRoute).places.map((value) => ({ lat: value.latitude, lng: value.longitude }))}
+                        path={(route as IRoute).places.map((value) =>
+                            ({ lat: value.latitude, lng: value.longitude }))}
                         options={{
                             strokeColor: "#991D83",
                             strokeOpacity: 1,

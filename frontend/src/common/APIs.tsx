@@ -2,7 +2,17 @@ import axios, { AxiosResponse } from "axios";
 
 import { PlaceQueryResult } from "../features/route/routeSlice";
 import {
-    IComment, IDiscussion, ILabel, IPhoto, IPlace, IPost, IRepository, IRoute, IUser,
+    IComment,
+    IDiscussion,
+    ILabel,
+    INotification,
+    IPhoto,
+    IPlace,
+    IPost,
+    IRepository,
+    IRoute,
+    IUser,
+    NoticeAnswerType, PostType, RepoTravel,
 } from "./Interfaces";
 
 axios.defaults.xsrfCookieName = "csrftoken";
@@ -189,6 +199,12 @@ export async function postPost(repo_id: number, post: {title: string, text: stri
     )).data;
 }
 
+export async function postRepoPost(repo_id: number) {
+    await axios.post(
+        `/api/repositories/${repo_id}/posts/`, { post_type: PostType.REPO },
+    );
+}
+
 export async function getPost(post_id: number) {
     return (await axios.get<any, AxiosResponse<IPost>>(
         `/api/posts/${post_id}/`,
@@ -199,6 +215,12 @@ export async function putPost(post_id: number, title: string, text: string, phot
     return (await axios.put<any, AxiosResponse<IPost>>(
         `/api/posts/${post_id}/`, { title, text, photos },
     )).data;
+}
+
+export async function putRepoPost(repo_id: number, travel: RepoTravel) {
+    await axios.put(
+        `/api/repositories/${repo_id}/posts/`, { post_type: PostType.REPO, travel },
+    );
 }
 
 export async function deletePost(post_id: number) {
@@ -319,4 +341,30 @@ export async function putLabelPhotos(repo_id: number, label_id: number, data: {p
         `/api/repositories/${repo_id}/labels/${label_id}/photos/`,
         data,
     )).data;
+}
+
+/**
+ * for noticeSlice
+ */
+
+export async function getNotifications() {
+    return (await axios.get<any, AxiosResponse<INotification[]>>("/api/notifications/")).data;
+}
+
+export async function deleteNotifications() {
+    return (await axios.delete<any, AxiosResponse<INotification[]>>("/api/notifications/")).data;
+}
+
+export async function postNotification(id : number, answer : NoticeAnswerType) {
+    return (await axios.post<any, AxiosResponse<INotification[]>>(
+        `/api/notifications/${id}/`, { answer },
+    )).data;
+}
+
+export async function deleteNotification(id : number) {
+    return (await axios.delete<any, AxiosResponse<INotification[]>>(`/api/notifications/${id}/`)).data;
+}
+
+export async function getNoticeSession() {
+    return (await axios.get<any, AxiosResponse<{count : number}>>("/api/session/notifications/")).data;
 }

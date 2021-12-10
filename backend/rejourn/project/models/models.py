@@ -4,7 +4,7 @@ from django.db.models.fields import CharField, DateTimeField
 from django.utils import timezone
 
 from project.utils import profile_upload_to_func, photo_upload_to_func
-from project.enum import Scope
+from project.enum import Scope, PostType, RepoTravel, NoticeType
 
 
 class User(AbstractUser):
@@ -34,6 +34,7 @@ class Repository(models.Model):
         User,
         related_name='repositories',
     )
+    travel = models.IntegerField(choices=RepoTravel.choices, default=0)
     # route : one to one field(Route)
 
     def __str__(self):
@@ -151,6 +152,7 @@ class Post(models.Model):
     title = models.CharField(max_length=120)
     text = models.CharField(max_length=1000)
     post_time = models.DateTimeField(auto_now_add=True)
+    post_type = models.IntegerField(choices=PostType.choices, default=0)
 
     def __str__(self):
         return self.title
@@ -195,3 +197,29 @@ class Label(models.Model):
 
     def __str__(self):
         return self.label_name
+
+
+class Notification(models.Model):
+    notification_id = models.BigAutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    time = models.DateTimeField(auto_now_add=True)
+    classification = models.IntegerField(choices=NoticeType.choices, default=0)
+    new = models.BooleanField(default=True)
+    from_user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='made_notification'
+        )
+    repository = models.ForeignKey(
+        Repository,
+        on_delete=models.CASCADE,
+        null=True)
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        null=True)
+    discussion = models.ForeignKey(
+        Discussion,
+        on_delete=models.CASCADE,
+        null=True)
+    description = models.CharField(max_length=500, null=True, blank=True)
