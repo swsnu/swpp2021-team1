@@ -329,4 +329,4 @@ class ExploreTestCase(TestCase):
 
         response = client.get("/api/feeds/")
         self.assertEqual(response.status_code, 200)
-        self.assertIn("user_a_repo_b", response.content.decode())
+        self.assertNotIn("user_a_repo_b", response.content.decode())
