@@ -8,11 +8,8 @@ import * as actionCreator from "../authSlice";
 import SignUp from "./popup/SignUp";
 import "./SignIn.css";
 
-interface SignInProps {
-
-}
-
-export default function SignIn(props: SignInProps) {
+// suppress tsx-no-component-props
+export default function SignIn() {
     const [username, setUsername] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [signupModalShow, setSignupModalShow] = useState<boolean>(false);

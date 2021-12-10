@@ -34,7 +34,7 @@ function makeStoredComponent() {
     );
 }
 
-describe("RepositoryDetail", () => {
+describe("RepositoryHeader", () => {
     beforeEach(() => {
         const repo = repositoryFactory();
 
@@ -85,5 +85,7 @@ describe("RepositoryDetail", () => {
     it("Should render correctly", () => {
         const component = mount(makeStoredComponent());
         expect(component.find("h2").length).toBe(1);
+        component.find("input").simulate("change", { target: { checked: true } });
+        component.find("input").simulate("change", { target: { checked: false } });
     });
 });

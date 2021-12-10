@@ -9,7 +9,7 @@ import {
     IPhoto,
     IPlace,
     IPost,
-    IRepository,
+    IRepository, IRepositorySearch,
     IRoute,
     IUser,
     NoticeAnswerType, PostType, RepoTravel,
@@ -367,4 +367,20 @@ export async function deleteNotification(id : number) {
 
 export async function getNoticeSession() {
     return (await axios.get<any, AxiosResponse<{count : number}>>("/api/session/notifications/")).data;
+}
+
+/**
+ * for searchSlice
+ */
+
+export async function getUserSearch(query : string) {
+    return (await axios.get<any, AxiosResponse<IUser[]>>(`/api/explore/users/?query=${query}`)).data;
+}
+
+export async function getRepositorySearch(query : string) {
+    return (await axios.get<any, AxiosResponse<IRepositorySearch[]>>(`/api/explore/repositories/?query=${query}`)).data;
+}
+
+export async function getRegionSearch(query : string) {
+    return (await axios.get<any, AxiosResponse<IRepositorySearch[]>>(`/api/explore/regions/?query=${query}`)).data;
 }

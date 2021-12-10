@@ -3,11 +3,8 @@ import DiscussionPreview from "../../discussion/DiscussionPreview";
 import PostPreview from "../../post/PostPreview";
 import RoutePreview from "../../route/RoutePreview";
 
-interface GroupProps {
-
-}
-
-export default function Group(props : GroupProps) {
+// suppress tsx-no-component-props
+export default function Group() {
     return (
         <div>
             <RoutePreview />

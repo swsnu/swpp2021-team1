@@ -10,6 +10,7 @@ describe("Travel", () => {
 
     beforeEach(() => {
         jest.spyOn(google, "GoogleMap").mockImplementation(() => <div /> as any);
+        jest.spyOn(google, "useJsApiLoader").mockImplementation(() => ({ isLoaded: true, loadError: undefined }));
         jest.spyOn(axios, "get")
             .mockResolvedValue({ route: [placeFactory(), placeFactory()], region: regionFactory() });
     });

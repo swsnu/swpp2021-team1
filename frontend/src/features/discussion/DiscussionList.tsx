@@ -8,11 +8,8 @@ import * as actionCreators from "./discussionsSlice";
 import Discussion from "./Disucssion";
 import "./DiscussionDetail.css";
 
-interface DiscussionListProps {
-
-}
-
-export default function DiscussionList(props : DiscussionListProps) {
+// suppress tsx-no-component-props
+export default function DiscussionList() {
     const [isLoading, hasError, discussionList] = useSelector<RootState, [boolean, boolean, IDiscussion[]]>((state) =>
         [state.discussions.isLoading, state.discussions.hasError, state.discussions.discussionList]);
     const params = useParams<{id : string}>();

@@ -12,11 +12,8 @@ import AddCollaborators from "./popup/AddCollaborators";
 import { clearResult, PlaceQueryResult, searchRegion } from "../route/routeSlice";
 import SearchPlace from "../route/popup/SearchPlace";
 
-interface RepositoryCreateProps {
-
-}
-
-export default function RepositoryCreate(props : RepositoryCreateProps) {
+// suppress tsx-no-component-props
+export default function RepositoryCreate() {
     // assume isLoading이 true 상태
 
     const dispatch = useDispatch<AppDispatch>();

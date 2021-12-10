@@ -1,19 +1,19 @@
 import { mount } from "enzyme";
 import { BrowserRouter } from "react-router-dom";
-import { createBrowserHistory } from "history";
 import { Router } from "react-router";
-import Repository from "./Repository";
-import { repositoryFactory, userFactory } from "../../common/Interfaces";
+import { createBrowserHistory } from "history";
+import RepositorySearch from "./RepositorySearch";
+import { repositorySearchFactory } from "../../../common/Interfaces";
 
 const history = createBrowserHistory();
 const mockPush = jest.fn();
 const historyMock = { ...history, push: mockPush, listen: jest.fn() };
 
-describe("Repository", () => {
+describe("RepositorySearch", () => {
     it("Should render correctly", () => {
         const component = mount(
             <Router history={historyMock}>
-                <Repository repository={{ ...repositoryFactory(), collaborators: [userFactory()] }} />
+                <RepositorySearch repositorySearch={repositorySearchFactory()} />
             </Router>,
         );
         component.find("ListGroupItem").simulate("click");

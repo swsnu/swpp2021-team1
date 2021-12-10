@@ -7,11 +7,8 @@ import { IDiscussion, IRepository, IUser } from "../../common/Interfaces";
 import * as actionCreators from "./discussionsSlice";
 import Discussion from "./Disucssion";
 
-interface DiscussionPreviewProps {
-
-}
-
-export default function DiscussionPreview(props : DiscussionPreviewProps) {
+// suppress tsx-no-component-props
+export default function DiscussionPreview() {
     const [isLoading, hasError, discussionList] = useSelector<RootState, [boolean, boolean, IDiscussion[]]>((state) =>
         [state.discussions.isLoading, state.discussions.hasError, state.discussions.discussionList]);
     const params = useParams<{id : string}>();

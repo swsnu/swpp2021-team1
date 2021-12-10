@@ -7,6 +7,7 @@ import discussionsReducer from "../features/discussion/discussionsSlice";
 import routeReducer from "../features/route/routeSlice";
 import labelsReducer from "../features/labels/labelsSlice";
 import noticesReducer from "../features/notification/noticesSlice";
+import searchReducer from "../features/explore/search/searchSlice";
 
 const store = configureStore({
     reducer: {
@@ -18,6 +19,7 @@ const store = configureStore({
         route: routeReducer,
         labels: labelsReducer,
         notices: noticesReducer,
+        search: searchReducer,
     /*
         repositories : filtersReducer,
         posts :
