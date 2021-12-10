@@ -2,7 +2,6 @@ import json
 import shutil
 import tempfile
 import datetime
-from django.db import reset_queries
 
 from django.test import TestCase, Client, override_settings
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -16,7 +15,7 @@ MEDIA_ROOT = tempfile.mkdtemp()
 @override_settings(MEDIA_ROOT=MEDIA_ROOT)
 class ExploreTestCase(TestCase):
     def setUp(self):
-        
+
         User.objects.create_user(
             username="MAIN_USER",
             email="MAIN_EMAIL",
@@ -132,7 +131,7 @@ class ExploreTestCase(TestCase):
             repository=repo_b,
         )
         route_b.save()
-        
+
         place_a_1 = PlaceInRoute(
             route=route_a,
             order=1,
@@ -225,7 +224,7 @@ class ExploreTestCase(TestCase):
             title="fun traveling",
             text="",
         )
-        
+
         post_repo_b_1.save()
         post_repo_b_1.post_time = datetime.datetime.now(tz=timezone.utc)-datetime.timedelta(weeks=1)
         post_repo_b_1.post_type = PostType.REPO
@@ -248,7 +247,7 @@ class ExploreTestCase(TestCase):
         Route.objects.all().delete()
         PlaceInRoute.objects.all().delete()
         shutil.rmtree(MEDIA_ROOT, ignore_errors=True)
-    
+
     def test_exploreUsers(self):
         client = Client()
         response = client.delete("/api/explore/users/")
@@ -308,7 +307,7 @@ class ExploreTestCase(TestCase):
         )
         response = client.get("/api/explore/regions/")
         self.assertEqual(response.status_code, 400)
-        
+
         #response = client.get("/api/explore/regions/?query=제주")
         #self.assertEqual(response.status_code, 200)
 

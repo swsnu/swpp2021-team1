@@ -1,6 +1,4 @@
 import json
-import tempfile
-import shutil
 from datetime import timedelta
 
 from django.test import TestCase, Client
@@ -350,7 +348,7 @@ class NotificationTestCase(TestCase):
         response = client_a.delete("/api/notifications/")
         self.assertEqual(response.status_code, 202)
         self.assertEqual(Notification.objects.all().count(), 4)
-    
+
     def test_notificationID(self):
         client_a = Client()
         client_a.post(
@@ -417,7 +415,7 @@ class NotificationTestCase(TestCase):
         self.assertEqual(response.status_code, 201)
         repo_c = Repository.objects.get(repo_id=3)
         self.assertFalse(user_a in repo_c.collaborators.all())
-        
+
         response = client_anonymous.delete('/api/notifications/6/')
         self.assertEqual(response.status_code, 401)
         response = client_a.delete('/api/notifications/100/')
@@ -443,7 +441,7 @@ class NotificationTestCase(TestCase):
         self.assertEqual(response.status_code, 405)
         response = client_anonymous.get('/api/session/notifications/')
         self.assertEqual(response.status_code, 401)
-        
+
         response = client_a.get('/api/session/notifications/')
         self.assertEqual(response.status_code, 200)
         self.assertIn('19', response.content.decode())
@@ -451,7 +449,7 @@ class NotificationTestCase(TestCase):
         response = client_a.get('/api/session/notifications/')
         self.assertEqual(response.status_code, 200)
         self.assertIn('0', response.content.decode())
-        
+
         user_a = User.objects.get(user_id=1)
         new_notice = Notification(
             user=user_a,
@@ -463,4 +461,3 @@ class NotificationTestCase(TestCase):
         response = client_a.get('/api/session/notifications/')
         self.assertEqual(response.status_code, 200)
         self.assertIn('1', response.content.decode())
-        

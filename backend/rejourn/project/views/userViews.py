@@ -264,7 +264,8 @@ def userID(request, user_name):
         except (KeyError, JSONDecodeError):
             return HttpResponseBadRequest()
 
-        if User.objects.filter(username=username).count() != 0:
+        if (user.username != username
+            and User.objects.filter(username=username).count() != 0):
             return HttpResponseInvalidInput()
 
         user.username = username

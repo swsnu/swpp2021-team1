@@ -29,7 +29,7 @@ def exploreUsers(request):
     query_user = request.GET.get("query", None)
     if query_user is None:
         return HttpResponseBadRequest()
-    
+
     friends = User.objects.filter(friends__user_id=request.user.user_id)
     friends_not_private = friends.exclude(visibility=Scope.PRIVATE)
     friends_matching = friends_not_private.filter(username__icontains=query_user).annotate(order=models.Value(0, models.IntegerField()))
@@ -52,7 +52,7 @@ def exploreUsers(request):
         if bool(user.profile_picture):
             response_list.append({"username": user.username, "bio": user.bio, "profile_picture": user.profile_picture.url})
         else:
-            response_list.append({"username": user.username, "bio": user.bio})  
+            response_list.append({"username": user.username, "bio": user.bio})
 
     return HttpResponseSuccessGet(response_list)
 
@@ -65,7 +65,7 @@ def exploreRepositories(request):
     query_repository = request.GET.get("query", None)
     if query_repository is None:
         return HttpResponseBadRequest()
-    
+
     repositories_mine = Repository.objects.filter(collaborators__user_id=request.user.user_id)
     repositories_mine_matching = repositories_mine.filter(repo_name__icontains=query_repository).annotate(order=models.Value(0, models.IntegerField()))
     repositories_friends = Repository.objects.filter(collaborators__in=User.objects.filter(username=request.user.username).values('friends'))
@@ -89,11 +89,8 @@ def exploreRepositories(request):
                 else:
                     break
             response_dict = {"repo_id": repository.repo_id, "repo_name": repository.repo_name}
-            try:
-                response_dict["region_address"] = repository.route.region_address
-                response_dict["places"] = response_places
-            except:
-                pass
+            response_dict["region_address"] = repository.route.region_address
+            response_dict["places"] = response_places
             response_list.append(response_dict)
         else:
             places = PlaceInRoute.objects.filter(route__repository=repository).annotate(number_of_photos=Count("photo")).order_by('-number_of_photos')
@@ -106,11 +103,8 @@ def exploreRepositories(request):
                 else:
                     break
             response_dict = {"repo_id": repository.repo_id, "repo_name": repository.repo_name}
-            try:
-                response_dict["region_address"] = repository.route.region_address
-                response_dict["places"] = response_places
-            except:
-                pass
+            response_dict["region_address"] = repository.route.region_address
+            response_dict["places"] = response_places
             response_list.append(response_dict)
             temp.append(response_dict)
 
@@ -134,7 +128,7 @@ def exploreRegions(request):
     url_for_geocoding = "https://maps.googleapis.com/maps/api/geocode/json?address="+query_region_formatted+"&key="+API_KEY
     geocoding_response = requests.get(url_for_geocoding)
 
-    
+
     if geocoding_response.status_code in range(200, 299):
         return HttpResponseBadRequest()
 
@@ -151,7 +145,7 @@ def exploreRegions(request):
     public_repositories_matching = public_repositories.filter(route__place_id=place_id).annotate(order=models.Value(0, models.IntegerField()))
     possible_repositories = repositories_mine_matching.union(repositories_friends_matching).union(public_repositories_matching).order_by('order')
 
-    
+
     response_list = []
     for repository in possible_repositories:
         places = PlaceInRoute.objects.filter(route__repository=repository).annotate(number_of_photos=Count("photo")).order_by('-number_of_photos')
@@ -199,12 +193,12 @@ def feeds(request):
                     }
                     if bool(collaborator.profile_picture):
                         author_info["profile_picture"] = collaborator.profile_picture.url
-                    
+
                     if collaborator in request.user.friends.all():
                         author_list.append(author_info)
                     else:
                         temp.append(author_info)
-                
+
                 for collaborator in temp:
                     author_list.append(collaborator)
             else:
