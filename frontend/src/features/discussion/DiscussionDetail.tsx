@@ -12,11 +12,8 @@ import "../comments/Comments.css";
 import "./DiscussionDetail.css";
 import avatar from "../../common/assets/avatar.jpg";
 
-interface DiscussionDetailProps {
-
-}
-
-export default function DiscussionDetail(props : DiscussionDetailProps) {
+// suppress tsx-no-component-props
+export default function DiscussionDetail() {
     const [title, setTitle] = useState<string>("");
     const [text, setText] = useState<string>("");
     const dispatch = useDispatch<AppDispatch>();

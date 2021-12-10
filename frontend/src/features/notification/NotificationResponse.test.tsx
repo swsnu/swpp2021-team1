@@ -12,7 +12,21 @@ const notification = notificationFactory();
 describe("NotificationResponse", () => {
     it("Should render correctly - noti_friend ", () => {
         const mockResponse = jest.fn();
-        const component = mount(
+        let component = mount(
+            <Router history={historyMock}>
+                <NotificationResponse
+                    notification={{
+                        ...notification,
+                        classification: NoticeType.FRIEND_REQUEST,
+                        from_user: { ...notification.from_user, profile_picture: undefined },
+                    }}
+                    response={mockResponse}
+                />
+            </Router>,
+        );
+        expect(component.find(".noti_friend").length).toBe(3);
+        component.find(".noti_friend").at(0).simulate("click");
+        component = mount(
             <Router history={historyMock}>
                 <NotificationResponse
                     notification={{
@@ -29,12 +43,26 @@ describe("NotificationResponse", () => {
 
     it("Should render correctly - noti_invite ", () => {
         const mockResponse = jest.fn();
-        const component = mount(
+        let component = mount(
             <Router history={historyMock}>
                 <NotificationResponse
                     notification={{
                         ...notification,
                         classification: NoticeType.INVITATION,
+                    }}
+                    response={mockResponse}
+                />
+            </Router>,
+        );
+        expect(component.find(".noti_invite").length).toBe(3);
+        component.find(".noti_invite").at(0).simulate("click");
+        component = mount(
+            <Router history={historyMock}>
+                <NotificationResponse
+                    notification={{
+                        ...notification,
+                        classification: NoticeType.INVITATION,
+                        from_user: { ...notification.from_user, profile_picture: undefined },
                     }}
                     response={mockResponse}
                 />

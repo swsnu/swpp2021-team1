@@ -6,11 +6,8 @@ import { AppDispatch, RootState } from "../../app/store";
 import * as actionCreators from "./discussionsSlice";
 import { IDiscussion } from "../../common/Interfaces";
 
-interface DiscussionCreateProps {
-
-}
-
-export default function DiscussionCreate(props : DiscussionCreateProps) {
+// suppress tsx-no-component-props
+export default function DiscussionCreate() {
     const [title, setTitle] = useState<string>("");
     const [text, setText] = useState<string>("");
     const dispatch = useDispatch<AppDispatch>();

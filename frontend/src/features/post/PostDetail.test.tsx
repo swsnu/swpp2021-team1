@@ -38,16 +38,16 @@ describe("PostDetail", () => {
         const component = wrapper.find(PostDetail);
         expect(component.length).toBe(1);
     });
-    it("should handle carousel select", async () => {
-        const store = configureStore({ reducer: { posts: postsReducer, auth: authReducer } });
-        const wrapper = mount(
-            <Provider store={store}>
-                <BrowserRouter>
-                    <PostDetail />
-                </BrowserRouter>
-            </Provider>,
-        );
-        const carousel = wrapper.find(Carousel);
-        carousel.simulate("select");
-    });
+    // it("should handle carousel select", async () => {
+    //     const store = configureStore({ reducer: { posts: postsReducer, auth: authReducer } });
+    //     const wrapper = mount(
+    //         <Provider store={store}>
+    //             <BrowserRouter>
+    //                 <PostDetail />
+    //             </BrowserRouter>
+    //         </Provider>,
+    //     );
+    //     const carousel = wrapper.find(Carousel);
+    //     carousel.simulate("select");
+    // });
 });

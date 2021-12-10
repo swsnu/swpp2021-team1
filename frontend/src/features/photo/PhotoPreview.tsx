@@ -10,11 +10,8 @@ import AddPhoto from "./popup/AddPhoto";
 import FocusedPhoto from "./popup/FocusedPhoto";
 import "./PhotoPreview.css";
 
-interface PhotoPreviewProps {
-
-}
-
-export default function PhotoPreview(props : PhotoPreviewProps) {
+// suppress tsx-no-component-props
+export default function PhotoPreview() {
     const [isLoading, hasError, currentPhoto, photoList] = useSelector<RootState,
         [boolean, boolean, IPhoto|null, IPhoto[]]>((state) =>
             [state.photos.isLoading, state.photos.hasError, state.photos.currentPhoto, state.photos.photoList]);

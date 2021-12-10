@@ -8,6 +8,7 @@ import AddCollaborators from "../popup/AddCollaborators";
 import { IRepository, IUser, Visibility } from "../../../common/Interfaces";
 import * as actionCreator from "../reposSlice";
 import { AppDispatch, RootState } from "../../../app/store";
+import { onChange } from "../RepositoryCreate";
 
 // suppress tsx-no-component-props
 export default function RepositorySettings() {
@@ -18,49 +19,9 @@ export default function RepositorySettings() {
     const [travelStartDate, setTravelStartDate] = useState<string>(repo.travel_start_date);
     const [travelEndDate, setTravelEndDate] = useState<string>(repo.travel_end_date);
     const [show, setShow] = useState<boolean>(false);
-    const [valid, setValid] = useState<(boolean)[]>([true, true, true]);
+    const [valid, setValid] = useState<boolean[]>([true, true, true]);
     const [visibility, setVisibility] = useState<Visibility>(repo.visibility);
     const history = useHistory();
-
-    function checkValid(date : string) {
-        const check = new Date(date);
-        const [y, m, d] = date.split("-");
-        return !(check.getFullYear() !== parseInt(y) ||
-            check.getMonth() !== parseInt(m) - 1 ||
-            check.getDate() !== parseInt(d));
-    }
-
-    function onChange(event : React.ChangeEvent<HTMLInputElement>) {
-        switch (event.target.name) {
-        case "repo-name":
-            setRepoName(event.target.value);
-            if (event.target.value !== "") setValid([true, valid[1], valid[2]]);
-            else setValid([false, valid[1], valid[2]]);
-            break;
-        case "start-date":
-            setTravelStartDate(event.target.value);
-            if (/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.test(event.target.value) &&
-                checkValid(event.target.value)) {
-                setValid([valid[0], true, valid[2]]);
-            }
-            else {
-                setValid([valid[0], false, valid[2]]);
-            }
-            break;
-        case "end-date":
-            setTravelEndDate(event.target.value);
-            if (/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.test(event.target.value) &&
-                checkValid(event.target.value)) {
-                setValid([valid[0], valid[1], true]);
-            }
-            else {
-                setValid([valid[0], valid[1], false]);
-            }
-            break;
-        default:
-            break;
-        }
-    }
 
     function addCollaborators() {
         setShow(true);
@@ -111,7 +72,15 @@ export default function RepositorySettings() {
                     placeholder="Type Name Here"
                     isValid={valid[0]}
                     isInvalid={!valid[0]}
-                    onChange={onChange}
+                    onChange={(event) =>
+                        onChange(
+                            event as React.ChangeEvent<HTMLInputElement>,
+                            setRepoName,
+                            setTravelStartDate,
+                            setTravelEndDate,
+                            setValid,
+                            valid,
+                        )}
                 />
                 <Form.Control.Feedback type="invalid">
                     Please choose your repository name.
@@ -127,7 +96,15 @@ export default function RepositorySettings() {
                     placeholder="2020-09-30"
                     isValid={valid[1]}
                     isInvalid={!valid[1]}
-                    onChange={onChange}
+                    onChange={(event) =>
+                        onChange(
+                            event as React.ChangeEvent<HTMLInputElement>,
+                            setRepoName,
+                            setTravelStartDate,
+                            setTravelEndDate,
+                            setValid,
+                            valid,
+                        )}
                 />
                 <Form.Control.Feedback type="invalid">
                     Please choose valid date.
@@ -143,7 +120,15 @@ export default function RepositorySettings() {
                     placeholder="2020-09-30"
                     isValid={valid[2]}
                     isInvalid={!valid[2]}
-                    onChange={onChange}
+                    onChange={(event) =>
+                        onChange(
+                            event as React.ChangeEvent<HTMLInputElement>,
+                            setRepoName,
+                            setTravelStartDate,
+                            setTravelEndDate,
+                            setValid,
+                            valid,
+                        )}
                 />
                 <Form.Control.Feedback type="invalid">
                     Please choose valid date.

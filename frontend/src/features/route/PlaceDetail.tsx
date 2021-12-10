@@ -17,11 +17,8 @@ import Photo from "../photo/Photo";
 import SearchPlace from "./popup/SearchPlace";
 import "./PlaceDetail.css";
 
-interface PlaceDetailProps {
-
-}
-
-export default function PlaceDetail(props : PlaceDetailProps) {
+// suppress tsx-no-component-props
+export default function PlaceDetail() {
     const [isLoading, hasError, isQueryLoading, route, queryResult, focusedPhoto] =
         useSelector<RootState, [boolean, boolean, boolean, IRoute|null, PlaceQueryResult[], IPhoto|null]>((state) =>
             [
