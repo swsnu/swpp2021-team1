@@ -248,16 +248,46 @@ def repoPosts(request, repo_id):
         if request.user not in repository.collaborators.all():
             return HttpResponseNoPermission()
 
+        existing_post = Post.objects.filter(repository=repository, post_type=PostType.REPO_POST)
+
+        if existing_post.count() == 1:
+            try:
+                req_data = json.loads(request.body.decode())
+                post_type = req_data["post_type"]
+                travel = req_data["travel"]
+                if post_type != PostType.REPO:
+                    return HttpResponseBadRequest()
+                repository.travel = travel
+                repository.save()
+            except (KeyError, JSONDecodeError):
+                return HttpResponseBadRequest()
+
         try:
             req_data = json.loads(request.body.decode())
             post_type = req_data["post_type"]
-            travel = req_data["travel"]
-            if post_type != PostType.REPO:
-                return HttpResponseBadRequest()
-            repository.travel = travel
-            repository.save()
-        except (KeyError, JSONDecodeError):
-            return HttpResponseBadRequest()
+            if post_type == PostType.REPO:
+                text = ""
+                new_post = Post(repository=repository, author=request.user, title=repository.repo_name, text=text, post_type=post_type)
+                repository.travel = RepoTravel.TRAVEL_ON
+                new_post.save()
+
+                for collaborator in repository.collaborators.all():
+                    if collaborator != request.user:
+                        post_notice = Notification(
+                            user=collaborator,
+                            from_user=request.user,
+                            classification=NoticeType.NEW_POST,
+                            post=new_post,
+                            repository=repository,
+                        )
+                        post_notice.save()
+
+                response_dict = get_post_dict(new_post, comment_blank=True)
+                return HttpResponseSuccessUpdate(response_dict)
+
+
+
+
 
     # request.method == "GET":
     try:
