@@ -201,7 +201,8 @@ def profilePicture(request, user_name):
         user.profile_picture = image
         user.save()
 
-        return HttpResponseSuccessUpdate()
+        response_dict = { 'profile_picture' : user.profile_picture.url }
+        return HttpResponseSuccessUpdate(response_dict)
 
     # request.method == "DELETE":
     if not request.user.is_authenticated:
@@ -258,7 +259,6 @@ def userID(request, user_name):
             username = req_data["username"]
             real_name = req_data["real_name"]
             email = req_data["email"]
-            password = req_data["password"]
             visibility = req_data["visibility"]
             bio = req_data["bio"]
         except (KeyError, JSONDecodeError):
@@ -271,7 +271,8 @@ def userID(request, user_name):
         user.username = username
         user.real_name = real_name
         user.email = email
-        user.password = password
+        if req_data.get('password') is not None:
+            user.password = req_data['password']
         user.visibility = visibility
         user.bio = bio
         user.save()
