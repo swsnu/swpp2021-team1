@@ -4,9 +4,10 @@ import {
 
 import { RootState } from "../../app/store";
 import {
+    deleteFriends,
     getSession, getSignOut, getUser, postFriends, postSignIn, postUsers, putUser,
 } from "../../common/APIs";
-import { IUser } from "../../common/Interfaces";
+import { IUser, UserProfileType } from "../../common/Interfaces";
 
 export const signIn = createAsyncThunk<IUser, {username : string, password : string}>(
     "auth/signin", // action type
@@ -28,13 +29,19 @@ export const signOut = createAsyncThunk<void, void>(
 );
 
 export const addFriend = createAsyncThunk<
-{fusername: string, myFriendList: IUser[]},
+void,
 {username: string, fusername: string}>(
     "auth/addfriend",
-    async ({ username, fusername }, thunkAPI) => ({
-        fusername,
-        myFriendList: await postFriends(username, fusername),
-    }),
+    async ({ username, fusername }) => {
+        await postFriends(username, fusername);
+    },
+);
+
+export const unfriend = createAsyncThunk<void, { username: string, fusername: string }>(
+    "auth/unfriend",
+    async ({ username, fusername }) => {
+        await deleteFriends(username, fusername);
+    },
 );
 
 export const switchCurrentUser = createAsyncThunk<IUser,
@@ -171,18 +178,17 @@ export const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
             state.isLoading = false;
             state.hasError = true;
         });
-        builder.addCase(addFriend.fulfilled, (state: AuthState, action) => {
-            if (state.account) {
-                const { fusername, myFriendList } = action.payload;
-                if (state.currentUser) {
-                    if (state.currentUser.username === state.account.username) {
-                        state.currentUser.friends = myFriendList;
-                    }
-                    else if (state.currentUser.username === fusername) {
-                        if (state.currentUser.friends) state.currentUser.friends.push(state.account);
-                    }
-                }
-            }
+        builder.addCase(addFriend.fulfilled, (state: AuthState) => {
+            if (!state.currentUser) return;
+            state.currentUser.friend_status = UserProfileType.REQUEST_SENDED;
+        });
+        builder.addCase(unfriend.fulfilled, (state: AuthState) => {
+            if (!state.currentUser) return;
+            if (!state.currentUser.friends) return;
+            state.currentUser.friend_status = UserProfileType.OTHER;
+            const index = state.currentUser.friends.findIndex((friend) => friend.username === state.account?.username);
+            if (index < 0) return;
+            state.currentUser.friends.splice(index, 1);
         });
         builder.addCase(updateProfile.fulfilled, (state: AuthState, action: PayloadAction<IProfileForm>) => {
             const {
