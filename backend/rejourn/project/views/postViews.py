@@ -149,7 +149,13 @@ def repoPosts(request, repo_id):
             post_type = req_data["post_type"]
             if post_type == PostType.REPO:
                 text = ""
-                new_post = Post(repository=repository, author=request.user, title=repository.repo_name, text=text, post_type=post_type)
+                new_post = Post(
+                    repository=repository,
+                    author=request.user,
+                    title=repository.repo_name,
+                    text=text,
+                    post_type=post_type
+                )
                 repository.travel = RepoTravel.TRAVEL_ON
                 new_post.save()
 
@@ -237,7 +243,7 @@ def repoPosts(request, repo_id):
         response_dict = get_post_dict(new_post, comment_blank=True)
         return HttpResponseSuccessUpdate(response_dict)
 
-    elif request.method == "PUT":
+    if request.method == "PUT":
         if not request.user.is_authenticated:
             return HttpResponseNotLoggedIn()
         try:
