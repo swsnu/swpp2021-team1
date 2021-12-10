@@ -269,7 +269,7 @@ def repoPosts(request, repo_id):
         elif travel == RepoTravel.TRAVEL_ON:
             repository.travel = RepoTravel.TRAVEL_ON
             repository.save()
-            existing_post = Post.objects.filter(repository=repository, post_type=PostType.REPO_POST)
+            existing_post = Post.objects.filter(repository=repository, post_type=PostType.REPO)
             if existing_post.count() == 1:
                 text = ""
                 new_post = Post(
