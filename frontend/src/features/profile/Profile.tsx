@@ -5,13 +5,13 @@ import {
     ButtonGroup, Button, Image,
 } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUserPlus } from "@fortawesome/free-solid-svg-icons";
-import { IUser, Visibility } from "../../common/Interfaces";
+import { faUserPlus, faUserMinus } from "@fortawesome/free-solid-svg-icons";
+import { IUser, Visibility, UserProfileType } from "../../common/Interfaces";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { getFriends } from "../../common/APIs";
 import FriendList from "./popup/FriendList";
 import "./Profile.css";
-import { addFriend, switchCurrentUser } from "../auth/authSlice";
+import { addFriend, switchCurrentUser, unfriend } from "../auth/authSlice";
 import avatar from "../../common/assets/avatar.jpg";
 
 interface ProfileProps {}
@@ -47,31 +47,64 @@ export default function Profile(props: ProfileProps) {
     const onAddFriendClick = () => {
         dispatch(addFriend({ username: account?.username as string, fusername: currentUser?.username as string }));
     };
+
+    const onUnfriendClick = () => {
+        dispatch(unfriend({ username: account?.username as string, fusername: currentUser?.username as string }));
+    };
+
     const onFriendsClick = () => setFriendModalShow(true);
     const onClose = () => setFriendModalShow(false);
 
     const avatar_src = avatar;
     const profile_picture = currentUser && currentUser.profile_picture ? currentUser.profile_picture : avatar_src;
 
-    const isBeFriendable = (currentUser?.username !== account?.username) &&
-    (!(account?.friends?.find((friend) => friend.username === currentUser?.username)));
+    let friendInfo;
+
+    switch (currentUser?.friend_status) {
+    case UserProfileType.FRIEND:
+        friendInfo = (
+            <Button
+                id="unfriend-button"
+                onClick={onUnfriendClick}
+                variant="link"
+                className="ms-0 ps-0"
+            >
+                <FontAwesomeIcon className="me-1" icon={faUserMinus} color="#f69d72" />
+                Unfriend
+            </Button>
+        );
+        break;
+    case UserProfileType.REQUEST_SENDED:
+        friendInfo = <span className="text-muted">Friend request sent</span>;
+        break;
+    case UserProfileType.REQUEST_PENDING:
+        friendInfo = (
+            <span className="text-muted">
+                A pending friend request exists
+                (Please accept/decline from the Notifications tab)
+            </span>
+        );
+        break;
+    case UserProfileType.OTHER:
+        friendInfo = (
+            <Button
+                id="add-friend-button"
+                onClick={onAddFriendClick}
+                variant="link"
+                className="ms-0 ps-0"
+            >
+                <FontAwesomeIcon className="me-1" icon={faUserPlus} color="#f69d72" />
+                Add friend
+            </Button>
+        );
+        break;
+    default:
+        break;
+    }
 
     if (isLoading) {
         return (
-            <div id="profile-card" className="d-flex mx-auto">
-                <div className="flex-shrink-0">
-                    <Image id="profile-image" src="..." roundedCircle alt="profile" width="200px" height="200px" />
-                </div>
-                <div className="flex-grow-1 mx-4">
-                    <div className="d-flex align-items-center mb-2">
-                        <span className="placeholder col-8" />
-                    </div>
-                    <p className="card-text mb-0">
-                        <span className="placeholder col-12" />
-                        <span className="placeholder col-4" />
-                    </p>
-                </div>
-            </div>
+            <div />
         );
     }
     if (hasError) {
@@ -130,18 +163,7 @@ export default function Profile(props: ProfileProps) {
                         handleClose={onClose}
                     />
                     {
-                        (isBeFriendable) ? (
-                            <Button
-                                id="add-friend-button"
-                                onClick={onAddFriendClick}
-                                variant="link"
-                                className="ms-0 ps-0"
-                            >
-                                <FontAwesomeIcon className="me-1" icon={faUserPlus} color="#f69d72" />
-                                Add friend
-                            </Button>
-                        ) :
-                            ""
+                        friendInfo
                     }
                 </ButtonGroup>
                 <div className="fit-content ms-auto d-flex">
