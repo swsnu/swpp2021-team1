@@ -295,6 +295,7 @@ def feeds(request):
                 "photos": photo_list,
                 "region": post.repository.route.region_address,
                 "post_type": post.post_type,
+                "post_time": timezone.make_naive(post.post_time).strftime(UPLOADED_TIME_FORMAT),
             }
 
             response_list.append(response_dict)
