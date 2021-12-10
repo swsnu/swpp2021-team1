@@ -307,12 +307,23 @@ export function placeQueryFactory() {
     } as PlaceQueryResult;
 }
 
+interface IFeed {
+    post_id: number,
+    repo_id: number,
+    author: IUser[],
+    title: string,
+    photos: IPhoto[],
+    region: IRegion,
+    post_type: PostType,
+    post_time: string,
+}
+
 export type SetStateAction<T> = React.Dispatch<React.SetStateAction<T>>
 
 export type {
     IUser, IRepository, IPost, IRepositorySearch,
     IPhoto, IDiscussion, IComment,
-    ILabel, IPlace, IRoute, IRegion, INotification,
+    ILabel, IPlace, IRoute, IRegion, INotification, IFeed,
 };
 
 export {

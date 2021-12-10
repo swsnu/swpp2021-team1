@@ -64,7 +64,7 @@ function Sidebar() {
                     </Link>
                     <Link
                         id="explore-menu"
-                        to="#"
+                        to="/explore"
                         className="nav-link link-dark mb-4 fs-5"
                     >
                         <FontAwesomeIcon className="me-3" icon={faCompass} color="#f69d72" />
