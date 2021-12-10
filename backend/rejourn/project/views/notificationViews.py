@@ -1,6 +1,6 @@
 import json
 from json.decoder import JSONDecodeError
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from django.http.response import HttpResponseBadRequest
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -61,17 +61,21 @@ def get_notification_list(user, notice_type=None):
     notification_set = Notification.objects.filter(user=user)
     if notice_type is not None:
         notification_set = notification_set.filter(classification=notice_type)
-    notification_set = notification_set.order_by('-notification_id')
+    notification_set = notification_set.order_by('-time')
 
     delete_list = []
     friend_request_list = []
     invitaion_list = []
     others_list = []
-    like_count_dict = {}
-    comment_count_dict = {}
+    post_like_count_dict = {}
+    discussion_like_count_dict = {}
+    post_comment_count_dict = {}
+    discussion_comment_count_dict = {}
     fork_count_dict = {}
     for notification in notification_set:
-        if notification.time + timedelta(days=14) >= timezone.now():
+        if (notification.time + timedelta(days=14) >= timezone.now()
+            or notification.classification == NoticeType.FRIEND_REQUEST
+            or notification.classification == NoticeType.INVITATION):
             notification_dict = get_notification_dict(notification)
             if notification.classification == NoticeType.FRIEND_REQUEST:
                 friend_request_list.append(notification_dict)
@@ -79,23 +83,35 @@ def get_notification_list(user, notice_type=None):
                 invitaion_list.append(notification_dict)
             else:
                 if notification.classification == NoticeType.COMMENT:
-                    if comment_count_dict.get(notification.id) is None:
-                        comment_count_dict[notification.id] = 1
+                    if (notification.discussion is not None
+                        and discussion_comment_count_dict.get(notification.discussion.discussion_id) is not None):
+                        discussion_comment_count_dict[notification.discussion.discussion_id] += 1
+                    elif notification.discussion is not None:
+                        discussion_comment_count_dict[notification.discussion.discussion_id] = 1
                         others_list.append(notification_dict)
+                    elif post_comment_count_dict.get(notification.post.post_id) is not None:
+                        post_comment_count_dict[notification.post.post_id] += 1
                     else:
-                        comment_count_dict[notification.id] += 1
+                        post_comment_count_dict[notification.post.post_id] = 1
+                        others_list.append(notification_dict)
                 elif notification.classification == NoticeType.LIKE:
-                    if like_count_dict.get(notification.id) is None:
-                        like_count_dict[notification.id] = 1
+                    if (notification.discussion is not None
+                        and discussion_like_count_dict.get(notification.discussion.discussion_id) is not None):
+                        discussion_like_count_dict[notification.discussion.discussion_id] += 1
+                    elif notification.discussion is not None:
+                        discussion_like_count_dict[notification.discussion.discussion_id] = 1
                         others_list.append(notification_dict)
+                    elif post_like_count_dict.get(notification.post.post_id) is not None:
+                        post_like_count_dict[notification.post.post_id] += 1
                     else:
-                        like_count_dict[notification.id] += 1
+                        post_like_count_dict[notification.post.post_id] = 1
+                        others_list.append(notification_dict)
                 elif notification.classification == NoticeType.FORK:
-                    if fork_count_dict.get(notification.id) is None:
-                        fork_count_dict[notification.id] = 1
+                    if fork_count_dict.get(notification.repository.repo_id) is None:
+                        fork_count_dict[notification.repository.repo_id] = 1
                         others_list.append(notification_dict)
                     else:
-                        fork_count_dict[notification.id] += 1
+                        fork_count_dict[notification.repository.repo_id] += 1
                 else:
                     others_list.append(notification_dict)
         else:
@@ -114,13 +130,20 @@ def get_notification_list(user, notice_type=None):
             notification.delete()
 
     for notification_dict in others_list:
-        notification_id = notification_dict['notification_id']
-        if comment_count_dict.get(notification.id) is not None:
-            notification_dict['count'] = comment_count_dict[notification_id]
-        elif like_count_dict.get(notification.id) is not None:
-            notification_dict['count'] = like_count_dict[notification_id]
-        elif fork_count_dict.get(notification.id) is not None:
-            notification_dict['count'] = fork_count_dict[notification_id]
+        if notification_dict['classification'] == NoticeType.FORK:
+            notification_dict['count'] = fork_count_dict[notification_dict['repository']['repo_id']]
+        elif (notification_dict['classification'] == NoticeType.COMMENT
+              and notification_dict.get('discussion') is not None):
+            notification_dict['count'] = discussion_comment_count_dict[notification_dict['discussion']['discussion_id']]
+        elif (notification_dict['classification'] == NoticeType.COMMENT
+              and notification_dict.get('post') is not None):
+            notification_dict['count'] = post_comment_count_dict[notification_dict['post']['post_id']]
+        elif (notification_dict['classification'] == NoticeType.LIKE
+              and notification_dict.get('discussion') is not None):
+            notification_dict['count'] = discussion_like_count_dict[notification_dict['discussion']['discussion_id']]
+        elif (notification_dict['classification'] == NoticeType.LIKE
+              and notification_dict.get('post') is not None):
+            notification_dict['count'] = post_like_count_dict[notification_dict['post']['post_id']]
     notification_list = friend_request_list + invitaion_list + others_list
 
     return notification_list
@@ -162,7 +185,7 @@ def notifications(request):
     return HttpResponseSuccessDelete(notification_list)
 
 
-# /api/notifications/<int:notification_id>
+# /api/notifications/<int:notification_id>/
 @require_http_methods(['POST', 'DELETE'])
 @ensure_csrf_cookie
 def notificationID(request, notification_id):
@@ -234,8 +257,13 @@ def sessionNotifications(request):
     if not request.user.is_authenticated:
         return HttpResponseNotLoggedIn()
 
+    new_notification_set = Notification.objects.filter(user=request.user, new=True)
+    not_old_notification_set = new_notification_set.filter(time__gte=timezone.now()-timedelta(days=14))
+    request_notification_set = new_notification_set.filter(classification=NoticeType.FRIEND_REQUEST).union(new_notification_set.filter(classification=NoticeType.INVITATION))
+    notification_set = not_old_notification_set.union(request_notification_set)
+
     response_dict = {
-        'count' : Notification.objects.filter(user=request.user, new=True).count()
+        'count' : notification_set.count()
     }
 
     return HttpResponseSuccessGet(response_dict)

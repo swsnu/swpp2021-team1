@@ -20,7 +20,7 @@ def get_friend_status(subject_user, object_user):
         return UserProfileType.FRIEND
     if Notification.objects.filter(user=object_user, from_user=subject_user,
                                    classification=NoticeType.FRIEND_REQUEST).count() != 0:
-        return UserProfileType.REQUEST_SENDED
+        return UserProfileType.REQUEST_SENT
     if Notification.objects.filter(user=subject_user, from_user=object_user,
                                    classification=NoticeType.FRIEND_REQUEST).count() != 0:
         return UserProfileType.REQUEST_PENDING
@@ -201,7 +201,8 @@ def profilePicture(request, user_name):
         user.profile_picture = image
         user.save()
 
-        return HttpResponseSuccessUpdate()
+        response_dict = { 'profile_picture' : user.profile_picture.url }
+        return HttpResponseSuccessUpdate(response_dict)
 
     # request.method == "DELETE":
     if not request.user.is_authenticated:
@@ -258,19 +259,20 @@ def userID(request, user_name):
             username = req_data["username"]
             real_name = req_data["real_name"]
             email = req_data["email"]
-            password = req_data["password"]
             visibility = req_data["visibility"]
             bio = req_data["bio"]
         except (KeyError, JSONDecodeError):
             return HttpResponseBadRequest()
 
-        if User.objects.filter(username=username).count() != 0:
+        if (user.username != username
+            and User.objects.filter(username=username).count() != 0):
             return HttpResponseInvalidInput()
 
         user.username = username
         user.real_name = real_name
         user.email = email
-        user.password = password
+        if req_data.get('password') is not None:
+            user.password = req_data['password']
         user.visibility = visibility
         user.bio = bio
         user.save()

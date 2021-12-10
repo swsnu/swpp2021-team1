@@ -31,6 +31,6 @@ class UserProfileType(models.IntegerChoices):
     NOT_LOGGED_IN = 0
     MYSELF = 1
     FRIEND = 2
-    REQUEST_SENDED = 3
+    REQUEST_SENT = 3
     REQUEST_PENDING = 4
     OTHER = 5

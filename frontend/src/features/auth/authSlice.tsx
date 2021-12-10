@@ -5,9 +5,10 @@ import {
 import { RootState } from "../../app/store";
 import {
     deleteFriends,
-    getSession, getSignOut, getUser, postFriends, postSignIn, postUsers, putUser,
+    deleteProfilePicture,
+    getSession, getSignOut, getUser, postFriends, postProfilePicture, postSignIn, postUsers, putUser,
 } from "../../common/APIs";
-import { IUser, UserProfileType } from "../../common/Interfaces";
+import { IUser, UserProfileType, Visibility } from "../../common/Interfaces";
 
 export const signIn = createAsyncThunk<IUser, {username : string, password : string}>(
     "auth/signin", // action type
@@ -60,11 +61,11 @@ export const fetchSession = createAsyncThunk<IUser, void>(
 );
 
 interface IProfileForm {
-    // TODO: profile picture, visibility
-    email: string,
-    real_name: string,
-    bio: string,
-    password: string
+    email: string
+    real_name: string
+    bio: string
+    password?: string
+    visibility: Visibility
 }
 
 export const updateProfile = createAsyncThunk<IProfileForm, IProfileForm, {state: RootState}>(
@@ -73,16 +74,26 @@ export const updateProfile = createAsyncThunk<IProfileForm, IProfileForm, {state
         const { auth }: {auth: AuthState} = thunkAPI.getState();
         const { account } = auth;
         if (account) {
-            await putUser({
-                username: account.username,
-                visibility: account.visibility,
-                email: form.email,
-                real_name: form.real_name,
-                bio: form.bio,
-                password: form.password,
-            });
+            await putUser({ ...form, username: account.username });
         }
         return form;
+    },
+);
+
+export const updateProfilePicture = createAsyncThunk<string, FormData, { state: RootState }>(
+    "auth/updateProfilePicture",
+    async (formData, thunkAPI) => {
+        const { profile_picture } =
+            await postProfilePicture(thunkAPI.getState().auth.account?.username as string, formData);
+        return profile_picture;
+    },
+
+);
+
+export const removeProfilePicture = createAsyncThunk<void, void, {state: RootState}>(
+    "auth/removeProfilePicture",
+    async (data, thunkAPI) => {
+        await deleteProfilePicture(thunkAPI.getState().auth.account?.username as string);
     },
 );
 
@@ -192,20 +203,32 @@ export const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
         });
         builder.addCase(updateProfile.fulfilled, (state: AuthState, action: PayloadAction<IProfileForm>) => {
             const {
-                email, bio, real_name, password,
+                email, bio, real_name, password, visibility,
             } = action.payload;
             if (state.account) {
                 state.account = {
-                    ...state.account, email, bio, real_name, password,
+                    ...state.account, email, bio, real_name, password, visibility,
                 };
                 if (state.currentUser) {
                     if (state.account.username === state.currentUser.username) {
                         state.currentUser = {
-                            ...state.currentUser, email, bio, real_name, password,
+                            ...state.currentUser, email, bio, real_name, password, visibility,
                         };
                     }
                 }
             }
+        });
+        builder.addCase(updateProfilePicture.fulfilled, (state: AuthState, action: PayloadAction<string>) => {
+            if (!state.account) return;
+            state.account.profile_picture = action.payload;
+            if (!state.currentUser) return;
+            if (state.currentUser.username === state.account.username) {
+                state.currentUser.profile_picture = action.payload;
+            }
+        });
+        builder.addCase(removeProfilePicture.fulfilled, (state: AuthState) => {
+            if (!state.account) return;
+            state.account.profile_picture = undefined;
         });
     },
 });
