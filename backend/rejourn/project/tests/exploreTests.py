@@ -242,10 +242,6 @@ class ExploreTestCase(TestCase):
         )
         photo_in_post.save()
 
-        
-
-
-
     def tearDown(self):
         User.objects.all().delete()
         Repository.objects.all().delete()
@@ -320,21 +316,18 @@ class ExploreTestCase(TestCase):
 
     def test_feeds(self):
         client = Client()
-        response = client.delete("/api/users/MAIN_USER/feeds/")
+        response = client.delete("/api/feeds/")
         self.assertEqual(response.status_code, 405)
 
-        response = client.get("/api/users/MAIN_USER/feeds/")
+        response = client.get("/api/feeds/")
         self.assertEqual(response.status_code, 401)
 
         client.post(
             "/api/signin/",
-            json.dumps({"username": "MAIN_USER", "password": "MAIN_PW"}),
+            json.dumps({"username": "abcdef", "password": "TEST_A_PW"}),
             content_type="application/json",
         )
-        response = client.get("/api/users/none/feeds/")
-        self.assertEqual(response.status_code, 404)
 
-        response = client.get("/api/users/abcdef/feeds/")
+        response = client.get("/api/feeds/")
         self.assertEqual(response.status_code, 200)
-        self.assertIn("fun traveling", response.content.decode())
         self.assertIn("user_a_repo_b", response.content.decode())

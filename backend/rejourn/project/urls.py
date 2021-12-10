@@ -115,7 +115,7 @@ urlpatterns = [
     path("explore/repositories/", exploreViews.exploreRepositories, name="exploreRespositories"),
     path("explore/regions/", exploreViews.exploreRegions, name="exploreRegions"),
 
-    path("users/<str:username>/feeds/", exploreViews.feeds, name="feeds"),
+    path("feeds/", exploreViews.feeds, name="feeds"),
 
     ## notificationAPI
     path("notifications/", notificationViews.notifications, name="notifications"),

@@ -20,7 +20,7 @@ def get_friend_status(subject_user, object_user):
         return UserProfileType.FRIEND
     if Notification.objects.filter(user=object_user, from_user=subject_user,
                                    classification=NoticeType.FRIEND_REQUEST).count() != 0:
-        return UserProfileType.REQUEST_SENDED
+        return UserProfileType.REQUEST_SENT
     if Notification.objects.filter(user=subject_user, from_user=object_user,
                                    classification=NoticeType.FRIEND_REQUEST).count() != 0:
         return UserProfileType.REQUEST_PENDING

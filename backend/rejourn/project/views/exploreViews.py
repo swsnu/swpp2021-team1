@@ -3,22 +3,24 @@ import requests
 from django.http.response import HttpResponseBadRequest
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
-from django.db.models import Count, Q
+from django.db.models import Count
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 
-from project.models.models import User, Repository, Route, PlaceInRoute, Post, PhotoInPost
+from project.models.models import User, Repository, PlaceInRoute, Post, PhotoInPost
 from project.httpResponse import *
 
 from project.enum import Scope, PostType, RepoTravel
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 API_KEY = settings.GOOGLE_MAPS_API_KEY
 UPLOADED_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 API_KEY = settings.GOOGLE_MAPS_API_KEY
 
+# /api/explore/users/
 @require_http_methods(["GET"])
 @ensure_csrf_cookie
 def exploreUsers(request):
@@ -54,6 +56,7 @@ def exploreUsers(request):
 
     return HttpResponseSuccessGet(response_list)
 
+# /api/explore/repositories/
 @require_http_methods(["GET"])
 @ensure_csrf_cookie
 def exploreRepositories(request):
@@ -116,6 +119,7 @@ def exploreRepositories(request):
 
     return HttpResponseSuccessGet(response_list)
 
+# /api/explore/regions/
 @require_http_methods(["GET"])
 @ensure_csrf_cookie
 def exploreRegions(request):
@@ -165,19 +169,16 @@ def exploreRegions(request):
 
     return HttpResponseSuccessGet(response_list)
 
-
+# /api/feeds/
 @require_http_methods(["GET"])
 @ensure_csrf_cookie
-def feeds(request, username):
+def feeds(request):
     if not request.user.is_authenticated:
         return HttpResponseNotLoggedIn()
 
-    try:
-        user = User.objects.get(username=username)
-    except User.DoesNotExist:
-        return HttpResponseNotExist()
+    user = request.user
 
-    request_date = datetime.now()
+    request_date = timezone.now()
     before_two_week = request_date - timedelta(weeks=2)
 
     personal_feed_list = Post.objects.filter(author=user, post_type=PostType.PERSONAL, post_time__range=[before_two_week, request_date])
