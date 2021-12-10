@@ -111,48 +111,29 @@ def exploreRepositories(request):
     response_list = []
     temp = []
     for repository in possible_repositories:
-        if repository.repo_name.startswith(query_repository):
-            places = PlaceInRoute.objects.filter(route__repository=repository)
-            places = places.annotate(number_of_photos=Count("photo"))
-            places = places.order_by('-number_of_photos')
+        places = PlaceInRoute.objects.filter(route__repository=repository)
+        places = places.annotate(number_of_photos=Count("photo"))
+        places = places.order_by('-number_of_photos')
 
-            response_places = []
-            count = 0
-            for place in places:
-                if count < 3:
-                    response_places.append({
-                        "place_id": place.place_id,
-                        "place_name": place.place_name,
-                        "place_address": place.place_address
-                    })
-                    count += 1
-                else:
-                    break
-            response_dict = {"repo_id": repository.repo_id, "repo_name": repository.repo_name}
-            response_dict["region_address"] = repository.route.region_address
-            response_dict["places"] = response_places
+        response_places = []
+        count = 0
+        for place in places:
+            if count < 3:
+                response_places.append({
+                    "place_id": place.place_id,
+                    "place_name": place.place_name,
+                    "place_address": place.place_address
+                })
+                count += 1
+            else:
+                break
+        response_dict = {"repo_id": repository.repo_id, "repo_name": repository.repo_name}
+        response_dict["region_address"] = repository.route.region_address
+        response_dict["places"] = response_places
+
+        if repository.repo_name.startswith(query_repository):
             response_list.append(response_dict)
         else:
-            places = PlaceInRoute.objects.filter(route__repository=repository)
-            places = places.annotate(number_of_photos=Count("photo"))
-            places = places.order_by('-number_of_photos')
-
-            response_places = []
-            count = 0
-            for place in places:
-                if count < 3:
-                    response_places.append({
-                        "place_id": place.place_id,
-                        "place_name": place.place_name,
-                        "place_address": place.place_address
-                    })
-                    count += 1
-                else:
-                    break
-            response_dict = {"repo_id": repository.repo_id, "repo_name": repository.repo_name}
-            response_dict["region_address"] = repository.route.region_address
-            response_dict["places"] = response_places
-            response_list.append(response_dict)
             temp.append(response_dict)
 
     for repository in temp:
