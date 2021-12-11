@@ -1,12 +1,8 @@
-import { configureStore } from "@reduxjs/toolkit";
-
-import Factory from "../../mocks/dataGenerator";
-import {
-    getSessionHE, getSignOutHE, getUserHE, postSignInHE, postUserFriendHE, postUserHE,
-} from "../../mocks/handlers";
-import server from "../../mocks/server";
+import * as APIs from "../../common/APIs";
+import { userFactory, UserProfileType, Visibility } from "../../common/Interfaces";
 import authReducer, {
     addFriend,
+    authInitialState,
     fetchSession,
     handleError,
     signIn,
@@ -14,145 +10,293 @@ import authReducer, {
     signUp,
     switchCurrentUser,
     toBeLoaded,
+    unfriend,
+    updateProfile,
+    updateProfilePicture,
+    removeProfilePicture,
 } from "./authSlice";
 
-const fact = new Factory();
+jest.mock("../../common/APIs");
+const mockedAPIs = APIs as jest.Mocked<typeof APIs>;
 
 describe("authSlice", () => {
-    beforeAll(() => server.listen());
-    afterEach(() => server.resetHandlers);
     afterEach(() => jest.clearAllMocks());
-    afterAll(() => server.close());
+    // describe('thunks', () => {
 
-    let store = configureStore({
-        reducer: {
-            auth: authReducer,
-        },
-    });
+    // })
 
-    beforeEach(() => {
-        store = configureStore({
-            reducer: { auth: authReducer },
+    describe("reducers", () => {
+        it("should handle toBeLoaded", () => {
+            const action = { type: toBeLoaded.type };
+            const state = authReducer({
+                ...authInitialState,
+                isLoading: false,
+            }, action);
+            expect(state.isLoading).toBeTruthy();
         });
-    });
 
-    it("should fetch session correctly", async () => {
-        await store.dispatch(fetchSession());
-        expect(store.getState().auth.account).toBeTruthy();
-        await store.dispatch(fetchSession());
-    });
-    it("should handle error on session fetch rejected", async () => {
-        server.use(getSessionHE);
-        const response = await store.dispatch(fetchSession());
-        expect(response.meta.requestStatus).toEqual("rejected");
-    });
-    it("should log in correctly", async () => {
-        await store.dispatch(signIn({ username: "", password: "" }));
-        const { auth } = store.getState();
-        expect(auth.account && auth.currentUser && auth.account.username === auth.currentUser.username).toBeTruthy();
-    });
-    it("should handle login error", async () => {
-        server.use(postSignInHE);
-        await store.dispatch(signIn({ username: "", password: "" }));
-        expect(store.getState().auth.hasError).toBeTruthy();
-    });
-    it("should sign up correctly", async () => {
-        await store.dispatch(signUp(fact.userGen()));
-        expect(store.getState().auth.hasError).toBeFalsy();
-    });
-    it("should handle sign up error", async () => {
-        server.use(postUserHE);
-        await store.dispatch(signUp(fact.userGen()));
-        expect(store.getState().auth.hasError).toBeTruthy();
-    });
-    it("should sign out correctly", async () => {
-        const status = (await store.dispatch(signOut())).meta.requestStatus;
-        const { auth } = store.getState();
-        expect(status).toBe("fulfilled");
-        expect(auth.account).toBe(null);
-        expect(auth.currentUser).toBe(null);
-    });
-    it("should handle sign out error", async () => {
-        server.use(getSignOutHE);
-        const status = (await store.dispatch(signOut())).meta.requestStatus;
-        expect(status).toBe("rejected");
-    });
-    it("should add friend correctly", async () => {
-        await store.dispatch(fetchSession());
-        const response = await store.dispatch(
-            addFriend({ username: "username", fusername: "fusername" }),
-        );
-        const status = response.meta.requestStatus;
-        expect(status).toBe("fulfilled");
-    });
+        it("should handle handleError", () => {
+            const action = { type: handleError.type };
+            const state = authReducer({
+                ...authInitialState,
+                hasError: true,
+            }, action);
+            expect(state.hasError).toBeFalsy();
+        });
 
-    it("should add friend correctly when currentUser is the new friend", async () => {
-        await store.dispatch(switchCurrentUser("username"));
-        const currentUsername = store.getState().auth.currentUser?.username as string;
-        const response = await store.dispatch(
-            addFriend({ username: currentUsername, fusername: "fusername" }),
-        );
-        const status = response.meta.requestStatus;
-        expect(status).toBe("fulfilled");
-    });
-    it("should handle add friend error", async () => {
-        server.use(postUserFriendHE);
-        const response = await store.dispatch(
-            addFriend({ username: "username", fusername: "fusername" }),
-        );
-        const status = response.meta.requestStatus;
-        expect(status).toBe("rejected");
-    });
+        it("should handle signIn.pending", () => {
+            const action = { type: signIn.pending.type };
+            const state = authReducer(
+                authInitialState, action,
+            );
+            expect(state.isLoading).toBeTruthy();
+            expect(state.hasError).toBeFalsy();
+        });
 
-    it("should switch current user properly", async () => {
-        const response = await store.dispatch(switchCurrentUser("abc"));
-        const status = await response.meta.requestStatus;
-        expect(status).toBe("fulfilled");
-    });
-    it("should handle switch current user error", async () => {
-        server.use(getUserHE);
-        const response = await store.dispatch(switchCurrentUser("abc"));
-        const status = response.meta.requestStatus;
-        expect(status).toBe("rejected");
-    });
-    it("should switch current user to myself", async () => {
-        await store.dispatch(fetchSession());
-        const user1 = store.getState().auth.account;
-        await store.dispatch(switchCurrentUser("abc"));
-        await store.dispatch(switchCurrentUser(user1?.username as string));
-    });
-    // it("should handle updateProfile properly", async () => {
-    //     store = configureStore({
-    //         reducer: {
-    //             auth: authReducer,
-    //             repos: reposReducer,
-    //             posts: postsReducer,
-    //             photos: photosReducer,
-    //             discussions: discussionsReducer,
-    //             route: routeReducer,
-    //             labels: labelsReducer,
-    //         },
-    //     });
-    //     await store.dispatch(fetchSession());
-    //     await store.dispatch(updateProfile({
-    //         email: "dd@dd.com",
-    //         real_name: "abc",
-    //         bio: "d",
-    //         password: "d",
-    //     }));
-    // });
-    // it("should handle AddFriend", async () => {
-    //     await store.dispatch(fetchSession());
-    //     console.log(store.getState().auth);
-    //     await store.dispatch(addFriend({ username: "abc", fusername: "def" }));
-    // });
+        it("should handle signIn.fulfilled", () => {
+            const user = userFactory();
+            const action = { type: signIn.fulfilled.type, payload: user };
+            const state = authReducer(
+                authInitialState, action,
+            );
+            expect(state.account).toEqual(user);
+            expect(state.currentUser).toEqual(user);
+        });
 
-    it("should handle toBeLoaded", () => {
-        store.dispatch(toBeLoaded(""));
-        expect(store.getState().auth.isLoading).toBeTruthy();
-    });
-    it("should handle handleError", () => {
-        store.dispatch(handleError(""));
-        expect(store.getState().auth.hasError).toBeFalsy();
+        it("should handle signIn.rejected", () => {
+            const action = { type: signIn.rejected.type };
+            const state = authReducer(
+                authInitialState, action,
+            );
+            expect(state.hasError).toEqual(true);
+        });
+        it("should handle fetchSession.pending", () => {
+            const action = { type: fetchSession.pending.type };
+            const user = userFactory();
+            let state = authReducer({
+                isLoading: false,
+                hasError: false,
+                account: user,
+                currentUser: null,
+            }, action);
+            expect(state.isLoading).toBeFalsy();
+            expect(state.hasError).toBeFalsy();
+            state = authReducer(authInitialState, action);
+            expect(state.isLoading).toBeTruthy();
+            expect(state.hasError).toBeFalsy();
+        });
+        it("should handle fetchSession.fulfilled", () => {
+            const user = userFactory();
+            const action = { type: fetchSession.fulfilled.type, payload: user };
+            const state = authReducer(authInitialState, action);
+            expect(state.account).toEqual(user);
+        });
+
+        it("should handle fetchSession.rejected", () => {
+            const action = { type: fetchSession.rejected.type };
+            const state = authReducer(authInitialState, action);
+            expect(state.hasError).toBeTruthy();
+        });
+
+        it("should handle signUp.pending", () => {
+            const action = { type: signUp.pending.type };
+            const state = authReducer(authInitialState, action);
+            expect(state.isLoading).toBeTruthy();
+        });
+
+        it("should handle signUp.fulfilled", () => {
+            const action = { type: signUp.fulfilled.type };
+            const state = authReducer({
+                isLoading: true,
+                hasError: false,
+                account: null,
+                currentUser: null,
+            }, action);
+            expect(state.isLoading).toBeFalsy();
+            expect(state.hasError).toBeFalsy();
+        });
+        it("should handle signUp.rejected", () => {
+            const action = { type: signUp.rejected.type };
+            const state = authReducer({
+                ...authInitialState,
+                isLoading: true,
+            }, action);
+            expect(state.isLoading).toBeFalsy();
+            expect(state.hasError).toBeTruthy();
+        });
+
+        it("should handle signOut.fulfilled", () => {
+            const user = userFactory();
+            const action = { type: signOut.fulfilled.type };
+            const state = authReducer({
+                isLoading: false,
+                hasError: false,
+                account: user,
+                currentUser: null,
+            }, action);
+            expect(state.account).toBeNull();
+        });
+
+        it("should handle switchCurrentUser.pending", () => {
+            const user1 = userFactory();
+            const user2 = userFactory();
+            const action = { type: switchCurrentUser.pending.type };
+            const state = authReducer({
+                isLoading: false,
+                hasError: false,
+                account: user1,
+                currentUser: user1,
+            }, action);
+            expect(state.isLoading).toBeTruthy();
+        });
+        it("should handle switchCurrentUser.fulfilled", () => {
+            const user1 = userFactory();
+            const user2 = userFactory();
+            const action = { type: switchCurrentUser.fulfilled.type, payload: user2 };
+            const state = authReducer({
+                isLoading: false,
+                hasError: false,
+                account: user1,
+                currentUser: user1,
+            }, action);
+            expect(state.currentUser).toEqual(user2);
+        });
+
+        it("should handle switchCurrentUser.rejected", () => {
+            const user1 = userFactory();
+            const user2 = userFactory();
+            const action = { type: switchCurrentUser.rejected.type, payload: user2 };
+            const state = authReducer({
+                isLoading: false,
+                hasError: false,
+                account: user1,
+                currentUser: user1,
+            }, action);
+            expect(state.currentUser).toBeNull();
+        });
+
+        it("should handle addFriend.fulfilled", () => {
+            const me = userFactory();
+            const friend = userFactory();
+            const action = { type: addFriend.fulfilled.type, payload: [me] };
+            let state = authReducer(authInitialState, action);
+            state = authReducer({
+                isLoading: false,
+                hasError: false,
+                account: me,
+                currentUser: friend,
+            }, action);
+            expect(state.currentUser?.friend_status).toEqual(UserProfileType.REQUEST_SENDED);
+        });
+        it("should handle unfriend.fulfilled", () => {
+            const action = { type: unfriend.fulfilled.type };
+            const me = userFactory();
+            const friend = userFactory();
+            const user3 = userFactory();
+            let state = authReducer(authInitialState, action);
+            state = authReducer({
+                isLoading: false,
+                hasError: false,
+                account: me,
+                currentUser: friend,
+            }, action);
+            state = authReducer({
+                isLoading: false,
+                hasError: false,
+                account: me,
+                currentUser: { ...friend, friends: [me] },
+            }, action);
+            expect(state.currentUser?.friends?.length).toBe(0);
+            state = authReducer({
+                isLoading: false,
+                hasError: false,
+                account: me,
+                currentUser: { ...friend, friends: [user3] },
+            }, action);
+        });
+
+        it("should handle updateProfile.fulfilled", () => {
+            const user1 = userFactory();
+            const user2 = userFactory();
+            const action = {
+                type: updateProfile.fulfilled.type,
+                payload: {
+                    email: "",
+                    real_name: "new_name",
+                    bio: "",
+                    password: "",
+                    visibility: Visibility.ALL,
+                },
+            };
+            let state = authReducer({
+                isLoading: false,
+                hasError: false,
+                account: null,
+                currentUser: null,
+            }, action);
+            state = authReducer({
+                isLoading: false,
+                hasError: false,
+                account: user1,
+                currentUser: null,
+            }, action);
+            expect(state.account?.real_name).toBe("new_name");
+            state = authReducer({
+                isLoading: false,
+                hasError: false,
+                account: user1,
+                currentUser: user1,
+            }, action);
+            expect(state.account?.real_name).toBe("new_name");
+            expect(state.currentUser?.real_name).toBe("new_name");
+            state = authReducer({
+                isLoading: false,
+                hasError: false,
+                account: user1,
+                currentUser: user2,
+            }, action);
+            expect(state.account?.real_name).toBe("new_name");
+        });
+
+        it("should handle updateProfilePicture.fulfilled", () => {
+            const action = { type: updateProfilePicture.fulfilled.type, payload: "image" };
+            const user1 = userFactory();
+            const user2 = userFactory();
+            let state = authReducer(authInitialState, action);
+            state = authReducer({
+                isLoading: false,
+                hasError: false,
+                account: user1,
+                currentUser: null,
+            }, action);
+            expect(state.account?.profile_picture).toBe("image");
+            state = authReducer({
+                isLoading: false,
+                hasError: false,
+                account: user1,
+                currentUser: user1,
+            }, action);
+            expect(state.account?.profile_picture).toBe("image");
+            expect(state.currentUser?.profile_picture).toBe("image");
+            state = authReducer({
+                isLoading: false,
+                hasError: false,
+                account: user1,
+                currentUser: user2,
+            }, action);
+            expect(state.account?.profile_picture).toBe("image");
+        });
+        it("should handle removeProfilePicture.fulfilled", () => {
+            const action = { type: removeProfilePicture.fulfilled.type };
+            const user1 = userFactory();
+            let state = authReducer(authInitialState, action);
+            state = authReducer({
+                isLoading: false,
+                hasError: false,
+                account: { ...user1, profile_picture: "abc" },
+                currentUser: null,
+            }, action);
+            expect(state.account?.profile_picture).toBeUndefined();
+        });
     });
 });

@@ -22,7 +22,6 @@ export const loadLabels = createAsyncThunk<ILabel[], { repoId: number}>(
     "labels/load",
     async ({ repoId }) => {
         const labels = await getLabels(repoId);
-        console.log(labels);
         return labels;
     },
 );
