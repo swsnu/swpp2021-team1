@@ -15,7 +15,7 @@ const FeedEntryRepoPost = (props: FeedEntryRepoPostProps) => {
     const [travelShow, setTravelShow] = useState<boolean>(false);
 
     return (
-        <Card className="border-bottom my-5" style={{ maxWidth: 700 }}>
+        <div className="border-bottom my-5" style={{ maxWidth: 700 }}>
             <div className="row align-items-center mb-4 mx-auto">
                 <div
                     className="col-lg-6 text-center
@@ -46,7 +46,7 @@ const FeedEntryRepoPost = (props: FeedEntryRepoPostProps) => {
                 </Button>
             </div>
             <Travel repo_id={entry.repo_id} show={travelShow} setShow={setTravelShow} />
-        </Card>
+        </div>
     );
 };
 

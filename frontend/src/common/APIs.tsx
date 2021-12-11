@@ -70,7 +70,7 @@ export async function getFriends(username : string) {
 }
 
 export async function postFriends(from : string, to : string) {
-    return (await axios.post(`/api/users/${from}/friends/${to}/`)).data;
+    return (await axios.post<any, AxiosResponse<IUser[]>>(`/api/users/${from}/friends/${to}/`)).data;
 }
 
 export async function deleteFriends(from : string, to : string) {
