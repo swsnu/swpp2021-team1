@@ -2,7 +2,7 @@ import { mount } from "enzyme";
 import { createBrowserHistory } from "history";
 import { Router } from "react-router-dom";
 import { discussionFactory } from "../../common/Interfaces";
-import Discussion from "./Disucssion";
+import Discussion from "./Discussion";
 
 describe("Discussion", () => {
     it("Should render correctly", () => {

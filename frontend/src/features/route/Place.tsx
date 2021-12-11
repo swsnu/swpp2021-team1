@@ -28,7 +28,7 @@ export default function Place(props : PlaceProps) {
     const [checked, setChecked] = useState<{[id : number] : boolean}>(newChecked);
 
     function onCheck(event : React.ChangeEvent<HTMLInputElement>) {
-        const id = parseInt(event.target.name) as number;
+        const id = parseInt(event.target.name);
         const temp = { ...checked };
         temp[id] = !checked[id];
         setChecked(temp);

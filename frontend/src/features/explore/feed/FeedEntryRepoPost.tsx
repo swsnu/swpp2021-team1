@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router";
-import { Button, Card } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import { IFeed } from "../../../common/Interfaces";
 import Travel from "../../route/popup/Travel";
 

@@ -1,4 +1,4 @@
-import { configureStore, createSlice } from "@reduxjs/toolkit";
+import { configureStore } from "@reduxjs/toolkit";
 import { Provider } from "react-redux";
 import { mount } from "enzyme";
 import { BrowserRouter } from "react-router-dom";

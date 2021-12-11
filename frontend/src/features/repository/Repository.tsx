@@ -2,7 +2,6 @@ import React from "react";
 import { Badge, ListGroup } from "react-bootstrap";
 import { useHistory } from "react-router-dom";
 import { IRepository } from "../../common/Interfaces";
-import "./Repository.css";
 
 interface RepositoryProps {
     repository : IRepository;

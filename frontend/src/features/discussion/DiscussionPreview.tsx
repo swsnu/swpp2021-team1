@@ -5,7 +5,7 @@ import { useHistory, useParams } from "react-router-dom";
 import { AppDispatch, RootState } from "../../app/store";
 import { IDiscussion, IRepository, IUser } from "../../common/Interfaces";
 import * as actionCreators from "./discussionsSlice";
-import Discussion from "./Disucssion";
+import Discussion from "./Discussion";
 
 // suppress tsx-no-component-props
 export default function DiscussionPreview() {

@@ -268,7 +268,7 @@ export function onChange(event : React.ChangeEvent<HTMLInputElement>,
         break;
     case "start-date":
         setTravelStartDate(event.target.value);
-        if (/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.test(event.target.value) &&
+        if (/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(event.target.value) &&
                 checkValid(event.target.value)) {
             setValid([valid[0], true, valid[2]]);
         }
@@ -278,7 +278,7 @@ export function onChange(event : React.ChangeEvent<HTMLInputElement>,
         break;
     case "end-date":
         setTravelEndDate(event.target.value);
-        if (/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.test(event.target.value) &&
+        if (/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(event.target.value) &&
                 checkValid(event.target.value)) {
             setValid([valid[0], valid[1], true]);
         }

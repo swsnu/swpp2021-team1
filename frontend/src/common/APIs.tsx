@@ -47,12 +47,12 @@ export async function putUser(user : IUser) {
     return (await axios.put<any, AxiosResponse<IUser>>(`/api/users/${user.username}/`, user)).data;
 }
 
-interface profilePictureForm {
+interface ProfilePictureForm {
     profile_picture: string
 }
 
 export async function postProfilePicture(username: string, formData: FormData) {
-    return (await axios.post<any, AxiosResponse<profilePictureForm>>(
+    return (await axios.post<any, AxiosResponse<ProfilePictureForm>>(
         `/api/users/${username}/profile-picture/`, formData,
     )).data;
 }

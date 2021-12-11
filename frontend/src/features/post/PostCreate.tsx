@@ -123,7 +123,7 @@ export default function PostCreate(props : PostCreateProps) {
         try {
             // 새 Post를 서버에 업로드
             const resultAction = await dispatch(newRepoPost({
-                repo_id: selectedRepoId as number,
+                repo_id: selectedRepoId,
                 title,
                 text,
                 photos: taggedPhotos,

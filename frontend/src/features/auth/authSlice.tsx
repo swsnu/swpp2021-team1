@@ -36,9 +36,8 @@ export const addFriend = createAsyncThunk<void, {username: string, fusername: st
 
 export const unfriend = createAsyncThunk<void, { username: string, fusername: string }>(
     "auth/unfriend",
-    async ({ username, fusername }) => {
-        await deleteFriends(username, fusername);
-    },
+    async ({ username, fusername }) =>
+        deleteFriends(username, fusername),
 );
 
 export const switchCurrentUser = createAsyncThunk<IUser, string, {state: {auth: AuthState}}>(
@@ -52,7 +51,7 @@ export const switchCurrentUser = createAsyncThunk<IUser, string, {state: {auth: 
 
 export const fetchSession = createAsyncThunk<IUser, void>(
     "auth/session",
-    async () => await getSession(),
+    async () => getSession(),
 );
 
 interface IProfileForm {
