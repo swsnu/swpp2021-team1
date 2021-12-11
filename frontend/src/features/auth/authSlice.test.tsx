@@ -1,3 +1,4 @@
+import { configureStore, unwrapResult } from "@reduxjs/toolkit";
 import * as APIs from "../../common/APIs";
 import { userFactory, UserProfileType, Visibility } from "../../common/Interfaces";
 import authReducer, {
@@ -21,9 +22,92 @@ const mockedAPIs = APIs as jest.Mocked<typeof APIs>;
 
 describe("authSlice", () => {
     afterEach(() => jest.clearAllMocks());
-    // describe('thunks', () => {
+    describe("thunks", () => {
+        it("should handle signIn", async () => {
+            const user1 = userFactory();
+            mockedAPIs.postSignIn.mockResolvedValue(user1);
+            const store = configureStore({
+                reducer: {
+                    auth: authReducer,
+                },
+            });
+            const resultAction = await store.dispatch(signIn({ username: "abc", password: "abc" }));
+            expect(unwrapResult(resultAction)).toEqual(user1);
+        });
+        it("should handle signUp", async () => {
+            const user1 = userFactory();
+            mockedAPIs.postUsers.mockResolvedValue(user1);
+            const store = configureStore({
+                reducer: {
+                    auth: authReducer,
+                },
+            });
+            const resultAction = await store.dispatch(signUp(user1));
+            expect(unwrapResult(resultAction)).toEqual(user1);
+        });
+        it("should handle signOut", async () => {
+            mockedAPIs.getSignOut.mockResolvedValue();
+            const store = configureStore({
+                reducer: {
+                    auth: authReducer,
+                },
+            });
+            const resultAction = await store.dispatch(signOut());
+            expect(resultAction.meta.requestStatus).toEqual("fulfilled");
+        });
+        it("should handle addFriend", async () => {
+            const user = userFactory();
+            mockedAPIs.postFriends.mockResolvedValue([user]);
+            const store = configureStore({
+                reducer: {
+                    auth: authReducer,
+                },
+            });
+            const resultAction = await store.dispatch(addFriend({ username: "abc", fusername: "def" }));
+            expect(resultAction.meta.requestStatus).toEqual("fulfilled");
+        });
+        it("should handle unfriend", async () => {
+            mockedAPIs.deleteFriends.mockResolvedValue();
+            const store = configureStore({
+                reducer: {
+                    auth: authReducer,
+                },
+            });
+            const resultAction = await store.dispatch(unfriend({ username: "abc", fusername: "def" }));
+            expect(resultAction.meta.requestStatus).toEqual("fulfilled");
+        });
 
-    // })
+        it("should handle switchCurrentUser", async () => {
+            const user1 = userFactory();
+            mockedAPIs.getUser.mockResolvedValue(user1);
+            const store = configureStore({
+                reducer: {
+                    auth: authReducer,
+                },
+            });
+            const resultAction = await store.dispatch(switchCurrentUser("abc"));
+            expect(unwrapResult(resultAction)).toEqual(user1);
+        });
+        it("should handle updateProfile", async () => {
+            const user = userFactory();
+            const form = {
+                email: "a", real_name: "b", bio: "c", password: "d", visibility: Visibility.ALL,
+            };
+            const formData = new FormData();
+            mockedAPIs.getSession.mockResolvedValue(user);
+            const store = configureStore({
+                reducer: {
+                    auth: authReducer,
+                },
+            });
+            store.dispatch(fetchSession());
+            mockedAPIs.putUser.mockResolvedValue({ ...user, real_name: "abc" });
+            store.dispatch(updateProfile(form));
+            mockedAPIs.postProfilePicture.mockResolvedValue({ profile_picture: "abc" });
+            store.dispatch(updateProfilePicture(formData));
+            store.dispatch(removeProfilePicture());
+        });
+    });
 
     describe("reducers", () => {
         it("should handle toBeLoaded", () => {

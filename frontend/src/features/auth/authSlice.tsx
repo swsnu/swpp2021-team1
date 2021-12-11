@@ -68,7 +68,7 @@ interface IProfileForm {
     visibility: Visibility
 }
 
-export const updateProfile = createAsyncThunk<IProfileForm, IProfileForm, {state: RootState}>(
+export const updateProfile = createAsyncThunk<IProfileForm, IProfileForm, {state: {auth: AuthState}}>(
     "auth/updateProfile",
     async (form, thunkAPI) => {
         const { auth }: {auth: AuthState} = thunkAPI.getState();
@@ -80,7 +80,7 @@ export const updateProfile = createAsyncThunk<IProfileForm, IProfileForm, {state
     },
 );
 
-export const updateProfilePicture = createAsyncThunk<string, FormData, { state: RootState }>(
+export const updateProfilePicture = createAsyncThunk<string, FormData, { state: {auth: AuthState} }>(
     "auth/updateProfilePicture",
     async (formData, thunkAPI) => {
         const { profile_picture } =
@@ -90,7 +90,7 @@ export const updateProfilePicture = createAsyncThunk<string, FormData, { state: 
 
 );
 
-export const removeProfilePicture = createAsyncThunk<void, void, {state: RootState}>(
+export const removeProfilePicture = createAsyncThunk<void, void, {state: {auth: AuthState}}>(
     "auth/removeProfilePicture",
     async (data, thunkAPI) => {
         await deleteProfilePicture(thunkAPI.getState().auth.account?.username as string);

@@ -3,14 +3,12 @@ import React, {
     FormEvent, useEffect, useRef, useState,
 } from "react";
 import { Button, Form } from "react-bootstrap";
-import { useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { useParams } from "react-router-dom";
 
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { RootState } from "../../app/store";
-import { getPhotos, getPost, getRepositories } from "../../common/APIs";
-import { IPhoto, IPost, IRepository } from "../../common/Interfaces";
+import { getPost, getRepositories } from "../../common/APIs";
+import { IPost, IRepository } from "../../common/Interfaces";
 import { fetchPhotos } from "../photo/photosSlice";
 import PCPhotoSelect from "./PCPhotoSelect";
 import { newRepoPost } from "./postsSlice";
