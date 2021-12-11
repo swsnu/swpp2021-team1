@@ -28,8 +28,11 @@ describe("Travel", () => {
 
     it("Should render correctly - before loading", async () => {
         jest.spyOn(axios, "get").mockRejectedValueOnce(undefined);
-        render(<Travel repo_id={-1} show setShow={mockShow} />);
-        expect(await screen.findByText("Loading...")).toBeVisible();
+        let component: any = null;
+        act(() => {
+            component = mount(<Travel repo_id={-1} show setShow={mockShow} />);
+        });
+        expect(component.find(".travel-loading").length).toBe(1);
     });
 
     it("Should render correctly - after loading", async () => {
