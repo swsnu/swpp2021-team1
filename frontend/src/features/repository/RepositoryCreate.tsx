@@ -47,14 +47,14 @@ export default function RepositoryCreate() {
     }, [dispatch, user]);
 
     useEffect(() => {
-        if (repo && region) {
+        if (repo) {
             if (location.state) {
                 dispatch(actionCreator.forkRoute({
                     repo_id: repo.repo_id,
                     forked_repo_id: location.state.repo_id,
                 }));
             }
-            else {
+            else if (region) {
                 dispatch(actionCreator.editRegion({
                     repo_id: repo.repo_id,
                     place_id: region.place_id,
