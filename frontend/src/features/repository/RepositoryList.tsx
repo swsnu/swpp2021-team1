@@ -28,7 +28,6 @@ export default function RepositoryList() {
         history.push("/repos/create");
     }
 
-    // if (hasError) return (<div>Fatal Error!!!</div>);
     return (
         <div>
             {
