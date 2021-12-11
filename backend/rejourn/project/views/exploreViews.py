@@ -227,8 +227,6 @@ def feeds(request):
     if not request.user.is_authenticated:
         return HttpResponseNotLoggedIn()
 
-    user = request.user
-
     request_date = timezone.now()
     before_two_week = request_date - timedelta(weeks=2)
 
