@@ -10,7 +10,7 @@ Please consult [this link](https://developers.google.com/maps/documentation/java
 
 1. `cd frontend`
 2. `echo REACT_APP_GOOGLE_MAPS_API_KEY=[YOURAPIKEY] > .env.development `
-   - Please replace `YOURAPIKEY` with your Google Map API key issued from the Google developer console!
+   - Please replace `YOURAPIKEY` with your Google Map API key you created above!
 
 2. `yarn install`
 
