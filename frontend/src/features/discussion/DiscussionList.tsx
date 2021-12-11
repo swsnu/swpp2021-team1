@@ -5,7 +5,7 @@ import { Button, ListGroup } from "react-bootstrap";
 import { AppDispatch, RootState } from "../../app/store";
 import { IDiscussion } from "../../common/Interfaces";
 import * as actionCreators from "./discussionsSlice";
-import Discussion from "./Disucssion";
+import Discussion from "./Discussion";
 import "./DiscussionDetail.css";
 
 // suppress tsx-no-component-props

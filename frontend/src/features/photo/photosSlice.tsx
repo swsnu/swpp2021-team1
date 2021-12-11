@@ -11,7 +11,7 @@ export const fetchPhotos = createAsyncThunk<IPhoto[], number>( // added
     "photos/list",
     async (repo_id) => {
         if (repo_id === -1) return []; // PostCreate에서, 아무 repo도 선택하지 않았을 때에는 PostList를 []로 세팅함.
-        return await getPhotos(repo_id);
+        return getPhotos(repo_id);
     },
 
 );

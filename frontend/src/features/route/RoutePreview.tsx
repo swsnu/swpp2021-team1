@@ -193,7 +193,7 @@ export default function RoutePreview() {
                         </React.Fragment>
                     ))}
                     <Polyline
-                        path={(route as IRoute).places.map((value) =>
+                        path={route.places.map((value) =>
                             ({ lat: value.latitude, lng: value.longitude }))}
                         options={{
                             strokeColor: "#991D83",

@@ -32,7 +32,7 @@ export default function PCPhotoSelect(props: PCPhotoSelectProps) {
 
     // 체크박스를 체크했을 때 checked 상태를 세팅함
     function onCheck(event: React.ChangeEvent<HTMLInputElement>) {
-        const id = parseInt(event.target.name) as number;
+        const id = parseInt(event.target.name);
         const temp = { ...checked };
         temp[id] = !checked[id];
         setChecked(temp);
@@ -46,7 +46,6 @@ export default function PCPhotoSelect(props: PCPhotoSelectProps) {
     // 초기화: props로 들어온 기존 value로 checked 설정 (edit mode에만 해당)
     useEffect(() => {
         setChecked(props.checked);
-        // console.log("abc");
     }, [dispatch]);
 
     return (

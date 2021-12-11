@@ -76,7 +76,7 @@ const LabelsSection = () => {
     };
 
     const onCheck = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const id = parseInt(event.target.name) as number;
+        const id = parseInt(event.target.name);
         const temp = { ...checked };
         temp[id] = !checked[id];
         setChecked(temp);
@@ -91,12 +91,12 @@ const LabelsSection = () => {
 
     const onNewLabel = () => {
         const newName = window.prompt("Name of new label: ");
-        dispatch(newLabel({ repoId: (repoId as number), labelName: (newName as string) }));
+        dispatch(newLabel({ repoId, labelName: (newName as string) }));
     };
 
     const onAssignLabel = (labelId: number) => {
         dispatch(assignLabel({
-            repoId: (repoId as number),
+            repoId,
             labelId,
             photos: allPhotos.filter((photo) => checked[photo.photo_id]),
         }));
@@ -146,7 +146,7 @@ const LabelsSection = () => {
                                 if (label) {
                                     const newName = window.prompt("Enter new name: ");
                                     dispatch(editLabel({
-                                        repoId: repoId as number, labelId: label.label_id, newName: newName as string,
+                                        repoId, labelId: label.label_id, newName: newName as string,
                                     }));
                                 }
                                 else {
@@ -163,7 +163,7 @@ const LabelsSection = () => {
                                 const label = labels.find((label) => label.label_name === labelName);
                                 if (label) {
                                     dispatch(deleteOneLabel({
-                                        repoId: repoId as number,
+                                        repoId,
                                         labelId: label.label_id,
                                     }));
                                 }

@@ -223,7 +223,6 @@ describe("authSlice", () => {
 
         it("should handle switchCurrentUser.pending", () => {
             const user1 = userFactory();
-            const user2 = userFactory();
             const action = { type: switchCurrentUser.pending.type };
             const state = authReducer({
                 isLoading: false,
@@ -263,8 +262,8 @@ describe("authSlice", () => {
             const me = userFactory();
             const friend = userFactory();
             const action = { type: addFriend.fulfilled.type, payload: [me] };
-            let state = authReducer(authInitialState, action);
-            state = authReducer({
+            authReducer(authInitialState, action);
+            const state = authReducer({
                 isLoading: false,
                 hasError: false,
                 account: me,
@@ -277,21 +276,21 @@ describe("authSlice", () => {
             const me = userFactory();
             const friend = userFactory();
             const user3 = userFactory();
-            let state = authReducer(authInitialState, action);
-            state = authReducer({
+            authReducer(authInitialState, action);
+            authReducer({
                 isLoading: false,
                 hasError: false,
                 account: me,
                 currentUser: friend,
             }, action);
-            state = authReducer({
+            const state = authReducer({
                 isLoading: false,
                 hasError: false,
                 account: me,
                 currentUser: { ...friend, friends: [me] },
             }, action);
             expect(state.currentUser?.friends?.length).toBe(0);
-            state = authReducer({
+            authReducer({
                 isLoading: false,
                 hasError: false,
                 account: me,
@@ -312,13 +311,13 @@ describe("authSlice", () => {
                     visibility: Visibility.ALL,
                 },
             };
-            let state = authReducer({
+            authReducer({
                 isLoading: false,
                 hasError: false,
                 account: null,
                 currentUser: null,
             }, action);
-            state = authReducer({
+            let state = authReducer({
                 isLoading: false,
                 hasError: false,
                 account: user1,
@@ -346,8 +345,8 @@ describe("authSlice", () => {
             const action = { type: updateProfilePicture.fulfilled.type, payload: "image" };
             const user1 = userFactory();
             const user2 = userFactory();
-            let state = authReducer(authInitialState, action);
-            state = authReducer({
+            authReducer(authInitialState, action);
+            let state = authReducer({
                 isLoading: false,
                 hasError: false,
                 account: user1,
@@ -373,8 +372,8 @@ describe("authSlice", () => {
         it("should handle removeProfilePicture.fulfilled", () => {
             const action = { type: removeProfilePicture.fulfilled.type };
             const user1 = userFactory();
-            let state = authReducer(authInitialState, action);
-            state = authReducer({
+            authReducer(authInitialState, action);
+            const state = authReducer({
                 isLoading: false,
                 hasError: false,
                 account: { ...user1, profile_picture: "abc" },
