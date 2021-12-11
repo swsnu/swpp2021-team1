@@ -237,13 +237,14 @@ def routeID(request, repo_id):
     new_route.save()
 
     for collaborator in fork_repository.collaborators.all():
-        fork_notice = Notification(
-            user=collaborator,
-            classification=NoticeType.FORK,
-            from_user=request.user,
-            repository=fork_repository
-        )
-        fork_notice.save()
+        if collaborator != request.user:
+            fork_notice = Notification(
+                user=collaborator,
+                classification=NoticeType.FORK,
+                from_user=request.user,
+                repository=fork_repository
+            )
+            fork_notice.save()
 
     fork_places = PlaceInRoute.objects.filter(route=fork_route)
     for place in fork_places:

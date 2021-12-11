@@ -65,7 +65,7 @@ def get_post_dict(post, comment_blank=False, preview=False):
 
     if post.post_type == PostType.REPO:
         author_list = []
-        for collaborator in post.repository.collaborators:
+        for collaborator in post.repository.collaborators.all():
             author_info = {
                 "username": collaborator.username,
                 "bio": collaborator.bio,
