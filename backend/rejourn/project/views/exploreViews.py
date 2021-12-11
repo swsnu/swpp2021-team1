@@ -158,7 +158,7 @@ def exploreRegions(request):
     url_for_geocoding = url_header_for_geocoding_header + query_region_formatted + "&key=" + API_KEY
     geocoding_response = requests.get(url_for_geocoding)
 
-    if geocoding_response.status_code in range(200, 299):
+    if geocoding_response.status_code not in range(200, 299):
         return HttpResponseBadRequest()
 
     place_id = geocoding_response.json()['results'][0]['place_id']
@@ -233,7 +233,7 @@ def feeds(request):
     before_two_week = request_date - timedelta(weeks=2)
 
     personal_feed_list = Post.objects.filter(
-        author=user,
+        author__in=User.objects.filter(username=request.user.username).values('friends'),
         post_type=PostType.PERSONAL,
         post_time__range=[before_two_week, request_date]
     )

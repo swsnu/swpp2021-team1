@@ -269,8 +269,8 @@ def repoPosts(request, repo_id):
         elif travel == RepoTravel.TRAVEL_ON:
             repository.travel = RepoTravel.TRAVEL_ON
             repository.save()
-            existing_post = Post.objects.filter(repository=repository, post_type=PostType.REPO_POST)
-            if existing_post.count() == 1:
+            existing_post = Post.objects.filter(repository=repository, post_type=PostType.REPO)
+            if existing_post.count() == 0:
                 text = ""
                 new_post = Post(
                     repository=repository,
@@ -279,6 +279,7 @@ def repoPosts(request, repo_id):
                     text=text,
                     post_type=post_type
                 )
+                new_post.save()
                 for collaborator in repository.collaborators.all():
                     if collaborator != request.user:
                         post_notice = Notification(

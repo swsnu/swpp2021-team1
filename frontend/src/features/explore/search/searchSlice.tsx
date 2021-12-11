@@ -26,7 +26,7 @@ export const searchRegion = createAsyncThunk<IRepositorySearch[], string>(
 );
 
 export const searchInitState : SearchState = {
-    isLoading: true,
+    isLoading: false,
     userResult: [],
     repositoryResult: [],
     searchInfo: null,

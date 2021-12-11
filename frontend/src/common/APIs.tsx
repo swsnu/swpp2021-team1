@@ -4,6 +4,7 @@ import { PlaceQueryResult } from "../features/route/routeSlice";
 import {
     IComment,
     IDiscussion,
+    IFeed,
     ILabel,
     INotification,
     IPhoto,
@@ -69,7 +70,7 @@ export async function getFriends(username : string) {
 }
 
 export async function postFriends(from : string, to : string) {
-    return (await axios.post(`/api/users/${from}/friends/${to}/`)).data;
+    return (await axios.post<any, AxiosResponse<IUser[]>>(`/api/users/${from}/friends/${to}/`)).data;
 }
 
 export async function deleteFriends(from : string, to : string) {
@@ -395,6 +396,11 @@ export async function getRepositorySearch(query : string) {
     return (await axios.get<any, AxiosResponse<IRepositorySearch[]>>(`/api/explore/repositories/?query=${query}`)).data;
 }
 
-export async function getRegionSearch(query : string) {
+export async function getRegionSearch(query: string) {
     return (await axios.get<any, AxiosResponse<IRepositorySearch[]>>(`/api/explore/regions/?query=${query}`)).data;
+}
+/* for feed */
+
+export async function getFeed() {
+    return (await axios.get<any, AxiosResponse<IFeed[]>>("/api/feeds/")).data;
 }

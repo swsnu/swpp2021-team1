@@ -46,6 +46,7 @@ export default function Travel(props : TravelProps) {
                 })
                 .catch(() => {
                     setHasError(true);
+                    setIsLoading(false);
                 });
         }
     }, [props.show]);

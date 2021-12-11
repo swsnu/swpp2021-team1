@@ -21,6 +21,7 @@ import PostDetail from "../features/post/PostDetail";
 import PostCreate from "../features/post/PostCreate";
 import PlaceDetail from "../features/route/PlaceDetail";
 import NotificationList from "../features/notification/NotificationList";
+import Explore from "../features/explore/Explore";
 
 export default function App() {
     return (
@@ -95,6 +96,7 @@ export default function App() {
                                             render={() => <PostCreate mode="edit" />}
                                         />
                                         <Route path="/posts/:post_id" exact component={PostDetail} />
+                                        <Route path="/explore" exact component={Explore} />
                                         <Redirect from="/" to="/login" />
                                     </Switch>
                                 </Container>
