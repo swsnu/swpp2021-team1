@@ -18,7 +18,6 @@ jobs:
         - yarn global add coveralls
         - cd ../backend/rejourn
         - pip install -r requirements.txt
-        - python -m pip install Pillow 
         - pip install coveralls
       script:
         - cd ../../frontend
