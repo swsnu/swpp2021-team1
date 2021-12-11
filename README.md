@@ -12,14 +12,25 @@ Please consult [this link](https://developers.google.com/maps/documentation/java
 2. `echo REACT_APP_GOOGLE_MAPS_API_KEY=[YOURAPIKEY] > .env.development `
    - Please replace `[YOURAPIKEY]` with your Google Map API key you created above!
 
-2. `yarn install`
+3. `yarn install`
 
-3. `yarn start`
+4. `yarn start`
 
 ## Start BackEnd
 
-- `cd backend && cd rejourn`
-- `python3 manage.py makemigrations project`
-- `python3 manage.py migrate`
-- `python3 manage.py runserver`
+1. Install and activate virtualenv
+ - It's a virtual environment for django.
+
+2. `cd backend && cd rejourn`
+
+3. `echo GOOGLE_MAPS_API_KEY=[YOURAPIKEY] > .env `
+   - Please replace `[YOURAPIKEY]` with your Google Map API key you created above!
+
+4. `pip install -r requirements.txt`
+
+5. `python3 manage.py makemigrations project`
+
+6. `python3 manage.py migrate`
+
+7. `python3 manage.py runserver`
 
