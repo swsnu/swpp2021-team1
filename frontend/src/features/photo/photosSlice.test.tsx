@@ -93,7 +93,6 @@ describe("photosSlice", () => {
         }));
     });
     it("should handle assignLabel reject", async () => {
-        const photo : IPhoto = photoFactory();
         mockedAPIs.putLabelPhotos.mockRejectedValue("");
         await store.dispatch(assignLabel({
             repoId: 1,

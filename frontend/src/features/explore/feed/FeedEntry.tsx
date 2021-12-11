@@ -2,11 +2,9 @@ import React, { useState } from "react";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
 import {
-    Button, Carousel, Figure, Modal, Card,
+    Button, Carousel, Figure, Card,
 } from "react-bootstrap";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
-import { IFeed, IPost } from "../../../common/Interfaces";
+import { IFeed } from "../../../common/Interfaces";
 import avatar from "../../../common/assets/avatar.jpg";
 
 interface FeedEntryProps {
@@ -20,7 +18,7 @@ const FeedEntry = (props: FeedEntryProps) => {
     const author = entry.author ? entry.author[0] : undefined;
     const history = useHistory();
 
-    const handleSelect = (selectedIndex: number, e: Record<string, unknown> | null) => {
+    const handleSelect = (selectedIndex: number) => {
         setIndex(selectedIndex);
     };
 

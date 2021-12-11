@@ -79,7 +79,6 @@ describe("discussionsSlice", () => {
     });
 
     it("Should remove discussion correctly + toBeLoaded + handleError", () => {
-        const discussion : IDiscussion = discussionFactory();
         mockedAPIs.deleteDiscussion.mockResolvedValue();
         store.dispatch(removeDiscussion(1)).then(() => {
             expect(store.getState().discussions.isLoading).toEqual(false);

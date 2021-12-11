@@ -36,12 +36,12 @@ describe("postsSlice", () => {
     });
     it("should handle fetch post comments", async () => {
         // server.use(getPostCommentsHE);
-        const response = await store.dispatch(fetchPostComments({ postId: 123 }));
+        const response = await store.dispatch(fetchPostComments(123));
         expect(response.meta.requestStatus).toBe("fulfilled");
     });
     it("should handle fetch post comments exception", async () => {
         server.use(getPostCommentsHE);
-        const response = await store.dispatch(fetchPostComments({ postId: 123 }));
+        const response = await store.dispatch(fetchPostComments(123));
         expect(response.meta.requestStatus).toBe("rejected");
     });
     it("should handle new post comment", async () => {

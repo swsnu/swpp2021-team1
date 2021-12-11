@@ -6,9 +6,7 @@ import { Link } from "react-router-dom";
 import {
     Carousel, Image, Modal, Button, Figure,
 } from "react-bootstrap";
-import { InputSpecificProps } from "react-select/dist/declarations/src/components/Input";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { IPhoto, IUser } from "../../common/Interfaces";
 import {
     fetchSinglePost, newPostComment, postCommentDeleted, postCommentEdited, postDeleted,
 } from "./postsSlice";
@@ -17,7 +15,6 @@ import Comment from "../comments/Comment";
 import avatar from "../../common/assets/avatar.jpg";
 
 // suppress no-tsx-component-props
-
 const PostDetail = () => {
     const dispatch = useAppDispatch();
     const { post_id } = useParams<{ post_id: string }>();
@@ -32,7 +29,7 @@ const PostDetail = () => {
     const loading = useAppSelector((state) => state.posts.loading);
     const history = useHistory();
 
-    const handleSelect = (selectedIndex: number, e: Record<string, unknown> | null) => {
+    const handleSelect = (selectedIndex: number) => {
         setIndex(selectedIndex);
     };
 
@@ -114,7 +111,7 @@ const PostDetail = () => {
                             <Carousel.Item
                                 key={photo.photo_id}
                                 className="w-100"
-                                onClick={(e) => {
+                                onClick={() => {
                                     setPhotoShow(true);
                                 }}
                             >
@@ -182,7 +179,7 @@ const PostDetail = () => {
                             <button
                                 className="btn btn-primary btn-sm shadow-none"
                                 type="button"
-                                onClick={({ target }) => {
+                                onClick={() => {
                                     dispatch(newPostComment({
                                         postId: currentPost?.post_id as number,
                                         content: comment,

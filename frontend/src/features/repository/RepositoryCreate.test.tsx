@@ -37,7 +37,6 @@ function makeStoredComponent() {
 
 describe("RepositoryCreate", () => {
     let createMock : any;
-    let regionMock : any;
     let searchMock : any;
 
     beforeEach(() => {
@@ -46,7 +45,7 @@ describe("RepositoryCreate", () => {
                 then: (e : () => any) => e(),
             })) as typeof jest.fn);
         createMock = jest.spyOn(actionCreator, "createRepository").mockImplementation(jest.fn);
-        regionMock = jest.spyOn(actionCreator, "editRegion").mockImplementation(jest.fn);
+        jest.spyOn(actionCreator, "editRegion").mockImplementation(jest.fn);
         searchMock = jest.spyOn(actionCreator2, "searchRegion").mockImplementation(jest.fn);
         jest.spyOn(redux, "useSelector").mockImplementation((e : (e : any) => any) => e({
             auth: {

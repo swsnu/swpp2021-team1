@@ -1,10 +1,7 @@
 import LabelsSection from "../../labels/LabelsSection";
 
-interface MineProps {
-
-}
-
-export default function Mine(props : MineProps) {
+// suppress no-tsx-component-props
+export default function Mine() {
     return (
         <LabelsSection />
     );

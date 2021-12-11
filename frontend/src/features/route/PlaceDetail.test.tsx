@@ -44,11 +44,8 @@ function makeStoredComponent() {
 describe("PlaceDetail", () => {
     const user = userFactory();
     let editMock : any;
-    let focusMock : any;
-    let editPhotoMock : any;
     let addMock : any;
     let searchMock : any;
-    let clearMock : any;
 
     beforeEach(() => {
         jest.spyOn(mockedAPI, "postSignIn").mockResolvedValue(user);
@@ -56,15 +53,15 @@ describe("PlaceDetail", () => {
         jest.spyOn(mockedAPI, "getRoute").mockResolvedValue(routeFactory());
         editMock = jest.spyOn(actionCreators, "editPlaces").mockImplementation(() =>
             ({ type: "", payload: undefined }) as any);
-        focusMock = jest.spyOn(actionCreators, "focusPhoto").mockImplementation(() =>
+        jest.spyOn(actionCreators, "focusPhoto").mockImplementation(() =>
             ({ type: "", payload: undefined }));
-        editPhotoMock = jest.spyOn(actionCreators, "editPhoto").mockImplementation(() =>
+        jest.spyOn(actionCreators, "editPhoto").mockImplementation(() =>
             ({ type: "", payload: undefined }) as any);
         addMock = jest.spyOn(actionCreators, "addPlace").mockImplementation(() =>
             ({ type: "", payload: undefined }) as any);
         searchMock = jest.spyOn(actionCreators, "searchPlace").mockImplementation(() =>
             ({ type: "", payload: undefined }) as any);
-        clearMock = jest.spyOn(actionCreators, "clearResult").mockImplementation(() =>
+        jest.spyOn(actionCreators, "clearResult").mockImplementation(() =>
             ({ type: "", payload: undefined }));
         jest.spyOn(Place, "default").mockImplementation((props) => (
             <div>

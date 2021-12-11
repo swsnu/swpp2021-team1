@@ -13,10 +13,8 @@ import Mine from "./tab/Mine";
 
 export default function RepositoryDetail() {
     const dispatch = useDispatch<AppDispatch>();
-    const [userIsLoading, userHasError] = useSelector<RootState, [boolean, boolean]>((state) =>
-        [state.auth.isLoading, state.auth.hasError]);
-    const [isLoading, hasError] = useSelector<RootState, [boolean, boolean]>((state) =>
-        [state.repos.isLoading, state.repos.hasError]);
+    const userIsLoading = useSelector<RootState, boolean>((state) => state.auth.isLoading);
+    const isLoading = useSelector<RootState, boolean>((state) => state.repos.isLoading);
     const [user, currentRepo] = useSelector<RootState, [IUser|null, IRepository|null]>((state) =>
         [state.auth.account, state.repos.currentRepo]);
     const params = useParams<{id : string}>();
@@ -27,8 +25,7 @@ export default function RepositoryDetail() {
         }
     }, [dispatch]);
 
-    if (userIsLoading) return null;
-    if (isLoading) return null;
+    if (userIsLoading || isLoading) return null;
     if (!currentRepo) return (<div>Unexpected Error!</div>);
     const hasAuth = user && currentRepo.collaborators.filter((value) => user.username === value.username).length > 0;
     return (

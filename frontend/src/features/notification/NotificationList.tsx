@@ -10,8 +10,8 @@ import Notification from "./Notification";
 
 export default function NotificationList() {
     const dispatch = useDispatch<AppDispatch>();
-    const [isLoading, hasError, notifications] = useSelector<RootState, [boolean, boolean, INotification[]]>(
-        (state) => [state.notices.isLoading, state.notices.hasError, state.notices.notifications],
+    const [isLoading, notifications] = useSelector<RootState, [boolean, INotification[]]>(
+        (state) => [state.notices.isLoading, state.notices.notifications],
     );
 
     useEffect(() => {

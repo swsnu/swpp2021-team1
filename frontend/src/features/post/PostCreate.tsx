@@ -3,23 +3,21 @@ import React, {
     FormEvent, useEffect, useRef, useState,
 } from "react";
 import { Button, Form } from "react-bootstrap";
-import { useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { useParams } from "react-router-dom";
 
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { RootState } from "../../app/store";
-import { getPhotos, getPost, getRepositories } from "../../common/APIs";
-import { IPhoto, IPost, IRepository } from "../../common/Interfaces";
+import { getPost, getRepositories } from "../../common/APIs";
+import { IPost, IRepository } from "../../common/Interfaces";
 import { fetchPhotos } from "../photo/photosSlice";
 import PCPhotoSelect from "./PCPhotoSelect";
 import { newRepoPost } from "./postsSlice";
 
-interface PostcreateProps {
+interface PostCreateProps {
     mode: "create/user" | "create/repo" | "edit"
 }
 
-export default function Postcreate(props : PostcreateProps) {
+export default function PostCreate(props : PostCreateProps) {
     const dispatch = useAppDispatch();
 
     const account = useAppSelector((state) => state.auth.account);
@@ -104,10 +102,9 @@ export default function Postcreate(props : PostcreateProps) {
             if (currentPost?.photos && props.mode === "edit") {
                 const tempChecked: { [ id: number ]: boolean } = {};
                 photoOptions.forEach((option) => {
-                    if (currentPost?.photos.find(
+                    tempChecked[option.photo_id] = !!currentPost?.photos.find(
                         (photo) => photo.photo_id === option.photo_id,
-                    )) tempChecked[option.photo_id] = true;
-                    else tempChecked[option.photo_id] = false;
+                    );
                 });
                 setChecked(tempChecked);
             }

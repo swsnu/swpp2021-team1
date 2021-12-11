@@ -10,19 +10,19 @@ import { getRegionSearch, getRepositorySearch, getUserSearch } from "../../../co
 export const searchUser = createAsyncThunk<IUser[], string>(
     "search/user",
     async (query) => // payload creator
-        await getUserSearch(query),
+        getUserSearch(query),
 );
 
 export const searchRepository = createAsyncThunk<IRepositorySearch[], string>(
     "search/repo",
     async (query) => // payload creator
-        await getRepositorySearch(query),
+        getRepositorySearch(query),
 );
 
 export const searchRegion = createAsyncThunk<IRepositorySearch[], string>(
     "search/region",
     async (query) => // payload creator
-        await getRegionSearch(query),
+        getRegionSearch(query),
 );
 
 export const searchInitState : SearchState = {

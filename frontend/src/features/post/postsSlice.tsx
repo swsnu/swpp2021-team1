@@ -59,12 +59,12 @@ export const postCommentDeleted = createAsyncThunk<{postId: number, comments: IC
 
 export const fetchUserPosts = createAsyncThunk<IPost[], string>(
     "post/fetchUserPosts",
-    async (username: string) => (await getUserPosts(username)),
+    async (username: string) => getUserPosts(username),
 );
 
 export const fetchRepoPosts = createAsyncThunk<IPost[], number>(
     "post/fetchRepoPosts",
-    async (repoId: number) => (await getRepositoryPosts(repoId)),
+    async (repoId: number) => getRepositoryPosts(repoId),
 );
 
 export const newRepoPost = createAsyncThunk<
@@ -72,12 +72,12 @@ IPost, {repo_id: number, title: string, text: string, photos: IPhoto[]}>(
     "post/newRepoPost",
     async ({
         repo_id, title, text, photos,
-    }) => (await postPost(repo_id, { title, text, photos })),
+    }) => postPost(repo_id, { title, text, photos }),
 );
 
 export const fetchSinglePost = createAsyncThunk<IPost, number>(
     "post/fetchSinglePost",
-    async (postId: number) => (await getPost(postId)),
+    async (postId: number) => getPost(postId),
 );
 
 export const postEdited = createAsyncThunk<IPost, {
@@ -86,7 +86,7 @@ export const postEdited = createAsyncThunk<IPost, {
     "post/postEdited",
     async ({
         post_id, title, text, photos,
-    }) => (await putPost(post_id, title, text, photos)),
+    }) => putPost(post_id, title, text, photos),
 );
 
 export const postDeleted = createAsyncThunk<number, number>(
@@ -108,24 +108,24 @@ export const postsSlice = createSlice({
     }),
     reducers: {},
     extraReducers: (builder) => {
-        builder.addCase(fetchUserPosts.pending, (state, action) => {
+        builder.addCase(fetchUserPosts.pending, (state) => {
             state.loading = "pending";
         });
         builder.addCase(fetchUserPosts.fulfilled, (state, action) => {
             postsAdapter.setAll(state, action.payload);
             state.loading = "succeeded";
         });
-        builder.addCase(fetchUserPosts.rejected, (state, action) => {
+        builder.addCase(fetchUserPosts.rejected, (state) => {
             state.loading = "failed";
         });
-        builder.addCase(fetchRepoPosts.pending, (state, action) => {
+        builder.addCase(fetchRepoPosts.pending, (state) => {
             state.loading = "pending";
         });
         builder.addCase(fetchRepoPosts.fulfilled, (state, action) => {
             postsAdapter.setAll(state, action.payload);
             state.loading = "succeeded";
         });
-        builder.addCase(fetchRepoPosts.rejected, (state, action) => {
+        builder.addCase(fetchRepoPosts.rejected, (state) => {
             state.loading = "failed";
         });
         builder.addCase(newRepoPost.fulfilled, (state, action) => {
@@ -167,7 +167,7 @@ export const postsSlice = createSlice({
             state.currentPost = action.payload;
             state.loading = "succeeded";
         });
-        builder.addCase(fetchSinglePost.rejected, (state, action) => {
+        builder.addCase(fetchSinglePost.rejected, (state) => {
             state.loading = "failed";
         });
     },

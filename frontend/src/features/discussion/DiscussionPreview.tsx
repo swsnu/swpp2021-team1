@@ -9,8 +9,8 @@ import Discussion from "./Disucssion";
 
 // suppress tsx-no-component-props
 export default function DiscussionPreview() {
-    const [isLoading, hasError, discussionList] = useSelector<RootState, [boolean, boolean, IDiscussion[]]>((state) =>
-        [state.discussions.isLoading, state.discussions.hasError, state.discussions.discussionList]);
+    const [isLoading, discussionList] = useSelector<RootState, [boolean, IDiscussion[]]>((state) =>
+        [state.discussions.isLoading, state.discussions.discussionList]);
     const params = useParams<{id : string}>();
     const history = useHistory();
     const dispatch = useDispatch<AppDispatch>();

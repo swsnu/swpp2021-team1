@@ -12,26 +12,24 @@ import { IUser, UserProfileType, Visibility } from "../../common/Interfaces";
 
 export const signIn = createAsyncThunk<IUser, {username : string, password : string}>(
     "auth/signin", // action type
-    async ({ username, password }, thunkAPI) => // payload creator
-        await postSignIn(username, password),
+    async ({ username, password }) => // payload creator
+        postSignIn(username, password),
 
 );
 
 export const signUp = createAsyncThunk<IUser, IUser>(
     "auth/signup",
-    async (user, thunkAPI) => // payload creator
-        await postUsers(user),
+    async (user) => // payload creator
+        postUsers(user),
 );
 
 export const signOut = createAsyncThunk<void, void>(
     "auth/signout",
-    async (thunkAPI) =>
-        await getSignOut(),
+    async () =>
+        getSignOut(),
 );
 
-export const addFriend = createAsyncThunk<
-void,
-{username: string, fusername: string}>(
+export const addFriend = createAsyncThunk<void, {username: string, fusername: string}>(
     "auth/addfriend",
     async ({ username, fusername }) => {
         await postFriends(username, fusername);
@@ -45,8 +43,7 @@ export const unfriend = createAsyncThunk<void, { username: string, fusername: st
     },
 );
 
-export const switchCurrentUser = createAsyncThunk<IUser,
-string, {state: {auth: AuthState}}>(
+export const switchCurrentUser = createAsyncThunk<IUser, string, {state: {auth: AuthState}}>(
     "auth/switchCurrentUser",
     async (username, thunkAPI) => {
         const { auth: { account } } = thunkAPI.getState();
@@ -57,7 +54,7 @@ string, {state: {auth: AuthState}}>(
 
 export const fetchSession = createAsyncThunk<IUser, void>(
     "auth/session",
-    async (thunkAPI) => await getSession(),
+    async () => await getSession(),
 );
 
 interface IProfileForm {
@@ -141,8 +138,7 @@ export const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
         });
 
         builder.addCase(fetchSession.pending, (state : AuthState) => {
-            if (state.account) state.isLoading = false;
-            else state.isLoading = true;
+            state.isLoading = !state.account;
             state.hasError = false;
         });
 

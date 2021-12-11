@@ -96,10 +96,6 @@ export default function SignUp(props : SignUpProps) {
         }
     }
 
-    // 테스트 위해 잠깐 주석처리함
-    // error에 대한 처리 필요
-    // if (isLoading && !hasError) return null;
-
     return (
         <Modal show={props.show} onHide={props.onModalClose}>
             <Modal.Header closeButton>

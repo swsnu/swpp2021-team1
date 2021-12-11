@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
     Container, Form, Button, Image,
 } from "react-bootstrap";
-import { useHistory } from "react-router";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { removeProfilePicture, updateProfile, updateProfilePicture } from "../auth/authSlice";
 
@@ -10,7 +9,6 @@ import avatar from "../../common/assets/avatar.jpg";
 import { Visibility } from "../../common/Interfaces";
 
 // suppress no-tsx-component-props
-
 export default function ProfileSetting() {
     const account = useAppSelector((state) => state.auth.account);
     const profileImage = useAppSelector((state) => state.auth.account?.profile_picture);

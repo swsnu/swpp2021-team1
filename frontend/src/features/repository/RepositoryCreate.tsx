@@ -19,8 +19,7 @@ export default function RepositoryCreate() {
     // assume isLoading이 true 상태
 
     const dispatch = useDispatch<AppDispatch>();
-    const [userIsLoading, userHasError] = useSelector<RootState, [boolean, boolean]>((state) =>
-        [state.auth.isLoading, state.auth.hasError]);
+    const userIsLoading = useSelector<RootState, boolean>((state) => state.auth.isLoading);
     const [isLoading, hasError] = useSelector<RootState, [boolean, boolean]>((state) =>
         [state.repos.isLoading, state.repos.hasError]);
     const [user, repo] = useSelector<RootState, [IUser|null, IRepository|null]>((state) =>
@@ -81,7 +80,6 @@ export default function RepositoryCreate() {
     }
 
     if (userIsLoading) return null;
-    // if (hasError) return (<div>Fatal Error!!!</div>);
     return (
         <div>
             {!isLoading && !hasError && <Redirect to={`/repos/${(repo as IRepository).repo_id}`} />}
