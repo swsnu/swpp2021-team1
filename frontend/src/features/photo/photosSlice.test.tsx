@@ -5,7 +5,8 @@ import {
 } from "../../common/Interfaces";
 import photosReducer, {
     addPhotos, assignLabel, editPhoto, fetchPhotos,
-    focusPhoto, handleError, removePhotos, toBeLoaded,
+    focusPhoto, handleError, photosInitialState, removePhotos, toBeLoaded,
+    updateLocalTag,
 } from "./photosSlice";
 
 jest.mock("../../common/APIs");
@@ -93,12 +94,29 @@ describe("photosSlice", () => {
         }));
     });
     it("should handle assignLabel reject", async () => {
-        const photo : IPhoto = photoFactory();
         mockedAPIs.putLabelPhotos.mockRejectedValue("");
         await store.dispatch(assignLabel({
             repoId: 1,
             labelId: 1,
             photos: [],
         }));
+    });
+    it("should handle updateLocalTag", () => {
+        const photo = photoFactory();
+        const action = { type: updateLocalTag.type, payload: { photoId: photo.photo_id, content: "abc" } };
+        const state = photosReducer({
+            ...photosInitialState,
+            photoList: [photo],
+        }, action);
+        expect(state.photoList[0].local_tag).toBe("abc");
+    });
+    it("should not fetch anything when repo_id is -1", async () => {
+        const store = configureStore({
+            reducer: {
+                photos: photosReducer,
+            },
+        });
+        await store.dispatch(fetchPhotos(-1));
+        expect(store.getState().photos.photoList.length).toBe(0);
     });
 });
