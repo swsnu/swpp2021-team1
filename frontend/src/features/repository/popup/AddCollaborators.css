@@ -1,8 +1,8 @@
-.dropdown-toggle::after {
+#dropdown-basic::after {
     display: none !important;
 }
 
-.dropdown-menu {
+#dropdown-basic {
     width: 100%;
 }
 

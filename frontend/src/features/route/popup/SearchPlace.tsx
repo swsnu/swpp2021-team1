@@ -52,7 +52,7 @@ export default function SearchPlace(props : SearchPlaceProps) {
                     placeholder="Search Places"
                     onChange={(event) => setQuery(event.target.value)}
                 />
-                <Button onClick={() => search(query)} disabled={props.isLoading}>
+                <Button onClick={() => search(query)} disabled={props.isLoading || query.length < 3}>
                     {props.isLoading ? "Loading" : "Search"}
                 </Button>
             </InputGroup>

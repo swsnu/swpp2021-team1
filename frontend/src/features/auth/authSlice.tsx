@@ -1,8 +1,6 @@
 import {
     createAsyncThunk, createSlice, PayloadAction, SliceCaseReducers,
 } from "@reduxjs/toolkit";
-
-import { RootState } from "../../app/store";
 import {
     deleteFriends,
     deleteProfilePicture,

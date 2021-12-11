@@ -16,6 +16,7 @@ export default function NotificationList() {
 
     useEffect(() => {
         dispatch(actionCreators.fetchNotifications());
+        dispatch(actionCreators.fetchSession());
     }, [dispatch]);
 
     function response(id : number, answer : NoticeAnswerType) {
