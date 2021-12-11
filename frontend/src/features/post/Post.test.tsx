@@ -1,6 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { mount } from "enzyme";
-import { createBrowserHistory } from "history";
 import React from "react";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
@@ -12,8 +11,6 @@ import postsReducer from "./postsSlice";
 
 const fact = new Factory();
 
-const history = createBrowserHistory();
-const historyMock = { ...history, push: jest.fn(), listen: jest.fn() };
 describe("Post", () => {
     beforeAll(() => server.listen());
     afterEach(() => server.resetHandlers);

@@ -9,6 +9,7 @@ import {
 } from "../../common/Interfaces";
 import avatar from "../../common/assets/avatar.jpg";
 import "./Notification.css";
+import fork from "../../common/assets/fork.svg";
 
 interface NotificationProps {
     notification : INotification;
@@ -28,9 +29,15 @@ export default function Notification(props : NotificationProps) {
                         onClick={() => history.push(`/repos/${props.notification.repository?.repo_id}`)}
                     >
                         <h5 className="m-2 notice-text-overflow-long">
+                            <img
+                                src={fork}
+                                height="40"
+                                className="me-3"
+                                alt=""
+                            />
                             {"Your repository "}
                             {props.notification.repository?.repo_name}
-                            {" has been posted."}
+                            {" was posted."}
                         </h5>
                     </ListGroup.Item>
                 );
@@ -154,7 +161,7 @@ export default function Notification(props : NotificationProps) {
                         {props.notification.count as number > 1 ?
                             `${props.notification.from_user.username} and ${props.notification.count} others` :
                             props.notification.from_user.username}
-                        {" fork your repository "}
+                        {" fork from your repository "}
                         {props.notification.repository?.repo_name}
                     </h5>
                 </ListGroup.Item>

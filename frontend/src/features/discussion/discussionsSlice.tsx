@@ -14,50 +14,50 @@ import {
 export const fetchDiscussions = createAsyncThunk<IDiscussion[], number>( // added
     "discussions/list",
     async (repo_id) => // payload creator
-        await getDiscussions(repo_id),
+        getDiscussions(repo_id),
 );
 
 export const createDiscussion = createAsyncThunk<IDiscussion, {repo_id : number, discussion : IDiscussion}>( // added
     "discussions/add",
     async ({ repo_id, discussion }) => // payload creator
-        await postDiscussions(repo_id, discussion),
+        postDiscussions(repo_id, discussion),
 );
 
 export const fetchDiscussion = createAsyncThunk<IDiscussion, number>( // added
     "discussion/fetch",
     async (discussion_id) => // payload creator
-        await getDiscussion(discussion_id),
+        getDiscussion(discussion_id),
 );
 
 export const editDiscussion = createAsyncThunk<IDiscussion, IDiscussion>( // added
     "discussion/edit",
     async (discussion) => // payload creator
-        await putDiscussion(discussion),
+        putDiscussion(discussion),
 );
 
 export const removeDiscussion = createAsyncThunk<void, number>( // added
     "discussion/remove",
     async (discussion_id) => // payload creator
-        await deleteDiscussion(discussion_id),
+        deleteDiscussion(discussion_id),
 );
 
 export const createComment = createAsyncThunk<IComment[], {discussion_id : number, text : string}>( // added
     "discussion/comments/add",
     async ({ discussion_id, text }) => // payload creator
-        await postDiscussionComment(discussion_id, text),
+        postDiscussionComment(discussion_id, text),
 );
 
 export const editComment = createAsyncThunk<IComment[],
     { discussion_id : number, comment_id : number, text : string }>( // added
         "discussion/comments/edit",
         async ({ discussion_id, comment_id, text }) => // payload creator
-            await putDiscussionComment(discussion_id, comment_id, text),
+            putDiscussionComment(discussion_id, comment_id, text),
     );
 
 export const removeComment = createAsyncThunk<IComment[], {discussion_id : number, comment_id : number}>( // added
     "discussion/comments/remove",
     async ({ discussion_id, comment_id }) => // payload creator
-        await deleteDiscussionComment(discussion_id, comment_id),
+        deleteDiscussionComment(discussion_id, comment_id),
 );
 
 export const discussionsInitialState: DiscussionsState = {
@@ -78,10 +78,10 @@ const discussionsSlice = createSlice<DiscussionsState, SliceCaseReducers<Discuss
     name: "discussions",
     initialState: discussionsInitialState,
     reducers: {
-        toBeLoaded: (state : DiscussionsState, action: PayloadAction<null>) => {
+        toBeLoaded: (state : DiscussionsState) => {
             state.isLoading = true;
         },
-        handleError: (state : DiscussionsState, action: PayloadAction<null>) => {
+        handleError: (state : DiscussionsState) => {
             state.hasError = false;
         },
     },

@@ -18,31 +18,31 @@ import {
 export const fetchSession = createAsyncThunk<{count : number}, void>(
     "notices/session",
     async () => // payload creator
-        await getNoticeSession(),
+        getNoticeSession(),
 );
 
 export const fetchNotifications = createAsyncThunk<INotification[], void>(
     "notices/all",
     async () => // payload creator
-        await getNotifications(),
+        getNotifications(),
 );
 
 export const removeNotifications = createAsyncThunk<INotification[], void>(
     "notices/remove_all",
     async () => // payload creator
-        await deleteNotifications(),
+        deleteNotifications(),
 );
 
 export const responseNotification = createAsyncThunk<INotification[], {id : number, answer : NoticeAnswerType}>(
     "notices/response",
     async ({ id, answer }) => // payload creator
-        await postNotification(id, answer),
+        postNotification(id, answer),
 );
 
 export const removeNotification = createAsyncThunk<INotification[], number>(
     "notices/remove",
     async (id) => // payload creator
-        await deleteNotification(id),
+        deleteNotification(id),
 );
 
 export const noticeInitState : NoticeState = {

@@ -20,33 +20,23 @@ export const labelsAdapter = createEntityAdapter<ILabel>({
 
 export const loadLabels = createAsyncThunk<ILabel[], { repoId: number}>(
     "labels/load",
-    async ({ repoId }) => {
-        const labels = await getLabels(repoId);
-        return labels;
-    },
+    async ({ repoId }) => getLabels(repoId),
 );
 
 export const newLabel = createAsyncThunk<ILabel[], { repoId: number, labelName: string; }>(
     "labels/new",
-    async ({ repoId, labelName }) => {
-        const labels = await postLabel(repoId, { label_name: labelName });
-        return labels;
-    },
+    async ({ repoId, labelName }) =>
+        postLabel(repoId, { label_name: labelName }),
 );
 
 export const editLabel = createAsyncThunk<ILabel[], { repoId: number, labelId: number, newName: string; }>(
     "labels/edit",
-    async ({ repoId, labelId, newName }) => {
-        const labels = await putLabel(repoId, labelId, { label_name: newName });
-        return labels;
-    },
+    async ({ repoId, labelId, newName }) =>
+        putLabel(repoId, labelId, { label_name: newName }),
 );
 export const deleteOneLabel = createAsyncThunk<ILabel[], { repoId: number, labelId: number }>(
     "labels/delete",
-    async ({ repoId, labelId }) => {
-        const labels = await deleteLabel(repoId, labelId);
-        return labels;
-    },
+    async ({ repoId, labelId }) => deleteLabel(repoId, labelId),
 );
 
 interface LabelsState {
@@ -61,25 +51,25 @@ export const labelsSlice = createSlice<LabelsState, SliceCaseReducers<LabelsStat
         loading: "idle" | "pending" | "succeeded" | "failed",
     }>({ loading: "idle" }),
     reducers: {
-        setLabelsIdle(state, action) {
+        setLabelsIdle(state) {
             state.loading = "idle";
         },
     },
     extraReducers: (builder) => {
-        builder.addCase(loadLabels.pending, (state, action) => {
+        builder.addCase(loadLabels.pending, (state) => {
             state.loading = "pending";
         });
         builder.addCase(loadLabels.fulfilled, (state, action) => {
             state.loading = "succeeded";
             labelsAdapter.setAll(state, action.payload);
         });
-        builder.addCase(loadLabels.rejected, (state, action) => {
+        builder.addCase(loadLabels.rejected, (state) => {
             state.loading = "failed";
         });
         builder.addCase(newLabel.fulfilled, (state, action) => {
             labelsAdapter.setAll(state, action.payload);
         });
-        builder.addCase(newLabel.rejected, (state, action) => {
+        builder.addCase(newLabel.rejected, (state) => {
             state.loading = "failed";
         });
         builder.addCase(editLabel.fulfilled, (state, action) => {

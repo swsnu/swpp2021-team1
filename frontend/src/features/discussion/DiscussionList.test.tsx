@@ -34,7 +34,7 @@ describe("DiscussionList", () => {
     let list : IDiscussion[] = [];
 
     beforeEach(() => {
-        jest.spyOn(actionCreators, "fetchDiscussions").mockImplementation((id : number) =>
+        jest.spyOn(actionCreators, "fetchDiscussions").mockImplementation(() =>
             (jest.fn()));
         jest.spyOn(actionCreators, "toBeLoaded").mockImplementation(() =>
             ({ type: "" } as { payload: any; type: string; }));
@@ -42,8 +42,7 @@ describe("DiscussionList", () => {
         for (let i = 0; i < 30; i++) {
             list.push(discussionFactory());
         }
-        const mockSelector = jest.spyOn(redux, "useSelector").mockImplementation(() =>
-            [false, false, list]);
+        jest.spyOn(redux, "useSelector").mockImplementation(() => [false, false, list]);
     });
 
     afterEach(() => {

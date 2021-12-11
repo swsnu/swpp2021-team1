@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { IPhoto } from "../../common/Interfaces";
@@ -8,7 +8,6 @@ import FocusedPhoto from "../photo/popup/FocusedPhoto";
 
 interface PCPhotoSelectProps {
     photos: IPhoto[] // 선택 가능한 사진 목록
-    // setSelectedPhotos: (photos: IPhoto[]) => void
     checked: { [ id: number ]: boolean }
     setChecked: React.Dispatch<React.SetStateAction<{
     [id: number]: boolean;}>>

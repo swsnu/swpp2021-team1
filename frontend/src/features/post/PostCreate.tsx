@@ -13,11 +13,11 @@ import { fetchPhotos } from "../photo/photosSlice";
 import PCPhotoSelect from "./PCPhotoSelect";
 import { newRepoPost } from "./postsSlice";
 
-interface PostcreateProps {
+interface PostCreateProps {
     mode: "create/user" | "create/repo" | "edit"
 }
 
-export default function Postcreate(props : PostcreateProps) {
+export default function PostCreate(props : PostCreateProps) {
     const dispatch = useAppDispatch();
 
     const account = useAppSelector((state) => state.auth.account);
@@ -102,10 +102,9 @@ export default function Postcreate(props : PostcreateProps) {
             if (currentPost?.photos && props.mode === "edit") {
                 const tempChecked: { [ id: number ]: boolean } = {};
                 photoOptions.forEach((option) => {
-                    if (currentPost?.photos.find(
+                    tempChecked[option.photo_id] = !!currentPost?.photos.find(
                         (photo) => photo.photo_id === option.photo_id,
-                    )) tempChecked[option.photo_id] = true;
-                    else tempChecked[option.photo_id] = false;
+                    );
                 });
                 setChecked(tempChecked);
             }

@@ -1,5 +1,4 @@
 import { mount } from "enzyme";
-import { BrowserRouter } from "react-router-dom";
 import { createBrowserHistory } from "history";
 import { Router } from "react-router";
 import Repository from "./Repository";

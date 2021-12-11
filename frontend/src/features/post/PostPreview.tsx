@@ -6,7 +6,6 @@ import { IPost } from "../../common/Interfaces";
 import Post from "./Post";
 
 // suppress no-tsx-component-props
-
 const PostPreview = () => {
     const history = useHistory();
     const repoId = parseInt(useParams<{id: string}>().id);

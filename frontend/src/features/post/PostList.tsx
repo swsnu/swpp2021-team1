@@ -7,7 +7,6 @@ import Post from "./Post";
 import { fetchRepoPosts, fetchUserPosts, postsSelectors } from "./postsSlice";
 
 // suppress no-tsx-component-props
-
 const PostList = () => {
     const dispatch = useAppDispatch();
     const account = useAppSelector((state) => state.auth.account);

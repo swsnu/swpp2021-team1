@@ -2,14 +2,13 @@ import "./LabelsSection.css";
 
 import React, { useEffect, useState } from "react";
 import { Badge, Dropdown, DropdownButton } from "react-bootstrap";
-import { useSelector } from "react-redux";
 import { useParams } from "react-router";
 import Select from "react-select";
 
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import store, { RootState } from "../../app/store";
+import store from "../../app/store";
 import {
-    ILabel, IPhoto, IRepository, IUser,
+    ILabel, IPhoto,
 } from "../../common/Interfaces";
 import Photo from "../photo/Photo";
 import { assignLabel, editPhoto, focusPhoto } from "../photo/photosSlice";
@@ -18,17 +17,13 @@ import {
     deleteOneLabel, editLabel, labelsSelectors, loadLabels, newLabel,
 } from "./labelsSlice";
 
-interface labelsSectionProps
-{
-
-}
-
 interface labelOption {
     value: ILabel,
     label: string
 }
 
-const LabelsSection = (props: labelsSectionProps) => {
+// suppress tsx-no-component-props
+const LabelsSection = () => {
     const dispatch = useAppDispatch();
     const labels = labelsSelectors.selectAll(store.getState());
     const labelsLoading = useAppSelector((state) => state.labels.loading);
@@ -42,16 +37,11 @@ const LabelsSection = (props: labelsSectionProps) => {
     const [photoFocused, setPhotoFocused] = useState<boolean>(false);
     const [checked, setChecked] = useState<{ [ id: number ]: boolean }>({});
     const currentPhoto = useAppSelector((state) => state.photos.currentPhoto);
-    const [user, repo] = useSelector<RootState, [IUser|null, IRepository|null]>((state) =>
-        [state.auth.account, state.repos.currentRepo]);
     const [mode, setMode] = useState<boolean>(false);
     const [hoveringPhoto, setHoveringPhoto] = useState<number | null>(null);
 
     useEffect(() => {
-        const loadPage = async () => {
-            await dispatch(loadLabels({ repoId }));
-        };
-        if (labelsLoading === "idle") loadPage();
+        if (labelsLoading === "idle") dispatch(loadLabels({ repoId }));
     }, [dispatch, labelsLoading]);
 
     useEffect(() => {
@@ -59,11 +49,9 @@ const LabelsSection = (props: labelsSectionProps) => {
     }, [allPhotos]);
 
     useEffect(() => {
-        // console.log(selectedLabels);
         const listOfLabels = selectedLabels.map((option) => option.value);
         if (selectedLabels.length === 0) setDisplayPhotos(allPhotos);
         else {
-            // console.log(allPhotos);
             const filterPhoto = (photo: IPhoto) => {
                 if (photo.labels) {
                     return photo.labels.some(
@@ -74,7 +62,6 @@ const LabelsSection = (props: labelsSectionProps) => {
                 }
                 return false;
             };
-            // console.log(allPhotos);
             setDisplayPhotos(allPhotos.filter((photo: IPhoto) => filterPhoto(photo)));
         }
     }, [selectedLabels]);
@@ -103,11 +90,8 @@ const LabelsSection = (props: labelsSectionProps) => {
     }
 
     const onNewLabel = () => {
-        const submitNewLabel = async () => {
-            const newName = window.prompt("Name of new label: ");
-            await (dispatch(newLabel({ repoId: (repoId as number), labelName: (newName as string) })));
-        };
-        submitNewLabel();
+        const newName = window.prompt("Name of new label: ");
+        dispatch(newLabel({ repoId: (repoId as number), labelName: (newName as string) }));
     };
 
     const onAssignLabel = (labelId: number) => {
@@ -235,24 +219,6 @@ const LabelsSection = (props: labelsSectionProps) => {
                                     value.labels?.map((label) => (
                                         <Badge
                                             className="label-badge"
-                                            // onClick={
-                                            //     () => {
-                                            //         const response = window.confirm(
-                                            //             "Are you sure to remove this label from the photo?",
-                                            //         );
-                                            //         if (response) {
-                                            //             dispatch(
-                                            //                 assignLabel(
-                                            //                     {
-                                            //                         repoId,
-                                            //                         labelId: label.label_id,
-                                            //                         photos: [value],
-                                            //                     },
-                                            //                 ),
-                                            //             );
-                                            //         }
-                                            //     }
-                                            // }
                                         >
                                             <i className="bi-alarm" />
                                             {label.label_name}

@@ -19,21 +19,21 @@ export const fetchPhotos = createAsyncThunk<IPhoto[], number>( // added
 export const addPhotos = createAsyncThunk<IPhoto[], {repo_id : number, images : FormData}>( // added
     "photos/add",
     async ({ repo_id, images }) => // payload creator
-        await postPhotos(repo_id, images),
+        postPhotos(repo_id, images),
 
 );
 
 export const editPhoto = createAsyncThunk<IPhoto, {repo_id : number, photo : IPhoto}>( // added
     "photos/edit",
     async ({ repo_id, photo }) => // payload creator
-        await putPhoto(repo_id, photo),
+        putPhoto(repo_id, photo),
 
 );
 
 export const removePhotos = createAsyncThunk<IPhoto[], {repo_id : number, photos_id : {photo_id : number}[]}>( // added
     "photos/remove",
     async ({ repo_id, photos_id }) => // payload creator
-        await deletePhotos(repo_id, photos_id),
+        deletePhotos(repo_id, photos_id),
 
 );
 
@@ -41,10 +41,8 @@ export const assignLabel = createAsyncThunk<IPhoto[], {
     repoId: number, labelId: number, photos: { photo_id: number }[]
 }>(
     "photos/assignLabel",
-    async ({ repoId, labelId, photos }) => {
-        const response = await putLabelPhotos(repoId, labelId, photos);
-        return response;
-    },
+    async ({ repoId, labelId, photos }) =>
+        putLabelPhotos(repoId, labelId, photos),
 
 );
 
@@ -66,10 +64,10 @@ const photosSlice = createSlice<PhotosState, SliceCaseReducers<PhotosState>>({
     name: "photos",
     initialState: photosInitialState,
     reducers: {
-        toBeLoaded: (state: PhotosState, action: PayloadAction<null>) => {
+        toBeLoaded: (state: PhotosState) => {
             state.isLoading = true;
         },
-        handleError: (state: PhotosState, action: PayloadAction<null>) => {
+        handleError: (state: PhotosState) => {
             state.hasError = false;
         },
         focusPhoto: (state: PhotosState, action: PayloadAction<number>) => {
@@ -98,25 +96,20 @@ const photosSlice = createSlice<PhotosState, SliceCaseReducers<PhotosState>>({
         });
 
         builder.addCase(addPhotos.pending, (state: PhotosState) => {
-            // state.isLoading = true;
             state.hasError = false;
         });
         builder.addCase(addPhotos.fulfilled, (state : PhotosState, action: PayloadAction<IPhoto[]>) => {
-            // state.isLoading = false;
             state.hasError = false;
             state.photoList = action.payload;
         });
         builder.addCase(addPhotos.rejected, (state: PhotosState) => {
-            // state.isLoading = false;
             state.hasError = true;
         });
 
         builder.addCase(editPhoto.pending, (state: PhotosState) => {
-            // state.isLoading = true;
             state.hasError = false;
         });
         builder.addCase(editPhoto.fulfilled, (state : PhotosState, action: PayloadAction<IPhoto>) => {
-            // state.isLoading = false;
             state.hasError = false;
             state.photoList = state.photoList.map((value) => {
                 if (value.photo_id === action.payload.photo_id) return action.payload;
@@ -125,21 +118,17 @@ const photosSlice = createSlice<PhotosState, SliceCaseReducers<PhotosState>>({
             state.currentPhoto = null;
         });
         builder.addCase(editPhoto.rejected, (state: PhotosState) => {
-            // state.isLoading = false;
             state.hasError = true;
         });
 
         builder.addCase(removePhotos.pending, (state: PhotosState) => {
-            // state.isLoading = true;
             state.hasError = false;
         });
         builder.addCase(removePhotos.fulfilled, (state : PhotosState, action: PayloadAction<IPhoto[]>) => {
-            // state.isLoading = false;
             state.hasError = false;
             state.photoList = action.payload;
         });
         builder.addCase(removePhotos.rejected, (state: PhotosState) => {
-            // state.isLoading = false;
             state.hasError = true;
         });
         builder.addCase(assignLabel.pending, (state: PhotosState) => {

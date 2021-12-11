@@ -15,7 +15,7 @@ import {
 export const fetchRoute = createAsyncThunk<IRoute, number>( // added
     "route/fetch",
     async (repo_id) => // payload creator
-        await getRoute(repo_id),
+        getRoute(repo_id),
 
 );
 
@@ -25,7 +25,7 @@ export const addPlace = createAsyncThunk<
     >( // added
         "route/add",
         async ({ repo_id, place_id }) => // payload creator
-            await postPlaces(repo_id, place_id),
+            postPlaces(repo_id, place_id),
 
     );
 
@@ -35,28 +35,28 @@ export const editPlaces = createAsyncThunk<
     >( // added
         "route/edit/place",
         async ({ repo_id, places }) => // payload creator
-            await putPlaces(repo_id, places),
+            putPlaces(repo_id, places),
 
     );
 
 export const searchRegion = createAsyncThunk<PlaceQueryResult[], string>( // added
     "route/search/region",
     async (queryString) => // payload creator
-        await getRegionQuery(queryString),
+        getRegionQuery(queryString),
 
 );
 
 export const searchPlace = createAsyncThunk<PlaceQueryResult[], {repo_id : number, queryString : string}>( // added
     "route/search/place",
     async ({ repo_id, queryString }) => // payload creator
-        await getPlacesQuery(repo_id, queryString),
+        getPlacesQuery(repo_id, queryString),
 
 );
 
 export const editPhoto = createAsyncThunk<IPhoto, {repo_id : number, photo : IPhoto}>( // added
     "route/photo/edit",
     async ({ repo_id, photo }) => // payload creator
-        await putPhoto(repo_id, photo),
+        putPhoto(repo_id, photo),
 
 );
 
@@ -98,7 +98,7 @@ const routeSlice = createSlice<RouteState, SliceCaseReducers<RouteState>>({
                 }));
             state.focusedPhoto = photo;
         },
-        clearResult: (state: RouteState, action: PayloadAction<null>) => {
+        clearResult: (state: RouteState) => {
             state.queryResult = [];
         },
     },

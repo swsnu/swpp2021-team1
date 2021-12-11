@@ -10,8 +10,7 @@ import Repository from "./Repository";
 // suppress tsx-no-component-props
 export default function RepositoryList() {
     const dispatch = useDispatch<AppDispatch>();
-    const [userIsLoading, userHasError] = useSelector<RootState, [boolean, boolean]>((state) =>
-        [state.auth.isLoading, state.auth.hasError]);
+    const userIsLoading = useSelector<RootState, boolean>((state) => state.auth.isLoading);
     const [isLoading, hasError] = useSelector<RootState, [boolean, boolean]>((state) =>
         [state.repos.isLoading, state.repos.hasError]);
     const [account, user, repoList] = useSelector<RootState, [IUser|null, IUser|null, IRepository[]]>((state) =>
@@ -29,7 +28,6 @@ export default function RepositoryList() {
         history.push("/repos/create");
     }
 
-    // if (hasError) return (<div>Fatal Error!!!</div>);
     return (
         <div>
             {

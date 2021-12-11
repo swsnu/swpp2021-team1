@@ -9,7 +9,7 @@ import authReducer from "../auth/authSlice";
 import reposReducer from "./reposSlice";
 import postsReducer from "../post/postsSlice";
 import photosReducer from "../photo/photosSlice";
-import { repositoryFactory } from "../../common/Interfaces";
+import { repositoryFactory, userFactory } from "../../common/Interfaces";
 import RepositoryHeader from "./RepositoryHeader";
 
 const history = createBrowserHistory();
@@ -37,6 +37,7 @@ function makeStoredComponent() {
 describe("RepositoryHeader", () => {
     beforeEach(() => {
         const repo = repositoryFactory();
+        const user = userFactory();
 
         jest.spyOn(redux, "useDispatch").mockImplementation((() =>
             () => ({
@@ -45,9 +46,12 @@ describe("RepositoryHeader", () => {
 
         jest.spyOn(redux, "useSelector").mockImplementation((e: (e: any) => any) => e({
             repos: {
-                currentRepo: repo,
+                currentRepo: { ...repo, collaborators: [user] },
                 hasError: false,
                 isLoading: false,
+            },
+            auth: {
+                account: user,
             },
         }));
 
@@ -65,6 +69,9 @@ describe("RepositoryHeader", () => {
                 hasError: false,
                 isLoading: true,
             },
+            auth: {
+                account: userFactory(),
+            },
         }));
         const component = mount(makeStoredComponent());
         expect(component.find("h2").length).toBe(0);
@@ -76,6 +83,9 @@ describe("RepositoryHeader", () => {
                 currentRepo: null,
                 hasError: true,
                 isLoading: false,
+            },
+            auth: {
+                account: userFactory(),
             },
         }));
         const component = mount(makeStoredComponent());

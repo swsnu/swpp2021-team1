@@ -12,9 +12,9 @@ import "./PhotoPreview.css";
 
 // suppress tsx-no-component-props
 export default function PhotoPreview() {
-    const [isLoading, hasError, currentPhoto, photoList] = useSelector<RootState,
-        [boolean, boolean, IPhoto|null, IPhoto[]]>((state) =>
-            [state.photos.isLoading, state.photos.hasError, state.photos.currentPhoto, state.photos.photoList]);
+    const [isLoading, currentPhoto, photoList] = useSelector<RootState,
+        [boolean, IPhoto|null, IPhoto[]]>((state) =>
+            [state.photos.isLoading, state.photos.currentPhoto, state.photos.photoList]);
     const params = useParams<{id : string}>();
     const dispatch = useDispatch<AppDispatch>();
     const [photoShow, setPhotoShow] = useState<boolean>(false);

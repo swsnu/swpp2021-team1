@@ -18,18 +18,18 @@ import {
 export const fetchRepositories = createAsyncThunk<IRepository[], string>( // added
     "repos/list",
     async (username) => // payload creator
-        await getRepositories(username),
+        getRepositories(username),
 
 );
 
 export const createRepository = createAsyncThunk<IRepository, IRepository>( // added
     "repos/add",
-    async (repo) => await postRepositories(repo),
+    async (repo) => postRepositories(repo),
 );
 
 export const editRepository = createAsyncThunk<IRepository, IRepository>( // added
     "repos/edit",
-    async (repo) => await putRepository(repo),
+    async (repo) => putRepository(repo),
 );
 
 export const removeRepository = createAsyncThunk<void, number>( // added
@@ -41,39 +41,39 @@ export const removeRepository = createAsyncThunk<void, number>( // added
 
 export const fetchRepository = createAsyncThunk<IRepository, number>( // added
     "repos/repo",
-    async (repoID) => await getRepository(repoID),
+    async (repoID) => getRepository(repoID),
 );
 
 export const addCollaborators = createAsyncThunk<IUser[], {repoID : number, users : {username: string}[]}>( // added
     "repos/collaborators",
     async ({ repoID, users }) =>
-        await postCollaborators(repoID, users),
+        postCollaborators(repoID, users),
 );
 
 export const leaveRepository = createAsyncThunk<void, {username : string, repoID : number}>( // added
     "repos/leave",
     async ({ username, repoID }) =>
-        await deleteCollaborators(repoID, username),
+        deleteCollaborators(repoID, username),
 );
 
 export const editRegion = createAsyncThunk<void, {repo_id : number, place_id : string}>( // added
     "repos/region",
     async ({ repo_id, place_id }) => // payload creator
-        await postRoute(repo_id, place_id, "region"),
+        postRoute(repo_id, place_id, "region"),
 
 );
 
 export const forkRoute = createAsyncThunk<void, {repo_id : number, forked_repo_id : number}>( // added
     "repos/fork",
     async ({ repo_id, forked_repo_id }) => // payload creator
-        await postRoute(repo_id, forked_repo_id, "fork"),
+        postRoute(repo_id, forked_repo_id, "fork"),
 
 );
 
 export const createRepoPost = createAsyncThunk<void, number>( // added
     "repos/post",
     async (repo_id) => // payload creator
-        await postRepoPost(repo_id),
+        postRepoPost(repo_id),
 
 );
 
@@ -102,11 +102,11 @@ const reposSlice = createSlice<ReposState, SliceCaseReducers<ReposState>>({
     name: "repos",
     initialState: reposInitialState,
     reducers: {
-        toBeLoaded: (state : ReposState, action: PayloadAction<null>) => {
+        toBeLoaded: (state : ReposState) => {
             state.isLoading = true;
             state.currentRepo = null;
         },
-        handleError: (state : ReposState, action: PayloadAction<null>) => {
+        handleError: (state : ReposState) => {
             state.hasError = false;
         },
     },

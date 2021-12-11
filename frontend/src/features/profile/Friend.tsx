@@ -1,8 +1,6 @@
 import React from "react";
 import { Image, ListGroup } from "react-bootstrap";
-import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
-import { useAppDispatch } from "../../app/hooks";
 import { IUser } from "../../common/Interfaces";
 import avatar from "../../common/assets/avatar.jpg";
 
@@ -11,8 +9,6 @@ interface FriendProps {
 }
 
 export default function Friend(props : FriendProps) {
-    const dispatch = useAppDispatch();
-    const history = useHistory();
     const { friend } = props;
     return (
         <Link to={`/main/${props.friend.username}`} className="text-decoration-none">
