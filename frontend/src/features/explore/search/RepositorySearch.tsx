@@ -12,21 +12,19 @@ export default function RepositorySearch(props : RepositorySearchProps) {
 
     return (
         <ListGroup.Item
-            className="d-flex justify-content-between align-items-start"
-            variant="primary"
             action
             onClick={() => history.push(`/repos/${props.repositorySearch.repo_id}`)}
         >
             <div className="ms-2 me-auto">
                 <h5 className="fw-bold">{props.repositorySearch.repo_name}</h5>
             </div>
-            <Badge pill>
+            <Badge pill className="me-2 fw-normal">
                 {`#${props.repositorySearch.region_address}`}
             </Badge>
             {
                 props.repositorySearch.places.map((value) => (
                     <React.Fragment key={value.place_name}>
-                        <Badge pill>
+                        <Badge pill className="me-2 fw-normal">
                             {`#${value.place_name}`}
                         </Badge>
                     </React.Fragment>
