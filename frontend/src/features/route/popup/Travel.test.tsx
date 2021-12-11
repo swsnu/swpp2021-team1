@@ -1,7 +1,7 @@
 import * as google from "@react-google-maps/api";
 import { mount } from "enzyme";
 import axios from "axios";
-import { act, screen, render } from "@testing-library/react";
+import { act } from "@testing-library/react";
 import { placeFactory, regionFactory } from "../../../common/Interfaces";
 import Travel from "./Travel";
 

@@ -59,7 +59,7 @@ export default function PhotoPreview() {
     }
 
     function onCheck(event : React.ChangeEvent<HTMLInputElement>) {
-        const id = parseInt(event.target.name) as number;
+        const id = parseInt(event.target.name);
         const temp = { ...checked };
         temp[id] = !checked[id];
         setChecked(temp);
