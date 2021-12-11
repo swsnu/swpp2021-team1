@@ -90,7 +90,7 @@ def exploreRepositories(request):
     repositories_friends = Repository.objects.filter(
         collaborators__in=User.objects.filter(username=request.user.username).values('friends')
     )
-    repositories_friends_exclude_private = repositories_friends.filter(visibility=Scope.FRIENDS_ONLY)
+    repositories_friends_exclude_private = repositories_friends.exclude(visibility=Scope.PRIVATE)
 
     repositories_friends_matching = repositories_friends_exclude_private.filter(repo_name__icontains=query_repository)
     repositories_friends_matching = repositories_friends_matching.annotate(order=models.Value(0, models.IntegerField()))
@@ -173,7 +173,7 @@ def exploreRegions(request):
     repositories_friends = Repository.objects.filter(
         collaborators__in=User.objects.filter(username=request.user.username).values('friends')
     )
-    repositories_friends_exclude_private = repositories_friends.filter(visibility=Scope.FRIENDS_ONLY)
+    repositories_friends_exclude_private = repositories_friends.exclude(visibility=Scope.PRIVATE)
 
     repositories_friends_matching = repositories_friends_exclude_private.filter(route__place_id=place_id)
     repositories_friends_matching = repositories_friends_matching.annotate(order=models.Value(0, models.IntegerField()))
