@@ -14,7 +14,8 @@ from project.httpResponse import (
     HttpResponseNoPermission,
     HttpResponseSuccessGet,
     HttpResponseSuccessDelete,
-    HttpResponseInvalidInput
+    HttpResponseInvalidInput,
+    HttpResponseSuccessGetToken
 )
 from project.enum import Scope, NoticeType, UserProfileType
 

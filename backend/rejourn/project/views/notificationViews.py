@@ -60,7 +60,7 @@ def get_notification_dict(notification):
             notification_dict['post'] = get_post_dict(notification.post, preview=True)
         else:   # notification.discussion is not None
             notification_dict['discussion'] = get_discussion_dict(notification.discussion, preview=True)
-    else:   # notification.classification == NoticeType.FORK
+    elif notification.classification == NoticeType.FORK:
         notification_dict['repository'] = get_repository_dict(notification.repository)
     return notification_dict
 

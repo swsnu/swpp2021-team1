@@ -206,7 +206,7 @@ class PostTestCase(TestCase):
             json.dumps({"username": "u_1_USERNAME", "password": "u_1_PASSWORD"}),
             content_type="application/json",
         )
-        client.get(
+        response = client.get(
             "/api/repositories/1/posts/",
         )
         self.assertEqual(response.status_code, 200)
