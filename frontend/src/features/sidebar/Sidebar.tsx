@@ -33,7 +33,6 @@ function Sidebar() {
 
     if (isLoading) return null;
     if (hasError) {
-        dispatch(actionCreators.handleError(null));
         return <Redirect to="/login" />;
     }
 
@@ -72,7 +71,7 @@ function Sidebar() {
                     </Link>
                     <Link
                         id="noti-menu"
-                        to={`/main/${account?.username}/notification`}
+                        to="/notification"
                         className="nav-link link-dark mb-2 mt-2 fs-5"
                     >
                         <FontAwesomeIcon className="mt-2 me-3" icon={faBell} color="#f69d72" />

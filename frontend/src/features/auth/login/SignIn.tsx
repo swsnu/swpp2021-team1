@@ -19,6 +19,7 @@ export default function SignIn() {
     const [loginClicked, setLoginClicked] = useState<boolean>(false);
 
     useEffect(() => {
+        dispatch(actionCreator.handleError(null));
         dispatch(actionCreator.fetchSession());
     }, [dispatch]);
 

@@ -8,6 +8,7 @@ import { IRepository, IUser, RepoTravel } from "../../common/Interfaces";
 import "./RepositoryHeader.css";
 import megaphone from "../../common/assets/megaphone.svg";
 import help from "../../common/assets/help.svg";
+import error from "../../common/assets/error.svg";
 
 // suppress tsx-no-component-props
 export default function RepositoryHeader() {
@@ -38,7 +39,14 @@ export default function RepositoryHeader() {
     }
 
     if (isLoading) return null;
-    if (hasError) return (<div>404 Error : You cannot watch this repository.</div>);
+    if (hasError) {
+        return (
+            <h3 className="mt-5 fst-italic">
+                <img src={error} alt={error} height="45" className="me-3" />
+                404 Error : Repository Not Found :(
+            </h3>
+        );
+    }
     if (!currentRepo) return (<div>Unexpected Error!</div>);
     const hasAuth = user && currentRepo.collaborators.filter((value) => user.username === value.username).length > 0;
     return (

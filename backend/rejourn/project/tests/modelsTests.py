@@ -1,6 +1,5 @@
 import tempfile
 import shutil
-from decimal import *
 from datetime import datetime
 
 from django.utils import timezone
@@ -8,7 +7,20 @@ from django.test import TestCase, override_settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from project.enum import Scope
-from project.models.models import *
+from project.models.models import (
+    User,
+    Repository,
+    Route,
+    PlaceInRoute,
+    Photo,
+    PhotoTag,
+    Discussion,
+    DiscussionComment,
+    Post,
+    PostComment,
+    PhotoInPost,
+    Label,
+)
 
 
 MEDIA_ROOT = tempfile.mkdtemp()
@@ -47,10 +59,6 @@ class ModelsTestCase(TestCase):
     stubrepository_a = {
         "repo_name": "TEST_REPOSITORY_A",
         "visibility": Scope.PUBLIC,
-        # owner,
-        # 'travel_start_date'
-        # 'travel_end_date'
-        # collaborators,
     }
 
     def makeUsers(self):
@@ -270,24 +278,3 @@ class ModelsTestCase(TestCase):
         self.assertEqual(photo.thumbnail_of, place_in_route)
         self.assertEqual(place_in_route.thumbnail, photo)
         self.assertEqual(photo.place, place_in_route)
-
-    def test_photoTag_model(self):
-        pass
-
-    def test_discussion_model(self):
-        pass
-
-    def test_discussionComment_model(self):
-        pass
-
-    def test_post_model(self):
-        pass
-
-    def test_photoInPost_model(self):
-        pass
-
-    def test_postComment_model(self):
-        pass
-
-    def test_label_model(self):
-        pass

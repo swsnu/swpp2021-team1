@@ -7,7 +7,15 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 
 from project.models.models import User, Repository, Notification
-from project.httpResponse import *
+from project.httpResponse import (
+    HttpResponseNotLoggedIn,
+    HttpResponseNotExist,
+    HttpResponseSuccessUpdate,
+    HttpResponseNoPermission,
+    HttpResponseSuccessGet,
+    HttpResponseSuccessDelete,
+    HttpResponseInvalidInput
+)
 from project.utils import repo_visible
 from project.enum import Scope, NoticeType
 
@@ -221,7 +229,7 @@ def repositoryID(request, repo_id):
     except Repository.DoesNotExist:
         return HttpResponseNotExist()
 
-    if repository.owner != request.user:
+    if request.user not in repository.collaborators.all():
         return HttpResponseNoPermission()
 
     repository.repo_name = repo_name

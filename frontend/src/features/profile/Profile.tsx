@@ -13,6 +13,7 @@ import FriendList from "./popup/FriendList";
 import "./Profile.css";
 import { addFriend, switchCurrentUser, unfriend } from "../auth/authSlice";
 import avatar from "../../common/assets/avatar.jpg";
+import error from "../../common/assets/error.svg";
 
 // suppress tsx-component-no-props
 export default function Profile() {
@@ -107,7 +108,12 @@ export default function Profile() {
         );
     }
     if (hasError) {
-        return <div>error!</div>;
+        return (
+            <h3 className="mt-5 fst-italic">
+                <img src={error} alt={error} height="45" className="me-3" />
+                404 Error : User Not Found :(
+            </h3>
+        );
     }
     let friendListVisible = false;
     if (currentUser?.username === account?.username) friendListVisible = true;

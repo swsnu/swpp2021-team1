@@ -64,7 +64,7 @@ export default function SignUp(props : SignUpProps) {
         case "username":
             setUsername(event.target.value);
             setCanUse(null);
-            if (/^[a-zA-Z\d_]+$/.test(event.target.value) && event.target.value.length <= 150) {
+            if (/^[a-zA-Z\d_]+$/.test(event.target.value) && event.target.value.length >= 3) {
                 setValid([valid[0], true, valid[2], valid[3]]);
             }
             else {

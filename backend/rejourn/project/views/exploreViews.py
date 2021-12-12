@@ -11,7 +11,10 @@ from django.conf import settings
 from django.utils import timezone
 
 from project.models.models import User, Repository, PlaceInRoute, Post, PhotoInPost
-from project.httpResponse import *
+from project.httpResponse import (
+    HttpResponseNotLoggedIn,
+    HttpResponseSuccessGet,
+)
 
 from project.enum import Scope, PostType, RepoTravel
 
@@ -162,8 +165,6 @@ def exploreRegions(request):
         return HttpResponseBadRequest()
 
     place_id = geocoding_response.json()['results'][0]['place_id']
-
-    #route_to_contain = Route.objects.filter(place_id=place_id)
 
     repositories_mine = Repository.objects.filter(collaborators__user_id=request.user.user_id)
 

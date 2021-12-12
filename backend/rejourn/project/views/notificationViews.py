@@ -8,7 +8,15 @@ from django.views.decorators.http import require_http_methods
 from django.utils import timezone
 
 from project.models.models import Notification
-from project.httpResponse import *
+from project.httpResponse import (
+    HttpResponseNotLoggedIn,
+    HttpResponseNotExist,
+    HttpResponseSuccessUpdate,
+    HttpResponseNoPermission,
+    HttpResponseSuccessGet,
+    HttpResponseSuccessDelete,
+    HttpResponseInvalidInput
+)
 from project.enum import NoticeType, NoticeAnswerType
 from project.views.postViews import get_post_dict
 from project.views.discussionViews import get_discussion_dict
@@ -33,9 +41,8 @@ def get_notification_dict(notification):
         'from_user' : from_user_info,
         'new' : notification.new,
     }
-    if notification.classification == NoticeType.FRIEND_REQUEST:
-        pass
-    elif notification.classification == NoticeType.INVITATION:
+    # notification.classification == NoticeType.FRIEND_REQUEST is passed.
+    if notification.classification == NoticeType.INVITATION:
         notification_dict['repository'] = get_repository_dict(notification.repository)
     elif notification.classification == NoticeType.NEW_POST:
         notification_dict['repository'] = get_repository_dict(notification.repository)
@@ -53,7 +60,7 @@ def get_notification_dict(notification):
             notification_dict['post'] = get_post_dict(notification.post, preview=True)
         else:   # notification.discussion is not None
             notification_dict['discussion'] = get_discussion_dict(notification.discussion, preview=True)
-    else:   # notification.classification == NoticeType.FORK
+    elif notification.classification == NoticeType.FORK:
         notification_dict['repository'] = get_repository_dict(notification.repository)
     return notification_dict
 
@@ -222,9 +229,7 @@ def notificationID(request, notification_id):
                 subject_user = notification.user
                 repository.collaborators.add(subject_user)
                 repository.save()
-        elif answer == NoticeAnswerType.NO:
-            pass
-        else:
+        elif answer != NoticeAnswerType.NO:
             return HttpResponseInvalidInput()
         notification.delete()
 

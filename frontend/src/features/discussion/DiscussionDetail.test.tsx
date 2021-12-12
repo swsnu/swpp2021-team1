@@ -86,7 +86,7 @@ describe("DiscussionDetail", () => {
             },
         }));
         const component = mount(makeStoredComponent());
-        expect(component.find("div").text()).toContain("404");
+        expect(component.find("h3").text()).toContain("404");
     });
 
     it("Should be able edit/delete discussion if user is owner", () => {

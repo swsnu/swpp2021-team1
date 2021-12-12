@@ -63,7 +63,6 @@ export default function App() {
                                                 </>
                                             )}
                                         />
-                                        <Route path="/main/:user/notification" exact component={NotificationList} />
                                         <Route path="/main/:user/setting" exact component={ProfileSetting} />
                                         <Route path="/repos/create" exact component={RepositoryCreate} />
                                         <Route path="/repos/:id" exact component={RepositoryDetail} />
@@ -97,6 +96,7 @@ export default function App() {
                                         />
                                         <Route path="/posts/:post_id" exact component={PostDetail} />
                                         <Route path="/explore" exact component={Explore} />
+                                        <Route path="/notification" exact component={NotificationList} />
                                         <Redirect from="/" to="/login" />
                                     </Switch>
                                 </Container>

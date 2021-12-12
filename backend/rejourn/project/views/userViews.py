@@ -7,7 +7,16 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 
 from project.models.models import User, Notification
-from project.httpResponse import *
+from project.httpResponse import (
+    HttpResponseNotLoggedIn,
+    HttpResponseNotExist,
+    HttpResponseSuccessUpdate,
+    HttpResponseNoPermission,
+    HttpResponseSuccessGet,
+    HttpResponseSuccessDelete,
+    HttpResponseInvalidInput,
+    HttpResponseSuccessGetToken
+)
 from project.enum import Scope, NoticeType, UserProfileType
 
 
