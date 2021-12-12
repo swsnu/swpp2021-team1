@@ -278,24 +278,3 @@ class ModelsTestCase(TestCase):
         self.assertEqual(photo.thumbnail_of, place_in_route)
         self.assertEqual(place_in_route.thumbnail, photo)
         self.assertEqual(photo.place, place_in_route)
-
-    def test_photoTag_model(self):
-        pass
-
-    def test_discussion_model(self):
-        pass
-
-    def test_discussionComment_model(self):
-        pass
-
-    def test_post_model(self):
-        pass
-
-    def test_photoInPost_model(self):
-        pass
-
-    def test_postComment_model(self):
-        pass
-
-    def test_label_model(self):
-        pass

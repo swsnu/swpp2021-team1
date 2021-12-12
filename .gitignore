@@ -18,6 +18,7 @@ db.sqlite3-journal
 backend/rejourn/project/migrations/*.py
 !migrations/__init__.py
 media
+my_setting.py
 
 # testing
 /coverage
