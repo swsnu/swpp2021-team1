@@ -8,10 +8,10 @@ import { useParams } from "react-router-dom";
 
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { getPost, getRepositories } from "../../common/APIs";
-import { IPost, IRepository } from "../../common/Interfaces";
+import { IPost, IRepository, PostType } from "../../common/Interfaces";
 import { fetchPhotos } from "../photo/photosSlice";
 import PCPhotoSelect from "./PCPhotoSelect";
-import { newRepoPost } from "./postsSlice";
+import { newRepoPost, PhotoWithLocalTag } from "./postsSlice";
 
 interface PostCreateProps {
     mode: "create/user" | "create/repo" | "edit"
@@ -117,8 +117,15 @@ export default function PostCreate(props : PostCreateProps) {
     // 작성 후 Submit 버튼을 눌렀을 때,
     const onCreate = async () => {
         const taggedPhotos = photoOptions.filter((photo) => checked[photo.photo_id]);
+        const photosPayload: PhotoWithLocalTag[] = [];
         taggedPhotos.forEach((photo) => {
-            if (!photo.local_tag) photo.local_tag = photo.tag;
+            photosPayload.push(photo.local_tag ? {
+                photo_id: photo.photo_id,
+                local_tag: photo.local_tag as string,
+            } : {
+                photo_id: photo.photo_id,
+                local_tag: photo.tag as string,
+            });
         });
         try {
             // 새 Post를 서버에 업로드
@@ -126,7 +133,7 @@ export default function PostCreate(props : PostCreateProps) {
                 repo_id: selectedRepoId,
                 title,
                 text,
-                photos: taggedPhotos,
+                photos: photosPayload,
             }));
             // 그 Post 페이지로 리다이렉트
             const originalPromiseResult = unwrapResult(resultAction);
