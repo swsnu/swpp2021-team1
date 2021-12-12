@@ -15,7 +15,9 @@ import {
     putPost,
     putPostComment,
 } from "../../common/APIs";
-import { IComment, IPhoto, IPost } from "../../common/Interfaces";
+import {
+    IComment, IPhoto, IPost, PostType,
+} from "../../common/Interfaces";
 
 const postsAdapter = createEntityAdapter<IPost>({
     selectId: (post: IPost) => post.post_id,
@@ -67,8 +69,13 @@ export const fetchRepoPosts = createAsyncThunk<IPost[], number>(
     async (repoId: number) => getRepositoryPosts(repoId),
 );
 
+export interface PhotoWithLocalTag {
+    photo_id: number,
+    local_tag: string
+}
+
 export const newRepoPost = createAsyncThunk<
-IPost, {repo_id: number, title: string, text: string, photos: IPhoto[]}>(
+IPost, {repo_id: number, title: string, text: string, photos: PhotoWithLocalTag[]}>(
     "post/newRepoPost",
     async ({
         repo_id, title, text, photos,

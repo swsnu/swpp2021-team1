@@ -1,4 +1,5 @@
 import axios, { AxiosResponse } from "axios";
+import { PhotoWithLocalTag } from "../features/post/postsSlice";
 
 import { PlaceQueryResult } from "../features/route/routeSlice";
 import {
@@ -208,7 +209,7 @@ export async function getRepositoryPosts(repo_id: number) {
     )).data;
 }
 
-export async function postPost(repo_id: number, post: {title: string, text: string, photos: IPhoto[]}) {
+export async function postPost(repo_id: number, post: {title: string, text: string, photos: PhotoWithLocalTag[]}) {
     return (await axios.post<any, AxiosResponse<IPost>>(
         `/api/repositories/${repo_id}/posts/`, post,
     )).data;
