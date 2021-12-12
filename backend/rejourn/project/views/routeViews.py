@@ -110,14 +110,17 @@ def regionSearch(request):
 
     if google_maps_response.status_code != 200:
         return HttpResponseInvalidInput()
-    place_id = google_maps_response.json()['results'][0]['place_id']
-    formatted_address = google_maps_response.json()['results'][0]['formatted_address']
-    response_dict = {
-        "place_id": place_id,
-        "formatted_address": formatted_address,
-    }
-
-    return HttpResponseSuccessGet([response_dict])
+    if (len(google_maps_response.json()['results']) != 0
+            and google_maps_response.json()['results'][0]['geometry'].get('bounds') is not None):
+        place_id = google_maps_response.json()['results'][0]['place_id']
+        formatted_address = google_maps_response.json()['results'][0]['formatted_address']
+        response_list = [{
+            "place_id": place_id,
+            "formatted_address": formatted_address,
+        }]
+    else:
+        response_list = []
+    return HttpResponseSuccessGet(response_list)
 
 
 # /api/repositories/<int:repo_id>/route/
@@ -299,7 +302,8 @@ def placeSearch(request, repo_id):
                          +query_string_formatted+"&key="+API_KEY)
     geocoding_response = requests.get(url_for_geocoding)
 
-    if geocoding_response.status_code in range(200, 299):
+    if (geocoding_response.status_code in range(200, 299)
+            and len(geocoding_response.json()['results']) != 0):
         place_id = geocoding_response.json()['results'][0]['place_id']
         formatted_address = geocoding_response.json()['results'][0]['formatted_address']
         response_dict = {
