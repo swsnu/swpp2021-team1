@@ -21,16 +21,18 @@ Please consult [this link](https://developers.google.com/maps/documentation/java
 1. Install and activate virtualenv
  - It's a virtual environment for django.
 
-2. `cd backend && cd rejourn`
+2. `cd backend && cd rejourn && cd rejourn`
 
 3. `echo GOOGLE_MAPS_API_KEY=[YOURAPIKEY] > .env `
    - Please replace `[YOURAPIKEY]` with your Google Map API key you created above!
 
-4. `pip install -r requirements.txt`
+4. `cd ..`
 
-5. `python3 manage.py makemigrations project`
+5. `pip install -r requirements.txt`
 
-6. `python3 manage.py migrate`
+6. `python3 manage.py makemigrations project`
 
-7. `python3 manage.py runserver`
+7. `python3 manage.py migrate`
+
+8. `python3 manage.py runserver`
 
