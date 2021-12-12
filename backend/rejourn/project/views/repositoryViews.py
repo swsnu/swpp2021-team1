@@ -229,7 +229,7 @@ def repositoryID(request, repo_id):
     except Repository.DoesNotExist:
         return HttpResponseNotExist()
 
-    if repository.owner != request.user:
+    if request.user not in repository.collaborators.all():
         return HttpResponseNoPermission()
 
     repository.repo_name = repo_name
