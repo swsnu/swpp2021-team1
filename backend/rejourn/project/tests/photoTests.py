@@ -11,8 +11,6 @@ from django.utils import timezone
 from project.enum import Scope
 from project.models.models import User, Repository, Photo, PhotoTag, Label, Route, PlaceInRoute
 
-# from io import BytesIO
-
 
 MEDIA_ROOT = tempfile.mkdtemp()
 

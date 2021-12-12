@@ -308,11 +308,6 @@ class ExploreTestCase(TestCase):
         response = client.get("/api/explore/regions/")
         self.assertEqual(response.status_code, 400)
 
-        #response = client.get("/api/explore/regions/?query=제주")
-        #self.assertEqual(response.status_code, 200)
-
-
-
     def test_feeds(self):
         client = Client()
         response = client.delete("/api/feeds/")

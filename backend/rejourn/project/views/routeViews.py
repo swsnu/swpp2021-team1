@@ -11,7 +11,14 @@ from django.conf import settings
 
 import requests
 from project.models.models import Repository, Route, PlaceInRoute, Photo, PhotoTag, Notification
-from project.httpResponse import *
+from project.httpResponse import (
+    HttpResponseNotLoggedIn,
+    HttpResponseNotExist,
+    HttpResponseSuccessUpdate,
+    HttpResponseNoPermission,
+    HttpResponseSuccessGet,
+    HttpResponseInvalidInput,
+)
 from project.utils import repo_visible
 from project.enum import NoticeType
 
@@ -56,10 +63,8 @@ def get_place_list(route, user):
             response_place["text"] = place.text
         if place.time is not None:
             response_place["time"] = timezone.make_naive(place.time).strftime(DATE_FORMAT)
-        try:
+        if response_place.get("thumbnail") is not None:
             response_place["thumbnail"] = Photo.objects.get(thumbnail_of=place).image_file.url
-        except Photo.DoesNotExist:
-            pass
         place_list.append(response_place)
     return place_list
 
@@ -586,14 +591,13 @@ def travel(request, repo_id):
         current_place = place_list[order_count-1]
         current_photo_list = photo_list[order_count-1]
 
-        if len(current_photo_list) == 0:
-            pass
-        elif place_with_photo_num > 20 or len(current_photo_list) == 1:
-            current_photo_list = current_photo_list[0:1]
-        elif place_with_photo_num > 10 or len(current_photo_list) == 2:
-            current_photo_list = current_photo_list[0:2]
-        else:
-            current_photo_list = current_photo_list[0:3]
+        if len(current_photo_list) != 0:
+            if place_with_photo_num > 20 or len(current_photo_list) == 1:
+                current_photo_list = current_photo_list[0:1]
+            elif place_with_photo_num > 10 or len(current_photo_list) == 2:
+                current_photo_list = current_photo_list[0:2]
+            else:
+                current_photo_list = current_photo_list[0:3]
 
         photo_dict_list = []
         for photo in current_photo_list:

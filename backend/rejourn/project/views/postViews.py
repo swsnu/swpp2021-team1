@@ -15,7 +15,15 @@ from project.models.models import (
     Photo,
     Notification,
 )
-from project.httpResponse import *
+from project.httpResponse import (
+    HttpResponseNotLoggedIn,
+    HttpResponseNotExist,
+    HttpResponseSuccessUpdate,
+    HttpResponseNoPermission,
+    HttpResponseSuccessGet,
+    HttpResponseSuccessDelete,
+    HttpResponseInvalidInput,
+)
 from project.utils import repo_visible
 from project.enum import PostType, RepoTravel, NoticeType
 

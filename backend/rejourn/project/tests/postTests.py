@@ -87,7 +87,7 @@ class PostTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "u_1_USERNAME", "password": "u_1_PASSWORD"}),
             content_type="application/json",
@@ -105,10 +105,10 @@ class PostTestCase(TestCase):
         self.assertIn("p_1_TITLE", response.content.decode())
         self.assertIn("u_1_USERNAME", response.content.decode())
 
-        response = client.get(
+        client.get(
             "/api/signout/",
         )
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "U4_USERNAME", "password": "U4_PASSWORD"}),
             content_type="application/json",
@@ -129,7 +129,7 @@ class PostTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 401)
 
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "U4_USERNAME", "password": "U4_PASSWORD"}),
             content_type="application/json",
@@ -143,10 +143,10 @@ class PostTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 403)
 
-        response = client.get(
+        client.get(
             "/api/signout/",
         )
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "u_1_USERNAME", "password": "u_1_PASSWORD"}),
             content_type="application/json",
@@ -185,7 +185,7 @@ class PostTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 403)
 
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "U4_USERNAME", "password": "U4_PASSWORD"}),
             content_type="application/json",
@@ -198,15 +198,15 @@ class PostTestCase(TestCase):
             "/api/repositories/1/posts/",
         )
         self.assertEqual(response.status_code, 403)
-        response = client.get(
+        client.get(
             "/api/signout/",
         )
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "u_1_USERNAME", "password": "u_1_PASSWORD"}),
             content_type="application/json",
         )
-        response = client.get(
+        client.get(
             "/api/repositories/1/posts/",
         )
         self.assertEqual(response.status_code, 200)
@@ -224,7 +224,7 @@ class PostTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 403)
 
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "U4_USERNAME", "password": "U4_PASSWORD"}),
             content_type="application/json",
@@ -237,10 +237,10 @@ class PostTestCase(TestCase):
             "/api/posts/1/",
         )
         self.assertEqual(response.status_code, 403)
-        response = client.get(
+        client.get(
             "/api/signout/",
         )
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "u_1_USERNAME", "password": "u_1_PASSWORD"}),
             content_type="application/json",
@@ -258,7 +258,7 @@ class PostTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 401)
 
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "U4_USERNAME", "password": "U4_PASSWORD"}),
             content_type="application/json",
@@ -271,10 +271,10 @@ class PostTestCase(TestCase):
             "/api/posts/1/",
         )
         self.assertEqual(response.status_code, 403)
-        response = client.get(
+        client.get(
             "/api/signout/",
         )
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "u_1_USERNAME", "password": "u_1_PASSWORD"}),
             content_type="application/json",
@@ -290,7 +290,7 @@ class PostTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 401)
 
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "U4_USERNAME", "password": "U4_PASSWORD"}),
             content_type="application/json",
@@ -303,10 +303,10 @@ class PostTestCase(TestCase):
             "/api/posts/1/",
         )
         self.assertEqual(response.status_code, 403)
-        response = client.get(
+        client.get(
             "/api/signout/",
         )
-        response = client.post(
+        client.post(
             "/api/signin/",
             json.dumps({"username": "u_1_USERNAME", "password": "u_1_PASSWORD"}),
             content_type="application/json",

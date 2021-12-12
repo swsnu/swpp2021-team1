@@ -173,11 +173,6 @@ class RouteTestCase(TestCase):
         response = client.get("/api/region-search/")
         self.assertEqual(response.status_code, 400)
 
-        #response = client.get("/api/region-search/?query=jeju 애월")
-        #self.assertEqual(response.status_code, 200)
-        #self.assertIn('Aewol-eup, Jeju-si, Jeju-do, South Korea', response.content.decode())
-
-
     def test_routeID_get(self):
         client = Client()
         response = client.delete("/api/repositories/1/route/")
@@ -240,13 +235,6 @@ class RouteTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 400)
 
-        # response = client.post(
-        #     "/api/repositories/2/route/",
-        #     json.dumps({"place_id": "ChIJXSModoWLGGARILWiCfeu2M0"}),
-        #     content_type="application/json",
-        # )
-        # self.assertEqual(response.status_code, 201)
-
         response = client.post(
             "/api/repositories/2/route/",
             json.dumps({"repo_id": 5}),
@@ -272,12 +260,6 @@ class RouteTestCase(TestCase):
             content_type="application/json",
         )
         self.assertEqual(response.status_code, 201)
-        # response = client.post(
-        #     "/api/repositories/3/route/",
-        #     json.dumps({"place_id": "ChIJXSModoWLGGARILWiCfeu2M0"}),
-        #     content_type="application/json",
-        # )
-        # self.assertEqual(response.status_code, 201)
         response = client.post(
             "/api/repositories/3/route/",
             json.dumps({"repo_id": 1}),
@@ -317,12 +299,6 @@ class RouteTestCase(TestCase):
 
         response = client.get("/api/repositories/1/route/places-search/")
         self.assertEqual(response.status_code, 400)
-
-        # response = client.get("/api/repositories/1/route/places-search/?query=맛집")
-        # self.assertEqual(response.status_code, 200)
-
-        # response = client.get("/api/repositories/1/route/places-search/?query=애월읍 애월리 1716-4")
-        # self.assertEqual(response.status_code, 200)
 
     def test_places_put(self):
         client = Client()
@@ -386,7 +362,7 @@ class RouteTestCase(TestCase):
             content_type="application/json",
         )
         self.assertEqual(response.status_code, 201)
-        response = client.get("/api/repositories/1/route/")
+        client.get("/api/repositories/1/route/")
 
 
     def test_placeID_post(self):
@@ -414,11 +390,6 @@ class RouteTestCase(TestCase):
         )
         response = client.post("/api/repositories/2/route/places/ChIJ66OlkbP1DDURa0xq5SHaKHg/")
         self.assertEqual(response.status_code, 404)
-        # response = client.post("/api/repositories/1/route/places/ChIJ66OlkbP1DDURa0xq5SHaKHg/")
-        # self.assertEqual(response.status_code, 201)
-        #response = client.post("/api/repositories/1/route/places/ChIJ66OlkbP1DDURa0xq5SHaKHg/")
-        #self.assertEqual(response.status_code, 201)
-
 
     def test_travel(self):
         client_anonymous = Client()
@@ -522,8 +493,6 @@ class RouteTestCase(TestCase):
         place_in_route_4.save()
 
         response = client_a.get("/api/repositories/2/travel/")
-        # print(response.content.decode())
-
         place_coordinates = [(35, -178), (20, -174), (30, 134), (30, 137), (31, 0),
                              (35, -178), (20, -174), (10, 134)]
         for i in range(8):
@@ -539,7 +508,7 @@ class RouteTestCase(TestCase):
             photo_list[i+6].place = place_in_route
             photo_list[i+6].save()
 
-        response = client_a.get("/api/repositories/2/travel/")
+        client_a.get("/api/repositories/2/travel/")
         # print(response.content.decode())
 
         place_coordinates = [(35, -178), (20, -174), (30, 134), (30, 137), (31, 0),
@@ -558,5 +527,5 @@ class RouteTestCase(TestCase):
             photo_list[i+14].place = place_in_route
             photo_list[i+14].save()
 
-        response = client_a.get("/api/repositories/2/travel/")
+        client_a.get("/api/repositories/2/travel/")
         # print(response.content.decode())
