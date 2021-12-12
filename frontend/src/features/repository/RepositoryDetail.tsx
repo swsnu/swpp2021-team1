@@ -25,8 +25,7 @@ export default function RepositoryDetail() {
         }
     }, [dispatch]);
 
-    if (userIsLoading || isLoading) return null;
-    if (!currentRepo) return (<div>Unexpected Error!</div>);
+    if (userIsLoading || isLoading || !currentRepo) return null;
     const hasAuth = user && currentRepo.collaborators.filter((value) => user.username === value.username).length > 0;
     return (
         <div>

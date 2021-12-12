@@ -98,6 +98,7 @@ export default function RepositoryCreate() {
                         onChange(
                             event as React.ChangeEvent<HTMLInputElement>,
                             setRepoName,
+                            travelStartDate,
                             setTravelStartDate,
                             setTravelEndDate,
                             setValid,
@@ -105,7 +106,7 @@ export default function RepositoryCreate() {
                         )}
                 />
                 <Form.Control.Feedback type="invalid">
-                    Please choose your repository name.
+                    Your repository name must be longer then 3 letters.
                 </Form.Control.Feedback>
             </InputGroup>
             <InputGroup className="mt-4">
@@ -137,6 +138,7 @@ export default function RepositoryCreate() {
                         onChange(
                             event as React.ChangeEvent<HTMLInputElement>,
                             setRepoName,
+                            travelStartDate,
                             setTravelStartDate,
                             setTravelEndDate,
                             setValid,
@@ -161,6 +163,7 @@ export default function RepositoryCreate() {
                         onChange(
                             event as React.ChangeEvent<HTMLInputElement>,
                             setRepoName,
+                            travelStartDate,
                             setTravelStartDate,
                             setTravelEndDate,
                             setValid,
@@ -246,16 +249,23 @@ export default function RepositoryCreate() {
     );
 }
 
-function checkValid(date : string) {
+function checkValid(date : string, valid? : boolean|null, startDate? : string) {
     const check = new Date(date);
     const [y, m, d] = date.split("-");
-    return !(check.getFullYear() !== parseInt(y) ||
-        check.getMonth() !== parseInt(m) - 1 ||
-        check.getDate() !== parseInt(d));
+    if (valid === undefined) {
+        return !(check.getFullYear() !== parseInt(y) ||
+            check.getMonth() !== parseInt(m) - 1 ||
+            check.getDate() !== parseInt(d));
+    }
+    return (!valid || (check >= new Date(startDate as string))) &&
+        (!(check.getFullYear() !== parseInt(y) ||
+            check.getMonth() !== parseInt(m) - 1 ||
+            check.getDate() !== parseInt(d)));
 }
 
 export function onChange(event : React.ChangeEvent<HTMLInputElement>,
     setRepoName : SetStateAction<string>,
+    travelStartDate : string,
     setTravelStartDate : SetStateAction<string>,
     setTravelEndDate : SetStateAction<string>,
     setValid : SetStateAction<any[]>,
@@ -263,7 +273,7 @@ export function onChange(event : React.ChangeEvent<HTMLInputElement>,
     switch (event.target.name) {
     case "repo-name":
         setRepoName(event.target.value);
-        if (event.target.value !== "") setValid([true, valid[1], valid[2]]);
+        if (event.target.value.length >= 3) setValid([true, valid[1], valid[2]]);
         else setValid([false, valid[1], valid[2]]);
         break;
     case "start-date":
@@ -279,7 +289,7 @@ export function onChange(event : React.ChangeEvent<HTMLInputElement>,
     case "end-date":
         setTravelEndDate(event.target.value);
         if (/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(event.target.value) &&
-                checkValid(event.target.value)) {
+                checkValid(event.target.value, valid[1], travelStartDate)) {
             setValid([valid[0], valid[1], true]);
         }
         else {

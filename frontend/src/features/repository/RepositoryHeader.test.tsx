@@ -89,7 +89,7 @@ describe("RepositoryHeader", () => {
             },
         }));
         const component = mount(makeStoredComponent());
-        expect(component.find("div").text()).toContain("404");
+        expect(component.find("h3").text()).toContain("404");
     });
 
     it("Should render correctly", () => {

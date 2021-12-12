@@ -11,6 +11,7 @@ import Comment from "../comments/Comment";
 import "../comments/Comments.css";
 import "./DiscussionDetail.css";
 import avatar from "../../common/assets/avatar.jpg";
+import error from "../../common/assets/error.svg";
 
 // suppress tsx-no-component-props
 export default function DiscussionDetail() {
@@ -70,7 +71,14 @@ export default function DiscussionDetail() {
     }
 
     if (isLoading || isUserLoading) return null;
-    if (hasError) return <div>404Error : Discussion Not Found</div>;
+    if (hasError) {
+        return (
+            <h3 className="mt-5 fst-italic">
+                <img src={error} alt={error} height="45" className="me-3" />
+                404 Error : Discussion Not Found :(
+            </h3>
+        );
+    }
     return (
         <div>
             <div className="p-3 mt-5 discussion-wrapper">

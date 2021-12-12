@@ -132,8 +132,11 @@ export default function RoutePreview() {
                     center={new window.google.maps.LatLng(route.region.latitude, route.region.longitude)}
                     options={{
                         fullscreenControl: false,
+                        gestureHandling: "none",
+                        zoomControl: false,
                         mapId: "257d559a76ad5fe6",
                         streetViewControl: false,
+                        scaleControl: false,
                         mapTypeControl: false,
                     }}
                 >

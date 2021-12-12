@@ -47,7 +47,7 @@ describe("SignUp", () => {
         jest.spyOn(axios, "get").mockRejectedValue(undefined);
         const component = mount(makeStoredComponent());
         component.find("FormControl").at(0).simulate("change", { target: { name: "email", value: "asdf@gmail.com" } });
-        component.find("FormControl").at(1).simulate("change", { target: { name: "username", value: "abc" } });
+        component.find("FormControl").at(1).simulate("change", { target: { name: "username", value: "test" } });
         component.find("FormControl").at(2).simulate("change", { target: { name: "realname", value: "Hello" } });
         component.find("FormControl").at(3).simulate("change", { target: { name: "password", value: "abcd1234" } });
         component.find("FormControl").at(4).simulate("change", { target: { name: "bio", value: "Hello World!" } });

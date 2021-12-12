@@ -76,6 +76,7 @@ export default function RepositorySettings() {
                         onChange(
                             event as React.ChangeEvent<HTMLInputElement>,
                             setRepoName,
+                            travelStartDate,
                             setTravelStartDate,
                             setTravelEndDate,
                             setValid,
@@ -83,7 +84,7 @@ export default function RepositorySettings() {
                         )}
                 />
                 <Form.Control.Feedback type="invalid">
-                    Please choose your repository name.
+                    Your repository name must be longer then 3 letters.
                 </Form.Control.Feedback>
             </InputGroup>
             <InputGroup className="mt-4" hasValidation>
@@ -100,6 +101,7 @@ export default function RepositorySettings() {
                         onChange(
                             event as React.ChangeEvent<HTMLInputElement>,
                             setRepoName,
+                            travelStartDate,
                             setTravelStartDate,
                             setTravelEndDate,
                             setValid,
@@ -124,6 +126,7 @@ export default function RepositorySettings() {
                         onChange(
                             event as React.ChangeEvent<HTMLInputElement>,
                             setRepoName,
+                            travelStartDate,
                             setTravelStartDate,
                             setTravelEndDate,
                             setValid,

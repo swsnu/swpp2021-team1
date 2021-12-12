@@ -13,6 +13,7 @@ import {
 import "./Posts.css";
 import Comment from "../comments/Comment";
 import avatar from "../../common/assets/avatar.jpg";
+import error from "../../common/assets/error.svg";
 
 // suppress no-tsx-component-props
 const PostDetail = () => {
@@ -49,7 +50,14 @@ const PostDetail = () => {
         }
     }, [dispatch]);
 
-    if (loading === "failed") return <div>Error</div>;
+    if (loading === "failed") {
+        return (
+            <h3 className="mt-5 fst-italic">
+                <img src={error} alt={error} height="45" className="me-3" />
+                404 Error : Post Not Found :(
+            </h3>
+        );
+    }
     if (loading === "pending" || loading === "idle") return <div />;
     return (
         <div className="mt-5">
