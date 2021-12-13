@@ -15,6 +15,6 @@ sys.path.append('/home/lemonshushuu/swpp2021-team1/backend/rejourn')
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rejourn.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rejourn.settings_prod')
 
 application = get_wsgi_application()

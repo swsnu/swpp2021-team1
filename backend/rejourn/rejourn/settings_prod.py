@@ -15,7 +15,7 @@ import os
 import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = '/home/lemonshushuu/swpp2021-team1/backend/rejourn/'
 
 
 # Quick-start development settings - unsuitable for production
@@ -25,9 +25,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-oug(ji@z$fu03fcgh)^jc7v6s)&w939^jiojf_zya=5mtp9pfz'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'rejourn.world', '34.64.181.99']
 
 
 # Application definition
@@ -132,7 +132,7 @@ AUTH_USER_MODEL = 'project.User'
 STATIC_URL = '/static/'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = '/home/lemonshushuu/swpp2021-team1/backend/rejourn/media/'
 
 
 # time zone setting
