@@ -201,11 +201,15 @@ def profilePicture(request, user_name):
             return HttpResponseNoPermission()
 
         image = request.FILES.get("image")
-        if image is not None:
+        if image is None:
+            if bool(user.profile_picture) is True:
+                response_dict = {'profile_picture' : user.profile_picture.url}
+            else:
+                response_dict = {}
+        else:
             user.profile_picture = image
             user.save()
-
-        response_dict = {'profile_picture' : user.profile_picture.url}
+            response_dict = {'profile_picture' : user.profile_picture.url}
         return HttpResponseSuccessUpdate(response_dict)
 
     # request.method == "DELETE":
@@ -276,10 +280,15 @@ def userID(request, user_name):
         user.real_name = real_name
         user.email = email
         if req_data.get('password') is not None:
-            user.password = req_data['password']
+            logout(request)
+            user.set_password(req_data['password'])
         user.visibility = visibility
         user.bio = bio
         user.save()
+
+        if req_data.get('password') is not None:
+            user_signin = authenticate(username=username, password=req_data['password'])
+            login(request, user_signin)
 
         response_dict = {
             "username": user.username,
