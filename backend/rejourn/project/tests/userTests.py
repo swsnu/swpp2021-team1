@@ -217,7 +217,7 @@ class UserTestCase(TestCase):
         response = client_a.post("/api/users/TEST_USER_B/profile-picture/")
         self.assertEqual(response.status_code, 403)
         response = client_a.post("/api/users/TEST_USER_A/profile-picture/")
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 201)
 
         response = client_a.post(
             "/api/users/TEST_USER_A/profile-picture/",
