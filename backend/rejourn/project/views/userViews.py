@@ -200,15 +200,10 @@ def profilePicture(request, user_name):
         if request.user != user:
             return HttpResponseNoPermission()
 
-        try:
-            image = request.FILES.get("image")
-            if image is None:
-                raise KeyError
-        except KeyError:
-            return HttpResponseBadRequest()
-
-        user.profile_picture = image
-        user.save()
+        image = request.FILES.get("image")
+        if image is not None:
+            user.profile_picture = image
+            user.save()
 
         response_dict = {'profile_picture' : user.profile_picture.url}
         return HttpResponseSuccessUpdate(response_dict)
