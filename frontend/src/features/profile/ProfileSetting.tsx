@@ -52,6 +52,7 @@ export default function ProfileSetting() {
             alert("Changes saved");
         };
         submit();
+        setPassword("");
     };
 
     if (!account) return <div>Error!</div>;
