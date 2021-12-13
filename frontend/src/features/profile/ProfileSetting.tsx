@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
     Container, Form, Button, Image,
 } from "react-bootstrap";
+import { toast, ToastContainer } from "react-toastify";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { removeProfilePicture, updateProfile, updateProfilePicture } from "../auth/authSlice";
 
@@ -49,7 +50,7 @@ export default function ProfileSetting() {
                 password: password || undefined,
                 visibility,
             }));
-            alert("Changes saved");
+            toast("Changes saved");
         };
         submit();
         setPassword("");
@@ -155,6 +156,7 @@ export default function ProfileSetting() {
                 </Form.Group>
                 <Button id="submit-button" onClick={onSubmit}>Save changes</Button>
             </Form>
+            <ToastContainer />
         </Container>
     );
 }
