@@ -148,6 +148,7 @@ export const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
         builder.addCase(fetchSession.rejected, (state: AuthState) => {
             state.isLoading = false;
             state.hasError = true;
+            state.account = null;
         });
 
         builder.addCase(signUp.pending, (state: AuthState) => {

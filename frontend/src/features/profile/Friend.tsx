@@ -27,7 +27,6 @@ export default function Friend(props : FriendProps) {
                 </div>
                 <div className="flex-grow-1 mx-4 mb-0">
                     <p id="username" className="text-muted mb-2">
-                        @
                         {friend.username}
                         {" "}
                     </p>
