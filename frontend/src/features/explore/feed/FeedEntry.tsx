@@ -4,8 +4,11 @@ import { Link } from "react-router-dom";
 import {
     Button, Carousel, Figure, Card,
 } from "react-bootstrap";
+import { faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { IFeed } from "../../../common/Interfaces";
 import avatar from "../../../common/assets/avatar.jpg";
+import "./FeedEntry.css";
 
 interface FeedEntryProps {
     entry: IFeed
@@ -23,12 +26,18 @@ const FeedEntry = (props: FeedEntryProps) => {
     };
 
     return (
-        <Card className="mb-5" style={{ maxWidth: 700 }}>
+        <Card className="mb-5 p-4" style={{ maxWidth: 700 }}>
             <div className="row align-items-center mb-4 mx-auto">
-                {/* <FontAwesomeIcon
-                className="mt-2 me-3"
-                icon={faMapMarkerAlt} width="1em" height="1em" color="#f69d72" /> */}
-                <span className="text-muted text-sm my-1">{props.entry.region}</span>
+                <div className="mb-2">
+                    <FontAwesomeIcon
+                        className="mt-2 me-2"
+                        icon={faMapMarkerAlt}
+                        width="1em"
+                        height="1em"
+                        color="#f69d72"
+                    />
+                    <span className="text-muted text-sm my-1">{props.entry.region}</span>
+                </div>
                 <div
                     className="col-lg-6 text-center
                         text-lg-start mb-3 m-lg-0 d-flex align-items-center justify-content-between"
@@ -56,7 +65,6 @@ const FeedEntry = (props: FeedEntryProps) => {
                     <span className="text-muted ms-1">{props.entry.post_time}</span>
                 </div>
                 <hr />
-                <h1 className="fs-4">{props.entry.title}</h1>
                 <Figure>
                     <Carousel
                         activeIndex={index}
@@ -82,18 +90,18 @@ const FeedEntry = (props: FeedEntryProps) => {
                         {currentPhoto?.local_tag}
                     </Figure.Caption>
                 </Figure>
+                <Link
+                    className="fs-4 feed-title"
+                    to={`/posts/${entry.post_id}`}
+                >
+                    {props.entry.title}
+
+                </Link>
             </div>
 
             <div
                 className="ms-auto"
-            >
-                <Button
-                    onClick={() => history.push(`/posts/${entry.post_id}`)}
-                >
-                    View Detail
-                </Button>
-
-            </div>
+            />
         </Card>
     );
 };
