@@ -292,7 +292,12 @@ def repositoryCollaborators(request, repo_id):
         return HttpResponseInvalidInput()
 
     for user in new_collaborators:
-        if user not in repository.collaborators.all():
+        if (user not in repository.collaborators.all()
+                and Notification.objects.filter(
+                    user=user,
+                    classification=NoticeType.INVITATION,
+                    repository=repository
+                ).count() == 0):
             invitation = Notification(
                 user=user,
                 classification=NoticeType.INVITATION,
