@@ -63,7 +63,7 @@ def get_place_list(route, user):
             response_place["text"] = place.text
         if place.time is not None:
             response_place["time"] = timezone.make_naive(place.time).strftime(DATE_FORMAT)
-        if response_place.get("thumbnail") is not None:
+        if Photo.objects.filter(thumbnail_of=place).count() != 0:
             response_place["thumbnail"] = Photo.objects.get(thumbnail_of=place).image_file.url
         place_list.append(response_place)
     return place_list
