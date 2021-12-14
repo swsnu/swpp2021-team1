@@ -164,6 +164,9 @@ def exploreRegions(request):
     if geocoding_response.status_code not in range(200, 299):
         return HttpResponseBadRequest()
 
+    if len(geocoding_response.json()['results']) == 0:
+        return HttpResponseSuccessGet([])
+
     place_id = geocoding_response.json()['results'][0]['place_id']
 
     repositories_mine = Repository.objects.filter(collaborators__user_id=request.user.user_id)
