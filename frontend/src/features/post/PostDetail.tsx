@@ -148,7 +148,7 @@ const PostDetail = () => {
                         <p>{currentPhoto?.local_tag}</p>
                     </Modal.Footer>
                 </Modal>
-                <p>{currentPost?.text}</p>
+                <p style={{ whiteSpace: "pre-line" }}>{currentPost?.text}</p>
                 <div className="mt-4">
                     {currentPost?.comments && currentPost.comments.map((comment) => (
                         <React.Fragment key={comment.comment_id}>
