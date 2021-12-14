@@ -11,7 +11,7 @@
 
 .place-buttons {
     border-radius: 3px 3px 0 0 !important;
-    background: white !important;
+    background: var(--primary) !important;
 }
 
 .place-card {

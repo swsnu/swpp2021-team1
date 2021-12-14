@@ -27,7 +27,7 @@ export default function ProfileSetting() {
             if (account.password) setPassword(account.password);
             if (account.visibility) setVisibility(account.visibility);
         }
-    }, [dispatch]);
+    }, [dispatch, account]);
 
     const onAddProfileImage = (event: React.ChangeEvent<HTMLInputElement>) => {
         const temp = new FormData();
@@ -52,6 +52,7 @@ export default function ProfileSetting() {
             alert("Changes saved");
         };
         submit();
+        setPassword("");
     };
 
     if (!account) return <div>Error!</div>;

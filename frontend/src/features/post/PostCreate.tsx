@@ -46,7 +46,6 @@ export default function PostCreate(props : PostCreateProps) {
 
     // 제목, 내용이 빈칸이 아니고, 사진이 1개 이상 선택되었고, repo가 선택되었으면 submit 버튼을 enable함
     useEffect(() => {
-        if (!initialized.current.selectedRepoId) return;
         if (title && text &&
             Object.values(checked).some((value) => value) && selectedRepoId) setSubmitEnabled(true);
         else setSubmitEnabled(false);
@@ -109,8 +108,7 @@ export default function PostCreate(props : PostCreateProps) {
                 setChecked(tempChecked);
             }
         };
-        if (!initialized.current.selectedRepoId) initialized.current.selectedRepoId = true;
-        else if (selectedRepoId === -1) dispatch(fetchPhotos(-1));
+        if (selectedRepoId === -1) dispatch(fetchPhotos(-1));
         else loadPhotos();
     }, [selectedRepoId]);
 
