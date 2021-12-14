@@ -7,6 +7,7 @@ import { IUser } from "../../../common/Interfaces";
 import * as actionCreator from "../authSlice";
 import SignUp from "./popup/SignUp";
 import "./SignIn.css";
+import { ReactComponent as Logo } from "../../../common/assets/logo.svg";
 
 // suppress tsx-no-component-props
 export default function SignIn() {
@@ -37,6 +38,7 @@ export default function SignIn() {
             {account && (<Redirect to={`/main/${account.username}`} />)}
             <Form id="form-container" className="p-5">
                 <Form.Group className="mb-3">
+                    <Logo className="login-logo mb-4 mx-3" />
                     <Form.Control
                         value={username}
                         type="text"
