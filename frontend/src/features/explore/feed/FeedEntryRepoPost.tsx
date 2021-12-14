@@ -44,7 +44,6 @@ const FeedEntryRepoPost = (props: FeedEntryRepoPostProps) => {
                         onClick={() => history.push(`/repos/${entry.repo_id}`)}
                     >
                         View Repository
-
                     </Button>
                 </div>
             </Card>

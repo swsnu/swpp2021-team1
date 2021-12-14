@@ -30,11 +30,11 @@ describe("photosSlice", () => {
     it("Should fetch photos correctly", () => {
         const photo : IPhoto = photoFactory();
         mockedAPIs.getPhotos.mockResolvedValue([photo]);
-        store.dispatch(fetchPhotos(1)).then(() => {
+        store.dispatch(fetchPhotos({ repoId: 1 })).then(() => {
             expect(store.getState().photos.photoList.length).toBe(1);
         });
         mockedAPIs.getPhotos.mockRejectedValue(undefined);
-        store.dispatch(fetchPhotos(1)).then(() => {
+        store.dispatch(fetchPhotos({ repoId: 1 })).then(() => {
             expect(store.getState().photos.hasError).toEqual(true);
         });
     });
@@ -43,7 +43,7 @@ describe("photosSlice", () => {
         const photo : IPhoto = photoFactory();
         const photo2 : IPhoto = photoFactory();
         mockedAPIs.getPhotos.mockResolvedValue([photo, photo2]);
-        await store.dispatch(fetchPhotos(1));
+        await store.dispatch(fetchPhotos({ repoId: 1 }));
         mockedAPIs.putPhoto.mockResolvedValue({ ...photo, image: "TEST" });
         await store.dispatch(editPhoto({ repo_id: 1, photo }));
         expect(store.getState().photos.photoList[0].image).toBe("TEST");
@@ -116,7 +116,7 @@ describe("photosSlice", () => {
                 photos: photosReducer,
             },
         });
-        await store.dispatch(fetchPhotos(-1));
+        await store.dispatch(fetchPhotos({ repoId: -1 }));
         expect(store.getState().photos.photoList.length).toBe(0);
     });
 });

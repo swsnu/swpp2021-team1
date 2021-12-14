@@ -3,17 +3,17 @@ import {
 } from "@reduxjs/toolkit";
 
 import {
-    deletePhotos, getPhotos, postPhotos, putLabelPhotos, putPhoto,
+    deletePhotos, getFilteredPhotos, getPhotos, postPhotos, putLabelPhotos, putPhoto,
 } from "../../common/APIs";
 import { IPhoto } from "../../common/Interfaces";
 
-export const fetchPhotos = createAsyncThunk<IPhoto[], number>( // added
+export const fetchPhotos = createAsyncThunk<IPhoto[], {repoId: number, labelName?: string}>( // added
     "photos/list",
-    async (repo_id) => {
-        if (repo_id === -1) return []; // PostCreate에서, 아무 repo도 선택하지 않았을 때에는 PostList를 []로 세팅함.
-        return getPhotos(repo_id);
+    async ({ repoId, labelName }) => {
+        if (repoId === -1) return []; // PostCreate에서, 아무 repo도 선택하지 않았을 때에는 PostList를 []로 세팅함.
+        if (labelName) return getFilteredPhotos(repoId, labelName);
+        return getPhotos(repoId);
     },
-
 );
 
 export const addPhotos = createAsyncThunk<IPhoto[], {repo_id : number, images : FormData}>( // added

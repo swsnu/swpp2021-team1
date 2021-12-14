@@ -5,25 +5,33 @@ import React, {
 import { Button, Form } from "react-bootstrap";
 import { useHistory } from "react-router";
 import { useParams } from "react-router-dom";
-import Select from "react-select";
 import { toast, ToastContainer } from "react-toastify";
+import Select from "react-select";
+import store from "../../app/store";
 
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import {
     getCollaborators, getLabels, getPost, getRepositories,
 } from "../../common/APIs";
 import {
-    ILabel, IPost, IRepository, PostType,
+    ILabel, IPhoto, IPost, IRepository, PostType,
 } from "../../common/Interfaces";
+import { labelsSelectors, loadLabels } from "../labels/labelsSlice";
 import { fetchPhotos } from "../photo/photosSlice";
 import PCPhotoSelect from "./PCPhotoSelect";
 import { newRepoPost, PhotoWithLocalTag } from "./postsSlice";
+import "../PostCreate.css";
 
 interface PostCreateProps {
     mode: "create/user" | "create/repo" | "edit"
 }
 
-export default function PostCreate(props : PostCreateProps) {
+interface labelOption {
+    value: ILabel,
+    label: string
+}
+
+const PostCreate = (props : PostCreateProps) => {
     const dispatch = useAppDispatch();
 
     const account = useAppSelector((state) => state.auth.account);
@@ -40,8 +48,9 @@ export default function PostCreate(props : PostCreateProps) {
     const [submitEnabled, setSubmitEnabled] = useState<boolean>(false);
     const [currentPost, setCurrentPost] = useState<IPost | null>(null); // Only in "edit"
     const [checked, setChecked] = useState<{ [ id: number ]: boolean }>({});
+    const labels = labelsSelectors.selectAll(store.getState());
     const [labelOptions, setLabelOptions] = useState<ILabel[]>([]);
-    const [selectedLabels, setSelectedLabels] = useState<ILabel[]>([]);
+    const [selectedLabel, setSelectedLabel] = useState<labelOption | null>(null);
     const initialized = useRef({ currentPost: false, selectedRepoId: false });
 
     const params = useParams<{repo_id: string | undefined, post_id: string | undefined}>();
@@ -107,7 +116,7 @@ export default function PostCreate(props : PostCreateProps) {
 
     useEffect(() => {
         const setUpOptions = async () => {
-            await dispatch(fetchPhotos(selectedRepoId));
+            await dispatch(fetchPhotos({ repoId: selectedRepoId }));
             if (currentPost?.photos && props.mode === "edit") {
                 const tempChecked: { [ id: number ]: boolean } = {};
                 photoOptions.forEach((option) => {
@@ -117,16 +126,20 @@ export default function PostCreate(props : PostCreateProps) {
                 });
                 setChecked(tempChecked);
             }
-            setLabelOptions(await getLabels(selectedRepoId));
+            dispatch(loadLabels({ repoId: selectedRepoId }));
         };
         if (selectedRepoId === -1) {
-            dispatch(fetchPhotos(-1));
-            setLabelOptions([]);
+            dispatch(fetchPhotos({ repoId: -1 }));
+            dispatch(loadLabels({ repoId: -1 }));
         }
         else {
             setUpOptions();
         }
     }, [selectedRepoId]);
+
+    useEffect(() => {
+        setLabelOptions(labels);
+    }, [labels]);
 
     // 작성 후 Submit 버튼을 눌렀을 때,
     const onCreate = async () => {
@@ -154,10 +167,17 @@ export default function PostCreate(props : PostCreateProps) {
             history.push(`/posts/${originalPromiseResult?.post_id}`);
         }
         catch (e) {
-            toast("Failed to create post!");
+            toast.error("Failed to create post!");
             history.push("/");
         }
     };
+
+    useEffect(() => {
+        const filterByLabels = async () => {
+            dispatch(fetchPhotos({ repoId: selectedRepoId, labelName: selectedLabel?.label }));
+        };
+        filterByLabels();
+    }, [selectedLabel]);
 
     if (loading === "succeeded") {
         return (
@@ -178,23 +198,24 @@ export default function PostCreate(props : PostCreateProps) {
                         }
                     </Form.Select>
                 ) : ""}
+                <Form.Label className="mt-4">Photos</Form.Label>
+                <Select
+                    defaultValue={null}
+                    name="labels"
+                    value={selectedLabel}
+                    placeholder="Filter by Labels..."
+                    onChange={(value) => setSelectedLabel(value)}
+                    options={labelOptions.map((label) => ({
+                        value: label,
+                        label: label.label_name,
+                    }))}
+                    className="basic-select"
+                    classNamePrefix="select"
+                    isClearable
+                />
                 { photoOptions.length > 0 ? (
                     <>
-                        <Form.Label className="mt-4">Photos</Form.Label>
-                        {/* <Select
-                            defaultValue={[]}
-                            isMulti
-                            name="labels"
-                            value={selectedLabels}
-                            placeholder="Filter by Labels..."
-                            onChange={(newValue) => setSelectedLabels([...newValue])}
-                            options={labelOptions.map((label) => ({
-                                value: label,
-                                label: label.label_name,
-                            }))}
-                            className="basic-multi-select mx-5 w-100"
-                            classNamePrefix="select"
-                        /> */}
+                        {labelOptions.length}
                         <PCPhotoSelect
                             photos={photoOptions}
                             checked={checked}
@@ -224,4 +245,6 @@ export default function PostCreate(props : PostCreateProps) {
     }
     if (loading === "failed") return <>Failed to load page</>;
     return <></>;
-}
+};
+
+export default PostCreate;
