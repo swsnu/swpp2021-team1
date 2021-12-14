@@ -65,22 +65,22 @@ export default function Place(props : PlaceProps) {
                             {props.draggable && (
                                 <div>
                                     <Button
-                                        className="me-1 place-buttons"
+                                        className="me-2 mt-1 place-buttons p-0"
                                         onClick={() => props.onAdd(props.index)}
                                     >
-                                        <img src={down} alt={down} />
+                                        <img height={32} className="m-0" src={down} alt={down} />
                                     </Button>
                                     <Button
-                                        className="me-1 place-buttons"
+                                        className="me-4 mt-1 place-buttons p-0"
                                         onClick={onDelete}
                                     >
-                                        <img src={up} alt={up} />
+                                        <img height={32} src={up} alt={up} />
                                     </Button>
                                     <Button
-                                        className="me-1 place-buttons"
+                                        className="me-2 mt-1 place-buttons p-0"
                                         onClick={() => props.onPlaceDelete(props.index)}
                                     >
-                                        <img src={trash} alt={trash} />
+                                        <img height={32} src={trash} alt={trash} />
                                     </Button>
                                 </div>
                             )}
