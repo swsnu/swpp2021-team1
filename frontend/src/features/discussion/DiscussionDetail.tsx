@@ -88,7 +88,7 @@ export default function DiscussionDetail() {
                             <Form.Control
                                 value={title}
                                 onChange={(event) => setTitle(event.target.value)}
-                                style={{ width: "700px" }}
+                                style={{ width: "750px" }}
                             />
                         </FloatingLabel>
                     ) : (
@@ -109,7 +109,7 @@ export default function DiscussionDetail() {
                             ) : (
                                 <Button className="m-2" onClick={changeMode}>Edit</Button>
                             )}
-                            <Button className="m-2" onClick={onDelete}>Delete</Button>
+                            {!mode && <Button className="m-2" onClick={onDelete}>Delete</Button>}
                         </div>
                     )}
                 </div>
