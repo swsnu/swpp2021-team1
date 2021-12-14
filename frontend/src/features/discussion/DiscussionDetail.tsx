@@ -79,6 +79,9 @@ export default function DiscussionDetail() {
             </h3>
         );
     }
+    console.log(currentDiscussion?.text);
+    if (currentDiscussion) console.log(text.charAt(1) === " ");
+
     return (
         <div>
             <div className="p-3 mt-5 discussion-wrapper">
@@ -88,7 +91,7 @@ export default function DiscussionDetail() {
                             <Form.Control
                                 value={title}
                                 onChange={(event) => setTitle(event.target.value)}
-                                style={{ width: "750px" }}
+                                style={{ width: "675px" }}
                             />
                         </FloatingLabel>
                     ) : (
@@ -146,7 +149,7 @@ export default function DiscussionDetail() {
                             />
                         </FloatingLabel>
                     ) : (
-                        <p>
+                        <p style={{ whiteSpace: "pre-line" }}>
                             {currentDiscussion?.text}
                         </p>
                     )}
