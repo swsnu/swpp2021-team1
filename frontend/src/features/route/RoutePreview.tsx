@@ -124,9 +124,11 @@ export default function RoutePreview() {
                         const ne = new window.google.maps.LatLng(route.region.north, route.region.east);
                         const bounds = new window.google.maps.LatLngBounds(sw, ne);
                         map.fitBounds(bounds, 0);
-                        window.google.maps.event.addListenerOnce(map, "bounds_changed", () => {
-                            map.setZoom(map.getZoom() as number + 1);
-                        });
+                        if (route.region.north - route.region.south > 0.5) {
+                            window.google.maps.event.addListenerOnce(map, "bounds_changed", () => {
+                                map.setZoom(map.getZoom() as number + 1);
+                            });
+                        }
                         setMap(map);
                     }}
                     center={new window.google.maps.LatLng(route.region.latitude, route.region.longitude)}

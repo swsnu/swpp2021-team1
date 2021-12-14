@@ -5,10 +5,16 @@ import React, {
 import { Button, Form } from "react-bootstrap";
 import { useHistory } from "react-router";
 import { useParams } from "react-router-dom";
+import Select from "react-select";
+import { toast, ToastContainer } from "react-toastify";
 
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { getCollaborators, getPost, getRepositories } from "../../common/APIs";
-import { IPost, IRepository, PostType } from "../../common/Interfaces";
+import {
+    getCollaborators, getLabels, getPost, getRepositories,
+} from "../../common/APIs";
+import {
+    ILabel, IPost, IRepository, PostType,
+} from "../../common/Interfaces";
 import { fetchPhotos } from "../photo/photosSlice";
 import PCPhotoSelect from "./PCPhotoSelect";
 import { newRepoPost, PhotoWithLocalTag } from "./postsSlice";
@@ -30,11 +36,12 @@ export default function PostCreate(props : PostCreateProps) {
     const [repoOptions, setRepoOptions] = useState<IRepository[]>([]);
     const [title, setTitle] = useState<string>("");
     const [text, setText] = useState<string>("");
-    // const [selectedPhotos, setSelectedPhotos] = useState<IPhoto[]>([]);
     const [selectedRepoId, setSelectedRepoId] = useState<number>(-1);
     const [submitEnabled, setSubmitEnabled] = useState<boolean>(false);
     const [currentPost, setCurrentPost] = useState<IPost | null>(null); // Only in "edit"
     const [checked, setChecked] = useState<{ [ id: number ]: boolean }>({});
+    const [labelOptions, setLabelOptions] = useState<ILabel[]>([]);
+    const [selectedLabels, setSelectedLabels] = useState<ILabel[]>([]);
     const initialized = useRef({ currentPost: false, selectedRepoId: false });
 
     const params = useParams<{repo_id: string | undefined, post_id: string | undefined}>();
@@ -99,7 +106,7 @@ export default function PostCreate(props : PostCreateProps) {
     }, [currentPost]);
 
     useEffect(() => {
-        const loadPhotos = async () => {
+        const setUpOptions = async () => {
             await dispatch(fetchPhotos(selectedRepoId));
             if (currentPost?.photos && props.mode === "edit") {
                 const tempChecked: { [ id: number ]: boolean } = {};
@@ -110,9 +117,15 @@ export default function PostCreate(props : PostCreateProps) {
                 });
                 setChecked(tempChecked);
             }
+            setLabelOptions(await getLabels(selectedRepoId));
         };
-        if (selectedRepoId === -1) dispatch(fetchPhotos(-1));
-        else loadPhotos();
+        if (selectedRepoId === -1) {
+            dispatch(fetchPhotos(-1));
+            setLabelOptions([]);
+        }
+        else {
+            setUpOptions();
+        }
     }, [selectedRepoId]);
 
     // 작성 후 Submit 버튼을 눌렀을 때,
@@ -141,7 +154,7 @@ export default function PostCreate(props : PostCreateProps) {
             history.push(`/posts/${originalPromiseResult?.post_id}`);
         }
         catch (e) {
-            window.alert("Failed to create post!");
+            toast("Failed to create post!");
             history.push("/");
         }
     };
@@ -168,6 +181,20 @@ export default function PostCreate(props : PostCreateProps) {
                 { photoOptions.length > 0 ? (
                     <>
                         <Form.Label className="mt-4">Photos</Form.Label>
+                        {/* <Select
+                            defaultValue={[]}
+                            isMulti
+                            name="labels"
+                            value={selectedLabels}
+                            placeholder="Filter by Labels..."
+                            onChange={(newValue) => setSelectedLabels([...newValue])}
+                            options={labelOptions.map((label) => ({
+                                value: label,
+                                label: label.label_name,
+                            }))}
+                            className="basic-multi-select mx-5 w-100"
+                            classNamePrefix="select"
+                        /> */}
                         <PCPhotoSelect
                             photos={photoOptions}
                             checked={checked}
@@ -191,6 +218,7 @@ export default function PostCreate(props : PostCreateProps) {
                 <div className="d-flex flex-row-reverse">
                     <Button className="mt-4" disabled={!submitEnabled} onClick={onCreate}>Confirm</Button>
                 </div>
+                <ToastContainer />
             </div>
         );
     }
