@@ -88,7 +88,7 @@ export default function DiscussionDetail() {
                             <Form.Control
                                 value={title}
                                 onChange={(event) => setTitle(event.target.value)}
-                                style={{ width: "750px" }}
+                                style={{ width: "675px" }}
                             />
                         </FloatingLabel>
                     ) : (
