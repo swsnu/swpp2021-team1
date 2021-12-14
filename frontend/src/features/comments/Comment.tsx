@@ -66,7 +66,7 @@ const Comment = (props: CommentProps) => {
                     />
                 ) : (
                     <div className="mt-2">
-                        <p className="comment-text">{comment.text}</p>
+                        <p style={{ whiteSpace: "pre-line" }} className="comment-text">{comment.text}</p>
                     </div>
                 )}
 
