@@ -148,7 +148,7 @@ export default function SignUp(props : SignUpProps) {
                             isInvalid={valid[2] !== null && !valid[2]}
                         />
                         <Form.Control.Feedback type="invalid">
-                            Please write your name in english.
+                            Please write your name in English.
                         </Form.Control.Feedback>
                     </Form.Group>
                     <Form.Group className="mb-3">
@@ -162,7 +162,7 @@ export default function SignUp(props : SignUpProps) {
                             isInvalid={valid[3] !== null && !valid[3]}
                         />
                         <Form.Control.Feedback type="invalid">
-                            Password should be 8 letter or longer with at least one number and alphabet.
+                            Password should be 8 letters or longer with at least one number and alphabet.
                         </Form.Control.Feedback>
                     </Form.Group>
                     <Form.Group className="mb-3">

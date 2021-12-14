@@ -148,6 +148,7 @@ export const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
         builder.addCase(fetchSession.rejected, (state: AuthState) => {
             state.isLoading = false;
             state.hasError = true;
+            state.account = null;
         });
 
         builder.addCase(signUp.pending, (state: AuthState) => {
@@ -222,6 +223,10 @@ export const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
         builder.addCase(removeProfilePicture.fulfilled, (state: AuthState) => {
             if (!state.account) return;
             state.account.profile_picture = undefined;
+            if (!state.currentUser) return;
+            if (state.currentUser.username === state.account.username) {
+                state.currentUser.profile_picture = undefined;
+            }
         });
     },
 });

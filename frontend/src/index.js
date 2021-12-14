@@ -7,6 +7,7 @@ import App from "./app/App";
 import reportWebVitals from "./reportWebVitals";
 import store from "./app/store";
 import "./custom.scss";
+import "react-toastify/dist/ReactToastify.css";
 import worker from "./mocks/browser";
 
 if (process.env.REACT_APP_USE_MOCK_API === "yes") {

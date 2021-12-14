@@ -30,3 +30,7 @@
   width: fit-content;
   color: var(--primary-dark) !important;
 }
+
+.login-logo {
+  fill: var(--primary);
+}

@@ -31,7 +31,7 @@ def get_notification_dict(notification):
         'username' : notification.from_user.username,
         'bio' : notification.from_user.bio,
     }
-    if bool(notification.user.profile_picture):
+    if bool(notification.from_user.profile_picture):
         from_user_info['profile_picture'] = notification.from_user.profile_picture.url
 
     notification_dict = {

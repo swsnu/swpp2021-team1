@@ -7,7 +7,7 @@ import { useHistory } from "react-router";
 import { useParams } from "react-router-dom";
 
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { getPost, getRepositories } from "../../common/APIs";
+import { getCollaborators, getPost, getRepositories } from "../../common/APIs";
 import { IPost, IRepository, PostType } from "../../common/Interfaces";
 import { fetchPhotos } from "../photo/photosSlice";
 import PCPhotoSelect from "./PCPhotoSelect";
@@ -46,7 +46,6 @@ export default function PostCreate(props : PostCreateProps) {
 
     // 제목, 내용이 빈칸이 아니고, 사진이 1개 이상 선택되었고, repo가 선택되었으면 submit 버튼을 enable함
     useEffect(() => {
-        if (!initialized.current.selectedRepoId) return;
         if (title && text &&
             Object.values(checked).some((value) => value) && selectedRepoId) setSubmitEnabled(true);
         else setSubmitEnabled(false);
@@ -55,15 +54,18 @@ export default function PostCreate(props : PostCreateProps) {
     useEffect(() => {
         // 페이지 초기화 함수
         const setUp = async () => {
-            // 유저의 repo 모든 repo 목록을 불러와 repoOptions에 세팅함
-            const data = await getRepositories(account?.username as string);
-            setRepoOptions(data);
             // RepositoryDetail 페이지로부터 유입된 경우
             if (props.mode === "create/repo") {
+                const collaborators = await getCollaborators(parseInt(params.repo_id as string));
+                if (!collaborators.some((collaborator) => collaborator.username === account?.username)) {
+                    history.push(`/repos/${params.repo_id}`);
+                }
                 // selectedRepoId를 params의 :repo_id로 세팅함
-                if (params.repo_id) setSelectedRepoId(parseInt(params.repo_id));
+                setSelectedRepoId(parseInt(params.repo_id as string));
             }
             else if (props.mode === "create/user") {
+                const data = await getRepositories(account?.username as string);
+                setRepoOptions(data);
                 setSelectedRepoId(-1);
             }
             // 기존의 Post를 수정하는 경우
@@ -109,8 +111,7 @@ export default function PostCreate(props : PostCreateProps) {
                 setChecked(tempChecked);
             }
         };
-        if (!initialized.current.selectedRepoId) initialized.current.selectedRepoId = true;
-        else if (selectedRepoId === -1) dispatch(fetchPhotos(-1));
+        if (selectedRepoId === -1) dispatch(fetchPhotos(-1));
         else loadPhotos();
     }, [selectedRepoId]);
 

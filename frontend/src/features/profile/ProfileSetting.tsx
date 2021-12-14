@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
     Container, Form, Button, Image,
 } from "react-bootstrap";
+import { toast, ToastContainer } from "react-toastify";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { removeProfilePicture, updateProfile, updateProfilePicture } from "../auth/authSlice";
 
@@ -13,8 +14,11 @@ export default function ProfileSetting() {
     const account = useAppSelector((state) => state.auth.account);
     const profileImage = useAppSelector((state) => state.auth.account?.profile_picture);
     const [email, setEmail] = useState<string>("");
-    const [real_name, setreal_name] = useState<string>("");
+    const [emailIsValid, setEmailIsValid] = useState<boolean>(false);
+    const [realName, setRealName] = useState<string>("");
+    const [realNameIsValid, setRealNameIsValid] = useState<boolean>(false);
     const [password, setPassword] = useState<string>("");
+    const [passwordIsValid, setPasswordIsValid] = useState<boolean>(true);
     const [bio, setBio] = useState<string>("");
     const [visibility, setVisibility] = useState<Visibility>(Visibility.ALL);
     const dispatch = useAppDispatch();
@@ -22,12 +26,12 @@ export default function ProfileSetting() {
     useEffect(() => {
         if (account) {
             if (account.email) setEmail(account.email);
-            if (account.real_name) setreal_name(account.real_name);
+            if (account.real_name) setRealName(account.real_name);
             if (account.bio) setBio(account.bio);
             if (account.password) setPassword(account.password);
             if (account.visibility) setVisibility(account.visibility);
         }
-    }, [dispatch]);
+    }, [dispatch, account]);
 
     const onAddProfileImage = (event: React.ChangeEvent<HTMLInputElement>) => {
         const temp = new FormData();
@@ -44,20 +48,18 @@ export default function ProfileSetting() {
         const submit = async () => {
             await dispatch(updateProfile({
                 email,
-                real_name,
+                real_name: realName,
                 bio,
                 password: password || undefined,
                 visibility,
             }));
-            alert("Changes saved");
+            toast("Changes saved");
         };
         submit();
+        setPassword("");
     };
 
     if (!account) return <div>Error!</div>;
-
-    // TODO: Signup form에 맞춰서 좀 고쳐야 할듯...
-    // TODO: Form validaaaaaation
 
     return (
         <Container style={{ maxWidth: 500 }} className="mt-3">
@@ -91,22 +93,35 @@ export default function ProfileSetting() {
                         />
                     </div>
                 </Form.Group>
-                <Form.Group className="mb-3">
+                <Form.Group className="mb-3" controlId="formBasicEmail">
                     <Form.Label>Email</Form.Label>
                     <Form.Control
                         id="change-email-input"
                         type="email"
                         value={email}
-                        onChange={({ target }) => setEmail(target.value)}
+                        onChange={({ target }) => {
+                            setEmail(target.value);
+                            setEmailIsValid(/^[^@\s]+@[A-Za-z\d.]+$/.test(target.value));
+                        }}
+                        isValid={emailIsValid}
+                        isInvalid={!emailIsValid}
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>Full Name</Form.Label>
                     <Form.Control
                         id="change-real-name-input"
-                        value={real_name}
-                        onChange={({ target }) => setreal_name(target.value)}
+                        value={realName}
+                        onChange={({ target }) => {
+                            setRealName(target.value);
+                            setRealNameIsValid(/^[a-zA-Z][a-zA-Z\s]*$/.test(target.value) && target.value.length <= 15);
+                        }}
+                        isValid={realNameIsValid}
+                        isInvalid={!realNameIsValid}
                     />
+                    <Form.Control.Feedback type="invalid">
+                        Please write your name in English.
+                    </Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>Password</Form.Label>
@@ -114,8 +129,19 @@ export default function ProfileSetting() {
                         id="change-password-input"
                         type="password"
                         value={password}
-                        onChange={({ target }) => setPassword(target.value)}
+                        onChange={({ target }) => {
+                            setPassword(target.value);
+                            setPasswordIsValid(
+                                /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,}$/
+                                    .test(target.value),
+                            );
+                        }}
+                        isValid={passwordIsValid && password.length > 0}
+                        isInvalid={!passwordIsValid && password.length > 0}
                     />
+                    <Form.Control.Feedback type="invalid">
+                        Password should be 8 letters or longer with at least one number and alphabet.
+                    </Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>Bio</Form.Label>
@@ -152,8 +178,16 @@ export default function ProfileSetting() {
                         />
                     </div>
                 </Form.Group>
-                <Button id="submit-button" onClick={onSubmit}>Save changes</Button>
+                <Button
+                    id="submit-button"
+                    onClick={onSubmit}
+                    disabled={!(emailIsValid && realNameIsValid && passwordIsValid)}
+                >
+                    Save changes
+
+                </Button>
             </Form>
+            <ToastContainer />
         </Container>
     );
 }
