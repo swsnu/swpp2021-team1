@@ -125,8 +125,9 @@ const LabelsSection = () => {
                             value: label,
                             label: label.label_name,
                         }))}
-                        className="basic-multi-select mx-5"
+                        className="basic-multi-select mx-5 w-100"
                         classNamePrefix="select"
+
                     />
                     <DropdownButton title="Edit..." hidden={mode}>
                         <Dropdown.Item
