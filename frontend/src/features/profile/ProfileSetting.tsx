@@ -53,7 +53,7 @@ export default function ProfileSetting() {
                 password: password || undefined,
                 visibility,
             }));
-            toast("Changes saved");
+            toast.success("Changes saved");
         };
         submit();
         setPassword("");

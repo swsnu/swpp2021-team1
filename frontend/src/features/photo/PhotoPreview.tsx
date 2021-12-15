@@ -29,7 +29,7 @@ export default function PhotoPreview() {
         repo.collaborators.filter((value) => value.username === user.username).length > 0;
 
     useEffect(() => {
-        dispatch(actionCreator.fetchPhotos(parseInt(params.id))).then(() => {
+        dispatch(actionCreator.fetchPhotos({ repoId: parseInt(params.id) })).then(() => {
             const newChecked : {[id : number] : boolean} = {};
             photoList.forEach((value) => {
                 newChecked[value.photo_id] = false;

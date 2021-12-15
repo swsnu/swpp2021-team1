@@ -137,6 +137,12 @@ export async function deletePhotos(repo_id : number, photos_id : {photo_id : num
         { data: photos_id })).data;
 }
 
+export async function getFilteredPhotos(repo_id: number, label_name: string) {
+    return (await axios.get<any, AxiosResponse<IPhoto[]>>(
+        `/api/repositories/${repo_id}/photos/?label=${label_name}`,
+    )).data;
+}
+
 /**
  * for discussionsSlice
  */
