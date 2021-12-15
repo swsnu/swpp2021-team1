@@ -215,7 +215,6 @@ const PostCreate = (props : PostCreateProps) => {
                 />
                 { photoOptions.length > 0 ? (
                     <>
-                        {labelOptions.length}
                         <PCPhotoSelect
                             photos={photoOptions}
                             checked={checked}
