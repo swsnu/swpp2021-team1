@@ -2,7 +2,7 @@ import "./LabelsSection.css";
 
 import React, { useEffect, useState } from "react";
 import {
-    Badge, Dropdown, DropdownButton, OverlayTrigger, Tooltip,
+    Badge, Button, Dropdown, DropdownButton, OverlayTrigger, Tooltip,
 } from "react-bootstrap";
 import { useParams } from "react-router";
 import CreatableSelect from "react-select/creatable";
@@ -68,7 +68,20 @@ const LabelsSection = () => {
     }, [selectedLabel]);
 
     useEffect(() => {
-        setChecked({});
+        if (!mode) {
+            setChecked({});
+        }
+        else {
+            allPhotos.forEach((photo) => {
+                if (photo.labels?.some(
+                    (label) => label.label_id === selectedLabel?.value.label_id,
+                )) {
+                    setChecked({ ...checked, [photo.photo_id]: false });
+                }
+                else setChecked({ ...checked, [photo.photo_id]: true });
+            });
+            setDisplayPhotos(allPhotos);
+        }
     }, [mode]);
 
     const onPhotoClick = (photoId: number) => {
@@ -90,10 +103,10 @@ const LabelsSection = () => {
         }));
     }
 
-    const onAssignLabel = (labelId: number) => {
+    const onAssignLabel = () => {
         dispatch(assignLabel({
             repoId,
-            labelId,
+            labelId: selectedLabel?.value.label_id as number,
             photos: allPhotos.filter((photo) => checked[photo.photo_id]),
         }));
         setMode(!mode);
@@ -134,32 +147,42 @@ const LabelsSection = () => {
                             label: label.label_name,
                         }))}
                         onCreateOption={handleCreate}
-                        className="basic-multi-select mx-5 w-100"
+                        className="basic-creatable-select mx-5 w-100"
                         classNamePrefix="select"
                         isClearable
+                        isDisabled={mode}
                     />
-                    <DropdownButton title="Action..." hidden={mode || !selectedLabel}>
+                    <DropdownButton
+                        title="Action..."
+                        disabled={!selectedLabel}
+                    >
                         <Dropdown.Item
                             onClick={() => setMode(!mode)}
+                            disabled={!selectedLabel}
+                            hidden={mode}
                         >
-                            Assign labels
+                            {`Assign photos to '${selectedLabel?.label}'`}
                         </Dropdown.Item>
                         <Dropdown.Item
+                            hidden={mode}
                             onClick={() => {
                                 const newName = window.prompt("Enter new name: ");
                                 const label = labels.find((label) => label.label_name === selectedLabel?.label);
                                 if (newName) {
                                     dispatch(editLabel({
-                                        repoId, labelId: label?.label_id as number, newName: newName as string,
+                                        repoId,
+                                        labelId: label?.label_id as number,
+                                        newName: newName.toLowerCase().replace(/\W/g, "") as string,
                                     }));
                                 }
                                 dispatch(loadLabels({ repoId }));
                             }}
                         >
-                            Rename label
+                            {`Rename '${selectedLabel?.label}'`}
 
                         </Dropdown.Item>
                         <Dropdown.Item
+                            hidden={mode}
                             disabled={
                                 displayPhotos.length > 0
                             }
@@ -171,21 +194,21 @@ const LabelsSection = () => {
                                 setSelectedLabel(null);
                             }}
                         >
-                            Delete label
+                            {`Delete '${selectedLabel?.label}'`}
                         </Dropdown.Item>
-                    </DropdownButton>
-                    <DropdownButton title="Done..." hidden={!mode}>
-                        {labels.map((label) => (
-                            <Dropdown.Item
-                                key={label.label_id}
-                                onClick={() => onAssignLabel(label.label_id)}
-                                value={label.label_id}
-                            >
-                                {label.label_name}
-                            </Dropdown.Item>
-                        ))}
-                        <Dropdown.Divider />
-                        <Dropdown.Item onClick={() => setMode(!mode)}>Cancel</Dropdown.Item>
+                        <Dropdown.Item
+                            hidden={!mode}
+                            onClick={onAssignLabel}
+                        >
+                            Apply
+                        </Dropdown.Item>
+                        <Dropdown.Divider hidden={!mode} />
+                        <Dropdown.Item
+                            hidden={!mode}
+                            onClick={() => setMode(false)}
+                        >
+                            Cancel
+                        </Dropdown.Item>
                     </DropdownButton>
                 </div>
                 <div
