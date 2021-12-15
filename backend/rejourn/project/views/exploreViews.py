@@ -291,6 +291,7 @@ def feeds(request):
             response_dict = {
                 "post_id": post.post_id,
                 "repo_id": post.repository.repo_id,
+                "repo_name": post.repository.repo_name,
                 "author": author_list,
                 "title": post.title,
                 "text": post.text,
