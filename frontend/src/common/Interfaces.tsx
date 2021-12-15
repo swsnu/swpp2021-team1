@@ -310,6 +310,7 @@ export function placeQueryFactory() {
 interface IFeed {
     post_id: number,
     repo_id: number,
+    repo_name: string,
     author: IUser[],
     title: string,
     photos: IPhoto[],

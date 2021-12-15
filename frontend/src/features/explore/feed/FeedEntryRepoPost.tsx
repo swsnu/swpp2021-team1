@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router";
 import { Button, Card } from "react-bootstrap";
-import { IFeed } from "../../../common/Interfaces";
+import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFolder } from "@fortawesome/free-solid-svg-icons";
 import Travel from "../../route/popup/Travel";
+import { IFeed } from "../../../common/Interfaces";
 
 interface FeedEntryRepoPostProps {
     entry: IFeed
@@ -11,13 +14,24 @@ interface FeedEntryRepoPostProps {
 const FeedEntryRepoPost = (props: FeedEntryRepoPostProps) => {
     const { entry } = props;
     const author = entry.author ? entry.author[0] : undefined;
-    const history = useHistory();
     const [travelShow, setTravelShow] = useState<boolean>(false);
 
     return (
         <div>
             <Card className="border-bottom my-5 p-4" style={{ maxWidth: 700 }}>
                 <div className="row align-items-center mb-4 mx-auto">
+                    <Link
+                        to={`/repos/${entry.repo_id}`}
+                        className="text-decoration-none"
+                    >
+                        <FontAwesomeIcon
+                            className="mt-2 me-2"
+                            icon={faFolder}
+                            width="1em"
+                            height="1em"
+                        />
+                        {entry.repo_name}
+                    </Link>
                     <div
                         className="col-lg-6 text-center
                         text-lg-start mb-3 m-lg-0 d-flex align-items-center justify-content-between"
@@ -37,14 +51,6 @@ const FeedEntryRepoPost = (props: FeedEntryRepoPostProps) => {
                             Travel
                         </Button>
                     </div>
-                </div>
-                <div className="ms-auto">
-                    <Button
-                        variant="link"
-                        onClick={() => history.push(`/repos/${entry.repo_id}`)}
-                    >
-                        View Repository
-                    </Button>
                 </div>
             </Card>
             <Travel repo_id={entry.repo_id} show={travelShow} setShow={setTravelShow} />
