@@ -25,8 +25,8 @@ const FeedEntry = (props: FeedEntryProps) => {
     };
 
     return (
-        <Card className="mb-5 p-4" style={{ maxWidth: 700 }}>
-            <div className="row align-items-center mb-4 mx-auto">
+        <Card className="mb-5 px-4 pt-4 pb-3" style={{ maxWidth: 700 }}>
+            <div className="row align-items-center mb-3 mx-auto">
                 <div className="d-flex justify-content-between mb-3">
                     <Link
                         to={`/repos/${entry.repo_id}`}
@@ -81,7 +81,7 @@ const FeedEntry = (props: FeedEntryProps) => {
                     <Carousel
                         activeIndex={index}
                         onSelect={handleSelect}
-                        className="shadow-2-strong rounded-5 mb-4 mx-auto w-100"
+                        className="shadow-2-strong rounded-5 my-2 mx-auto w-100"
                         style={{ maxWidth: 700 }}
                         interval={null}
                     >
@@ -102,8 +102,9 @@ const FeedEntry = (props: FeedEntryProps) => {
                         {currentPhoto?.local_tag}
                     </Figure.Caption>
                 </Figure>
+                <hr className="mb-2" />
                 <Link
-                    className="fs-4 feed-title"
+                    className="fs-4 feed-title ms-2"
                     to={`/posts/${entry.post_id}`}
                 >
                     {props.entry.title}
