@@ -71,7 +71,7 @@ export default function Notification(props : NotificationProps) {
                     className="noti_discussion d-flex justify-content-between align-items-start"
                     action
                     onClick={() =>
-                        history.push(`/repos/${props.notification.repository?.repo_id}
+                        history.push(`/repos/${props.notification.discussion?.repo_id}
                         /discussion/${props.notification.discussion?.discussion_id}`)}
                 >
                     <h5 className="m-2 notice-text-overflow-long">
@@ -98,7 +98,7 @@ export default function Notification(props : NotificationProps) {
                         className="noti_comment_discussion d-flex justify-content-between align-items-start"
                         action
                         onClick={() =>
-                            history.push(`/repos/${props.notification.repository?.repo_id}
+                            history.push(`/repos/${props.notification.discussion?.repo_id}
                             /discussion/${props.notification.discussion?.discussion_id}`)}
                     >
                         <h5 className="m-2 notice-text-overflow-long">
