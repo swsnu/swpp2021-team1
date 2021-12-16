@@ -25,6 +25,7 @@ export default function NotificationResponse(props : NotificationInviteProps) {
                                 props.notification.from_user.profile_picture : avatar}
                             className="rounded-circle shadow-1-strong me-3"
                             height="40"
+                            width="40"
                             alt=""
                             loading="lazy"
                         />
@@ -41,6 +42,7 @@ export default function NotificationResponse(props : NotificationInviteProps) {
                             props.notification.from_user.profile_picture : avatar}
                         className="rounded-circle shadow-1-strong me-3"
                         height="40"
+                        width="40"
                         alt=""
                         loading="lazy"
                     />

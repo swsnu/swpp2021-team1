@@ -102,11 +102,7 @@ export default function Profile() {
         break;
     }
 
-    if (isLoading) {
-        return (
-            <div />
-        );
-    }
+    if (isLoading) return null;
     if (hasError) {
         return (
             <h3 className="mt-5 fst-italic">

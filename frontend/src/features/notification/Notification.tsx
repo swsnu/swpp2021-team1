@@ -32,6 +32,7 @@ export default function Notification(props : NotificationProps) {
                             <img
                                 src={fork}
                                 height="40"
+                                width="40"
                                 className="me-3"
                                 alt=""
                             />
@@ -54,6 +55,7 @@ export default function Notification(props : NotificationProps) {
                                 props.notification.from_user.profile_picture : avatar}
                             className="rounded-circle shadow-1-strong me-3"
                             height="40"
+                            width="40"
                             alt=""
                             loading="lazy"
                         />
@@ -80,6 +82,7 @@ export default function Notification(props : NotificationProps) {
                                 props.notification.from_user.profile_picture : avatar}
                             className="rounded-circle shadow-1-strong me-3"
                             height="40"
+                            width="40"
                             alt=""
                             loading="lazy"
                         />
@@ -107,6 +110,7 @@ export default function Notification(props : NotificationProps) {
                                     props.notification.from_user.profile_picture : avatar}
                                 className="rounded-circle shadow-1-strong me-3"
                                 height="40"
+                                width="40"
                                 alt=""
                                 loading="lazy"
                             />
@@ -131,6 +135,7 @@ export default function Notification(props : NotificationProps) {
                                 props.notification.from_user.profile_picture : avatar}
                             className="rounded-circle shadow-1-strong me-3"
                             height="40"
+                            width="40"
                             alt=""
                             loading="lazy"
                         />
@@ -155,6 +160,7 @@ export default function Notification(props : NotificationProps) {
                                 props.notification.from_user.profile_picture : avatar}
                             className="rounded-circle shadow-1-strong me-3"
                             height="40"
+                            width="40"
                             alt=""
                             loading="lazy"
                         />

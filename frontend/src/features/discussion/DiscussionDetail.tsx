@@ -126,6 +126,7 @@ export default function DiscussionDetail() {
                                     currentDiscussion.author.profile_picture : avatar}
                                 className="rounded-circle shadow-1-strong me-1"
                                 height="25"
+                                width="25"
                                 alt=""
                                 loading="lazy"
                             />
@@ -175,6 +176,7 @@ export default function DiscussionDetail() {
                                 className="rounded-circle me-2"
                                 src={account?.profile_picture ? account.profile_picture : avatar}
                                 width="40"
+                                height="40"
                                 alt="profile"
                             />
                             <textarea

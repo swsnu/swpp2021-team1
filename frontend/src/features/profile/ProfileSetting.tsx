@@ -12,6 +12,7 @@ import { Visibility } from "../../common/Interfaces";
 // suppress no-tsx-component-props
 export default function ProfileSetting() {
     const account = useAppSelector((state) => state.auth.account);
+    const hasError = useAppSelector((state) => state.auth.hasError);
     const profileImage = useAppSelector((state) => state.auth.account?.profile_picture);
     const [email, setEmail] = useState<string>("");
     const [emailIsValid, setEmailIsValid] = useState<boolean>(true);
@@ -36,11 +37,7 @@ export default function ProfileSetting() {
     const onAddProfileImage = (event: React.ChangeEvent<HTMLInputElement>) => {
         const temp = new FormData();
         if (!event.target.files) return;
-        Array.from(event.target.files).forEach((value) => {
-            temp.append("image", value);
-            const fileReader = new FileReader();
-            fileReader.readAsDataURL(value);
-        });
+        temp.append("image", event.target.files[0]);
         dispatch(updateProfilePicture(temp));
     };
 
@@ -59,7 +56,8 @@ export default function ProfileSetting() {
         setPassword("");
     };
 
-    if (!account) return <div>Error!</div>;
+    if (hasError) return <div>Error!</div>;
+    if (!account) return null;
 
     return (
         <Container style={{ maxWidth: 500 }} className="mt-3">
@@ -89,6 +87,7 @@ export default function ProfileSetting() {
                             roundedCircle
                             src={profileImage ?? avatar}
                             width="150px"
+                            height="150px"
                             className="mx-3 mb-2"
                         />
                     </div>

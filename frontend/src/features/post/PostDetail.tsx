@@ -77,6 +77,7 @@ const PostDetail = () => {
                                 src={author?.profile_picture ? author?.profile_picture : avatar}
                                 className="rounded-circle shadow-1-strong me-3"
                                 height="40"
+                                width="40"
                                 alt=""
                                 loading="lazy"
                             />
@@ -177,6 +178,7 @@ const PostDetail = () => {
                                 className="rounded-circle me-2"
                                 src={account?.profile_picture ? account?.profile_picture : avatar}
                                 width="40"
+                                height="40"
                                 alt="profile"
                             />
                             <textarea
