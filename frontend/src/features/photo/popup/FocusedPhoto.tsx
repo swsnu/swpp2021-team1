@@ -13,7 +13,7 @@ interface FocusedPhotoProps {
     postCreateMode: "new" | "edit" | false;
 }
 
-export default function FocusedPhoto(props : FocusedPhotoProps) {
+export default function FocusedPhoto(props: FocusedPhotoProps) {
     const [tag, setTag] = useState<string>(
         props.postCreateMode === "edit" ? props.photo.local_tag as string : props.photo.tag as string,
     );
