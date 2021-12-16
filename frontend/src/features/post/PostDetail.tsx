@@ -95,8 +95,8 @@ const PostDetail = () => {
                             <div>
                                 <Link to={`/posts/${post_id}/edit`}>Edit</Link>
                                 <Button
-                                    onClick={() => {
-                                        dispatch(postDeleted(parseInt(post_id)));
+                                    onClick={async () => {
+                                        await dispatch(postDeleted(parseInt(post_id)));
                                         window.alert("Delete successful");
                                         history.push(`/main/${account?.username}`);
                                     }}
