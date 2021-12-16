@@ -79,8 +79,6 @@ export default function DiscussionDetail() {
             </h3>
         );
     }
-    console.log(currentDiscussion?.text);
-    if (currentDiscussion) console.log(text.charAt(1) === " ");
 
     return (
         <div>
