@@ -14,9 +14,9 @@ export default function ProfileSetting() {
     const account = useAppSelector((state) => state.auth.account);
     const profileImage = useAppSelector((state) => state.auth.account?.profile_picture);
     const [email, setEmail] = useState<string>("");
-    const [emailIsValid, setEmailIsValid] = useState<boolean>(false);
+    const [emailIsValid, setEmailIsValid] = useState<boolean>(true);
     const [realName, setRealName] = useState<string>("");
-    const [realNameIsValid, setRealNameIsValid] = useState<boolean>(false);
+    const [realNameIsValid, setRealNameIsValid] = useState<boolean>(true);
     const [password, setPassword] = useState<string>("");
     const [passwordIsValid, setPasswordIsValid] = useState<boolean>(true);
     const [bio, setBio] = useState<string>("");

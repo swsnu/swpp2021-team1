@@ -233,7 +233,7 @@ export async function getPost(post_id: number) {
     )).data;
 }
 
-export async function putPost(post_id: number, title: string, text: string, photos: IPhoto[]) {
+export async function putPost(post_id: number, title: string, text: string, photos: PhotoWithLocalTag[]) {
     return (await axios.put<any, AxiosResponse<IPost>>(
         `/api/posts/${post_id}/`, { title, text, photos },
     )).data;

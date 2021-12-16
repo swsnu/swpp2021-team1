@@ -91,20 +91,22 @@ const PostDetail = () => {
                     </div>
                     <div className="w-100 d-flex justify-content-between">
                         <h1 className="fs-4">{currentPost?.title}</h1>
-                        <div>
-                            <Link to={`/posts/${post_id}/edit`}>Edit</Link>
-                            <Button
-                                onClick={() => {
-                                    dispatch(postDeleted(parseInt(post_id)));
-                                    window.alert("Delete successful");
-                                    history.push(`/main/${account?.username}`);
-                                }}
-                                variant="link"
-                            >
-                                Delete
+                        {account && author && account.username === author.username && (
+                            <div>
+                                <Link to={`/posts/${post_id}/edit`}>Edit</Link>
+                                <Button
+                                    onClick={() => {
+                                        dispatch(postDeleted(parseInt(post_id)));
+                                        window.alert("Delete successful");
+                                        history.push(`/main/${account?.username}`);
+                                    }}
+                                    variant="link"
+                                >
+                                    Delete
 
-                            </Button>
-                        </div>
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 </div>
                 <Figure>

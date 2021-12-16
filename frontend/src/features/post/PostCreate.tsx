@@ -11,15 +11,15 @@ import store from "../../app/store";
 
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import {
-    getCollaborators, getLabels, getPost, getRepositories,
+    getCollaborators, getPost, getRepositories,
 } from "../../common/APIs";
 import {
-    ILabel, IPhoto, IPost, IRepository, PostType,
+    ILabel, IPost, IRepository,
 } from "../../common/Interfaces";
 import { labelsSelectors, loadLabels } from "../labels/labelsSlice";
 import { fetchPhotos } from "../photo/photosSlice";
 import PCPhotoSelect from "./PCPhotoSelect";
-import { newRepoPost, PhotoWithLocalTag } from "./postsSlice";
+import { newRepoPost, PhotoWithLocalTag, postEdited } from "./postsSlice";
 import "../PostCreate.css";
 
 interface PostCreateProps {
@@ -155,13 +155,24 @@ const PostCreate = (props : PostCreateProps) => {
             });
         });
         try {
+            let resultAction;
             // 새 Post를 서버에 업로드
-            const resultAction = await dispatch(newRepoPost({
-                repo_id: selectedRepoId,
-                title,
-                text,
-                photos: photosPayload,
-            }));
+            if (props.mode !== "edit") {
+                resultAction = await dispatch(newRepoPost({
+                    repo_id: selectedRepoId,
+                    title,
+                    text,
+                    photos: photosPayload,
+                }));
+            }
+            else {
+                resultAction = await dispatch(postEdited({
+                    post_id: parseInt(params.post_id as string),
+                    title,
+                    text,
+                    photos: photosPayload,
+                }));
+            }
             // 그 Post 페이지로 리다이렉트
             const originalPromiseResult = unwrapResult(resultAction);
             history.push(`/posts/${originalPromiseResult?.post_id}`);
