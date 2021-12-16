@@ -78,6 +78,7 @@ const photosSlice = createSlice<PhotosState, SliceCaseReducers<PhotosState>>({
             const { photoId, content } = action.payload;
             const [photo] = state.photoList.filter((value) => value.photo_id === photoId);
             photo.local_tag = content;
+            state.currentPhoto = null;
         },
     },
     extraReducers: (builder) => {
