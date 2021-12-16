@@ -88,7 +88,7 @@ export const fetchSinglePost = createAsyncThunk<IPost, number>(
 );
 
 export const postEdited = createAsyncThunk<IPost, {
-    post_id: number, title: string, text: string, photos: IPhoto[]
+    post_id: number, title: string, text: string, photos: PhotoWithLocalTag[]
 }>(
     "post/postEdited",
     async ({
