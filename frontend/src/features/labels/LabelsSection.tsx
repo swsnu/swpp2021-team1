@@ -1,10 +1,14 @@
 import "./LabelsSection.css";
 
 import React, { useEffect, useState } from "react";
-import { Badge, Dropdown, DropdownButton } from "react-bootstrap";
+import {
+    Badge, Button, Dropdown, DropdownButton, OverlayTrigger, Tooltip,
+} from "react-bootstrap";
 import { useParams } from "react-router";
-import Select from "react-select";
+import CreatableSelect from "react-select/creatable";
+import { ActionMeta, OnChangeValue } from "react-select";
 
+import { unwrapResult } from "@reduxjs/toolkit";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import store from "../../app/store";
 import {
@@ -32,7 +36,7 @@ const LabelsSection = () => {
     const params = useParams<{ id: string }>();
     const repoId = parseInt(params.id);
     const allPhotos = useAppSelector((state) => state.photos.photoList);
-    const [selectedLabels, setSelectedLabels] = useState<labelOption[]>([]);
+    const [selectedLabel, setSelectedLabel] = useState<labelOption | null>(null);
     const [displayPhotos, setDisplayPhotos] = useState<IPhoto[]>([]);
     const [photoFocused, setPhotoFocused] = useState<boolean>(false);
     const [checked, setChecked] = useState<{ [ id: number ]: boolean }>({});
@@ -49,25 +53,35 @@ const LabelsSection = () => {
     }, [allPhotos]);
 
     useEffect(() => {
-        const listOfLabels = selectedLabels.map((option) => option.value);
-        if (selectedLabels.length === 0) setDisplayPhotos(allPhotos);
+        if (!selectedLabel) setDisplayPhotos(allPhotos);
         else {
             const filterPhoto = (photo: IPhoto) => {
                 if (photo.labels) {
                     return photo.labels.some(
-                        (label) => listOfLabels.some(
-                            (labelToMatch) => labelToMatch.label_id === label.label_id,
-                        ),
+                        (label) => label.label_id === selectedLabel.value.label_id,
                     );
                 }
                 return false;
             };
             setDisplayPhotos(allPhotos.filter((photo: IPhoto) => filterPhoto(photo)));
         }
-    }, [selectedLabels]);
+    }, [selectedLabel]);
 
     useEffect(() => {
-        setChecked({});
+        if (!mode) {
+            setChecked({});
+        }
+        else {
+            allPhotos.forEach((photo) => {
+                if (photo.labels?.some(
+                    (label) => label.label_id === selectedLabel?.value.label_id,
+                )) {
+                    setChecked({ ...checked, [photo.photo_id]: false });
+                }
+                else setChecked({ ...checked, [photo.photo_id]: true });
+            });
+            setDisplayPhotos(allPhotos);
+        }
     }, [mode]);
 
     const onPhotoClick = (photoId: number) => {
@@ -89,18 +103,26 @@ const LabelsSection = () => {
         }));
     }
 
-    const onNewLabel = () => {
-        const newName = window.prompt("Name of new label: ");
-        dispatch(newLabel({ repoId, labelName: (newName as string) }));
-    };
-
-    const onAssignLabel = (labelId: number) => {
+    const onAssignLabel = () => {
         dispatch(assignLabel({
             repoId,
-            labelId,
+            labelId: selectedLabel?.value.label_id as number,
             photos: allPhotos.filter((photo) => checked[photo.photo_id]),
         }));
         setMode(!mode);
+    };
+
+    const handleCreate = async (inputValue: string) => {
+        const replaced = inputValue.toLowerCase().replace(/\W/g, "") as string;
+        const resultAction = await dispatch(newLabel({ repoId, labelName: replaced }));
+        const resultLabel = unwrapResult(resultAction).find((label) => label.label_name === replaced);
+        if (resultLabel) {
+            const newOption: labelOption = {
+                label: replaced,
+                value: resultLabel,
+            };
+            setSelectedLabel(newOption);
+        }
     };
 
     let content;
@@ -114,80 +136,79 @@ const LabelsSection = () => {
         content = (
             <div data-testid="content" className="mt-3">
                 <div className="d-flex justify-content-between">
-                    <Select
-                        defaultValue={[]}
-                        isMulti
+                    <CreatableSelect
+                        defaultValue={null}
                         name="labels"
-                        value={selectedLabels}
-                        placeholder="Filter by Labels..."
-                        onChange={(newValue) => setSelectedLabels([...newValue])}
+                        value={selectedLabel}
+                        placeholder="Enter an existing label or a new label..."
+                        onChange={(value) => setSelectedLabel(value)}
                         options={labels.map((label) => ({
                             value: label,
                             label: label.label_name,
                         }))}
-                        className="basic-multi-select mx-5 w-100"
+                        onCreateOption={handleCreate}
+                        className="basic-creatable-select mx-5 w-100"
                         classNamePrefix="select"
-
+                        isClearable
+                        isDisabled={mode}
                     />
-                    <DropdownButton title="Edit..." hidden={mode}>
-                        <Dropdown.Item
-                            onClick={onNewLabel}
-                        >
-                            New label...
-                        </Dropdown.Item>
+                    <DropdownButton
+                        title="Action..."
+                        disabled={!selectedLabel}
+                    >
                         <Dropdown.Item
                             onClick={() => setMode(!mode)}
+                            disabled={!selectedLabel}
+                            hidden={mode}
                         >
-                            Assign labels
+                            {`Assign photos to '${selectedLabel?.label}'`}
                         </Dropdown.Item>
                         <Dropdown.Item
+                            hidden={mode}
                             onClick={() => {
-                                const labelName = window.prompt("Enter name of label to edit: ");
-                                const label = labels.find((label) => label.label_name === labelName);
-                                if (label) {
-                                    const newName = window.prompt("Enter new name: ");
+                                const newName = window.prompt("Enter new name: ");
+                                const label = labels.find((label) => label.label_name === selectedLabel?.label);
+                                if (newName) {
                                     dispatch(editLabel({
-                                        repoId, labelId: label.label_id, newName: newName as string,
+                                        repoId,
+                                        labelId: label?.label_id as number,
+                                        newName: newName.toLowerCase().replace(/\W/g, "") as string,
                                     }));
                                 }
-                                else {
-                                    window.alert(`Label '${labelName}' does not exist!`);
-                                }
+                                dispatch(loadLabels({ repoId }));
                             }}
                         >
-                            Rename label
+                            {`Rename '${selectedLabel?.label}'`}
 
                         </Dropdown.Item>
                         <Dropdown.Item
+                            hidden={mode}
+                            disabled={
+                                displayPhotos.length > 0
+                            }
                             onClick={() => {
-                                const labelName = window.prompt("Enter name of label to delete");
-                                const label = labels.find((label) => label.label_name === labelName);
-                                if (label) {
-                                    dispatch(deleteOneLabel({
-                                        repoId,
-                                        labelId: label.label_id,
-                                    }));
-                                }
-                                else {
-                                    window.alert(`Label '${labelName}' does not exist!`);
-                                }
+                                dispatch(deleteOneLabel({
+                                    repoId,
+                                    labelId: selectedLabel?.value?.label_id as number,
+                                }));
+                                setSelectedLabel(null);
                             }}
                         >
-                            Delete label
+                            {`Delete '${selectedLabel?.label}'`}
                         </Dropdown.Item>
-                    </DropdownButton>
-                    <DropdownButton title="Done..." hidden={!mode}>
-                        {labels.map((label) => (
-                            <Dropdown.Item
-                                key={label.label_id}
-                                onClick={() => onAssignLabel(label.label_id)}
-                                value={label.label_id}
-                            >
-                                {label.label_name}
-                            </Dropdown.Item>
-                        ))}
-                        <Dropdown.Divider />
-                        <Dropdown.Item onClick={() => setMode(!mode)}>Cancel</Dropdown.Item>
+                        <Dropdown.Item
+                            hidden={!mode}
+                            onClick={onAssignLabel}
+                        >
+                            Apply
+                        </Dropdown.Item>
+                        <Dropdown.Divider hidden={!mode} />
+                        <Dropdown.Item
+                            hidden={!mode}
+                            onClick={() => setMode(false)}
+                        >
+                            Cancel
+                        </Dropdown.Item>
                     </DropdownButton>
                 </div>
                 <div
@@ -219,6 +240,7 @@ const LabelsSection = () => {
                                 {
                                     value.labels?.map((label) => (
                                         <Badge
+                                            key={label.label_name}
                                             className="label-badge"
                                         >
                                             <i className="bi-alarm" />

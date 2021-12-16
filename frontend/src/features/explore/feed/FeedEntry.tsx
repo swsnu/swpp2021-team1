@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import {
     Button, Carousel, Figure, Card,
 } from "react-bootstrap";
-import { faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
+import { faFolder, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { IFeed } from "../../../common/Interfaces";
 import avatar from "../../../common/assets/avatar.jpg";
@@ -19,7 +19,6 @@ const FeedEntry = (props: FeedEntryProps) => {
     const [index, setIndex] = useState<number>(0);
     const currentPhoto = entry.photos[index];
     const author = entry.author ? entry.author[0] : undefined;
-    const history = useHistory();
 
     const handleSelect = (selectedIndex: number) => {
         setIndex(selectedIndex);
@@ -28,15 +27,28 @@ const FeedEntry = (props: FeedEntryProps) => {
     return (
         <Card className="mb-5 p-4" style={{ maxWidth: 700 }}>
             <div className="row align-items-center mb-4 mx-auto">
-                <div className="mb-2">
-                    <FontAwesomeIcon
-                        className="mt-2 me-2"
-                        icon={faMapMarkerAlt}
-                        width="1em"
-                        height="1em"
-                        color="#f69d72"
-                    />
-                    <span className="text-muted text-sm my-1">{props.entry.region}</span>
+                <div className="d-flex justify-content-between mb-3">
+                    <Link
+                        to={`/repos/${entry.repo_id}`}
+                        className="text-decoration-none"
+                    >
+                        <FontAwesomeIcon
+                            className="mt-2 me-2"
+                            icon={faFolder}
+                            width="1em"
+                            height="1em"
+                        />
+                        {entry.repo_name}
+                    </Link>
+                    <div className="text-muted small">
+                        <FontAwesomeIcon
+                            className="mt-2 me-2"
+                            icon={faMapMarkerAlt}
+                            width="1em"
+                            height="1em"
+                        />
+                        <span className="text-sm my-1">{props.entry.region}</span>
+                    </div>
                 </div>
                 <div
                     className="col-lg-6 text-center
@@ -64,7 +76,7 @@ const FeedEntry = (props: FeedEntryProps) => {
                     </Link>
                     <span className="text-muted ms-1">{props.entry.post_time}</span>
                 </div>
-                <hr />
+                <hr className="my-2" />
                 <Figure>
                     <Carousel
                         activeIndex={index}

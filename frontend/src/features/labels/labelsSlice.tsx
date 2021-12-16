@@ -18,9 +18,12 @@ export const labelsAdapter = createEntityAdapter<ILabel>({
     sortComparer: (a, b) => a.label_name.localeCompare(b.label_name),
 });
 
-export const loadLabels = createAsyncThunk<ILabel[], { repoId: number}>(
+export const loadLabels = createAsyncThunk<ILabel[], { repoId: number }>(
     "labels/load",
-    async ({ repoId }) => getLabels(repoId),
+    async ({ repoId }) => {
+        if (repoId < 0) return [];
+        return getLabels(repoId);
+    },
 );
 
 export const newLabel = createAsyncThunk<ILabel[], { repoId: number, labelName: string; }>(
