@@ -81,9 +81,11 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'rejourn',
         'USER': 'postgres',
-        'PASSWORD': 'postgres',
         'HOST': 'localhost',
         'PORT': '5432',
+        'OPTIONS': {
+            'passfile': '/home/lemonshushuu/.pgpass'
+        }
     }
 }
 
