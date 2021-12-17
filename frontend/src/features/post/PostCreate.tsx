@@ -70,41 +70,41 @@ const PostCreate = (props : PostCreateProps) => {
     useEffect(() => {
         // 페이지 초기화 함수
         const setUp = async () => {
-            // RepositoryDetail 페이지로부터 유입된 경우
-            if (props.mode === "create/repo") {
-                const collaborators = await getCollaborators(parseInt(params.repo_id as string));
-                if (!collaborators.some((collaborator) => collaborator.username === account?.username)) {
-                    history.push(`/repos/${params.repo_id}`);
+            try {
+                // RepositoryDetail 페이지로부터 유입된 경우
+                if (props.mode === "create/repo") {
+                    const collaborators = await getCollaborators(parseInt(params.repo_id as string));
+                    if (!collaborators.some((collaborator) => collaborator.username === account?.username)) {
+                        history.push(`/repos/${params.repo_id}`);
+                    }
+                    // selectedRepoId를 params의 :repo_id로 세팅함
+                    setSelectedRepoId(parseInt(params.repo_id as string));
+                    setLoading("succeeded");
                 }
-                // selectedRepoId를 params의 :repo_id로 세팅함
-                setSelectedRepoId(parseInt(params.repo_id as string));
-                setLoading("succeeded");
+                else if (props.mode === "create/user" && account) {
+                    const data = await getRepositories(account.username);
+                    setRepoOptions(data);
+                    setSelectedRepoId(-1);
+                    setLoading("succeeded");
+                }
+                // 기존의 Post를 수정하는 경우
+                else if (props.mode === "edit") {
+                    // params의 :post_id에 해당하는 Post 오브젝트를 fetch하고, currentPost를 이로 세팅
+                    const data = await getPost(parseInt(params.post_id as string));
+                    setCurrentPost(data);
+                    setLoading("succeeded");
+                }
+                else {
+                    setLoading("idle");
+                }
             }
-            else if (props.mode === "create/user" && account) {
-                const data = await getRepositories(account.username);
-                setRepoOptions(data);
-                setSelectedRepoId(-1);
-                setLoading("succeeded");
-            }
-            // 기존의 Post를 수정하는 경우
-            else if (props.mode === "edit") {
-                // params의 :post_id에 해당하는 Post 오브젝트를 fetch하고, currentPost를 이로 세팅
-                const data = await getPost(parseInt(params.post_id as string));
-                setCurrentPost(data);
-                setLoading("succeeded");
-            }
-            else {
-                setLoading("idle");
+            catch {
+                setLoading("failed");
             }
         };
         if (loading === "idle") {
             setLoading("pending");
-            try {
-                setUp();
-            }
-            catch (e) {
-                setLoading("failed");
-            }
+            setUp();
         }
     }, [dispatch, account]);
 
