@@ -1,14 +1,13 @@
-import React, { useState } from "react";
-import { useHistory } from "react-router";
-import { Link } from "react-router-dom";
-import {
-    Button, Carousel, Figure, Card,
-} from "react-bootstrap";
+import "./FeedEntry.css";
+
 import { faFolder, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { IFeed } from "../../../common/Interfaces";
+import React, { useState } from "react";
+import { Card, Carousel, Figure } from "react-bootstrap";
+import { Link } from "react-router-dom";
+
 import avatar from "../../../common/assets/avatar.jpg";
-import "./FeedEntry.css";
+import { IFeed } from "../../../common/Interfaces";
 
 interface FeedEntryProps {
     entry: IFeed
@@ -47,7 +46,7 @@ const FeedEntry = (props: FeedEntryProps) => {
                             width="1em"
                             height="1em"
                         />
-                        <span className="text-sm my-1">{props.entry.region}</span>
+                        <span className="text-sm my-1">{props.entry.region.region_address}</span>
                     </div>
                 </div>
                 <div
@@ -79,6 +78,7 @@ const FeedEntry = (props: FeedEntryProps) => {
                 <hr className="my-2" />
                 <Figure>
                     <Carousel
+                        data-testid="carousel"
                         activeIndex={index}
                         onSelect={handleSelect}
                         className="shadow-2-strong rounded-5 my-2 mx-auto w-100"

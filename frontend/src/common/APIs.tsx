@@ -409,5 +409,10 @@ export async function getRegionSearch(query: string) {
 /* for feed */
 
 export async function getFeed() {
-    return (await axios.get<any, AxiosResponse<IFeed[]>>("/api/feeds/")).data;
+    try {
+        return (await axios.get<any, AxiosResponse<IFeed[]>>("/api/feeds/")).data;
+    }
+    catch (e: any) {
+        return e;
+    }
 }

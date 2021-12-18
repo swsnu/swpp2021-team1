@@ -1,18 +1,31 @@
 import { configureStore } from "@reduxjs/toolkit";
-import Factory from "../../mocks/dataGenerator";
-import postsReducer, {
-    fetchPostComments, fetchRepoPosts,
-    fetchSinglePost, fetchUserPosts, newPostComment,
-    newRepoPost, postCommentDeleted, postCommentEdited,
-    postDeleted, postEdited,
-} from "./postsSlice";
 
-import server from "../../mocks/server";
+import Factory from "../../mocks/dataGenerator";
 import {
-    deletePostCommentHE, deletePostHE,
-    getPostCommentsHE, getPostHE, getRepoPostsHE, getUserPostsHE,
-    postPostCommentHE, postRepoPostHE, putPostCommentHE, putPostHE,
+    deletePostCommentHE,
+    deletePostHE,
+    getPostCommentsHE,
+    getPostHE,
+    getRepoPostsHE,
+    getUserPostsHE,
+    postPostCommentHE,
+    postRepoPostHE,
+    putPostCommentHE,
+    putPostHE,
 } from "../../mocks/handlers";
+import server from "../../mocks/server";
+import postsReducer, {
+    fetchPostComments,
+    fetchRepoPosts,
+    fetchSinglePost,
+    fetchUserPosts,
+    newPostComment,
+    newRepoPost,
+    postCommentDeleted,
+    postCommentEdited,
+    postDeleted,
+    postEdited,
+} from "./postsSlice";
 
 const fact = new Factory();
 
@@ -35,7 +48,6 @@ describe("postsSlice", () => {
         });
     });
     it("should handle fetch post comments", async () => {
-        // server.use(getPostCommentsHE);
         const response = await store.dispatch(fetchPostComments(123));
         expect(response.meta.requestStatus).toBe("fulfilled");
     });
@@ -45,12 +57,10 @@ describe("postsSlice", () => {
         expect(response.meta.requestStatus).toBe("rejected");
     });
     it("should handle new post comment", async () => {
-        // server.use(postPostCommentHE);
         const response = await store.dispatch(newPostComment({ postId: 1, content: "abc" }));
         expect(response.meta.requestStatus).toEqual("fulfilled");
     });
     it("should handle new post comment (currentPost exists)", async () => {
-        // server.use(postPostCommentHE);
         store.dispatch(fetchSinglePost(2));
         const response = await store.dispatch(newPostComment({ postId: 1, content: "abc" }));
         expect(response.meta.requestStatus).toEqual("fulfilled");
@@ -62,12 +72,10 @@ describe("postsSlice", () => {
     });
 
     it("should handle post comment edit", async () => {
-        // server.use(putPostCommentHE);
         const response = await store.dispatch(postCommentEdited({ postId: 123, commentId: 23, content: "as" }));
         expect(response.meta.requestStatus).toEqual("fulfilled");
     });
     it("should handle post comment edit(currentPost exists)", async () => {
-        // server.use(putPostCommentHE);
         store.dispatch(fetchSinglePost(2));
         const response = await store.dispatch(postCommentEdited({ postId: 123, commentId: 23, content: "as" }));
         expect(response.meta.requestStatus).toEqual("fulfilled");
@@ -79,12 +87,10 @@ describe("postsSlice", () => {
     });
 
     it("should handle post comment delete", async () => {
-        // server.use(deletePostCommentHE);
         const response = await store.dispatch(postCommentDeleted({ postId: 1, commentId: 2 }));
         expect(response.meta.requestStatus).toEqual("fulfilled");
     });
     it("should handle post comment delete", async () => {
-        // server.use(deletePostCommentHE);
         await store.dispatch(fetchSinglePost(1));
         const response = await store.dispatch(postCommentDeleted({ postId: 1, commentId: 2 }));
         expect(response.meta.requestStatus).toEqual("fulfilled");
@@ -96,7 +102,6 @@ describe("postsSlice", () => {
     });
 
     it("should handle fetch user posts", async () => {
-        // server.use(getUserPostsHE)
         const response = await store.dispatch(fetchUserPosts("abc"));
         expect(response.meta.requestStatus).toEqual("fulfilled");
     });
@@ -117,7 +122,6 @@ describe("postsSlice", () => {
     });
 
     it("should handle new repo post", async () => {
-        // server.use(postRepoPostHE);
         const response = await store.dispatch(newRepoPost({
             repo_id: 1, title: "a", text: "a", photos: [fact.photoGen(), fact.photoGen()],
         }));
@@ -132,7 +136,6 @@ describe("postsSlice", () => {
     });
 
     it("should handle fetch single post", async () => {
-        // server.use(getRepoPostHE)
         const response = await store.dispatch(fetchSinglePost(1));
         expect(response.meta.requestStatus).toEqual("fulfilled");
     });
@@ -143,7 +146,6 @@ describe("postsSlice", () => {
     });
 
     it("should handle post edit", async () => {
-        // server.use(putPostHE);
         const response = await store.dispatch(postEdited({
             post_id: 1, title: "a", text: "b", photos: [fact.photoGen(), fact.photoGen()],
         }));
@@ -158,7 +160,6 @@ describe("postsSlice", () => {
     });
 
     it("should handle post delete", async () => {
-        // server.use(deletePostHE);
         const response = await store.dispatch(postDeleted(1));
         expect(response.meta.requestStatus).toEqual("fulfilled");
     });

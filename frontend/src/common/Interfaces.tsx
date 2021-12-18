@@ -319,6 +319,33 @@ interface IFeed {
     post_time: string,
 }
 
+export function feedFactoryPersonal() {
+    return {
+        post_id: randomInt(),
+        repo_id: randomInt(),
+        repo_name: "",
+        author: [userFactory()],
+        title: "",
+        photos: [photoFactory()],
+        region: regionFactory(),
+        post_type: PostType.PERSONAL,
+        post_time: "",
+    };
+}
+
+export function feedFactoryRepo() {
+    return {
+        post_id: randomInt(),
+        repo_id: randomInt(),
+        repo_name: "",
+        author: [userFactory()],
+        title: "",
+        photos: [photoFactory()],
+        region: regionFactory(),
+        post_type: PostType.REPO,
+        post_time: "",
+    };
+}
 export type SetStateAction<T> = React.Dispatch<React.SetStateAction<T>>
 
 export type {

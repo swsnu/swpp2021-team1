@@ -402,16 +402,6 @@ export const handlerException = (
     return returnValue;
 };
 
-export const getSessionHE = handlerException("/api/session/", "GET");
-export const postSignInHE = handlerException("/api/signin/", "POST");
-export const getSignOutHE = handlerException("/api/signout/", "GET");
-export const postUserHE = handlerException("/api/users", "POST");
-export const putUserHE = handlerException("/api/users/:username", "PUT");
-export const deleteUserHE = handlerException("/api/users/:username/", "DELETE");
-export const getUserHE = handlerException("/api/users/:username", "GET");
-export const getUserFriendsHE = handlerException("/api/users/:username/friends/", "GET");
-export const postUserFriendHE = handlerException("/api/users/:username/friends/:fusername", "POST");
-export const deleteUserFriendHE = handlerException("/api/users/:username/friends/:fusername/", "DELETE");
 export const getUserPostsHE = handlerException("/api/users/:username/posts/", "GET");
 export const getRepoPostsHE = handlerException("/api/repositories/:repo_id/posts/", "GET");
 
@@ -428,10 +418,3 @@ export const deletePostCommentHE = handlerException("/api/posts/:post_id/comment
 
 export const getLabelsHE = handlerException("/api/repositories/:repo_id/labels/", "GET");
 export const postLabelHE = handlerException("/api/repositories/:repo_id/labels/", "POST");
-
-export const putLabelHE = handlerException("/api/repositories/:repo_id/labels/:label_id/", "PUT");
-
-export const deleteLabelHE = handlerException("/api/repositories/:repo_id/labels/:label_id/", "DELETE");
-
-export const getLabelPhotosHE = handlerException("/api/repositories/:repo_id/labels/:label_id/photos/", "GET");
-export const putLabelPhotosHE = handlerException("/api/repositories/:repo_id/labels/:label_id/photos/", "PUT");
