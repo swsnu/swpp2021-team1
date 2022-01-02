@@ -188,44 +188,38 @@ export const authSlice = createSlice<AuthState, SliceCaseReducers<AuthState>>({
             state.currentUser.friend_status = UserProfileType.REQUEST_SENDED;
         });
         builder.addCase(unfriend.fulfilled, (state: AuthState) => {
-            if (!state.currentUser) return;
-            if (!state.currentUser.friends) return;
-            state.currentUser.friend_status = UserProfileType.OTHER;
-            const index = state.currentUser.friends.findIndex((friend) => friend.username === state.account?.username);
+            state.currentUser!.friend_status = UserProfileType.OTHER;
+            const index = state.currentUser!.friends!.findIndex(
+                (friend) => friend.username === state.account?.username,
+            );
             if (index < 0) return;
-            state.currentUser.friends.splice(index, 1);
+            state.currentUser!.friends!.splice(index, 1);
         });
         builder.addCase(updateProfile.fulfilled, (state: AuthState, action: PayloadAction<IProfileForm>) => {
             const {
                 email, bio, real_name, password, visibility,
             } = action.payload;
-            if (state.account) {
-                state.account = {
-                    ...state.account, email, bio, real_name, password, visibility,
-                };
-                if (state.currentUser) {
-                    if (state.account.username === state.currentUser.username) {
-                        state.currentUser = {
-                            ...state.currentUser, email, bio, real_name, password, visibility,
-                        };
-                    }
+            state.account = {
+                ...state.account!, email, bio, real_name, password, visibility,
+            };
+            if (state.currentUser) {
+                if (state.account!.username === state.currentUser.username) {
+                    state.currentUser = {
+                        ...state.currentUser, email, bio, real_name, password, visibility,
+                    };
                 }
             }
         });
         builder.addCase(updateProfilePicture.fulfilled, (state: AuthState, action: PayloadAction<string>) => {
-            if (!state.account) return;
-            state.account.profile_picture = action.payload;
-            if (!state.currentUser) return;
-            if (state.currentUser.username === state.account.username) {
-                state.currentUser.profile_picture = action.payload;
+            state.account!.profile_picture = action.payload;
+            if (state.currentUser!.username === state.account!.username) {
+                state.currentUser!.profile_picture = action.payload;
             }
         });
         builder.addCase(removeProfilePicture.fulfilled, (state: AuthState) => {
-            if (!state.account) return;
-            state.account.profile_picture = undefined;
-            if (!state.currentUser) return;
-            if (state.currentUser.username === state.account.username) {
-                state.currentUser.profile_picture = undefined;
+            state.account!.profile_picture = undefined;
+            if (state.currentUser!.username === state.account!.username) {
+                state.currentUser!.profile_picture = undefined;
             }
         });
     },
