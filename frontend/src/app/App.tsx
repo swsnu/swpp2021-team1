@@ -1,8 +1,11 @@
-import React from "react";
-import { Col, Container, Row } from "react-bootstrap";
+import React, { useContext, useEffect } from "react";
 import {
-    Route, Redirect, Switch,
+    Button, Col, Container, Row,
+} from "react-bootstrap";
+import {
+    Route, Redirect, Switch, Link,
 } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
 import SignIn from "../features/auth/login/SignIn";
 import Profile from "../features/profile/Profile";
 import ProfileSetting from "../features/profile/ProfileSetting";
@@ -22,8 +25,127 @@ import PostCreate from "../features/post/PostCreate";
 import PlaceDetail from "../features/route/PlaceDetail";
 import NotificationList from "../features/notification/NotificationList";
 import Explore from "../features/explore/Explore";
+import { SocketContext } from "./socket";
+import {
+    INotification,
+    IPost, IRepository, NoticeType, PostType,
+} from "../common/Interfaces";
+import { useAppDispatch, useAppSelector } from "./hooks";
+import { updateCount } from "../features/notification/noticesSlice";
 
 export default function App() {
+    const socket = useContext<WebSocket>(SocketContext);
+    const account = useAppSelector((state) => state.auth.account);
+    const dispatch = useAppDispatch();
+
+    const markAsRead = (notificationId: number) => {
+        socket.send(JSON.stringify({
+            type: "notification_read",
+            notification_id: notificationId,
+        }));
+    };
+
+    useEffect(() => {
+        if (account) {
+            socket.send(JSON.stringify({
+                type: "notification_get_count",
+            }));
+        }
+    }, [account]);
+
+    useEffect(() => {
+        socket.onopen = () => {
+            console.log("WebSocket Client Connected");
+        };
+        socket.onmessage = (message) => {
+            console.log(message);
+            const data = JSON.parse(message.data);
+            if ("new" in data) {
+                const notiData: INotification = data;
+                const notiType = notiData.classification;
+                const notiId = notiData.notification_id;
+                let toastContent;
+                if (notiType === NoticeType.COMMENT) {
+                    toastContent = "comment";
+                }
+                else if (notiType === NoticeType.FORK) {
+                    toastContent = "fork";
+                }
+                else if (notiType === NoticeType.FRIEND_REQUEST) {
+                    toastContent = "friendRequest";
+                }
+                else if (notiType === NoticeType.INVITATION) {
+                    toastContent = "invitation";
+                }
+                else if (notiType === NoticeType.LIKE) {
+                    toastContent = "like";
+                }
+                else if (notiType === NoticeType.NEW_DISCUSSION) {
+                    toastContent = "new discussion";
+                }
+                else if (notiType === NoticeType.NEW_POST) {
+                    const post = notiData.post as IPost;
+                    const repo = notiData.repository as IRepository;
+                    if (post.post_type === PostType.REPO) {
+                        toastContent = () => (
+                            <div>
+                                Your repository
+                                <Link
+                                    to={`/repos/${repo.repo_id}`}
+                                >
+                                    {repo.repo_name}
+                                </Link>
+                                was posted.
+                            </div>
+                        );
+                    }
+                    else {
+                        const authorUsername = post.author![0].username;
+                        toastContent = (params: { closeToast: () => void}) => (
+                            <div>
+                                New Post on
+                                {" "}
+                                <Link to={`/repos/${repo.repo_id}`}>
+                                    {repo.repo_name}
+                                </Link>
+                                {" "}
+                                by
+                                {" "}
+                                <Link to={`/main/${authorUsername}`}>
+                                    {authorUsername}
+                                </Link>
+                                <Link
+                                    to={`/posts/${post.post_id}`}
+                                    className="float-end"
+                                >
+                                    <Button
+                                        size="sm"
+                                        className="mt-2"
+                                        onClick={() => {
+                                            params.closeToast();
+                                            markAsRead(notiId);
+                                        }}
+                                    >
+                                        View
+                                    </Button>
+                                </Link>
+                            </div>
+                        );
+                    }
+                }
+                else toastContent = "Wrong notification type";
+                toast(toastContent, {
+                    autoClose: 10000,
+                    closeOnClick: false,
+                    onClose: () => markAsRead(notiId),
+                });
+            }
+            else if ("count" in data) {
+                const { count } = data;
+                dispatch(updateCount(count));
+            }
+        };
+    }, [SocketContext]);
     return (
         <div className="App">
             <Switch>
@@ -105,6 +227,7 @@ export default function App() {
                     </Container>
                 </>
             </Switch>
+            <ToastContainer />
         </div>
     );
 }

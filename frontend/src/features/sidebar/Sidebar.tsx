@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import "./Sidebar.css";
 import { Badge, Dropdown } from "react-bootstrap";
 import { useHistory } from "react-router";
@@ -11,7 +11,7 @@ import * as actionCreators from "../auth/authSlice";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 
 import avatar from "../../common/assets/avatar.jpg";
-import { fetchSession } from "../notification/noticesSlice";
+// import { fetchSession } from "../notification/noticesSlice";
 
 // suppress no-tsx-component-props
 function Sidebar() {
@@ -23,12 +23,10 @@ function Sidebar() {
 
     useEffect(() => {
         dispatch(actionCreators.fetchSession());
-        dispatch(fetchSession());
     }, [dispatch]);
 
     useEffect(() => history.listen(() => {
         dispatch(actionCreators.fetchSession());
-        dispatch(fetchSession());
     }), [history]);
 
     if (isLoading) return null;

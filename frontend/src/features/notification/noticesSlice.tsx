@@ -7,7 +7,6 @@ import {
 import {
     deleteNotification,
     deleteNotifications,
-    getNoticeSession,
     getNotifications,
     postNotification,
 } from "../../common/APIs";
@@ -15,11 +14,11 @@ import {
     INotification, NoticeAnswerType,
 } from "../../common/Interfaces";
 
-export const fetchSession = createAsyncThunk<{count : number}, void>(
-    "notices/session",
-    async () => // payload creator
-        getNoticeSession(),
-);
+// export const fetchSession = createAsyncThunk<{count : number}, void>(
+//     "notices/session",
+//     async () => // payload creator
+//         getNoticeSession(),
+// );
 
 export const fetchNotifications = createAsyncThunk<INotification[], void>(
     "notices/all",
@@ -63,11 +62,14 @@ export const noticesSlice = createSlice<NoticeState, SliceCaseReducers<NoticeSta
     name: "labels",
     initialState: noticeInitState,
     reducers: {
+        updateCount: (state: NoticeState, action: PayloadAction<number>) => {
+            state.count = action.payload;
+        },
     },
     extraReducers: (builder) => {
-        builder.addCase(fetchSession.fulfilled, (state: NoticeState, action : PayloadAction<{count : number}>) => {
-            state.count = action.payload.count;
-        });
+        // builder.addCase(fetchSession.fulfilled, (state: NoticeState, action : PayloadAction<{count : number}>) => {
+        //     state.count = action.payload.count;
+        // });
 
         builder.addCase(fetchNotifications.pending, (state: NoticeState) => {
             state.isLoading = true;
@@ -130,4 +132,5 @@ export const noticesSlice = createSlice<NoticeState, SliceCaseReducers<NoticeSta
 });
 
 export type { NoticeState };
+export const { updateCount } = noticesSlice.actions;
 export default noticesSlice.reducer;

@@ -387,9 +387,9 @@ export async function deleteNotification(id : number) {
     return (await axios.delete<any, AxiosResponse<INotification[]>>(`/api/notifications/${id}/`)).data;
 }
 
-export async function getNoticeSession() {
-    return (await axios.get<any, AxiosResponse<{count : number}>>("/api/session/notifications/")).data;
-}
+// export async function getNoticeSession() {
+//     return (await axios.get<any, AxiosResponse<{count : number}>>("/api/session/notifications/")).data;
+// }
 
 /**
  * for searchSlice

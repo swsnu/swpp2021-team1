@@ -41,7 +41,7 @@ export default function Profile() {
             const response = await getFriends(username);
             setFriendList(response);
         };
-        fetchAndSetFriendList(currentUser?.username as string);
+        if (currentUser) fetchAndSetFriendList(currentUser?.username as string);
     }, [currentUser]);
 
     const onAddFriendClick = () => {

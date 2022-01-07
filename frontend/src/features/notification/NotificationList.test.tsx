@@ -43,7 +43,7 @@ describe("NotificationList", () => {
                 then: (e : () => any) => e(),
             })) as typeof jest.fn);
         jest.spyOn(actionCreator, "fetchNotifications").mockImplementation(jest.fn());
-        jest.spyOn(actionCreator, "fetchSession").mockImplementation(jest.fn());
+        // jest.spyOn(actionCreator, "fetchSession").mockImplementation(jest.fn());
         responseMock = jest.spyOn(actionCreator, "responseNotification").mockImplementation(jest.fn());
         jest.spyOn(Notification, "default").mockImplementation(() => <div />);
         jest.spyOn(NotificationResponse, "default").mockImplementation((props) =>

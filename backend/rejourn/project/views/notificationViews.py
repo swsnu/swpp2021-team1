@@ -252,25 +252,3 @@ def notificationID(request, notification_id):
 
     notification_list = get_notification_list(request.user)
     return HttpResponseSuccessDelete(notification_list)
-
-
-# /api/session/notifications/
-@require_http_methods(['GET'])
-@ensure_csrf_cookie
-def sessionNotifications(request):
-
-    if not request.user.is_authenticated:
-        return HttpResponseNotLoggedIn()
-
-    new_notification_set = Notification.objects.filter(user=request.user, new=True)
-    not_old_notification_set = new_notification_set.filter(time__gte=timezone.now()-timedelta(days=14))
-    request_notification_set_1 = new_notification_set.filter(classification=NoticeType.FRIEND_REQUEST)
-    request_notification_set_2 = new_notification_set.filter(classification=NoticeType.INVITATION)
-    request_notification_set = request_notification_set_1.union(request_notification_set_2)
-    notification_set = not_old_notification_set.union(request_notification_set)
-
-    response_dict = {
-        'count' : notification_set.count()
-    }
-
-    return HttpResponseSuccessGet(response_dict)

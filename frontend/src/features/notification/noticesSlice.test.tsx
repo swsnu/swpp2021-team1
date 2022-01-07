@@ -3,7 +3,7 @@ import * as APIs from "../../common/APIs";
 import { NoticeAnswerType, notificationFactory } from "../../common/Interfaces";
 import noticeReducer, {
     fetchNotifications,
-    fetchSession, removeNotification,
+    removeNotification,
     removeNotifications,
     responseNotification,
 } from "./noticesSlice";
@@ -26,11 +26,11 @@ describe("noticesSlice", () => {
         });
     });
 
-    it("Should fetch session correctly", async () => {
-        mockedAPIs.getNoticeSession.mockResolvedValue({ count: 5 });
-        await store.dispatch(fetchSession());
-        expect(store.getState().notices.count).toEqual(5);
-    });
+    // it("Should fetch session correctly", async () => {
+    //     mockedAPIs.getNoticeSession.mockResolvedValue({ count: 5 });
+    //     await store.dispatch(fetchSession());
+    //     expect(store.getState().notices.count).toEqual(5);
+    // });
 
     it("Should fetch notices correctly", async () => {
         const notification = notificationFactory();

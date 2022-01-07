@@ -428,36 +428,36 @@ class NotificationTestCase(TestCase):
         self.assertEqual(response.status_code, 202)
         self.assertEqual(Notification.objects.all().count(), 14)
 
-    def test_sessionNotfications(self):
-        client_a = Client()
-        client_a.post(
-            "/api/signin/",
-            json.dumps({"username": "TEST_USER_A", "password": "TEST_PASSWORD_A"}),
-            content_type="application/json",
-        )
-        client_anonymous = Client()
+    # def test_sessionNotfications(self):
+    #     client_a = Client()
+    #     client_a.post(
+    #         "/api/signin/",
+    #         json.dumps({"username": "TEST_USER_A", "password": "TEST_PASSWORD_A"}),
+    #         content_type="application/json",
+    #     )
+    #     client_anonymous = Client()
 
-        response = client_a.post('/api/session/notifications/')
-        self.assertEqual(response.status_code, 405)
-        response = client_anonymous.get('/api/session/notifications/')
-        self.assertEqual(response.status_code, 401)
+    #     response = client_a.post('/api/session/notifications/')
+    #     self.assertEqual(response.status_code, 405)
+    #     response = client_anonymous.get('/api/session/notifications/')
+    #     self.assertEqual(response.status_code, 401)
 
-        response = client_a.get('/api/session/notifications/')
-        self.assertEqual(response.status_code, 200)
-        self.assertIn('19', response.content.decode())
-        client_a.get('/api/notifications/')
-        response = client_a.get('/api/session/notifications/')
-        self.assertEqual(response.status_code, 200)
-        self.assertIn('0', response.content.decode())
+    #     response = client_a.get('/api/session/notifications/')
+    #     self.assertEqual(response.status_code, 200)
+    #     self.assertIn('19', response.content.decode())
+    #     client_a.get('/api/notifications/')
+    #     response = client_a.get('/api/session/notifications/')
+    #     self.assertEqual(response.status_code, 200)
+    #     self.assertIn('0', response.content.decode())
 
-        user_a = User.objects.get(user_id=1)
-        new_notice = Notification(
-            user=user_a,
-            classification=100,
-            from_user=user_a
-        )
-        new_notice.save()
+    #     user_a = User.objects.get(user_id=1)
+    #     new_notice = Notification(
+    #         user=user_a,
+    #         classification=100,
+    #         from_user=user_a
+    #     )
+    #     new_notice.save()
 
-        response = client_a.get('/api/session/notifications/')
-        self.assertEqual(response.status_code, 200)
-        self.assertIn('1', response.content.decode())
+    #     response = client_a.get('/api/session/notifications/')
+    #     self.assertEqual(response.status_code, 200)
+    #     self.assertIn('1', response.content.decode())

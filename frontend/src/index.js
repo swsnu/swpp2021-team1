@@ -9,15 +9,18 @@ import store from "./app/store";
 import "./custom.scss";
 import "react-toastify/dist/ReactToastify.css";
 import worker from "./mocks/browser";
+import { SocketContext, socket } from "./app/socket";
 
 if (process.env.REACT_APP_USE_MOCK_API === "yes") {
     worker.start();
 }
 ReactDOM.render(
     <Provider store={store}>
-        <BrowserRouter>
-            <App />
-        </BrowserRouter>
+        <SocketContext.Provider value={socket}>
+            <BrowserRouter>
+                <App />
+            </BrowserRouter>
+        </SocketContext.Provider>
     </Provider>,
     document.getElementById("root"),
 );
