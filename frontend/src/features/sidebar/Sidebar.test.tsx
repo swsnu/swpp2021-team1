@@ -57,13 +57,6 @@ describe("Sidebar", () => {
         expect(mockPush).toHaveBeenCalledTimes(1);
     });
 
-    it("Should redirect if failed to fetch session", async () => {
-        jest.spyOn(redux, "useAppSelector").mockImplementation(() =>
-            [false, true, userFactory()]);
-        const component = mount(makeStoredComponent());
-        expect(component.find("Redirect").length).toBe(1);
-    });
-
     it("Should be able to log out", async () => {
         jest.spyOn(react, "useEffect").mockImplementation(jest.fn());
         jest.spyOn(redux, "useAppDispatch").mockImplementation((() =>
