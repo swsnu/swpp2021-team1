@@ -23,7 +23,20 @@ axios.defaults.xsrfHeaderName = "X-CSRFToken";
 /**
  * for authSlice
  */
-
+interface CommonHeaderProperties {
+    "X-CSRFToken": string | null;
+}
+export const getCSRFToken = async () => {
+    try {
+        const response = (await axios.get("/api/token/"));
+        const { CSRFToken } = response.data;
+        (axios.defaults.headers! as unknown as Record<string, CommonHeaderProperties>)
+            .post["X-CSRFToken"] = CSRFToken;
+    }
+    catch (error) {
+        console.error(error);
+    }
+};
 export async function postSignIn(username : string, password : string) {
     return (await axios.post<any, AxiosResponse<IUser>>("/api/signin/", { username, password })).data;
 }

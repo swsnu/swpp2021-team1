@@ -4,6 +4,7 @@ import {
 import {
     deleteFriends,
     deleteProfilePicture,
+    getCSRFToken,
     getSession, getSignOut, getUser, postFriends, postProfilePicture, postSignIn, postUsers, putUser,
 } from "../../common/APIs";
 import { IUser, UserProfileType, Visibility } from "../../common/Interfaces";
@@ -23,8 +24,10 @@ export const signUp = createAsyncThunk<IUser, IUser>(
 
 export const signOut = createAsyncThunk<void, void>(
     "auth/signout",
-    async () =>
-        getSignOut(),
+    async () => {
+        getSignOut();
+        getCSRFToken();
+    },
 );
 
 export const addFriend = createAsyncThunk<void, {username: string, fusername: string}>(

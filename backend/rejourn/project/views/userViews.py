@@ -1,10 +1,11 @@
 import json
 from json.decoder import JSONDecodeError
 
-from django.http.response import HttpResponseBadRequest
+from django.http.response import HttpResponseBadRequest, JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
+from django.middleware.csrf import get_token
 
 from project.models.models import User, Notification
 from project.httpResponse import (
@@ -36,11 +37,11 @@ def get_friend_status(subject_user, object_user):
     return UserProfileType.OTHER
 
 # /api/token/
-@require_http_methods(['GET'])
-@ensure_csrf_cookie
+
+
 def token(request):
-    # request.method == "GET":
-    return HttpResponseSuccessGetToken()
+    response = JsonResponse({'CSRFToken': get_token(request)})
+    return response
 
 
 # /api/session/
@@ -133,6 +134,8 @@ def signin(request):
     return HttpResponseSuccessUpdate(response_dict)
 
 # /api/signout/
+
+
 @require_http_methods(['GET'])
 def signout(request):
     # request.method == "GET":
@@ -203,13 +206,13 @@ def profilePicture(request, user_name):
         image = request.FILES.get("image")
         if image is None:
             if bool(user.profile_picture) is True:
-                response_dict = {'profile_picture' : user.profile_picture.url}
+                response_dict = {'profile_picture': user.profile_picture.url}
             else:
                 response_dict = {}
         else:
             user.profile_picture = image
             user.save()
-            response_dict = {'profile_picture' : user.profile_picture.url}
+            response_dict = {'profile_picture': user.profile_picture.url}
         return HttpResponseSuccessUpdate(response_dict)
 
     # request.method == "DELETE":
@@ -287,7 +290,8 @@ def userID(request, user_name):
         user.save()
 
         if req_data.get('password') is not None:
-            user_signin = authenticate(username=username, password=req_data['password'])
+            user_signin = authenticate(
+                username=username, password=req_data['password'])
             login(request, user_signin)
 
         response_dict = {
@@ -427,7 +431,8 @@ def userFriendID(request, user_name, friend_name):
             from_user.friends.add(to_user)
             from_user.save()
         else:
-            friend_request = Notification(user=to_user, from_user=from_user, classification=NoticeType.FRIEND_REQUEST)
+            friend_request = Notification(
+                user=to_user, from_user=from_user, classification=NoticeType.FRIEND_REQUEST)
             friend_request.save()
 
         friends_list = []

@@ -1,17 +1,17 @@
-import React, { useEffect } from "react";
 import "./Sidebar.css";
-import { Badge, Dropdown } from "react-bootstrap";
-import { useHistory } from "react-router";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 import {
     faBell, faBook, faCompass, faPencilAlt,
 } from "@fortawesome/free-solid-svg-icons";
-import { Redirect, Link } from "react-router-dom";
-import * as actionCreators from "../auth/authSlice";
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import React, { useEffect } from "react";
+import { Badge, Dropdown } from "react-bootstrap";
+import { useHistory } from "react-router";
+import { Link } from "react-router-dom";
 
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import avatar from "../../common/assets/avatar.jpg";
-import { fetchSession } from "../notification/noticesSlice";
+import * as actionCreators from "../auth/authSlice";
 
 // suppress no-tsx-component-props
 function Sidebar() {
@@ -21,20 +21,7 @@ function Sidebar() {
     const noticeCount = useAppSelector((state) => state.notices.count);
     const history = useHistory();
 
-    useEffect(() => {
-        dispatch(actionCreators.fetchSession());
-        dispatch(fetchSession());
-    }, [dispatch]);
-
-    useEffect(() => history.listen(() => {
-        dispatch(actionCreators.fetchSession());
-        dispatch(fetchSession());
-    }), [history]);
-
     if (isLoading) return null;
-    if (hasError) {
-        return <Redirect to="/login" />;
-    }
 
     const onSignOutClick = () => {
         dispatch(actionCreators.signOut()).then(() => history.push("/login"));

@@ -144,3 +144,8 @@ TIME_ZONE = 'Asia/Seoul'
 env = environ.Env()
 environ.Env.read_env()
 GOOGLE_MAPS_API_KEY = env('GOOGLE_MAPS_API_KEY')
+
+CSRF_COOKIE_SAMESITE = 'Strict'
+SESSION_COOKIE_SAMESITE = 'Strict'
+CSRF_COOKIE_HTTPONLY = True
+SESSION_COOKIE_HTTPONLY = True
