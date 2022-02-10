@@ -49,6 +49,7 @@ def token(request):
 def session(request):
     # request.method == "GET":
     session_user = request.user
+    print(session_user)
 
     if not session_user.is_authenticated:
         return HttpResponseNotLoggedIn()

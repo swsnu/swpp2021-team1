@@ -185,6 +185,13 @@ interface ILabel {
     label_name : string,
 }
 
+export function labelFactory() {
+    return {
+        label_id: randomInt(),
+        label_name: randomString(),
+    } as ILabel;
+}
+
 interface IPlace {
     place_in_route_id: number,
     place_id : string,
