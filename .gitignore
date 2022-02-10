@@ -17,7 +17,8 @@ project/db.splite3
 db.sqlite3-journal
 backend/rejourn/project/migrations/*.py
 !migrations/__init__.py
-media
+/backend/rejourn/media
+/backend/rejourn/data
 my_setting.py
 
 # testing
@@ -87,3 +88,5 @@ yarn-error.log*
 *.code-workspace
 .vscode
 yarn.lock
+
+nginx/certs/

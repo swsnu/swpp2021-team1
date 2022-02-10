@@ -1,32 +1,26 @@
 // src/mocks/handlers.js
 
 import { rest } from "msw";
-import { ILabel, IPhoto } from "../common/Interfaces";
-import Factory from "./dataGenerator";
-import mockData from "./mockData.json";
-
-const fact = new Factory();
+import {
+    commentFactory, discussionFactory,
+    ILabel, IPhoto, labelFactory,
+    photoFactory, postFactory,
+    repositoryFactory, userFactory,
+} from "../common/Interfaces";
 
 const dummyLabels: ILabel[] = [];
 for (let i = 0; i < 5; i++) {
-    const label = fact.labelGen();
+    const label = labelFactory();
     dummyLabels.push(label);
 }
 const dummyPhotos: IPhoto[] = [];
 for (let i = 0; i < 8; i++) {
-    const photo = {
-        photo_id: i,
-        repo_id: 1,
-        image: mockData.photoUrls[i],
-        post_time: "2021-10-11",
-        tag: "abc",
-        uploader: "abc",
-    };
+    const photo = photoFactory();
     dummyPhotos.push(photo);
 }
 export default [
     rest.get("/api/session/", (req, res, ctx) => {
-        const user = fact.userGen();
+        const user = userFactory();
         return res(ctx.json({
             username: user.username,
             bio: user.bio,
@@ -37,7 +31,7 @@ export default [
         }));
     }),
     rest.post("/api/signin/", (req, res, ctx) => {
-        const user = fact.userGen();
+        const user = userFactory();
         return res(
             ctx.status(201), ctx.json({
                 username: user.username,
@@ -55,7 +49,7 @@ export default [
     )),
 
     rest.post("/api/users/", (req, res, ctx) => {
-        const user = fact.userGen();
+        const user = userFactory();
         return res(
             ctx.json({
                 username: user.username,
@@ -70,7 +64,7 @@ export default [
 
     rest.delete("/api/users/:username/", (req, res, ctx) => res(ctx.status(200))),
     rest.put("/api/users/:username/", (req, res, ctx) => {
-        const fakeUser = fact.userGen();
+        const fakeUser = userFactory();
         return res(
             ctx.json({
                 username: fakeUser.username,
@@ -83,11 +77,11 @@ export default [
         );
     }),
     rest.get("/api/users/:username/", (req, res, ctx) => {
-        const fakeUser = fact.userGen();
+        const fakeUser = userFactory();
         const friends = [];
         const n = 8;
         for (let i = 0; i < n; i += 1) {
-            friends.push(fact.userGen());
+            friends.push(userFactory());
         }
         return res(ctx.json({
             username: fakeUser.username,
@@ -106,7 +100,7 @@ export default [
         for (let i = 0; i < n; i += 1) {
             const {
                 username, profile_picture, bio,
-            } = fact.userGen();
+            } = userFactory();
             friends.push({
                 username, profile_picture, bio,
             });
@@ -118,7 +112,7 @@ export default [
         const friends = [];
         const n = 8;
         for (let i = 0; i < n; i += 1) {
-            const { username, profile_picture, bio } = fact.userGen();
+            const { username, profile_picture, bio } = userFactory();
             friends.push({
                 username, profile_picture, bio,
             });
@@ -129,7 +123,7 @@ export default [
         const friends = [];
         const n = 8;
         for (let i = 0; i < n; i += 1) {
-            const { username, profile_picture, bio } = fact.userGen();
+            const { username, profile_picture, bio } = userFactory();
             friends.push({
                 username, profile_picture, bio,
             });
@@ -140,7 +134,7 @@ export default [
     rest.post("/api/repositories/", (req, res, ctx) => {
         const {
             repo_id, repo_name, owner, travel_start_date, travel_end_date, visibility, collaborators,
-        } = fact.repoGen();
+        } = repositoryFactory();
         return res(ctx.json({
             repo_id, repo_name, owner, travel_start_date, travel_end_date, visibility, collaborators,
         }));
@@ -151,7 +145,7 @@ export default [
         for (let i = 0; i < n; i += 1) {
             const {
                 repo_id, repo_name, owner, travel_start_date, travel_end_date, visibility, collaborators,
-            } = fact.repoGen();
+            } = repositoryFactory();
             repos.push({
                 repo_id, repo_name, owner, travel_start_date, travel_end_date, visibility, collaborators,
             });
@@ -162,7 +156,7 @@ export default [
     rest.get("/api/repositories/:repo_id/", (req, res, ctx) => {
         const {
             repo_id, repo_name, owner, travel_start_date, travel_end_date, visibility, collaborators,
-        } = fact.repoGen();
+        } = repositoryFactory();
         return res(ctx.json({
             repo_id, repo_name, owner, travel_start_date, travel_end_date, visibility, collaborators,
         }));
@@ -171,7 +165,7 @@ export default [
     rest.put("/api/repositories/:repo_id/", (req, res, ctx) => {
         const {
             repo_id, repo_name, owner, travel_start_date, travel_end_date, visibility, collaborators,
-        } = fact.repoGen();
+        } = repositoryFactory();
         return res(ctx.json({
             repo_id, repo_name, owner, travel_start_date, travel_end_date, visibility, collaborators,
         }));
@@ -181,7 +175,7 @@ export default [
         const collaborators = [];
         const n = 3;
         for (let i = 0; i < n; i += 1) {
-            const { username, profile_picture, bio } = fact.userGen();
+            const { username, profile_picture, bio } = userFactory();
             collaborators.push({ username, profile_picture, bio });
         }
         return res(ctx.json(collaborators));
@@ -190,7 +184,7 @@ export default [
         const collaborators = [];
         const n = 3;
         for (let i = 0; i < n; i += 1) {
-            const { username, profile_picture, bio } = fact.userGen();
+            const { username, profile_picture, bio } = userFactory();
             collaborators.push({ username, profile_picture, bio });
         }
         return res(ctx.json(collaborators));
@@ -200,7 +194,7 @@ export default [
         const friends = [];
         const n = 3;
         for (let i = 0; i < n; i += 1) {
-            const { username, profile_picture, bio } = fact.userGen();
+            const { username, profile_picture, bio } = userFactory();
             friends.push({
                 username, profile_picture, bio,
             });
@@ -217,13 +211,13 @@ export default [
         const discussions = [];
         const n = 5;
         for (let i = 0; i < n; i++) {
-            const discussion = fact.discussionGen();
+            const discussion = discussionFactory();
             discussions.push(discussion);
         }
         return res(ctx.json(discussions));
     }),
     rest.post("/api/repositories/:repo_id/discussions/", (req, res, ctx) => {
-        const disc = fact.discussionGen();
+        const disc = discussionFactory();
         return res(ctx.json({
             discussion_id: disc.discussion_id,
             repo_id: disc.repo_id,
@@ -235,11 +229,11 @@ export default [
     }),
 
     rest.get("/api/discussions/:discussion_id/", (req, res, ctx) => {
-        const discussion = fact.discussionGen();
+        const discussion = discussionFactory();
         return res(ctx.json(discussion));
     }),
     rest.put("/api/discussions/:discussion_id/", (req, res, ctx) => {
-        const discussion = fact.discussionGen();
+        const discussion = discussionFactory();
         return res(ctx.json(discussion));
     }),
     rest.delete("/api/discussions/:discussion_id", (req, res, ctx) => res(ctx.status(200))),
@@ -247,7 +241,7 @@ export default [
         const comments = [];
         const n = 4;
         for (let i = 0; i < n; i++) {
-            const comment = fact.commentGen();
+            const comment = commentFactory();
             comments.push(comment);
         }
         return res(ctx.json(comments));
@@ -256,19 +250,19 @@ export default [
         const comments = [];
         const n = 4;
         for (let i = 0; i < n; i++) {
-            const comment = fact.commentGen();
+            const comment = commentFactory();
             comments.push(comment);
         }
         return res(ctx.json(comments));
     }),
 
     rest.get("/api/discussions/:discussion_id/comments/:discussion_comment_id/",
-        (req, res, ctx) => res(ctx.json(fact.commentGen()))),
+        (req, res, ctx) => res(ctx.json(commentFactory()))),
     rest.put("/api/discussions/:discussion_id/comments/:discussion_comment_id/", (req, res, ctx) => {
         const comments = [];
         const n = 4;
         for (let i = 0; i < n; i++) {
-            const comment = fact.commentGen();
+            const comment = commentFactory();
             comments.push(comment);
         }
         return res(ctx.json(comments));
@@ -277,7 +271,7 @@ export default [
         const comments = [];
         const n = 4;
         for (let i = 0; i < n; i++) {
-            const comment = fact.commentGen();
+            const comment = commentFactory();
             comments.push(comment);
         }
         return res(ctx.json(comments));
@@ -287,7 +281,7 @@ export default [
         const posts = [];
         const n = 8;
         for (let i = 0; i < n; i++) {
-            const post = fact.postGen();
+            const post = postFactory();
             posts.push(post);
         }
         return res(ctx.json(posts));
@@ -297,7 +291,7 @@ export default [
         const posts = [];
         const n = 8;
         for (let i = 0; i < n; i++) {
-            const post = fact.postGen();
+            const post = postFactory();
             posts.push({
                 post_id: post.post_id,
                 repo_id: post.repo_id,
@@ -309,7 +303,7 @@ export default [
         return res(ctx.json(posts));
     }),
     rest.post("/api/repositories/:repo_id/posts/", (req, res, ctx) => {
-        const post = fact.postGen();
+        const post = postFactory();
         return res(ctx.json({
             post_id: post.post_id,
             repo_id: post.repo_id,
@@ -323,11 +317,11 @@ export default [
     }),
 
     rest.get("/api/posts/:post_id/", (req, res, ctx) => {
-        const post = fact.postGen();
+        const post = postFactory();
         return res(ctx.json(post));
     }),
     rest.put("/api/posts/:post_id/", (req, res, ctx) => {
-        const post = fact.postGen();
+        const post = postFactory();
         return res(ctx.json(post));
     }),
     rest.delete("/api/posts/:post_id/", (req, res, ctx) => res(ctx.status(200))),
@@ -336,7 +330,7 @@ export default [
         const comments = [];
         const n = 4;
         for (let i = 0; i < n; i++) {
-            const comment = fact.commentGen();
+            const comment = commentFactory();
             comments.push(comment);
         }
         return res(ctx.json(comments));
@@ -345,21 +339,21 @@ export default [
         const comments = [];
         const n = 4;
         for (let i = 0; i < n; i++) {
-            const comment = fact.commentGen();
+            const comment = commentFactory();
             comments.push(comment);
         }
         return res(ctx.json(comments));
     }),
 
     rest.get("/api/posts/:post_id/comments/:post_comment_id/", (req, res, ctx) => {
-        const comment = fact.commentGen();
+        const comment = commentFactory();
         return res(ctx.json(comment));
     }),
     rest.put("/api/posts/:post_id/comments/:post_comment_id/", (req, res, ctx) => {
         const comments = [];
         const n = 4;
         for (let i = 0; i < n; i++) {
-            const comment = fact.commentGen();
+            const comment = commentFactory();
             comments.push(comment);
         }
         return res(ctx.json(comments));
@@ -368,7 +362,7 @@ export default [
         const comments = [];
         const n = 4;
         for (let i = 0; i < n; i++) {
-            const comment = fact.commentGen();
+            const comment = commentFactory();
             comments.push(comment);
         }
         return res(ctx.json(comments));
